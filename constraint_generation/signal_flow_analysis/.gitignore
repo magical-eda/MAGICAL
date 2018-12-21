@@ -1,0 +1,9 @@
+build
+*.pyc
+*.o
+benchmark
+benchmarks_spectre
+logs
+bin
+doxygen
+*.bk
