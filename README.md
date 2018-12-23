@@ -16,6 +16,13 @@ MAGICAL: Machine Generated Analog IC Layout
     - Will replace with LPSolve
 
 - [LPSolve 5.5](http://lpsolve.sourceforge.net/5.5/)
+    - Integrated as a thirdparty package 
+
+- [Lemon 1.3.1](https://lemon.cs.elte.hu/trac/lemon)
+    - Integrated as a thirdparty package
+
+- [wnlib](http://www.willnaylor.com/wnlib.html)
+    - Integrated as a thirdparty package
 
 # How to Build 
 
