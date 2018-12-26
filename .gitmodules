@@ -1,7 +1,9 @@
 [submodule "routing/arouterex"]
-path = routing/arouterex
-url = https://bitbucket.org/kkkkkkkkkkkkk/arouterex
-
+    path = routing/arouterex
+    url = https://bitbucket.org/kkkkkkkkkkkkk/arouterex
 [submodule "thirdparty/Limbo"]
-path = thirdparty/Limbo
-url = https://github.com/limbo018/Limbo
+    path = thirdparty/Limbo
+    url = https://github.com/limbo018/Limbo
+[submodule "thirdparty/sparsehash"]
+	path = thirdparty/sparsehash
+	url = https://github.com/sparsehash/sparsehash
