@@ -1,11 +1,3 @@
-#[submodule "routing/arouterex"] 
-#path = routing/arouterex
-#url = git@bitbucket.org:kkkkkkkkkkkkk/arouterex.git
-#
-#[submodule "thirdparty/Limbo"] 
-#path = thirdparty/Limbo
-#url = git@github.com:limbo018/Limbo.git
-
 [submodule "routing/arouterex"]
 path = routing/arouterex
 url = https://bitbucket.org/kkkkkkkkkkkkk/arouterex
