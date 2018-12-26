@@ -24,6 +24,18 @@ MAGICAL: Machine Generated Analog IC Layout
 - [wnlib](http://www.willnaylor.com/wnlib.html)
     - Integrated as a thirdparty package
 
+# How to clone 
+
+To clone the repository and submodules, go to the path to download the repository. 
+```
+# clone the repository 
+git clone git@bitbucket.org:limbo018/magical.git 
+# initialize submodules
+git submodule init 
+# update submodules 
+git submodule update
+```
+
 # How to Build 
 
 To build, run make in the root directory. 

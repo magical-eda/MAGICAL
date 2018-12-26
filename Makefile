@@ -6,14 +6,14 @@ PROJECT_ROOT_DIR = $(realpath .)
 all: thirdparty placement routing 
 
 thirdparty:
-	make -C $(PROJECT_ROOT_DIR)/thirdparty
+	make -C thirdparty
 
 placement:
-	make -C $(PROJECT_ROOT_DIR)/placement
+	make -C placement
 
 routing: 
-	make -C $(PROJECT_ROOT_DIR)/routing
+	make -C routing
 
 .PHONY: clean
 clean: 
-	make clean -C $(PROJECT_ROOT_DIR)/thirdparty
+	make clean -C thirdparty
