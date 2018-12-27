@@ -29,11 +29,11 @@ echo "CIRCUIT = ${TOP_CIRCUIT}"
 echo "CIRCUIT_NAME = ${TOP_CIRCUIT_NAME}"
 echo "TOP_SCRIPT_DIR = ${TOP_SCRIPT_DIR}"
 
-# run constraint generation 
+# # run constraint generation 
 echo "${TOP_CIRCUIT_NAME}: constraint generation"
 source ${TOP_SCRIPT_DIR}/../constraint_generation/test/run.sh ${TOP_RESULT_DIR}/${TOP_CIRCUIT}/${TOP_CIRCUIT_NAME}.sp
 
-# run device generation 
+# # run device generation 
 echo "${TOP_CIRCUIT_NAME}: device generation"
 source ${TOP_SCRIPT_DIR}/../placement/device_generation/test/run.sh ${TOP_CIRCUIT}
 
