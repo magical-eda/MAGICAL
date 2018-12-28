@@ -1,9 +1,12 @@
 [submodule "routing/arouterex"]
     path = routing/arouterex
-    url = https://bitbucket.org/kkkkkkkkkkkkk/arouterex
+    url = git@bitbucket.org:kkkkkkkkkkkkk/arouterex
 [submodule "thirdparty/Limbo"]
     path = thirdparty/Limbo
     url = https://github.com/limbo018/Limbo
 [submodule "thirdparty/sparsehash"]
 	path = thirdparty/sparsehash
 	url = https://github.com/sparsehash/sparsehash
+[submodule "placement/idea_place"]
+	path = placement/idea_place
+	url = git@bitbucket.org:Being555/idea_place

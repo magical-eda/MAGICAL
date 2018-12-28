@@ -39,7 +39,7 @@ source ${TOP_SCRIPT_DIR}/../placement/device_generation/test/run.sh ${TOP_CIRCUI
 
 # run analog placement 
 echo "${TOP_CIRCUIT_NAME}: analog placement"
-source ${TOP_SCRIPT_DIR}/../placement/analog_place/test/run.sh \
+source ${TOP_SCRIPT_DIR}/../placement/idea_place/test/run.sh \
     ${TOP_RESULT_DIR}/${TOP_CIRCUIT} \
     ${TOP_SIMPLE_TECHFILE} \
     ${TOP_SPACING_RULE_FILE} \
