@@ -10,3 +10,6 @@
 [submodule "placement/idea_place"]
 	path = placement/idea_place
 	url = git@bitbucket.org:Being555/idea_place
+[submodule "constraint_generation/signal_flow_analysis"]
+	path = constraint_generation/signal_flow_analysis
+	url = git@bitbucket.org:jayl940712/sfa.git
