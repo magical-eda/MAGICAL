@@ -13,3 +13,6 @@
 [submodule "constraint_generation/signal_flow_analysis"]
 	path = constraint_generation/signal_flow_analysis
 	url = git@bitbucket.org:jayl940712/sfa.git
+[submodule "placement/well_generation"]
+	path = placement/well_generation
+	url = git@bitbucket.org:Being555/well_generation.git
