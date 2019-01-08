@@ -17,6 +17,10 @@ routing:
 constraint_generation:
 	make -C constraint_generation
 
+.PHONY: install
+install:
+	make install -C routing
+
 .PHONY: clean
 clean: 
 	make clean -C thirdparty
