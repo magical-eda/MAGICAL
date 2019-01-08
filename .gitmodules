@@ -7,6 +7,7 @@
 [submodule "thirdparty/sparsehash"]
 	path = thirdparty/sparsehash
 	url = https://github.com/sparsehash/sparsehash
+    ignore = untracked
 [submodule "placement/idea_place"]
 	path = placement/idea_place
 	url = git@bitbucket.org:Being555/idea_place
