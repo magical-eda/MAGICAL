@@ -5,4 +5,4 @@
 # define PREFIX for installation destination
 # default PREFIX is current folder 
 # it must be absolute path 
-PREFIX = $(realpath/install)
+PREFIX = $(realpath .)/install
