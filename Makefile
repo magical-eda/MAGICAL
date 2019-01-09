@@ -2,6 +2,13 @@
 
 PROJECT_ROOT_DIR = $(realpath .)
 
+#==========================================================================
+#                         Compilation Flags
+# ==========================================================================
+
+# include environmental configurations 
+include $(PROJECT_ROOT_DIR)/Include.mk
+
 .PHONY: thirdparty placement routing constraint_generation
 all: thirdparty placement routing constraint_generation
 
@@ -19,6 +26,10 @@ constraint_generation:
 
 .PHONY: install
 install:
+	@echo $(PREFIX)
+	mkdir -p $(PREFIX)
+	cp test/run.sh $(PREFIX)
+	cp test/color.sh $(PREFIX)
 	make install -C routing
 
 .PHONY: clean
