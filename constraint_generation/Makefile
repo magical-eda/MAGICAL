@@ -1,7 +1,9 @@
 #makefile 
 
 PROJECT_ROOT_DIR = $(realpath ../)
+include $(PROJECT_ROOT_DIR)/Include.mk
 VERBOSE_FLAG = # empty or VERBOSE=1
+CONSTRAINT_DIR = $(PREFIX)/constraint_generation
 
 .PHONY: signal_flow_analysis
 all: signal_flow_analysis
@@ -14,3 +16,15 @@ signal_flow_analysis:
 clean: 
 	@echo ">> clean signal_flow_analysis"
 	rm -rf signal_flow_analysis/build
+
+.PHONY: install
+install:
+	mkdir -p $(CONSTRAINT_DIR)/signal_flow_analysis; 
+	mkdir -p $(CONSTRAINT_DIR)/build_graph; 
+	cp build_graph/create_init_obj.py $(CONSTRAINT_DIR)/build_graph; 
+	cp build_graph/parse_netlist.py $(CONSTRAINT_DIR)/build_graph; 
+	cp build_graph/netlist.py $(CONSTRAINT_DIR)/build_graph; 
+	cp -rf test $(CONSTRAINT_DIR); 
+	cp -rf signal_flow_analysis/bin $(CONSTRAINT_DIR)/signal_flow_analysis; 
+    
+

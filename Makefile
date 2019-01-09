@@ -31,6 +31,7 @@ install:
 	cp test/run.sh $(PREFIX)
 	cp test/color.sh $(PREFIX)
 	make install -C routing
+	make install -C constraint_generation
 
 .PHONY: clean
 clean: 
