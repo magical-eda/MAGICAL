@@ -26,10 +26,10 @@ constraint_generation:
 
 .PHONY: install
 install:
-	@echo $(PREFIX)
 	mkdir -p $(PREFIX)
-	cp test/run.sh $(PREFIX)
-	cp test/color.sh $(PREFIX)
+	mkdir -p $(PREFIX)/test
+	cp test/run.sh $(PREFIX)/test/.
+	cp test/color.sh $(PREFIX)/test/.
 	make install -C routing
 	make install -C constraint_generation
 	make install -C placement
