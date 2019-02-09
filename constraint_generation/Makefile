@@ -19,11 +19,9 @@ clean:
 
 .PHONY: install
 install:
-	mkdir -p $(CONSTRAINT_DIR)/signal_flow_analysis; 
+	mkdir -p $(CONSTRAINT_DIR)/python; 
 	mkdir -p $(CONSTRAINT_DIR)/build_graph; 
-	cp build_graph/create_init_obj.py $(CONSTRAINT_DIR)/build_graph; 
-	cp build_graph/parse_netlist.py $(CONSTRAINT_DIR)/build_graph; 
-	cp build_graph/netlist.py $(CONSTRAINT_DIR)/build_graph; 
+	cp -rf python $(CONSTRAINT_DIR)/python; 
 	cp -rf test $(CONSTRAINT_DIR); 
 	cp -rf signal_flow_analysis/bin $(CONSTRAINT_DIR)/signal_flow_analysis; 
     

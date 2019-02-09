@@ -33,13 +33,13 @@ echo "CIRCUIT = ${TOP_CIRCUIT}"
 echo "CIRCUIT_NAME = ${TOP_CIRCUIT_NAME}"
 echo "TOP_SCRIPT_DIR = ${TOP_SCRIPT_DIR}"
 
-# run constraint generation 
+# run device generation and constraint generation 
 echo -e "${STATUS_PREFIX_COLOR}${TOP_CIRCUIT_NAME}:${NC} constraint generation"
 source ${TOP_SCRIPT_DIR}/../constraint_generation/test/run.sh ${TOP_RESULT_DIR}/${TOP_CIRCUIT}/${TOP_CIRCUIT_NAME}.sp
 
-# run device generation 
-echo -e "${STATUS_PREFIX_COLOR}${TOP_CIRCUIT_NAME}:${NC} device generation"
-source ${TOP_SCRIPT_DIR}/../placement/device_generation/test/run.sh ${TOP_CIRCUIT}
+## run device generation 
+#echo -e "${STATUS_PREFIX_COLOR}${TOP_CIRCUIT_NAME}:${NC} device generation"
+##source ${TOP_SCRIPT_DIR}/../placement/device_generation/test/run.sh ${TOP_CIRCUIT}
 
 # run analog placement 
 echo -e "${STATUS_PREFIX_COLOR}${TOP_CIRCUIT_NAME}:${NC} analog placement"

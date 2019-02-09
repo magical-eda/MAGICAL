@@ -28,11 +28,13 @@ echo "CIRCUIT_NAME = ${CIRCUIT_NAME}"
 echo "CIRCUIT_EXTENSION = ${CIRCUIT_EXTENSION}"
 echo "CUR_SCRIPT_DIR = ${CUR_SCRIPT_DIR}"
 
-BUILD_GRAPH_DIR=${CUR_SCRIPT_DIR}/../build_graph
+PYTHON_DIR=${CUR_SCRIPT_DIR}/../python
 SFA_DIR=${CUR_SCRIPT_DIR}/../signal_flow_analysis
 
-echo -e "${STATUS_PREFIX_COLOR}${CIRCUIT_NAME}:${NC} Generating object from spectre netlist"
-python $BUILD_GRAPH_DIR/create_init_obj.py -f ${CIRCUIT} > ${RESULT_DIR}/${CIRCUIT_NAME}/${CIRCUIT_NAME}.initObj
+echo -e "${STATUS_PREFIX_COLOR}${CIRCUIT_NAME}:${NC} Parsing spectre netlist and device generation"
+rm -rf ${RESULT_DIR}/${CIRCUIT_NAME}/gds
+mkdir ${RESULT_DIR}/${CIRCUIT_NAME}/gds
+python $PYTHON_DIR/devgen.py ${CIRCUIT} ${RESULT_DIR}/${CIRCUIT_NAME}/
 
 echo -e "${STATUS_PREFIX_COLOR}${CIRCUIT_NAME}:${NC} Generating constraints for placement and routing"
 $SFA_DIR/bin/SFA ${RESULT_DIR}/${CIRCUIT_NAME}/${CIRCUIT_NAME}.initObj ${RESULT_DIR}/${CIRCUIT_NAME}/${CIRCUIT_NAME} > /dev/null

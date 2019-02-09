@@ -1,5 +1,0 @@
-*.pyc
-*.o
-benchmark
-benchmarks_spectre
-log*

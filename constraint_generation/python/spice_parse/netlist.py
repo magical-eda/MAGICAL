@@ -58,6 +58,8 @@ class instance(netlist_element):
         netlist_element.__init__(self,'instance')
     def __str__(self):
         return(self.typeof + " " + self.name + "@" + self.reference + str(self.parameters))
+    def get_attr(self):
+        self.attr = self.reference.split('_')
 
 class net(netlist_element):
     def __init__(self, name, parent):

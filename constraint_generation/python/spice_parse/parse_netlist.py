@@ -10,7 +10,7 @@ def parse_spectre(netlist_string):
     # spectre netlist grammar definition
     EOL = _p.LineEnd().suppress() # end of line
     linebreak = _p.Suppress("\\" + _p.LineEnd()) # breaking a line with backslash newline
-    identifier=_p.Word(_p.alphanums+'_!<>-') # a name for...
+    identifier=_p.Word(_p.alphanums+'_!<>-+') # a name for...
     number=_p.Word(_p.nums + ".") # a number
     net = identifier # a net
     nets = _p.Group(_p.OneOrMore(net('net') | linebreak)) # many nets
@@ -33,12 +33,20 @@ def parse_spectre(netlist_string):
         + subcircuit_content
         # matches ends <name> <newline>
         + cktname_end + _p.matchPreviousExpr(cktname).suppress() + EOL).setResultsName('subcircuit')
-    netlist_element = subcircuit | instance | EOL | comment('comment')
+    topcircuit = _p.Group(
+        # matches subckt <name> <nets> <newline>
+        _p.Keyword("topckt").suppress() + cktname('name') + nets('nets') + EOL  
+        # matches the content of the subcircuit
+        + subcircuit_content
+        # matches ends <name> <newline>
+        + cktname_end + _p.matchPreviousExpr(cktname).suppress() + EOL).setResultsName('topcircuit')
+    netlist_element = subcircuit | topcircuit | EOL | comment('comment')
     netlist = _p.ZeroOrMore(netlist_element) + _p.StringEnd()
     
     parameters.setParseAction(handle_parameters)
     instance.setParseAction(handle_instance)
     subcircuit.setParseAction(handle_subcircuit)
+    topcircuit.setParseAction(handle_topcircuit)
 
     return netlist.parseString(netlist_string);
 
@@ -50,7 +58,7 @@ def parse_hspice(netlist_string):
     # spectre netlist grammar definition
     EOL = _p.LineEnd().suppress() # end of line
     linebreak = _p.Suppress(_p.LineEnd() + "+") # breaking a line with backslash newline
-    identifier=_p.Word(_p.alphanums+'_!<>#-') # a name for...
+    identifier=_p.Word(_p.alphanums+'_!<>#-+') # a name for...
     number=_p.Word(_p.nums + ".") # a number
     net = identifier # a net
     nets = _p.Group(_p.OneOrMore(net('net') + ~_p.FollowedBy("=") | linebreak)) # many nets
@@ -73,12 +81,20 @@ def parse_hspice(netlist_string):
         + subcircuit_content
         # matches ends <name> <newline>
         + cktname_end + _p.matchPreviousExpr(cktname).suppress() + EOL).setResultsName('subcircuit')
-    netlist_element = subcircuit | instance | EOL | comment('comment')
+    topcircuit = _p.Group(
+        # matches subckt <name> <nets> <newline>
+        _p.CaselessLiteral(".topckt").suppress() + cktname('name') + _p.Optional(nets('nets')) + EOL  
+        # matches the content of the subcircuit
+        + subcircuit_content
+        # matches ends <name> <newline>
+        + cktname_end + _p.matchPreviousExpr(cktname).suppress() + EOL).setResultsName('topcircuit')
+    netlist_element = topcircuit | subcircuit | EOL | comment('comment')
     netlist = _p.ZeroOrMore(netlist_element) + _p.StringEnd()
     
     parameters.setParseAction(handle_parameters)
     instance.setParseAction(handle_instance)
     subcircuit.setParseAction(handle_subcircuit)
+    topcircuit.setParseAction(handle_topcircuit)
 
     return netlist.parseString(netlist_string)
 
@@ -87,6 +103,15 @@ def handle_parameters(token):
     for p in token.parameters:
         d[p[0]] = p[1]
     return d
+
+def handle_topcircuit(token):
+    sc = token.topcircuit
+    nets = sc.nets
+    name = sc.name
+    instances = sc.subnetlist
+    s = nl.subcircuit(name, nets, instances)
+    s.typeof = 'topcircuit'
+    return [s]
 
 def handle_subcircuit(token):
     sc = token.subcircuit
