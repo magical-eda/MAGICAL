@@ -19,8 +19,9 @@ clean:
 
 .PHONY: install
 install:
+	mkdir -p $(CONSTRAINT_DIR)/signal_flow_analysis/bin; 
 	mkdir -p $(CONSTRAINT_DIR)/python; 
-	cp -rf python $(CONSTRAINT_DIR)/python; 
+	cp -rf python $(CONSTRAINT_DIR); 
 	cp -rf test $(CONSTRAINT_DIR); 
 	cp -rf signal_flow_analysis/bin $(CONSTRAINT_DIR)/signal_flow_analysis; 
     
