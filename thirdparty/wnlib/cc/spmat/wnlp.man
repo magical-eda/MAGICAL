@@ -1,0 +1,66 @@
+NAME
+     wnlp -- longest path problem
+
+SYNOPSIS
+     #include "wnsmat.h"
+
+     wn_longest_path(&code,&len,&result,length_mat,start_node,fin_node)
+     int code;
+     double len;
+     wn_sll result;               /* list of edges */
+     wn_sparse_matrix length_mat;
+     int start_node,fin_node;
+
+DESCRIPTION
+     This package solves the "longest path" problem easily 
+     using exponential search.  "length_mat" is treated
+     as a DIRECTED GRAPH; thus it must be square.  The matrix entry
+     length_mat[i][j] gives the length of the directed edge from node i to node
+     j.  Negative edge lengths are allowed.  "result" is the list
+     of edges in the longest path, ordered starting from "start_node".
+     "len" is set to the total length of the solution.
+
+     The longest path problem is the following optimization problem:
+
+         Choose the path in the graph "length_mat" from "start_node" to
+         "fin_node" which is the longest possible path.
+
+     If the graph is DAG (that is, it lacks cycles and undirected edges), it
+     can be solved more efficiently using wncp.
+
+RESOURCES
+     Solving a longest path problem requires
+
+       WORST and AVERAGE CASE:
+
+         time = n^(e/n)
+         stack memory = n
+         dynamic memory = n
+
+     where e is the number of matrix entries, and n is
+     the number of nodes in the graph represented by "length_mat". 
+     (n == len_i == len_j).
+
+     Note:  the longest path problem is NP-complete [1], and thus
+	    no algorithms faster than exponential are known for the
+	    general problem.
+
+DIAGNOSTICS
+     code == WN_SUCCESS  for successful solution.
+     code == WN_INFEASIBLE if no path from "start_node" to "fin_node"
+                           exists.
+
+     len_i != len_j causes a crash.
+
+BUGS
+
+SEE ALSO
+     wncp, wnsp, wnsplx, wnmst
+
+REFERENCES
+     [1]  Garey & Johnson
+
+AUTHOR
+     Will Naylor
+
+

@@ -1,0 +1,170 @@
+NAME
+     wnasrt -- allows application to commit suicide
+
+SYNOPSIS
+     #include "wnasrt.h"
+
+     wn_assert(bool condition)
+
+     wn_assert_notreached()
+
+     wn_assert_warn(bool condition)
+
+     wn_assert_warn_notreached()
+
+     void wn_set_assert_print(passert_print)
+     void (*passert_print)(char string[]);
+
+     void wn_default_assert_print(char string[]);
+
+     void wn_set_assert_custom_print(passert_custom_print)
+     void (*passert_custom_print)(const char file_name[], int line_num,
+			          const char *func_name, const char *exp_string,
+			          bool warn_only, bool notreached)
+);
+
+     void wn_default_assert_custom_print(const char file_name[], int line_num,
+				  const char *func_name, const char *exp_string,
+			          bool warn_only, bool notreached);
+
+     void wn_set_assert_crash(passert_crash)
+     void (*passert_crash)(void);
+
+     void wn_default_assert_crash(void);
+
+    wn_fast_assert(bool condition)
+    wn_fast_assert_notreached()
+    wn_fast_assert_warn(bool condition)
+    wn_fast_assert_warn_notreached()
+
+DESCRIPTION
+     "wn_assert" evaluates "condition".  If "condition" is TRUE, execution
+     continues.  If "condition" is FALSE, it prints a message giving the
+     file name and line number where it was called from.  Then it crashes
+     the application using abort(3).
+
+     "wn_assert_notreached" prints a message giving the file name and 
+     line number where it was called from.  Then it crashes the
+     application using abort(3).
+
+     "wn_assert_warn" evaluates "condition".  If "condition" is FALSE, it 
+     prints a message giving the file name and line number where it was
+     called from.
+
+     "wn_assert_warn_notreached" prints a message giving the file name and 
+     line number where it was called from.
+
+     The above 4 routines may also print messages indicating function name
+     and in the case of asserts, the expression that failed.  This
+     functionality may not be available on all platforms.
+
+     "wn_set_assert_print" allows the programmer to change the
+     routine used for printing messages.  The default is to print
+     to standard error, as specified in "wn_default_assert_print".
+
+     "wn_set_assert_custom_print" allows the programmer to change the
+     routine that generates the warning or error message.  It differs
+     from the above function in that it allows you to customize the text
+     of the message.  The default behavior is defined in 
+     "wn_default_assert_custom_print".
+
+     "wn_set_assert_crash" allows the programmer to change the
+     routine used for crashing, or perhaps to a routine that does not
+     crash (does a longjump, for example).  The default is to crash
+     the application using abort(3), as specified in "wn_default_assert_crash".
+
+     wn_assert*() are expressions, not statements.  They are of type void.
+     They can be used like statements, or used within expressions, but they
+     don't return a value.  Their being able to be used in expressions comes
+     in useful in complex macros.  Otherwise they can be treated
+     syntactically like subroutine calls of type void.
+    
+     wn_fast_*() are like the corresponding identifiers without the "_fast",
+     except that if "WN_FAST" is defined they just become void constant
+     expressions.  This way you can have asserts that are slow to evaluate
+     happen when you are tweaking your code, then have them basically
+     disappear when you want to speed things up for production.  Note that
+     the original wn_assert...( identifiers are ALWAYS to happen, they are
+     never to be compiled out of existence.
+
+     wn_assert*() calls can be overridden with environment variables.  If
+     the appropriate override is set, a given assert will not bomb, and it
+     will not print the usual error message.  The first time any suppressed
+     assert or notreached is triggered, a small warning is produced, later
+     calls are all silent.
+
+     To override an assert or notreached, get the filename and line number,
+     and run the xlateasrt program in wnlib/acc/low with
+
+	xlateasrt -override_code <filename> <line number>
+
+     Set and export the given environment variable, and rerun the program,
+     the assert / notreached will be suppressed.
+
+EXAMPLE
+
+     The user may say
+
+	wn_assert(i == 2);
+
+     somewhere in his code.  If i != 2 when this statement gets evaluated,
+     the assert fails.  A message something like this is printed
+
+	------------------------------------------------------------
+			       HELP!!!
+	This program has encountered a severe internal error.
+	Please report the following message to the
+	program's developers so that they can fix the problem,
+	an override may be available:
+	------------------------------------------------------------
+	Assertion botched -- forcing crash
+	Expr (i == 2) was false
+	in foo_routine() at line 57 in file barfile.c
+        Aborted
+
+     and the program aborts.
+
+     If, upon examining the code, a decision is made that the assert should
+     be ignored, it can be overridden.  To get the environment variable
+     that must be set, run xlateasrt in wnlib/acc/low with -override_code,
+     giving it the filename and line number from the message
+
+	% xlateasrt -override_code barfile.c 57
+
+     and it will give you a long name of an environment variable, in this case
+
+	Override string == "WN_ASSERT_SUPPRESS_barfile_c_57_91120e3f"
+
+     Set and export this variable.  On bash and sh, say
+
+	% WN_ASSERT_SUPPRESS_barfile_c_57_91120e3f=
+	% export WN_ASSERT_SUPPRESS_barfile_c_57_91120e3f
+
+     On csh and tcsh, say
+
+	% setenv WN_ASSERT_SUPPRESS_barfile_c_57_91120e3f
+
+     Then run your program again, when it encounters the problem, you will
+     get a brief message
+
+	Warning: at least one assert suppressed, by environment variable
+	    "WN_ASSERT_SUPPRESS_barfile_c_57_91120e3f"
+
+     but nothing else, your program will continue on, and subsequent
+     encounters to the same problem will be silent.
+
+     This suppression only suppresses the error encountered on barfile.c,
+     line 57.  All other asserts and notreached's are unaffected and still
+     capable of generating full warnings and/or bombing out.  Multiple
+     asserts can be suppressed at once, but you will only get the warning
+     on the first one encountered.
+
+DIAGNOSTICS
+
+BUGS
+
+SEE ALSO
+     abort(3), setjmp(3)
+
+AUTHOR
+     Will Naylor, Bill Chapman

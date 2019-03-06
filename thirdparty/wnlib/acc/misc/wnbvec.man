@@ -1,0 +1,110 @@
+NAME
+     wnbvec -- bit vector
+
+SYNOPSIS
+     #include "wnbvec.h"
+
+     void wn_bitvect_make(&bvect,length_in_bits)
+     wn_bitvect bvect;
+     int length_in_bits;
+
+     void wn_bitvect_free(bvect)
+     wn_bitvect bvect;
+
+     void wn_bitvect_get_bit(&bit,bvect,index)
+     bool bit;
+     wn_bitvect bvect;
+     int index;
+
+     void wn_bitvect_set_bit(bit,bvect,index)
+     bool bit;
+     wn_bitvect bvect;
+     int index;
+
+     void wn_bitvect_set_all_false(bvect,length_in_bits)
+     wn_bitvect bvect;
+     int length_in_bits;
+
+     void wn_bitvect_set_all_true(bvect,length_in_bits)
+     wn_bitvect bvect;
+     int length_in_bits;
+
+     void wn_bitvect_and(result, bvect1, bvect2, length_in_bits)
+     wn_bitvect result, bvect1, bvect2;
+     int length_in_bits;
+
+     void wn_bitvect_or(result, bvect1, bvect2, length_in_bits)
+     wn_bitvect result, bvect1, bvect2;
+     int length_in_bits;
+
+     void wn_bitvect_xor(result, bvect1, bvect2, length_in_bits)
+     wn_bitvect result, bvect1, bvect2;
+     int length_in_bits;
+
+     void wn_bitvect_not(result, bvect, length_in_bits)
+     wn_bitvect result, bvect1, bvect2;
+     int length_in_bits;
+
+     int wn_bitvect_count_set_bits(bvect, length_in_bits)
+     wn_bitvect bvect;
+     int length_in_bits;
+
+     bool wn_bitvect_xor_all_bits(bvect, length_in_bits)
+     wn_bitvect bvect;
+     int length_in_bits;
+
+DESCRIPTION
+     This package is intended to provide a way to provide an array of
+     boolean TRUE or FALSE values, occupying only 1 bit of memory per
+     value (where declaring it as an array of "bool" would be 32 bits
+     per value, declaring it as an array of "char" would be 8 bits per
+     value).
+
+     wn_bitvect_get_bit returns the indexth boolean to bit.
+     wn_bitvect_get_bit sets the indexth boolean to bit.
+
+     wn_bitvect_set_all_false sets all bits in the vector to TRUE.
+     wn_bitvect_set_all_true sets all bits in the vector to FALSE.
+
+     wn_bitvect_and, or, and xor perform bitwise boolean operations
+     on the vectors bvect1 and bvect2, storing the results in vector result.
+     Vector result is also returned, it is expected it will usually be ignored
+     but may be handy in formulating expressions.  Note that the same
+     argument can be passed twice, for example wn_bit_vector_and(a, a, b, n)
+     will do "a &= b" as you would want.
+
+     wn_bitvect_not does a bitwise compliment of the bits of bvect,
+     storing that into result as do _and, _or, and _xor.
+
+     wn_bitvect_count_set_bits returns the number of bits in the
+     vector that are TRUE.  This routine is optimized for sparse vectors,
+     that is, vectors where few bits are set.
+
+RESOURCES
+     Note the routines wn_bitvect_get_bit, wn_bitvect_set_bit, and
+     wn_bit_vector_clear are all macros rather than routines, for speed.
+     We reserve the right to change them to subroutines in the future.
+     Additionally, the access breaks down into an array index, plus 2 shifts
+     and a mask, so they are nearly as fast as just indexing into an
+     array.
+
+     Memory occupied is n/8 bytes rounded up to the nearest multiple of 4.
+
+     The fewer bits in the vector are set, the faster
+     wn_bitvect_count_set_bits will run.  The algorithm is fundamentally
+     k1 * length_in_bits + k2 * # of bits set, where k2 > k1.
+
+CAVEATS
+     These tools will segfault, blow asserts and otherwise bomb if
+     length_in_bits == 0.
+
+DIAGNOSTICS
+
+BUGS
+     This code is well tested without bugs.
+
+SEE ALSO
+     acc/misc/selftest.c
+
+AUTHOR
+     Bill Chapman

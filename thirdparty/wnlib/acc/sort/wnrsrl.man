@@ -1,0 +1,61 @@
+NAME
+     wnrsrl -- routines to pass to the radix sort
+
+SYNOPSIS
+     #include "wnrsrl.h"
+
+     char wn_radix_sort_unsigned_index_char(u,index)
+     unsigned int u;
+     int index;
+
+     char wn_radix_sort_int_index_char(i,index)
+     int i;
+     int index;
+
+     char wn_radix_sort_string_index_char(string,index)
+     char *string;
+     int index;
+
+     int wn_radix_sort_unsigned_length(p)
+     ptr p;
+
+     int wn_radix_sort_int_length(p)
+     ptr p;
+
+     int wn_radix_sort_string_length(p)
+     ptr p;
+
+DESCRIPTION
+     These routines are all intended to be passed to
+
+     wn_radix_sort_sll(&list, pkeyindex_func, pkeylen_func)
+     wn_sll list;
+     char (*pkeyindex_func)(/*key,index*/);   /* ptr key; int index; */
+     int (*pkeylen_func)(/*key*/);            /* ptr key; */
+
+     The first 3, wn_radix_sort_*_index_char, are intended to be passed
+     to the pkeyindex_func argument, the second 3, wn_radix_sort_*_length,
+     and intended to be passed to the pkeylen_func argument.
+
+     If you pass these arguments directly, for example you use
+     wn_radix_sort_unsigned_index_char and wn_radix_sort_string_length,
+     the sort will sort the linked list assuming the "contents" fields
+     of your linked list are pointers to strings.
+
+     If your "contents" fields point to records containing fields that
+     you want to sort on, it is still recommended you use these routines
+     within routines you build to access these fields.  For an example
+     of this, see lo_test_sorting_person_records() in wnlib/acc/sort/examples.c
+
+BUGS
+     If you don't use these routines and try to write your own, there are
+     pitfalls awaiting you, namely different byte ordering of different
+     machines, and int's being a special case on the pkeyindex_func.  These
+     bugs have been fixed in these routines.
+
+SEE ALSO
+     wnrsrt
+
+AUTHOR
+     Bill Chapman
+

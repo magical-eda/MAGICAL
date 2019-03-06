@@ -1,0 +1,73 @@
+NAME
+     wnmat -- matrix and vector data structures and operations
+
+SYNOPSIS
+     #include "wnmat.h"
+
+     typedef double *wn_raw_vector;
+     
+     typedef struct wn_vector_struct *wn_vector;
+     struct wn_vector_struct
+     {
+       int len_i;
+     
+       wn_raw_vector numbers;
+     };
+     
+     
+     typedef double **wn_raw_matrix;
+     
+     typedef struct wn_matrix_struct *wn_matrix;
+     struct wn_matrix_struct
+     {
+       int len_i,len_j;
+     
+       wn_raw_matrix numbers;
+     };
+
+DESCRIPTION
+     The include file "wnlib/cc/matrix/wnmat.h" defines the matrix
+     and vector data structures above.  Matrix and vector subroutines 
+     defined in "wnlib/cc/matrix" provide the following types
+     of vector and matrix operations:
+
+         - creation
+         - input and output
+         - addition
+         - multiplication
+         - inversion
+         - simplex method
+
+
+     Most routines come in pairs of the form "op_matrix", "op_raw_matrix";
+     or the form "op_vector", "op_raw_vector".  These operate on
+     the types with similar names shown above.  Because the "raw"
+     types have no size built in, the "raw" routines require size
+     arguments.
+     
+     For matrix operations, "len_i" refers to the
+     number of rows or height of the matrix; "len_j" refers to the
+     number of columns or width of the matrix.  For vector operations,
+     "len_i" refers to the length of the vector.
+
+EXAMPLES
+     Look in "wnlib/cc/matrix/examples.c" for examples of matrix code.
+
+BUGS
+     Long names of routines cause client programs to look like COBOL.
+
+     No special code for sparse matrices.
+
+     No Gramm-Schmidt code.
+
+     No eigenvalue/vector code.
+
+     Much of this code is not extensively tested.
+
+SEE ALSO
+     wnsmat
+
+AUTHOR
+     Will Naylor
+
+

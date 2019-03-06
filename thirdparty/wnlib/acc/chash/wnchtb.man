@@ -1,0 +1,127 @@
+NAME
+     wnchtb -- generic closed hash table package
+
+SYNOPSIS
+     #include "wnchtb.h"
+
+     wn_mkchtab(&table,phash_func,pkeys_eq_func,palloc_copy_func,pfree_func,
+     /**/		start_table_length, fraction_full_before_grow)
+     wn_chtab table;
+     int (*phash_func)(/*key*/);               /* ptr key; */
+     bool (*pkeys_eq_func)(/*key1,key2*/);     /* ptr key1,key2; */
+     void (*palloc_copy_func)(/*pkey,key*/);   /* ptr *pkey,key */
+     void (*pfree_func)(/*key*/);              /* ptr key; */
+     int start_table_length,		/* how long should the table start as?
+     **					**  Rounded up to 2^1. */
+     float fraction_full_before_grow	/* how full should the table get before
+     **					** we grow it?  0 < x < 1 */
+
+
+     wn_freechtab(table)
+     wn_chtab table;
+
+     bool wn_chget(&data,table,key)
+     ptr data;
+     wn_chtab table;
+     ptr key;
+
+     bool wn_chins(data,table,key)
+     ptr data;
+     wn_chtab table;
+     ptr key;
+
+     bool wn_chfins(data,table,key)
+     ptr data;
+     wn_chtab table;
+     ptr key;
+
+     bool wn_chdel(table,key)
+     wn_chtab table;
+     ptr key;
+
+     int wn_chcount(table)
+     wn_chtab table;
+
+     wn_purge_and_resize_table(table, new_length);
+     wn_chtab table;
+     int new_length;
+
+DESCRIPTION
+     The interface for this package is modelled with few changes on
+     the generic hash table package described in "wnhtab.man".  See
+     that man page before consulting this one, which describes only
+     the differences.  Although it supports mostly the same interface,
+     this package uses a different algorithm which takes more memory
+     and runs a bit faster on large problems.  The algorithm in this
+     case hashes entries into an array, where wnhtab hashes them into
+     a tree.
+
+     In general, the names of corresponding routines in whhtab.man
+     have been copied to names in this package with a "c" (for closed)
+     added before the "h" (for hash).
+
+     2 new arguments have been introduced in wn_mkchtab.  start_table_length
+     is the desired initial length of the array.  It is advisory only,
+     wn_mkchtab may decide upon some other length for the array.
+     fraction_full_before_grow is a float between 0 and 1 what fraction of
+     the table can be occuppied before an additional insert will grow the
+     table, recommended value is 0.5.
+
+     wn_purge_and_resize_table() is new and had no counterpart in the wnhtab
+     package.  It purges deleted items from the table, and grows the table
+     to the desired size.  Note that new_length is advisory, the routine will
+     make its own decision about the length of the table taking new_length
+     into account.  Note the table will automatically grow to accommodate
+     new members as the table fills, but it will not automatically shrink
+     as members are deleted.  If you are doing lots of deletions and want
+     the table to maintain a steady size, it is recommended you call this
+     routine periodically.
+
+     The other routines have arg lists exactly corresponding to those in
+     their wnhtab counterparts, except they take a wn_chtab arg instead
+     of wn_htab.
+
+RESOURCES
+     Provided the table is sparsely populated, insert, get, and delete
+     operations run with
+
+       WORST and AVERAGE CASE:
+  
+         time = <time to hash> + <time to compare> + <collision time>
+         stack memory = 0
+         dynamic memory = n
+
+         As the table gets fuller, <collision time> gets greater,
+	 to time, but this is not significant provided
+	 fraction_full_before_grow is set at or below 0.5.
+
+     The above assumes that your hash function is fairly good (that is,
+     it produces fairly random hash values).
+
+     Theoretically, this routine is basically O(1) while the wnhtab is
+     O(log(n)).  In practice, both algorithms times are so dominated by
+     the constants <time to hash> and <time to compare> that the wnchtb
+     package is only 30-40% faster working on 45,000 strings, and 4 times
+     faster working on 500,000 ints with a very fast hash function.
+
+     This package typically takes about twice as much memory as wnhtab.
+
+     The hash table uses memory
+
+       WORST and AVERAGE CASE:
+
+         dynamic memory = n
+
+     In the above, n is the number of entries in the table.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnhtab, wnhtbl, wnhash, wnbtr, wnset
+
+     acc/chash/(examples.c, selftest.c)
+
+AUTHOR
+     Bill Chapman

@@ -1,0 +1,186 @@
+NAME
+     wnanl -- general simulated annealing package
+
+SYNOPSIS
+     extern int wn_anneal_epochs_to_run,wn_anneal_epochs_remaining;
+     extern double wn_anneal_temperature,
+	           wn_anneal_objective,
+		   wn_anneal_accept_rate;
+
+     void wn_anneal_std_checkpoint_print()
+		    
+     void wn_anneal(pevaluate_random_mutation,paccept_mutation,preject_mutation,
+		    pcheckpoint,
+		    problem_size,stop_run_length,epochs_to_run)
+     double (*pevaluate_random_mutation)();
+     void (*paccept_mutation)(),(*preject_mutation)();
+     void (*pcheckpoint)();
+     int problem_size,stop_run_length,epochs_to_run;
+
+     void wn_anneal_from_temperature(
+		    pevaluate_random_mutation,paccept_mutation,preject_mutation,
+		    pcheckpoint,
+		    problem_size,stop_run_length,epochs_to_run,
+		    start_temperature)
+     double (*pevaluate_random_mutation)();
+     void (*paccept_mutation)(),(*preject_mutation)();
+     void (*pcheckpoint)();
+     int problem_size,stop_run_length,epochs_to_run;
+     double start_temperature;
+
+     void wn_anneal_with_sched(
+	            pevaluate_random_mutation,paccept_mutation,preject_mutation,
+		    pcheckpoint,
+		    problem_size,stop_run_length,epochs_to_run,
+		    ptemperature_function,start_temperature)
+     double (*pevaluate_random_mutation)();
+     void (*paccept_mutation)(),(*preject_mutation)();
+     void (*pcheckpoint)();
+     int problem_size,stop_run_length,epochs_to_run;
+     double (*ptemperature_function)(/* double time */);
+     double start_temperature;
+
+     void wn_anneal_linear_temperature(
+		    pevaluate_random_mutation,paccept_mutation,preject_mutation,
+		    pcheckpoint,
+		    problem_size,stop_run_length,epochs_to_run,
+		    start_temperature,fin_temperature)
+     double (*pevaluate_random_mutation)();
+     void (*paccept_mutation)(),(*preject_mutation)();
+     void (*pcheckpoint)();
+     int problem_size,stop_run_length,epochs_to_run;
+     double start_temperature,fin_temperature;
+
+     wn_measure_anneal_temperature(&temperature,
+				   pevaluate_random_mutation,
+				   iterations)
+     double temperature;
+     double (*pevaluate_random_mutation)();
+     double iterations;
+
+     wn_get_anneal_statistics(&mean,&sdev,
+                              pevaluate_random_mutation,
+			      iterations)
+     double mean,sdev;
+     double (*pevaluate_random_mutation)();
+     double iterations;
+
+DESCRIPTION
+     This package provides a general simulated annealing [1] algorithm
+     for use on complex combinatorial optimization problems. 
+     Simulated annealing is a technique of last resort, and should be 
+     used only when other techniques, such as linear programming (see wnsplx),
+     and domain-specific algorithms, have not born fruit.  Generally,
+     simulated annealing is of value only with combinatorial 
+     optimization problems that are NP-complete [2], and even with these,
+     approximation methods involving the above techniques are often superior.
+
+     "wn_anneal" provides a complete simulated annealing optimization
+     algorithm.  It first computes a start temperature which leaves the
+     system near its maximum entropy state.  "wn_anneal" runs for
+     "epochs_to_run" epochs, decreasing the temperature linearly to
+     0.  Once the system reachs 0 temperature, it is annealed until
+     stuck in a local minimum.  Whether or not the system is stuck in
+     a local minimum is determined using "stop_run_length".  It is often
+     useful (for speed reasons) to terminate the run before stuck in
+     a local minimum.
+
+     An "epoch" is "problem_size" acceptances.  At each acceptance, the
+     temperature is decreased by a fixed amount; the amount is chosen
+     to make the temperature 0 after "epochs_to_run" epochs.
+     Temperature is not decreased at rejections.
+
+     "wn_anneal_from_temperature" works the same way as "anneal" except that
+     the start temperature is set by the user-supplied argument "start_temp".
+
+     Mutations are selected randomly and saved by the user-supplied
+     routine "(*pevaluate_random_mutation)()".  (*pevaluate_random_mutation)()
+     returns the amount of change in the objective function that the
+     mutation would produce if it were accepted.  
+
+     (*paccept_mutation)() is a user-supplied routine which accepts the 
+     mutation produced by the most recent call to 
+     (*pevaluate_random_mutation)().  (*paccept_mutation)() is frequently
+     a do-nothing routine.
+
+     (*preject_mutation)() is a user-supplied routine which rejects the
+     mutation produced by the most recent call to
+     (*pevaluate_random_mutation)().  Calling (*preject_mutation)() restores
+     the system state to its condition before the most recent call to
+     (*pevaluate_random_mutation)().
+
+     (*pcheckpoint)() is a user-supplied routine which is called a few
+     times in every epoch.  It normally prints some status info about the 
+     optimization to stderr, and saves the current solution to a file 
+     (so that if the system crashes, the current solution will not be lost).  
+     (*pcheckpoint)() is also called when the optimization completes.  
+
+     "problem_size" is a parameter which specifies the number of variables
+     in the problem to be optimized.  
+
+     "stop_run_length" specifies the unaccepted mutations required to
+     terminate the anneal.
+
+     "epochs_to_run" specifies the amount of time the anneal is to run for.
+     More time results in better solutions.
+     
+     Simulated annealing finds a good solution to an optimization problem
+     as follows.  The problem is presented, together with a feasible (legal)
+     solution.  This solution might be randomly generated or it might
+     be generated by some other optimization algorithm.  Mutations 
+     (small, incremental changes) are applied to this solution, 
+     hopefully improving it, until the algorithm terminates and 
+     a good solution is reached.  
+
+     Mutations are selected randomly; some are accepted, some are not.
+     Decrease in the objective function is improvement; increase 
+     is degradation.  All improvements or zero-changes (non-degradations)
+     are immediately accepted.  To avoid the algorithm getting
+     stuck in local minima too soon, degradations are sometimes accepted, with 
+     probability equal to
+     
+	 prob = exp(-delta/temperature)
+     
+     where "delta" is the change in objective function produced by the
+     mutation.  The "temperature" decreases by a fixed amount each time a 
+     mutation is accepted.  Temperature starts at some
+     medium to large initial value and falls throughout the run
+     toward 0.  At the end, temperature == 0.  At temperature == 0, no
+     degrading mutations are accepted. 
+
+RESOURCES
+     All these routines run with 
+
+       AVERAGE CASE:
+
+         time = epochs_to_run*problem_size*
+		<time for slowest caller-supplied routine>/
+		<average acceptance rate>
+         stack memory = 1
+         dynamic memory = 0
+
+     where "epochs_to_run" and "problem_size" are arguments to the routines.  
+
+     The number of iterations required for "wn_anneal" and 
+     "wn_anneal_from_temperature" to reach optimal or good solutions is 
+     problem specific and very difficult to predict in advance.  Generally, 
+     simulated annealing based algorithms are much faster than exhaustive 
+     search and variations on exhaustive search, such as random search 
+     and "branch and bound".  If time is limited, simulated annealing 
+     generally finds much better solutions than these techniques.
+
+BUGS
+
+SEE ALSO
+     wnrnd, wnsplx
+
+REFERENCES
+     [1] Kirkpatrick, S., Gelatt, C.D., Jr., and  Vecchi, M.P. (1983)
+         Optimization by simulated annealing, Science 220(4598), 671-680.
+
+     [2] Garey & Johnson:  Computers and Intractability -- A Guide to the 
+	 Theory of NP-Completeness, W.H. Freeman & Co, San Francisco, 1979.
+
+AUTHOR
+     Will Naylor
+

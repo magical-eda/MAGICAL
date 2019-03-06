@@ -1,0 +1,98 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+
+#include "wnlib.h"
+#include "wnasrt.h"
+#include "wnmem.h"
+#include "wnvect.h"
+#include "wnrnd.h"
+#include "wnrndd.h"
+
+
+#include "wnffln.h"
+#include "wnmqf.h"
+
+
+
+#define VARS   (400000)
+#define TOTAL  (2*VARS+2*VARS)
+#define DENSITY (10)
+/*
+#define VARS   (400)
+#define TOTAL  (2*VARS+2*VARS)
+#define DENSITY (10)
+#define VARS   (4)
+#define TOTAL  (2*VARS+2*VARS)
+#define DENSITY (3)
+#define VARS   (3)
+#define TOTAL  (2*VARS)
+#define DENSITY (1)
+#define VARS   (400000)
+#define TOTAL  (2*VARS)
+#define DENSITY (1)
+*/
+
+
+int main(void)
+{
+  wn_ffln_type ffln;
+  double *p,*v,*g;
+  int i;
+  int code;
+  double ob,alpha;
+  double coefs[DENSITY];
+  int from_indexes[DENSITY];
+  int node_index;
+
+  printf("generated sbrk(0) = %d\n",(int)sbrk(0));
+
+  wn_gpmake("no_free");
+
+  wn_ffln_make(&ffln,VARS,VARS,TOTAL);
+  wn_make_vect(&p,VARS);
+  wn_make_vect(&v,VARS);
+  wn_make_vect(&g,VARS);
+
+  for(i=0;i<VARS;++i)
+  {
+    g[i] = wn_normal_distribution();
+    /*
+    g[i] = 1.0;
+    g[i] = 1.0+i;
+    */
+  }
+
+  wn_ffln_generate(ffln,DENSITY,0.005,0.001);
+  /*
+  for(node_index=VARS;node_index < 2*VARS;++node_index)
+  {
+    from_indexes[0] = node_index-VARS;
+    coefs[0] = 3.0*(node_index+1.0-VARS);
+
+    wn_ffln_setup_node(ffln,node_index,1,coefs,from_indexes);
+  }
+  */
+
+  printf("generated sbrk(0) = %d\n",(int)sbrk(0));
+
+  /*
+  wn_ffln_print(ffln);
+  wn_print_vect(g,VARS);
+  wn_print_vect(p,VARS);
+  */
+
+  wn_minimize_quad_form(&code,&ob,&alpha,p,v,g,ffln,WN_IHUGE);
+
+  /*
+  for(i=0;i<20;++i)
+  {
+    wn_ffln_mult_vect(p,ffln,g);
+    printf("product done i = %d\n",i);
+  }
+  */
+
+  wn_gpfree();
+
+  return(0);
+}

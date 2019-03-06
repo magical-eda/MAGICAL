@@ -1,0 +1,8 @@
+#!/bin/csh -f
+
+foreach file (Makefile makefile *.[ch])
+  if ( -e $file) then
+    rlog -L $1 $file | egrep "(RCS file:)|(locked by:)"
+  endif
+end
+

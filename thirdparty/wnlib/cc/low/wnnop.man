@@ -1,0 +1,30 @@
+NAME
+     wnnop -- standard do-nothing functions
+
+SYNOPSIS
+     void wn_do_nothing()
+
+
+     int wn_return_0()
+
+     int wn_return_1()
+
+     int wn_return_neg_1()
+
+
+     bool wn_return_FALSE()
+
+     bool wn_return_TRUE()
+
+DESCRIPTION
+     These are do-nothing functions.  Each routine ignores its 
+     arguments and returns the indicated value.
+
+BUGS
+
+SEE ALSO
+
+AUTHOR
+     Will Naylor
+
+

@@ -1,0 +1,54 @@
+NAME
+     wnmio -- vector/matrix input and output
+
+SYNOPSIS
+     #include "wnmat.h"
+
+     wn_enter_vector(&vect)
+     wn_vector vect;
+
+     wn_enter_raw_vector(raw_vect,len_i)
+     double *raw_vect;
+     int len_i;
+
+     wn_enter_matrix(&mat)
+     wn_matrix mat;
+
+     wn_enter_raw_matrix(raw_mat,len_i,len_j)
+     double **raw_mat;
+     int len_i,len_j;
+
+
+     wn_print_vector(vect)
+     wn_vector vect;
+
+     wn_print_raw_vector(raw_vect,len_i)
+     double *raw_vect;
+     int len_i;
+
+     wn_print_matrix(mat)
+     wn_matrix mat;
+
+     wn_print_raw_matrix(raw_mat,len_i,len_j);
+     double **raw_mat;
+     int len_i,len_j;
+
+DESCRIPTION
+     These routines are useful for testing and debugging matrix
+     applications.
+
+     The "enter" routines prompt the user for vector/matrix data.
+     "wn_enter_vector" allocates memory for the vector, while
+     "wn_enter_raw_vector" does not.  "wn_enter_matrix" allocates memory
+     for the matrix, while "wn_enter_raw_matrix" does not.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+
+AUTHOR
+     Will Naylor
+
+

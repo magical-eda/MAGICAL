@@ -1,0 +1,833 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+
+#include "wnlib.h"
+#include "wnasrt.h"
+#include "wnmem.h"
+#include "wnvect.h"
+#include "wnrndd.h"
+#include "wnabs.h"
+#include "wnsll.h"
+#include "wncmp.h"
+#include "wnsort.h"
+#include "wnsqr.h"
+#include "wnpoly.h"
+
+#define DEBUG                   FALSE
+#define DEG                     7
+#define LARGEST_DEGREE_FIT      4
+
+
+int func_count;
+double f[7];
+double func_stdev;
+FILE *wlog;
+typedef struct sample_type_struct *sample_type;
+
+
+struct sample_type_struct
+{
+  double x;
+  double f;
+}; 
+
+
+local double function(double x)
+{
+  double func_val;
+
+  func_val = wn_eval_poly(x,f,7);
+  ++func_count;
+
+  /*
+  printf("#%d: Function(%lg) = %lg\n", func_count, x, func_val);
+  */
+
+  return(func_val);
+}
+
+
+local double noisy_function(double x)
+{
+  double ret;
+
+  ret = function(x);
+  ret += func_stdev*wn_normal_distribution();
+  return(ret);
+}
+
+
+local int compare(sample_type s1,sample_type s2)
+{
+  int cmp;
+
+  cmp = wn_doublecmp(wn_abs(s1->x),wn_abs(s2->x));
+  if(cmp != 0)
+  {
+    return(cmp);
+  }
+
+  cmp = wn_doublecmp(s1->f,s2->f);
+
+  return(cmp);
+}
+
+
+local void compute_noise2
+(
+  double *pnoise2,
+  double **m,
+  double poly[],
+  double f_vect[],
+  int n,
+  int degree
+)
+{
+  int i;
+  double sum,diff;
+
+  sum = 0.0;
+
+  for(i=0;i<n;++i)
+  {
+    diff = wn_dot_vects(m[i],poly,degree) - f_vect[i];
+    sum += diff*diff;
+  }
+
+  *pnoise2 = sum/(n-degree);
+}
+
+
+/* Given M, this method returns MlsInv = (M^T M)^(-1) M^T */
+local void ls_invert_mat(int *pcode,double **mlsinv,
+			 double **m,int len_i,int len_j)
+{
+  double **mt,**mtm,**mtmi;
+  int i,j;
+
+  wn_gpmake("no_free");
+
+  wn_assert(len_i >= len_j);
+
+  wn_make_mat(&mt,len_j,len_i);
+  wn_make_mat(&mtm,len_j,len_j);
+  wn_make_mat(&mtmi,len_j,len_j);
+
+  /*
+  printf("m =\n");
+  wn_print_mat(m,len_i,len_j);
+  */
+  wn_transpose_mat(mt,m,len_i,len_j);
+  /*
+  printf("mt =\n");
+  wn_print_mat(mt,len_j,len_i);
+  */
+  wn_mult_mats(mtm,mt,m,len_j,len_i,len_j);
+  /*
+  printf("mtm =\n");
+  wn_print_mat(mtm,len_j,len_j);
+  */
+  wn_copy_mat(mtmi,mtm,len_j,len_j);
+  wn_invert_mat(pcode,mtmi,len_j);
+
+  if(*pcode == WN_SUCCESS)
+  {
+    /*
+    printf("mtmi =\n");
+    wn_print_mat(mtmi,len_j,len_j);
+    */
+    wn_mult_mats(mlsinv,mtmi,mt,len_j,len_j,len_i);
+    /*
+    printf("mlsinv =\n");
+    wn_print_mat(mlsinv,len_j,len_i);
+    */
+  }
+
+  wn_gpfree();
+}
+
+
+local void sort_x
+(
+ double *x,
+ double *f,
+ int size
+)
+{
+  int i;
+  wn_memgp sort_memgp;
+  wn_sll list, el;
+  sample_type s;
+
+  list = NULL;
+
+  wn_gpmake("no_free");
+  for(i=0;i<size;++i)
+  {
+    s = (sample_type)wn_zalloc(sizeof(struct sample_type_struct));
+    s->x = x[i];
+    s->f = f[i];
+    wn_sllins(&list,s);
+  }
+  sort_memgp = wn_curgp();
+  wn_gppop();
+
+  wn_sort_sll(&list,(int (*)(ptr,ptr))&compare);
+
+  i = 0;
+  for(el=list;el!=NULL;el=el->next)
+  {
+    s = (sample_type)(el->contents);
+
+    x[i] = s->x;
+    f[i] = s->f;
+
+    ++i;
+  }
+  wn_gppush(sort_memgp);
+  wn_gpfree();
+}
+
+
+local void get_noise
+(
+ double *x_vect,
+ double *f_vect,
+ int n,
+ double *noise,
+ double *f3,
+ double *err
+)
+{
+  int i, j, code;
+  double **m, **mlsinv, **m4lsinv;
+  double *x5_vect;
+  double poly4[4], poly4_random_noise[4], poly4_systematic_noise[4], poly4_total_noise[4];
+  double poly[DEG], poly_random_noise[DEG];
+  double noise2, f5_2;
+
+  wn_assert(n > DEG);
+
+  wn_gpmake("no_free");
+
+  wn_make_mat(&m, n, DEG);
+
+  for(i=0;i<n;++i)
+  for(j=0;j<DEG;++j)
+  {
+    m[i][j] = pow(x_vect[i],(double)j);
+  }
+
+  wn_make_vect(&x5_vect,n);
+
+  for(i=0;i<n;++i)
+  {
+    x5_vect[i] = m[i][5];
+  }
+
+  wn_make_mat(&m4lsinv,4,n);
+  ls_invert_mat(&code,m4lsinv,m,n,4);
+  wn_assert(code == WN_SUCCESS);
+
+  wn_make_mat(&mlsinv,DEG,n);
+  ls_invert_mat(&code,mlsinv,m,n,DEG);
+  wn_assert(code == WN_SUCCESS);
+
+  wn_mult_mat_by_vect(poly4,m4lsinv,f_vect,4,n);
+  wn_mult_mat_by_vect(poly,mlsinv,f_vect,DEG,n);
+
+  compute_noise2(&noise2, m, poly, f_vect, n, DEG);
+  *noise = sqrt(noise2);
+  *f3 = poly4[3];
+
+  for(i=0;i<DEG;++i)
+  {
+    poly_random_noise[i] = sqrt(noise2*wn_norm2_vect(mlsinv[i],n));
+  }
+  for(i=0;i<4;++i)
+  {
+    poly4_random_noise[i] = sqrt(noise2*wn_norm2_vect(m4lsinv[i],n));
+  }
+
+  f5_2 = wn_square(poly[5]) - wn_square(poly_random_noise[5]);
+  if(f5_2 < 0.0)
+  {
+    f5_2 = 0.0;
+  }
+
+  wn_mult_mat_by_vect(poly4_systematic_noise, m4lsinv, x5_vect, 4, n);
+  for(i=0;i<4;++i)
+  {
+    poly4_systematic_noise[i] = sqrt(f5_2)*wn_abs(poly4_systematic_noise[i]);
+  }
+
+#if DEBUG
+  printf("Random noise in cubic approximation is ");
+  wn_print_vect(poly4_random_noise, 4);
+  printf("Taylor noise in cubic approximation is ");
+  wn_print_vect(poly4_systematic_noise, 4);
+#endif
+
+  for(i=0;i<4;++i)
+  {
+    poly4_total_noise[i] = 
+                sqrt(wn_square(poly4_random_noise[i])+
+	             wn_square(poly4_systematic_noise[i]));
+  }
+
+  *err = poly4_total_noise[3];
+  /*
+  printf("#%d: noise = %lg, f3 = %lg, err = %lg\n", n, *noise, *f3, *err);
+  */
+  wn_gpfree();
+}
+
+
+local void get_best_noise
+(
+ double *x_vect,
+ double *f_vect,
+ int n,
+ double *noise,
+ double *f3,
+ bool *unhappy
+)
+{
+  int m;
+  double err, best_err, noise_tmp, f3_tmp;
+
+  wn_assert(n > 7);
+
+  get_noise(x_vect, f_vect, m, noise, f3, &err);
+  best_err = err;
+  *unhappy = TRUE;
+
+  m = n - 1;
+  while(m > 7)
+  {
+    get_noise(x_vect, f_vect, m, &noise_tmp, &f3_tmp, &err);
+    if(best_err > err)
+    {
+      best_err = err;
+      *noise = noise_tmp;
+      *f3 = f3_tmp;
+      *unhappy = FALSE;
+    }
+    --m;
+  }
+}
+
+
+local void compute_experiment_width
+(
+  double *pwidth,
+  double x_vect[],
+  int n,
+  double random_noise,
+  double poly3
+)
+{
+  int i,j,code;
+  double **m,**m3lsinv;
+  double poly_random_noise[3],poly_systematic_noise[3];
+  double *x3_vect;
+
+  wn_assert(n > 6);
+  wn_assert(random_noise >= 0.0);
+
+  wn_gpmake("no_free");
+
+  poly3 = wn_abs(poly3);
+
+  wn_make_mat(&m,n,4);
+
+  for(i=0;i<n;++i)
+  for(j=0;j<4;++j)
+  {
+    m[i][j] = pow(x_vect[i],(double)j);
+  }
+
+  wn_make_vect(&x3_vect,n);
+
+  for(i=0;i<n;++i)
+  {
+    x3_vect[i] = m[i][3];
+  }
+
+  wn_make_mat(&m3lsinv,3,n);
+  ls_invert_mat(&code,m3lsinv,m,n,3);
+  wn_assert(code == WN_SUCCESS);
+
+  for(i=0;i<3;++i)
+  {
+    poly_random_noise[i] = random_noise*wn_norm_vect(m3lsinv[i],n);
+  }
+
+  wn_mult_mat_by_vect(poly_systematic_noise,m3lsinv,x3_vect,
+                      3,n);
+  for(i=0;i<3;++i)
+  {
+    poly_systematic_noise[i] = poly3*wn_abs(poly_systematic_noise[i]);
+  }
+
+  if(poly_systematic_noise[1] <= 0.0)
+  {
+    *pwidth = WN_FHUGE;
+  }
+  else
+  {
+    *pwidth = pow(0.5*wn_square(poly_random_noise[1])/
+                  wn_square(poly_systematic_noise[1]),1.0/6.0);
+  }
+
+  wn_gpfree();
+}
+
+
+local void fit_experiments_to_poly2
+(
+ double poly[3],
+ double poly_total_noise[3],
+ double poly_random_noise[3],
+ double poly_systematic_noise[3],
+ double *precommend_widen,
+ double x_vect[],
+ double f_vect[],
+ int n,
+ double *pnoise,
+ double *pf3
+)
+{
+  int i,j,code;
+  double **m,**mlsinv,**m3lsinv;
+  double poly4[4], poly4_random_noise[4];
+  double total4_noise2;
+  double poly3_2;
+  double *x3_vect;
+
+  wn_assert(n > 4);
+
+  wn_gpmake("no_free");
+
+  wn_make_mat(&m,n,4);
+
+  for(i=0;i<n;++i)
+  for(j=0;j<4;++j)
+  {
+    m[i][j] = pow(x_vect[i],(double)j);
+  }
+
+  wn_make_vect(&x3_vect,n);
+
+  for(i=0;i<n;++i)
+  {
+    x3_vect[i] = m[i][3];
+  }
+
+  wn_make_mat(&m3lsinv,3,n);
+  ls_invert_mat(&code,m3lsinv,m,n,3);
+  wn_assert(code == WN_SUCCESS);
+
+  wn_make_mat(&mlsinv,4,n);
+  ls_invert_mat(&code,mlsinv,m,n,4);
+  wn_assert(code == WN_SUCCESS);
+
+  wn_mult_mat_by_vect(poly,m3lsinv,f_vect,
+		      3,n);
+  wn_mult_mat_by_vect(poly4,mlsinv,f_vect,
+		      4,n);
+
+  compute_noise2(&total4_noise2,m,poly4,f_vect,n,4);
+
+#if DEBUG
+  printf("Cubic approximation is ");
+  wn_print_vect(poly4, 4);
+  printf("Random noise = %lg\n", sqrt(total4_noise2));
+#endif
+  *pnoise = sqrt(total4_noise2);
+  *pf3 = poly4[3];
+
+  for(i=0;i<4;++i)
+  {
+    poly4_random_noise[i] = sqrt(total4_noise2*wn_norm2_vect(mlsinv[i],n));
+  }
+  for(i=0;i<3;++i)
+  {
+    /* use total4_noise2 because it is the most accurate
+       estimate of function noise that we have */
+    poly_random_noise[i] = sqrt(total4_noise2*wn_norm2_vect(m3lsinv[i],n));
+  }
+
+  poly3_2 = wn_square(poly4[3]) - wn_square(poly4_random_noise[3]);
+  /*
+  if(poly3_2 < 0.0)
+  {
+    poly3_2 = 0.0;
+  }
+  */
+
+  wn_mult_mat_by_vect(poly_systematic_noise,m3lsinv,x3_vect,
+		      3,n);
+  for(i=0;i<3;++i)
+  {
+    poly_systematic_noise[i] = sqrt(poly3_2)*wn_abs(poly_systematic_noise[i]);
+  }
+
+#if DEBUG
+  printf("Random noise in quadratic approximation is ");
+  wn_print_vect(poly_random_noise, 3);
+  printf("Taylor noise in quadratic approximation is ");
+  wn_print_vect(poly_systematic_noise, 3);
+#endif
+
+  for(i=0;i<3;++i)
+  {
+    poly_total_noise[i] = 
+                sqrt(wn_square(poly_random_noise[i])+
+	             wn_square(poly_systematic_noise[i]));
+  }
+
+  if(poly_systematic_noise[1] == 0.0)
+  {
+    *precommend_widen = WN_FHUGE;
+  }
+  else
+  {
+    *precommend_widen = pow(0.5*wn_square(poly_random_noise[1])/
+			    wn_square(poly_systematic_noise[1]),1.0/6.0);
+  }
+
+  wn_gpfree();
+}
+
+
+/* Do a fit to poly2 with all the points */
+/* Start throwing them away based on a distance to xopt cryterium */
+/* Keep the fit with the smallest total_noise in df1 */
+local void bc_fit_experiments_to_poly2
+(
+  double poly[3],
+  double poly_total_noise[3],
+  double poly_random_noise[3],
+  double poly_systematic_noise[3],
+  double *precommend_widen,
+  double *random_noise,
+  double *f2,
+  double *f3,
+  double x_data[],
+  double f_data[],
+  int num_data,
+  double x_width,
+  bool *unhappy
+)
+{
+  int i,j,code;
+  double **m,**mlsinv,**m3lsinv;
+  double poly4[5],poly4_random_noise[5];
+  double total4_noise2;
+  double poly3_2, poly4_2;
+  double *x3_vect, *x4_vect;
+  double *x_vect;
+  double *f_vect;
+  int *n_vect;
+  int n, n_num;
+  bool old_n;
+  double widen_ratio, width;
+  double poly_local[3];
+  double poly_total_noise_local[3];
+  double poly_random_noise_local[3];
+  double poly_systematic_noise_local[3];
+  double fourth_order_systematic_noise[3];
+  double df_precision, old_df_precision;
+  double err;
+#if TEST
+  double s;
+#endif
+
+  wn_gpmake("no_free");
+
+  wn_make_vect(&x_vect, num_data);
+  wn_make_vect(&f_vect, num_data);
+
+  wn_assert(num_data > 4);
+  n = num_data;
+
+  /* sort the data */
+  vector_sort(x_data, f_data, num_data, x_vect, f_vect);
+
+  *unhappy = FALSE;
+  old_df_precision = WN_FHUGE;
+  while(n > 9)
+  {
+#if DEBUG
+    printf("Fit_poly2: %d points used.\n", n);
+    /*
+    printf("Fit_poly2: X = ");
+    wn_print_vect(x_vect, n);
+    printf("Fit_poly2: F = ");
+    wn_print_vect(f_vect, n);
+    */
+#endif
+
+    wn_make_mat(&m,n,LARGEST_DEGREE_FIT);
+    for(i=0;i<n;++i)
+    for(j=0;j<LARGEST_DEGREE_FIT;++j)
+    {
+      m[i][j] = pow(x_vect[i],(double)j);
+    }
+    
+    wn_make_vect(&x3_vect,n);
+    for(i=0;i<n;++i)
+    {
+      x3_vect[i] = m[i][3];
+    }
+#if (LARGEST_DEGREE_FIT > 4)
+    wn_make_vect(&x4_vect,n);
+    for(i=0;i<n;++i)
+    {
+      x4_vect[i] = m[i][4];
+    }
+#endif
+    
+    wn_make_mat(&m3lsinv,3,n);
+    ls_invert_mat(&code,m3lsinv,m,n,3);
+    wn_assert(code == WN_SUCCESS);
+    
+    wn_make_mat(&mlsinv,LARGEST_DEGREE_FIT,n);
+    ls_invert_mat(&code,mlsinv,m,n,LARGEST_DEGREE_FIT);
+    wn_assert(code == WN_SUCCESS);
+    
+    wn_mult_mat_by_vect(poly_local,m3lsinv,f_vect,3,n);
+    wn_mult_mat_by_vect(poly4,mlsinv,f_vect,LARGEST_DEGREE_FIT,n);
+    
+    compute_noise2(&total4_noise2,m,poly4,f_vect,n,LARGEST_DEGREE_FIT);
+    
+#if DEBUG
+    printf("Cubic approximation is ");
+    wn_print_vect(poly4, LARGEST_DEGREE_FIT);
+    printf("Quadratic approximation is ");
+    wn_print_vect(poly_local, 3);
+    printf("Random noise = %lg\n", sqrt(total4_noise2));
+#endif
+
+    for(i=0;i<LARGEST_DEGREE_FIT;++i)
+    {
+      poly4_random_noise[i] = sqrt(total4_noise2*wn_norm2_vect(mlsinv[i],n));
+    }
+    for(i=0;i<3;++i)
+    {
+      /* use total4_noise2 because it is the most accurate estimate of function noise that we have */
+      poly_random_noise_local[i] = sqrt(total4_noise2*wn_norm2_vect(m3lsinv[i],n));
+    }
+    
+    poly3_2 = wn_square(poly4[3]) - wn_square(poly4_random_noise[3]);
+    if(poly3_2 < 0.0)
+    {
+      poly3_2 = 0.0;
+    }
+#if (LARGEST_DEGREE_FIT > 4)
+    poly4_2 = wn_square(poly4[4]) - wn_square(poly4_random_noise[4]);
+    if(poly4_2 < 0.0)
+    {
+      poly4_2 = 0.0;
+    }
+    wn_mult_mat_by_vect(fourth_order_systematic_noise,m3lsinv,x4_vect,3,n);
+#endif
+
+    wn_mult_mat_by_vect(poly_systematic_noise_local,m3lsinv,x3_vect,3,n);
+    for(i=0;i<3;++i)
+    {
+      poly_systematic_noise_local[i] = sqrt(poly3_2)*wn_abs(poly_systematic_noise_local[i]);
+#if (LARGEST_DEGREE_FIT > 4)
+      poly_systematic_noise_local[i] += sqrt(poly4_2)*wn_abs(fourth_order_systematic_noise[i]);
+#endif
+    }
+    
+#if DEBUG
+    printf("Random noise in quadratic approximation is ");
+    wn_print_vect(poly_random_noise_local, 3);
+    printf("Taylor noise in quadratic approximation is ");
+    wn_print_vect(poly_systematic_noise_local, 3);
+#endif
+    
+    for(i=0;i<3;++i)
+    {
+      poly_total_noise_local[i] = 
+	sqrt(wn_square(poly_random_noise_local[i])+
+	     wn_square(poly_systematic_noise_local[i]));
+    }
+
+
+    err = sqrt(poly_local[0]*poly_local[0] + poly_local[1]*poly_local[1] + (poly_local[2] - 1.0)*(poly_local[2] - 1.0));
+    /*
+    printf("noise(%d) = %lg; nf1(%d) = %lg; err(%d) = %lg;\n", n, total4_noise2, n, poly_total_noise_local[1], n, err);
+    fprintf(wlog, "noise(%d) = %lg; nf1(%d) = %lg; err(%d) = %lg;\n", n, total4_noise2, n, poly_total_noise_local[1], n, err);
+    printf("f3(%d) = %lg; poly(%d) = ", n, poly4[3], n);
+    wn_print_vect(poly_local, 3);
+    */
+
+    /* save the solution if it is better that what we already have */
+    df_precision = wn_abs(poly_total_noise_local[1]);
+    if(df_precision < old_df_precision)
+    {
+      wn_copy_vect(poly, poly_local, 3);
+      wn_copy_vect(poly_total_noise, poly_total_noise_local, 3);
+      wn_copy_vect(poly_random_noise, poly_random_noise_local, 3);
+      wn_copy_vect(poly_systematic_noise, poly_systematic_noise_local, 3);
+      *precommend_widen = wn_abs(x_vect[n-1])/x_width;
+      *random_noise = sqrt(total4_noise2);
+      *f2 = poly4[2];
+      *f3 = poly4[3];
+      old_df_precision = df_precision;
+#if TEST
+      printf("N = %d\n", n);
+      printf("X = ");
+      wn_print_vect(x_vect, n);
+      printf("F = ");
+      wn_print_vect(f_vect, n);
+      s = 0.0;
+      for(i=0;i<n;++i)
+      {
+	if(x_vect[i] != 0.0)
+	{
+	  s += f_vect[i]/x_vect[i];
+	}
+      }
+      s /= (double)n;
+      printf("df_formula = %lg\n", s);
+      printf("df_regress = %lg\n", poly[1]);
+      printf("\n");
+#endif
+    }
+    --n;
+  }
+  clamp_number(precommend_widen, 0.5, 2.0);
+#if DEBUG
+  printf("Fit to second-degree polynomial finished.\n");
+#endif
+  wn_gpfree();
+}
+
+
+void main(int argc, char *argv[])
+{
+  int i, num_samples, f3_samples;
+  double poly[3];
+  double poly_total_noise[3];
+  double poly_random_noise[3];
+  double poly_systematic_noise[3];
+  wn_memgp xf_memgp;
+  double *x_vect, *f_vect;
+  double width, f3_width, width_ratio;
+  double noise, f2, f3;
+  bool unhappy;
+
+  if(argc != 2)
+  {
+    fprintf(stderr,"Usage: %s seed\n",argv[0]);
+    exit(-1);
+  }
+  wn_seed_random_number_generator(wn_strhash(argv[1]));
+
+  wlog = fopen("/u/bogdan/noiseopt/wlog.m", "w");
+
+  for(i=0;i<7;++i)
+  {
+    f[i] = wn_normal_distribution();
+  }
+  f[2] = wn_abs(f[2]);
+  f[4] = wn_abs(f[4]);
+  f[6] = wn_abs(f[6]);
+  func_stdev = 1.0;
+  func_count = 0;
+  printf("\n");
+  printf("Function = ");
+  wn_print_vect(f, 7);
+  printf("\n");
+
+  f3_width = 2.0;
+  f3_samples = 10;
+  width = 1.0;
+  num_samples = 20;
+
+  wn_gpmake("no_free");
+  wn_make_vect(&x_vect,f3_samples);
+  wn_make_vect(&f_vect,f3_samples);
+  xf_memgp = wn_curgp();
+  wn_gppop();
+
+  wlog = fopen("/u/bogdan/noiseopt/wlog.m", "w");
+  for(i=0;i<f3_samples;++i)
+  {
+    x_vect[i] = -f3_width + 2.0*f3_width*((double)i)/((double)(f3_samples-1));
+    f_vect[i] = noisy_function(x_vect[i]);
+    fprintf(wlog, "x(%d) = %lg; f(%d) = %lg;\n", i+1, x_vect[i], i+1, f_vect[i]);
+  }
+  fclose(wlog);
+
+  sort_x(x_vect, f_vect, f3_samples);
+  get_best_noise(x_vect, f_vect, f3_samples, &noise, &f3, &unhappy);
+
+  printf("Noise: Truth = %lg\n", func_stdev);
+  printf("Noise: Guess = %lg\n", noise);
+  printf("\n");
+  printf("F3: Truth = %lg\n", f[3]);
+  printf("F3: Guess = %lg\n", f3);
+  printf("\n");
+
+  if(unhappy)
+  {
+    printf("Unhappy!\n");
+  }
+
+  wn_gppush(xf_memgp);
+  wn_make_vect(&x_vect, num_samples);
+  wn_make_vect(&f_vect, num_samples);
+  wn_gppop();
+
+  for(i=0;i<num_samples;++i)
+  {
+    x_vect[i] = -width + 2.0*width*((double)i)/((double)(num_samples-1));
+  }
+
+  noise = 1.0;
+  compute_experiment_width(&width_ratio, x_vect, num_samples, noise, f3);
+
+  width *= width_ratio;
+
+  wlog = fopen("/u/bogdan/noiseopt/wlog.m", "w");
+  for(i=0;i<num_samples;++i)
+  {
+    x_vect[i] = -width + 2.0*width*((double)i)/((double)(num_samples-1));
+    f_vect[i] = noisy_function(x_vect[i]);
+    fprintf(wlog, "x(%d) = %lg; f(%d) = %lg;\n", i+1, x_vect[i], i+1, f_vect[i]);
+  }
+  fclose(wlog);
+
+  printf("Recommended width = %lg\n", width);
+  printf("\n");
+
+  bc_fit_experiments_to_poly2(poly, poly_total_noise, poly_random_noise, poly_systematic_noise,
+			      &width_ratio, &noise, &f2, &f3, x_vect, f_vect, num_samples, width, &unhappy);
+  printf("F1: Truth = %lg\n", f[1]);
+  printf("F1: bc_f1 = %lg\n", poly[1]);
+  fit_experiments_to_poly2(poly, poly_total_noise, poly_random_noise, poly_systematic_noise,
+			   &width_ratio, x_vect, f_vect, num_samples, &noise, &f3);
+  printf("F1: wn_f1 = %lg\n", poly[1]);
+  printf("\n");
+
+  wn_gppush(xf_memgp);
+  wn_gpfree();
+}
+
+/*
+
+rm examples.log
+set i = 0
+while($i < 1000)
+examples $i >> examples.log
+@ i = $i + 1
+end
+
+*/

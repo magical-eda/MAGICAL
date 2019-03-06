@@ -1,0 +1,640 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+
+#include "wnlib.h"
+#include "wnasrt.h"
+#include "wnmem.h"
+#include "wnsll.h"
+#include "wnhash.h"
+#include "wnrnd.h"
+#include "wnrndd.h"
+#include "wnswap.h"
+#include "wnsqr.h"
+#include "wnvect.h"
+
+#include "wnconj.h"
+#include "wnffln.h"
+#include "wnmqf.h"
+
+
+#define NUM_VARS   350000
+#define NUM_EQ     NUM_VARS
+/*
+#define NUM_EQ     96
+*/
+
+#define NUM_COEFS    9+4
+
+
+
+typedef struct equation_type_struct
+{
+  int indexes[NUM_COEFS];
+  double coefs[NUM_COEFS];
+  double right_side;
+} *equation_type;
+
+
+local double equation_diff(equation_type equation,double vect[NUM_VARS]);
+
+
+local equation_type equation_array[NUM_EQ];
+local wn_sll equation_list;
+local int count;
+local double save_correct_vect[NUM_VARS];
+
+
+
+local bool index_repeated(int indexes[NUM_COEFS],int i)
+{
+  int j,index;
+
+  index = indexes[i];
+
+  for(j=0;j<i;++j)
+  {
+    if(indexes[j] == index)
+    {
+      return(TRUE);
+    }
+  }
+
+  return(FALSE);
+}
+
+
+local void generate_random_equation(equation_type *pequation)
+{
+  static count = 0;
+  int i,j;
+
+  *pequation = (equation_type)wn_zalloc(sizeof(struct equation_type_struct));
+
+  (*pequation)->right_side = wn_normal_distribution();
+  /*
+  (*pequation)->right_side = 0.0;
+  */
+
+  for(i=0;i<NUM_COEFS;++i)
+  {
+    ((*pequation)->coefs)[i] = wn_normal_distribution();
+
+    do
+    {
+      ((*pequation)->indexes)[i] = wn_random_mod_int(NUM_VARS);
+    } 
+    while(index_repeated((*pequation)->indexes,i));
+
+    /*
+    j = (i + count)%NUM_VARS;
+    ((*pequation)->indexes)[i] = j;
+    */
+  }
+}
+
+
+local bool indexes_repeated(int indexes[NUM_COEFS])
+{
+  int i,j;
+
+  for(i=0;i<NUM_COEFS;++i)
+  for(j=0;j<i;++j)
+  {
+    if(indexes[i] == indexes[j])
+    {
+      return(TRUE);
+    }
+  }
+
+  return(FALSE);
+}
+
+
+local void random_swap_indexes(void)
+{
+  int count,e1,i1,e2,i2;
+  equation_type eq1,eq2;
+
+  for(count=0;count<10*NUM_EQ*NUM_COEFS;++count)
+  {
+    e1 = wn_random_mod_int(NUM_EQ);
+    i1 = wn_random_mod_int(NUM_COEFS);
+
+    e2 = wn_random_mod_int(NUM_EQ);
+    i2 = wn_random_mod_int(NUM_COEFS);
+
+    eq1 = equation_array[e1];
+    eq2 = equation_array[e2];
+
+    wn_assert(!(indexes_repeated(eq1->indexes)));
+    wn_assert(!(indexes_repeated(eq2->indexes)));
+
+    wn_swap((eq1->indexes)[i1],(eq2->indexes)[i2],int);
+
+    if(indexes_repeated(eq1->indexes)||indexes_repeated(eq2->indexes))
+    {
+      wn_swap((eq1->indexes)[i1],(eq2->indexes)[i2],int);
+    }
+  }
+}
+
+
+local void generate_equations(void)
+{
+  int i,j,count;
+  equation_type equation;
+
+  equation_list = NULL;
+
+  for(i=0;i<NUM_EQ;++i)
+  {
+    generate_random_equation(&equation);
+    
+    wn_sllins(&equation_list,equation);
+    equation_array[i] = equation;
+  }
+
+#if 0
+  count = 0;
+
+  for(i=0;i<NUM_EQ;++i)
+  {
+    equation = equation_array[i];
+
+    for(j=0;j<NUM_COEFS;++j)
+    {
+      (equation->indexes)[j] = count;
+
+      ++count;
+      if(count >= NUM_VARS)
+      {
+	count = 0;
+      }
+    }
+  }
+
+  random_swap_indexes();
+#endif
+}
+
+
+local void print_equation(equation_type equation,double vect[NUM_VARS])
+{
+  bool first_time;
+  int var;
+
+  first_time = TRUE;
+
+  printf("%lf = ",equation->right_side);
+
+  for(var=0;var<NUM_COEFS;++var)
+  {
+    if(first_time)
+    {
+      first_time = FALSE;
+    }
+    else
+    {
+      printf(" + ");
+    }
+
+    printf("%lf v%d",(equation->coefs)[var],(equation->indexes)[var]);
+  }
+
+  printf(";   diff = %lf",equation_diff(equation,vect));
+
+  printf("\n");
+}
+
+
+local void print_equations(double vect[NUM_VARS])
+{
+  int i;
+
+  printf("----------------------\n");
+
+  for(i=0;i<NUM_EQ;++i)
+  {
+    print_equation(equation_array[i],vect);
+  }
+
+  printf("----------------------\n");
+}
+
+
+local double equation_diff(equation_type equation,double vect[NUM_VARS])
+{
+  double *coefs;
+  int *indexes;
+  double sum;
+  int i;
+
+  coefs = equation->coefs;
+  indexes = equation->indexes;
+
+  sum = 0.0;
+
+  for(i=0;i<NUM_COEFS;++i)
+  {
+    sum += coefs[i]*vect[indexes[i]];
+    /*
+    sum = fprec(sum);
+    */
+  }
+
+  sum -= equation->right_side;
+
+  /*
+  sum = fprec(sum);
+  */
+
+  return(sum);
+}
+
+
+local double function(double vect[NUM_VARS])
+{
+  wn_sll el;
+  equation_type equation;
+  double error,diff,ret;
+
+  error = 0.0;
+
+#if 0
+  el=equation_list;
+
+  equation = (equation_type)(el->contents);
+
+  diff = equation_diff(equation,vect);
+
+  error += diff;
+
+  for(el=equation_list->next;el!=NULL;el=el->next)
+  {
+    equation = (equation_type)(el->contents);
+
+    diff = equation_diff(equation,vect);
+
+    if(diff > 0.0)
+    {
+    error += diff*diff;
+    }
+  }
+#endif
+
+  for(el=equation_list;el!=NULL;el=el->next)
+  {
+    equation = (equation_type)(el->contents);
+
+    diff = equation_diff(equation,vect);
+
+    error += diff*diff;
+
+    /*
+    error = fprec(error);
+    */
+  }
+
+  printf("count = %d,f = %lg,norm2(vect) = %lg,norm2(vect-correct) = %lg\n",
+	 count,
+	 error/NUM_EQ,
+	 wn_norm2_vect(vect,NUM_VARS)/NUM_VARS,
+	 wn_dist2_vect(vect,save_correct_vect,NUM_VARS)/NUM_VARS);
+
+  ret = error/NUM_EQ /*+ 0.003*wn_normal_distribution()*/;
+  printf("ret = %lg\n",ret);
+  fflush(stdout);
+  ++count;
+/*
+*/
+
+  /*
+  printf("f = %lg,norm2(vect) = %lg\n",
+	 error/NUM_EQ,
+	 wn_norm2_vect(vect,NUM_VARS)/NUM_VARS);
+  */
+
+  return(ret);
+}
+
+
+local void gradient(double grad[NUM_VARS],double vect[NUM_VARS])
+{
+  int i,index;
+  wn_sll el;
+  equation_type equation;
+  double *coefs;
+  int *indexes;
+  double diff;
+
+  for(i=0;i<NUM_VARS;++i)
+  {
+    grad[i] = 0.0;
+  }
+
+#if 0
+  el=equation_list;
+  equation = (equation_type)(el->contents);
+
+  coefs = equation->coefs;
+  indexes = equation->indexes;
+
+  for(i=0;i<NUM_COEFS;++i)
+  {
+    index = indexes[i];
+
+    grad[index] += coefs[i];
+  }
+
+  for(el=equation_list->next;el!=NULL;el=el->next)
+  {
+    equation = (equation_type)(el->contents);
+
+    diff = equation_diff(equation,vect);
+
+    if(diff > 0.0)
+    {
+    coefs = equation->coefs;
+    indexes = equation->indexes;
+
+    for(i=0;i<NUM_COEFS;++i)
+    {
+      index = indexes[i];
+
+      grad[index] += 2.0*diff*coefs[i];
+    }
+    }
+  }
+#endif
+
+  for(el=equation_list;el!=NULL;el=el->next)
+  {
+    equation = (equation_type)(el->contents);
+
+    diff = equation_diff(equation,vect);
+
+    coefs = equation->coefs;
+    indexes = equation->indexes;
+
+    for(i=0;i<NUM_COEFS;++i)
+    {
+      index = indexes[i];
+
+      grad[index] += 2.0*diff*coefs[i]/NUM_EQ;
+
+      /*
+      grad[index] = fprec(grad[index]);
+      */
+    }
+  }
+
+  printf("iterations = %d,norm(g) = %lg\n",count,wn_norm_vect(grad,NUM_VARS));
+  /*
+  if(count%10 == 0)
+  {
+    (void)function(vect);
+  }
+  */
+
+  fflush(stdout);
+  /*
+  */
+  ++count;
+}
+
+
+local double funcgrad(double grad[],double vect[])
+{
+  int i,index;
+  wn_sll el;
+  equation_type equation;
+  double *coefs;
+  int *indexes;
+  double error,diff;
+
+  error = 0.0;
+
+  for(i=0;i<NUM_VARS;++i)
+  {
+    grad[i] = 0.0;
+  }
+
+  for(el=equation_list;el!=NULL;el=el->next)
+  {
+    equation = (equation_type)(el->contents);
+
+    diff = equation_diff(equation,vect);
+
+    coefs = equation->coefs;
+    indexes = equation->indexes;
+
+    error += diff*diff;
+
+    for(i=0;i<NUM_COEFS;++i)
+    {
+      index = indexes[i];
+
+      grad[index] += 2.0*diff*coefs[i]/NUM_EQ;
+
+      /*
+      grad[index] = fprec(grad[index]);
+      */
+    }
+  }
+
+  printf("iterations = %d,func = %lg,norm(g) = %lg\n",
+	 count,error/NUM_VARS,wn_norm_vect(grad,NUM_VARS));
+
+  fflush(stdout);
+  ++count;
+
+  return(error/NUM_EQ);
+}
+
+
+#if 0
+local double funcgrad(double grad[],double vect[])
+{
+  double val;
+
+  gradient(grad,vect);
+  val = function(vect);
+
+  return(val);
+}
+#endif
+
+
+local void update_right_sides(double vect[NUM_VARS])
+{
+  wn_sll el;
+  equation_type equation;
+  double diff;
+
+  for(el=equation_list;el!=NULL;el=el->next)
+  {
+    equation = (equation_type)(el->contents);
+    equation->right_side = 0.0;
+
+    diff = equation_diff(equation,vect);
+
+    equation->right_side = diff;
+  }
+}
+
+
+local void gen_ffln_for_system(wn_ffln_type *pffln)
+{
+  int m1,m2,i,j,node_index,num_edges;
+  static double coefs[NUM_VARS];
+  int from_indexes[NUM_VARS];
+  equation_type eq;
+  wn_ffln_node_type node;
+
+  wn_ffln_make(pffln,NUM_VARS,NUM_VARS,2*NUM_VARS+NUM_EQ);
+
+  m1 = NUM_VARS;
+  m2 = m1 + NUM_EQ;
+
+  for(i=0;i<NUM_EQ;++i)
+  {
+    node_index = i+m1; 
+
+    eq = equation_array[i];
+
+    wn_ffln_setup_node(*pffln,node_index,NUM_COEFS,
+                       eq->coefs,eq->indexes);
+  }
+
+  for(i=0;i<NUM_VARS;++i)
+  {
+    node_index = i+m2;
+
+    wn_ffln_setup_node(*pffln,node_index,0,
+                       coefs,from_indexes);
+  }
+  for(i=0;i<NUM_EQ;++i)
+  {
+    eq = equation_array[i];
+
+    for(j=0;j<NUM_COEFS;++j)
+    {
+      node_index = (eq->indexes)[j] + m2;
+      node = ((*pffln)->nodes)[node_index];
+
+      ++(node->num_edges);
+    }
+  }
+  for(i=0;i<NUM_VARS;++i)
+  {
+    node_index = i+m2;
+    num_edges = ((*pffln)->nodes)[node_index]->num_edges;
+    ((*pffln)->nodes)[node_index]->num_edges = 0;
+    wn_ffln_setup_node(*pffln,node_index,num_edges,
+                       NULL,NULL);
+    ((*pffln)->nodes)[node_index]->num_edges = 0;
+  }
+  for(i=0;i<NUM_VARS;++i)
+  {
+    node_index = i+m2;
+    ((*pffln)->nodes)[node_index]->num_edges = 0;
+  }
+  for(i=0;i<NUM_EQ;++i)
+  {
+    eq = equation_array[i];
+
+    for(j=0;j<NUM_COEFS;++j)
+    {
+      node_index = (eq->indexes)[j] + m2;
+      node = ((*pffln)->nodes)[node_index];
+
+      (node->coefs)[node->num_edges] = 2.0*(eq->coefs)[j]/(NUM_EQ);
+      (node->pvals)[node->num_edges] = &(((*pffln)->vals)[m1+i]);
+
+      ++(node->num_edges);
+    }
+  }
+}
+
+
+#if 1
+int main(int argc,char *argv[])
+{
+  static double vect[NUM_VARS],g[NUM_VARS],p[NUM_VARS];
+  double val_min,alpha,save_val_min;
+  int i,seed,code;
+  wn_ffln_type ffln;
+
+  if(argc != 2)
+  {
+    fprintf(stderr,"usage: examples <seed>\n");
+    exit(-1);
+  }
+
+  /*
+  sscanf(argv[1],"%d",&seed);
+  wn_seed_random_number_generator(seed);
+  */
+  wn_seed_random_number_generator(wn_strhash(argv[1]));
+
+  wn_gpmake("no_free");
+
+  generate_equations();
+
+  wn_zero_vect(vect,NUM_VARS);
+  /*
+  */
+  for(i=0;i<NUM_VARS;++i)
+  {
+    vect[i] = wn_normal_distribution();
+  }
+  update_right_sides(vect);
+  wn_copy_vect(save_correct_vect,vect,NUM_VARS);
+
+  for(i=0;i<NUM_VARS;++i)
+  {
+    vect[i] = wn_normal_distribution();
+  }
+
+  count = 0;
+
+  /*
+  print_equations(vect);
+  */
+  val_min = function(vect);
+  printf("objective = %lg\n",val_min);
+
+#if 0
+  wn_conj_funcgrad_method(&code,&val_min,vect,NUM_VARS,
+			  &funcgrad,(bool (*)(double *,double,int))NULL,
+			  1.0,
+			  0,1.0,
+                          50 /*NUM_VARS*/ /*WN_IHUGE*/);
+
+  printf("code = %d\n",code);
+  printf("objective = %lg\n",val_min);
+  val_min = function(vect);
+  printf("actual objective = %lg\n",val_min);
+#endif
+
+  val_min = funcgrad(g,vect);
+  save_val_min = val_min;
+  printf("val_min = %lg\n",val_min);
+  printf("start making ffln\n");
+  gen_ffln_for_system(&ffln);
+  printf("fin making ffln\n");
+  /*
+  wn_ffln_print(ffln);
+  */
+  wn_minimize_quad_form(&code,&val_min,&alpha,p,vect,g,ffln,/*162*/ 50 /*WN_IHUGE*/);
+  printf("val_min = %lg\n",val_min);
+  printf("save_val_min + val_min = %lg\n",save_val_min+val_min);
+#if 0
+#endif
+
+  /*
+  wn_print_vect(vect,NUM_VARS);
+  */
+}
+#endif

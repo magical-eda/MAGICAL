@@ -1,0 +1,29 @@
+.de lh
+.(b F
+.in 0
+.nh
+..
+
+.de lb
+.in 5
+.nh
+..
+
+.de le
+.in 0
+.)b
+..
+
+.de bd
+\\$1
+..
+
+.de rf
+.in 5
+.ti 0
+\\$1
+..
+
+
+.nh
+

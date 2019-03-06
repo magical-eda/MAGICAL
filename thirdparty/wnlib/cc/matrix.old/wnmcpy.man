@@ -1,0 +1,33 @@
+NAME
+     wnmcpy -- vector/matrix copy
+
+SYNOPSIS
+     #include "wnmat.h"
+
+     wn_copy_vector(&to_vect,from_vect)
+     wn_vector to_vect,from_vect;
+
+     wn_copy_raw_vector(to_raw_vect,from_raw_vect,len_i)
+     double *to_raw_vect,*from_raw_vect;
+     int len_i;
+
+     wn_copy_matrix(&out_mat,in_mat)
+     wn_matrix out_mat,in_mat;
+
+     wn_copy_raw_matrix(out_raw_mat,in_raw_mat,len_i,len_j)
+     double **out_raw_mat,**in_raw_mat;
+     int len_i,len_j;
+
+DESCRIPTION
+     Vector/matrix copy routines.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+
+AUTHOR
+     Will Naylor
+
+

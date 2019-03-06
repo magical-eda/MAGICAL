@@ -1,0 +1,101 @@
+NAME
+     wnrsrt -- radix sorting package
+
+SYNOPSIS
+     wn_radix_sort_sll(&list,pkeyindex_func,pkeylen_func)
+     wn_sll list;
+     char (*pkeyindex_func)(/*key,index*/);   /* ptr key; int index; */
+     int (*pkeylen_func)(/*key*/);            /* ptr key; */
+
+DESCRIPTION
+     "wn_radix_sort_sll" sorts a singly linked list into ascending order,
+     using a "radix sort" algorithm.  (*pkeyindex_func)()
+     returns char "index" of the key pointed to by the contents
+     field of a wn_sll.  (*pkeylen_func)() returns the length of
+     the key pointed to by the contents field of a wn_sll.
+
+     This sort is much faster than the sorts in "wnsort" for large
+     lists; however, it is slower for |list| < 500 items.  It
+     is also less flexible:  sorts based on some keys are impossible
+     (double and float, for example).  For keys where a radix
+     sort is applicable, such as int, pointer, or character string,
+     I recommend this sort over "wnsort" if speed is at all important.
+
+EXAMPLES
+     The following subroutine
+
+       example1()    /* list radix sort */
+       {
+         extern int wn_strlen();
+         char string_index();
+         char *string;
+         wn_sll list,el;
+       
+         list = NULL;
+         
+         wn_sllins(&list,(ptr)"foo");
+         wn_sllins(&list,(ptr)"bar");
+         wn_sllins(&list,(ptr)"tim");
+         wn_sllins(&list,(ptr)"mouse");
+         wn_sllins(&list,(ptr)"ant");
+         wn_sllins(&list,(ptr)"turkey");
+
+         wn_radix_sort_sll(&list,(string_index),(wn_strlen));
+
+         for(el=list,wn_loopinit();wn_sllloop(&el,&string);)
+         {
+           printf("%s\n",string);
+         }
+       }
+
+       local char string_index(string,index)
+       char string[];
+       int index;
+       {
+         return(string[index]);
+       }
+
+     prints the sorted strings 
+
+       ant
+       bar
+       foo
+       mouse
+       tim
+       turkey
+
+RESOURCES
+     This routine runs with
+
+       WORST and AVERAGE CASE:
+
+         time = 1000 + sum_over_items(length of the key of the item) 
+         stack memory = 1000
+         dynamic memory = 0
+
+     For fixed length keys, this becomes
+
+       WORST and AVERAGE CASE:
+
+         time = 1000 + number_of_items*key_length 
+         stack memory = 1000
+         dynamic memory = 0
+
+     This sort is much faster than the sorts in "wnsort" for large
+     lists; however, it is slower for |list| < 500 items.  This is
+     because of the large fixed time overhead.
+
+     For large lists, this algorithm essentially examines each char of
+     each key exactly once.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnsort, qsort(3), wnsll
+
+AUTHOR
+     Will Naylor
+
+

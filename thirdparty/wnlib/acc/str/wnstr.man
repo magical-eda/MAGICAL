@@ -1,0 +1,67 @@
+NAME
+     wnstr -- string operations
+
+SYNOPSIS
+     #include "wnstr.h"
+
+     wn_strncpy(out,in,n)  
+     char out[],in[];
+     int n;
+
+     wn_stracpy(&out,in)
+     char out[],in[];
+
+     wn_strncat(out,in,n) 
+     char out[],in[];
+     int n;
+
+     wn_stracat(&out,s1,s2)
+     char out[],s1[],s2[];
+
+     wn_stracat3(&out,s1,s2,s3)
+     char out[],s1[],s2[],s3[];
+
+     wn_stracat4(&out,s1,s2,s3,s4)
+     char out[],s1[],s2[],s3[],s4[];
+
+     wn_stracat5(&out,s1,s2,s3,s4,s5)
+     char out[],s1[],s2[],s3[],s4[],s5[];
+
+     wn_stracat6(&out,s1,s2,s3,s4,s5,s6)
+     char out[],s1[],s2[],s3[],s4[],s5[],s6[];
+
+     bool wn_char_in_string(c,s)
+     char c,s[];
+
+DESCRIPTION
+     These routines operate on null-terminated character strings.  They
+     do not check for overflow of any receiving string.
+
+     "wn_strncpy" is NOT the same as "strncpy"; it copies strlen(in) 
+     or "n" chars, whichever is less, and then null terminates.  The
+     target can become as long as n+1 chars, including the null-termination.
+
+     "wn_stracpy" allocates (from the current memory group) strlen(in)+1
+     chars of memory for "out", and then copies "in" to it.
+
+     "wn_strncat" is NOT the same as "strncat"; it appends chars from
+     "in" while "out" has strlen < "n", and then null terminates.  The
+     target can become as long as n+1 chars, including the null-termination.
+
+     "wn_stracat" allocates (from the current memory group) 
+     strlen(s1)+strlen(s2)+1 chars of memory for "out", then
+     puts the concatonation of s1 and s2 in this memory.
+     "wn_stracat3" concatonates 3 strings in the same manner, etc.
+
+     "wn_char_in_string" returns TRUE iff the character "c" is 
+     contained in the null-terminated string "s".
+
+BUGS
+
+SEE ALSO
+     wncmp
+
+AUTHOR
+     Will Naylor
+
+

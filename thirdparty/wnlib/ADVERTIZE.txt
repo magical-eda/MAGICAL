@@ -1,0 +1,97 @@
+
+Announcing wnlib 9.0, public domain library of ansi C routines
+
+wnlib has existed for about 10 years now, and has been used extensively in
+industry during that time.  We are announcing the new 9.0 release, which has
+just announced Windows support.
+
+wnlib is in the public domain, so there are no legal strings attached -- you
+can modify the code, you can sell it, you just have to keep in the comments
+saying it is in the public domain and leave the authors' names in the comments
+(though you can add your own name there if you make changes).  We ask (but do
+not demand) that you make your improvements available to us for merging, to
+avoid multiple copies floating around.
+
+wnlib compiles without errors as ansi C as of the 89, 94, and 99 standards, and
+as C++.  It supports Sun Solaris, Linux, Cygwin, and Windows.  We have a report
+that it's been ported to MAC OSX with a very small amount of work.
+
+The code comes with 86 files of text documentation similar to the unix man
+pages.  For a master html page with links to all these text man pages, look at
+doc/mantext/main_man.html .
+
+Most of the code also comes with selftest programs that test it.  So if you
+build wnlib on your machine, you can then run the selftests and have a high
+degree of confidence that the code is OK.
+
+Each package comes with an examples program, to supplement the documentation.
+
+wnlib contains over 550 subroutines for various purposes, 45,000 lines of code
+in 173 files.  In addition to that, there are 6100 lines of selftest code in 25
+files, and 5800 lines of examples code in 25 files.
+
+wnlib has the following utilities:
+
+Group (or pool) Memory Allocation: Allocate your memory in groups, then you can
+free complex data structures with a single (and fast) subroutine call, rather
+than having to visit and free every struct.  Memory segments can be freed and
+reused within a group.
+
+Asserts: Better than <assert.h> - can specify some asserts that happen during
+your debugging, but are conditionally compiled into nothing when you are
+building for your product.  At the same time, there are other asserts that are
+guaranteed to always take place.  You can also define your own assert handler,
+in case you want the output of your asserts to go to a message box in a GUI.
+
+Command Line Argument Parser: just declare your arguments in a table, and this
+command line parser will parse them from the command line, and bombs with a
+usage message if the user types them in wrong.
+
+Containers: various datastructures for storing pointers to objects:
+    * linked list with index, reverse order, copy, count, randomize, and
+      concatenate functions, among others
+    * binary tree, height-balanced
+    * skip list, can be configured to have the memory requirements similar to a
+      linked list and/or the lookup speed and sorting qualities of a binary
+      tree.
+    * bit vector - store an array of bits, with boolean operations available
+      between vectors.
+    * hash tables (2 kinds)
+    * ddtrees - store points in a binary tree sorted by n-space, quickly
+      traverse points within a given range
+    * priority queue
+
+Random numbers, much higher cryptographic quality than unix random numbers. 
+Various distributions, including integer within a range, double precision
+within a range, normal distribution, exponential distribution, poisson
+distribution, cauchy distribution.
+
+Sorts:
+    * quick sort: better than unix qsort, performance is still n*log n on
+      already sorted data.
+    * merge sort
+    * radix sort (very fast, O(n))
+
+double precision Vectors: copy, dot product, addition, multiply by scalar,
+norm, unit vector, random.
+
+double precision Matrices: copy, invert, random, transpose, simplex method,
+gramm-schmitt, multiply by vector, matrix multiplication
+
+Sparse Matrices: critical path, min-cost / max-flow, longest path (critical
+path allowing cycles), shortest path, transportation problem.
+
+Strings: allocate and duplicate a string (using the group memory allocator),
+concatenate 2-6 strings, allocating the result with the group memory allocator.
+
+Fast Fourier Transforms
+
+GeneralSimulated Annealingpackage
+
+Conjugate-Gradient and Conjugate-Directionalgorithms
+
+
+===============================================================================
+
+wnlib can be obtained from http://www.willnaylor.com
+

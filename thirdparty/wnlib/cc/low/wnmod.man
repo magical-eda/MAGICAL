@@ -1,0 +1,34 @@
+NAME
+     wnmod -- find true modulus of a number
+
+SYNOPSIS
+     int wn_imod(x,modulus)
+     int x,modulus;
+
+     double wn_fmod(x,modulus)
+     double x,modulus;
+
+DESCRIPTION
+     These functions return "x" modulus "modulus".  "x" may be any number,
+     "modulus" may be any number != 0.  
+
+     Note that the C built-in modulus operator "%" returns incorrect
+     results for negative arguments.
+
+EXAMPLES
+     6 mod 4 = 2
+     -1 mod 4 = 3
+     6 mod -5 = -4
+     -11 mod -5 = -1
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnint
+
+AUTHOR
+     Will Naylor
+
+

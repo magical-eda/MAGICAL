@@ -1,0 +1,498 @@
+/**************************************************************************
+
+wn_htab table;
+
+wn_mkhtab(&table,phash_func,pkeys_eq_func,palloc_copy_func,pfree_func)
+wn_freehtab(table)
+
+bool wn_hget(&data,table,key)
+bool wn_hins(data,table,key)
+bool wn_hfins(data,table,key)
+bool wn_hdel(table,key)
+
+int wn_hcount(table)
+wn_hact(table,paction)      void (*paction)(data,key);
+
+wn_hdump(table)
+wn_hanalyze(table)
+
+**************************************************************************/
+/****************************************************************************
+
+COPYRIGHT NOTICE:
+
+  The source code in this file is provided free of charge
+  to the author's consulting clients.  It is in the
+  public domain and therefore may be used by anybody for
+  any purpose.
+
+AUTHOR:
+
+  Will Naylor
+
+****************************************************************************/
+#include "wnlib.h"
+
+
+
+
+
+
+wn_mkhtab(ptable,phash_func,pkeys_eq_func,palloc_copy_func,pfree_func)
+
+wn_htab *ptable;
+int (*phash_func)(/*key*/);
+bool (*pkeys_eq_func)(/*key1,key2*/);
+void (*palloc_copy_func)(/*pkey,key*/);
+void (*pfree_func)(/*key*/);
+
+{
+  *ptable = wn_new(wn_htab);
+
+  wn_blkzero((ptr)((*ptable)->array),(1<<EXPON)*wn_sizeof(wn_open_list_data));
+
+  (*ptable)->group = wn_curgp();
+
+  (*ptable)->phash_func = phash_func;
+  (*ptable)->pkeys_eq_func = pkeys_eq_func;
+  (*ptable)->palloc_copy_func = palloc_copy_func;
+  (*ptable)->pfree_func = pfree_func;
+}
+
+
+
+#if 0
+wn_freehtab(table)
+
+wn_htab table;
+
+{
+  wn_gppush(table->group);
+
+  free_binary_tree(table->binary_tree,table->pfree_func);
+  wn_free((ptr)table);
+
+  wn_gppop();
+}
+
+
+
+local free_binary_tree(binary_tree,pfree_func)
+
+wn_binary_tree_data binary_tree;
+void (*pfree_func)(/*key*/);
+
+{
+  if(binary_tree != NULL)
+  {
+    free_binary_tree(binary_tree->left_child,pfree_func);
+    free_binary_tree(binary_tree->right_child,pfree_func);
+
+    (*pfree_func)(binary_tree->key);
+    wn_free((ptr)binary_tree);
+  }
+}
+#endif
+
+
+
+bool wn_hins_routine(data,table,key)
+
+ptr data;
+wn_htab table;
+ptr key;
+
+{
+  register wn_open_list_data *pel,el;
+  register int hashed_key;
+
+  hashed_key = (*(table->phash_func))(key);
+  pel = &((table->array)[hashed_key & ((1<<EXPON)-1)]);
+
+  wn_gppush(table->group);
+
+  el = wn_new(wn_open_list_data);
+
+  el->hashed_key = hashed_key;
+  el->data = data;
+  (*(table->palloc_copy_func))(&(el->key),key);
+  el->next = *pel;
+  *pel = el;
+
+  wn_gppop();
+
+  return(TRUE);
+}
+
+
+
+#if 0
+bool wn_hfins_routine(data,table,key)
+
+ptr data;
+wn_htab table;
+ptr key;
+
+{
+  register wn_binary_tree_data tree,*ptree;
+  register int hashed_key,tree_hashed_key;
+
+  hashed_key = (*(table->phash_func))(key);
+  ptree = &(table->binary_tree);
+
+  while(TRUE)
+  {
+    tree = *ptree;
+
+    if(tree == NULL)   /* cannot find hashed_key */
+    {
+      wn_gppush(table->group);
+
+      *ptree = tree = wn_new(wn_binary_tree_data);
+
+      tree->left_child = tree->right_child = NULL;
+      tree->hashed_key = hashed_key;
+      tree->data = data;
+      (*(table->palloc_copy_func))(&(tree->key),key);
+
+      wn_gppop();
+
+      return(TRUE);
+    }
+
+    tree_hashed_key = tree->hashed_key;
+    
+    if(hashed_key > tree_hashed_key)
+    {
+      ptree = &(tree->right_child);
+    }
+    else if(hashed_key == tree_hashed_key)
+    {
+      if((*(table->pkeys_eq_func))(key,tree->key))  /* if == */
+      {
+        tree->data = data;   /* overwrite existing data */
+
+	return(TRUE);
+      }
+      else
+      {
+        ptree = &(tree->left_child); 
+      }
+    }
+    else /* hashed_key < tree_hashed_key */
+    {
+      ptree = &(tree->left_child);
+    }
+  } 
+}
+#endif
+
+
+
+bool wn_hget_routine(pdata,table,key)
+
+ptr *pdata;
+register wn_htab table;
+ptr key;
+
+{
+  register wn_open_list_data el;
+  register int hashed_key;
+
+  wn_inthash(0);
+  wn_inteq(0,0);
+
+  return(TRUE);
+
+#if 0
+  hashed_key = (*(table->phash_func))(key);
+  el = (table->array)[hashed_key & ((1<<EXPON)-1)];
+
+  for(;el != NULL;el=el->next)
+  {
+    if(
+	(el->hashed_key == hashed_key)
+	  &&
+        ((*(table->pkeys_eq_func))(key,el->key))  /* if == */
+      )
+    {
+      *pdata = el->data;
+ 
+      return(TRUE);
+    }
+  }
+
+  *pdata = NULL;
+
+  return(FALSE);
+#endif
+}
+
+
+
+#if 0
+bool wn_hdel_routine(table,key)
+
+wn_htab table;
+ptr key;
+
+{
+  register wn_binary_tree_data tree,*ptree;
+  register int hashed_key,tree_hashed_key;
+
+  hashed_key = (*(table->phash_func))(key);
+  ptree = &(table->binary_tree);
+
+  while(TRUE)
+  {
+    tree = *ptree;
+
+    if(tree == NULL)   /* cannot find hashed_key */
+    {
+      return(FALSE);
+    }
+
+    tree_hashed_key = tree->hashed_key;
+    
+    if(hashed_key > tree_hashed_key)
+    {
+      ptree = &(tree->right_child);
+    }
+    else if(hashed_key == tree_hashed_key)
+    {
+      if((*(table->pkeys_eq_func))(key,tree->key))  /* if == */
+      {
+        wn_gppush(table->group);  /* only push group if found */
+
+        (*(table->pfree_func))(tree->key);
+        remove_tree_node(ptree); 
+        wn_free((ptr)tree);
+
+        wn_gppop();
+ 
+	return(TRUE);
+      }
+      else
+      {
+        ptree = &(tree->left_child); 
+      }
+    }
+    else /* hashed_key < tree_hashed_key */
+    {
+      ptree = &(tree->left_child);
+    }
+  } 
+}
+
+
+
+local remove_tree_node(ptree_node)
+
+wn_binary_tree_data *ptree_node;
+
+{
+  if((*ptree_node)->left_child == NULL)
+  {
+    *ptree_node = (*ptree_node)->right_child;
+  }
+  else if((*ptree_node)->right_child == NULL)
+  {
+    *ptree_node = (*ptree_node)->left_child;
+  }
+  else  /* both not null */
+  {
+    move_up_middle_tree_node(ptree_node);
+  }
+}
+
+
+
+local move_up_middle_tree_node(ptree_node)
+
+wn_binary_tree_data *ptree_node;
+
+{
+  wn_binary_tree_data *pmiddle_node,middle_node;
+
+  find_middle_tree_node_pointer(&pmiddle_node,*ptree_node);
+  middle_node = *pmiddle_node;
+
+  *pmiddle_node = middle_node->left_child;
+
+  if((*ptree_node)->left_child != middle_node)
+  {
+    middle_node->left_child = (*ptree_node)->left_child;
+  }
+  middle_node->right_child = (*ptree_node)->right_child;
+
+  *ptree_node = middle_node;
+}
+
+
+
+local find_middle_tree_node_pointer(ppmiddle_node,tree_node)
+
+wn_binary_tree_data **ppmiddle_node,tree_node;
+
+{
+  register wn_binary_tree_data *pnode;
+
+  for(pnode = &(tree_node->left_child);
+      (*pnode)->right_child != NULL;
+      pnode = &((*pnode)->right_child))
+    ;
+
+  *ppmiddle_node = pnode;
+}
+
+
+
+local int count;
+
+int wn_hcount(table)
+
+wn_htab table;
+
+{
+  void count_entries();
+
+  count = 0;
+
+  wn_hact(table,(count_entries));
+
+  return(count);
+}
+
+
+
+local /*ARGSUSED*/ void count_entries(data,key)
+
+ptr data,key;
+
+{
+  ++count;
+}
+
+
+
+wn_hact(table,paction)
+
+wn_htab table;
+void (*paction)(/*data,key*/);
+
+{
+  act_on_binary_tree(table->binary_tree,paction);
+}
+
+
+
+local act_on_binary_tree(binary_tree,paction)
+
+wn_binary_tree_data binary_tree;
+void (*paction)(/*data,key*/);
+
+{
+  if(binary_tree != NULL)
+  {
+    (*paction)(binary_tree->data,binary_tree->key);
+
+    act_on_binary_tree(binary_tree->left_child,paction);
+    act_on_binary_tree(binary_tree->right_child,paction);
+  }
+}
+
+
+
+wn_hdump(table)
+
+wn_htab table;
+
+{
+  dump_binary_tree(table->binary_tree,0);
+}
+
+
+
+local dump_binary_tree(binary_tree,level)
+
+wn_binary_tree_data binary_tree;
+int level;
+
+{
+  if(binary_tree != NULL)
+  {
+    print_spaces(2*level);
+    printf("* hashed_key = %d\n",binary_tree->hashed_key);
+
+    print_spaces(2*level);
+    printf("left_children:\n");
+    dump_binary_tree(binary_tree->left_child,level+1);
+
+    print_spaces(2*level);
+    printf("right_children:\n");
+    dump_binary_tree(binary_tree->right_child,level+1);
+  }
+}
+
+
+
+local print_spaces(n)
+
+int n;
+
+{
+  int i;
+
+  for(i=0;i<n;i++)
+  {
+    printf(" ");
+  }
+}
+
+
+
+#if 0
+wn_hanalyze(table)
+
+wn_htab table;
+
+{
+  extern double log();
+  int num_entries,depth_sum;
+  double avg_depth,merit;
+
+  num_entries = depth_sum = 0;
+
+  analyze_binary_tree(table->binary_tree,&num_entries,&depth_sum,0);
+
+  avg_depth = ((double)depth_sum)/((double)num_entries);
+  merit = avg_depth/(log((double)num_entries)/log(2.0));
+
+  printf("num_entries = %d,avg depth=%f,merit=%f\n",
+         num_entries,avg_depth,merit);
+}
+
+
+
+local analyze_binary_tree(binary_tree,pnum_entries,pdepth_sum,level)
+
+wn_binary_tree_data binary_tree;
+int *pnum_entries,*pdepth_sum,level;
+
+{
+  if(binary_tree != NULL)
+  {
+    (*pnum_entries)++;
+    (*pdepth_sum) += level;
+
+    analyze_binary_tree(binary_tree->left_child,
+                        pnum_entries,pdepth_sum,level+1);
+    analyze_binary_tree(binary_tree->right_child,
+                        pnum_entries,pdepth_sum,level+1);
+  }
+}
+#endif
+#endif
+
+
+

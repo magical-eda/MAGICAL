@@ -1,0 +1,72 @@
+NAME
+     wncp -- critical path problem
+
+SYNOPSIS
+     #include "wnsmat.h"
+
+     wn_critical_path(&code,&len,&result,length_mat,start_node,fin_node)
+     int code;
+     double len;
+     wn_sll result;               /* list of edges */
+     wn_sparse_matrix length_mat;
+     int start_node,fin_node;
+
+DESCRIPTION
+     This package solves the "critical path" problem easily and
+     efficiently.  "length_mat" is treated
+     as a DIRECTED GRAPH; thus it must be square.  The matrix entry
+     length_mat[i][j] gives the length of the directed edge from node i to node
+     j.  Negative edge lengths are allowed.  "length_mat" must be a DAG; it
+     must contain no cycles or undirected edges.  "result" is the list
+     of edges in the critical path, ordered starting from "start_node".
+     "len" is set to the total length of the solution.
+
+     The critical path problem is the following optimization problem:
+
+         Choose the path in the graph "length_mat" from "start_node" to
+         "fin_node" which is the longest possible path.
+
+     Difficult optimization problems from many fields can be put into
+     this form, and thus solved efficiently with this package.  
+
+     For an introduction to the critical path problem, consult
+     [1]. 
+
+RESOURCES
+     Solving a critical path problem requires
+
+       AVERAGE CASE:
+
+         time = e
+         stack memory = 1
+         dynamic memory = n
+
+       WORST CASE:
+
+         time = e
+         stack memory = n
+         dynamic memory = n
+
+     where e is the number of matrix entries, and n is
+     the number of nodes in the graph represented by "length_mat". 
+     (n == len_i == len_j).
+
+DIAGNOSTICS
+     code == WN_SUCCESS  for successful solution.
+     code == WN_INFEASIBLE if no path from "start_node" to "fin_node"
+                           exists, or if the graph contains cycles
+			   or undirected edges.
+
+     len_i != len_j causes a crash.
+
+BUGS
+
+SEE ALSO
+     wnsp, wnlp, wnsplx
+
+REFERENCES
+
+AUTHOR
+     Will Naylor
+
+

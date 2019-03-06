@@ -1,0 +1,50 @@
+NAME
+     wnrndp -- randomize list or array order
+
+SYNOPSIS
+     wn_randomize_sll(&list)
+     wn_sll list;
+
+     wn_randomize_ptrarray(array,size)
+     ptr array[];
+     int size;
+
+DESCRIPTION
+     "wn_randomize_sll" puts a singly linked list into random order,
+     using "wn_random_bit". 
+
+     "wn_randomize_ptrarray" puts "array" into random order,
+     using "wn_random_int".  "size" is the number of entries in "array". 
+
+EXAMPLES
+
+RESOURCES
+     "wn_randomize_sll" runs with
+
+       WORST and AVERAGE CASE:
+
+         time = n*log(n)
+         stack memory = log(n)
+         dynamic memory = 0
+
+     "wn_randomize_ptrarray" runs with
+
+       WORST and AVERAGE CASE:
+
+         time = n
+         stack memory = 1
+         dynamic memory = 0
+
+     where n is the number of items in the list or array.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnprm, wnsort, wnsll
+
+AUTHOR
+     Will Naylor
+
+

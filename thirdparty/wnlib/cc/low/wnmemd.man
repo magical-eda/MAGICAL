@@ -1,0 +1,113 @@
+NAME
+     wnmemd -- debugging aids for applications using wnmem
+
+SYNOPSIS
+     #include "wnlib.h"
+
+     wn_gp_fill()
+
+     wn_gp_pad()
+
+     wn_stack_fill()
+
+     wn_gp_trap_address(address)
+     ptr address;
+
+     wn_allmem_verify()
+
+     wn_group_verify(group)
+     wn_memgp group;
+
+     int wn_mem_used()
+
+     int wn_group_mem_used(group)
+     wn_memgp group;
+
+     wn_print_mem_used()
+
+     wn_print_group_mem_used(group)
+     wn_memgp group;
+
+     wn_print_all_groups_mem_used()
+
+     bool wn_mem_in_group(p,group)
+     ptr p;
+     wn_memgp group;
+
+     wn_print_gp_stack()
+
+     wn_gplabel(label)
+     char label[];
+
+DESCRIPTION
+     These routines aid in debugging applications that use 
+     wnmem.  In particular, these routines help detect the following
+     problems:
+
+          1)  use of uninitialized allocated memory
+
+          2)  use of memory that has already been freed
+
+          3)  array overflows and wild stores
+
+          4)  leakage of memory.  Memory is lost but not freed.
+
+     "wn_gp_fill" helps detect problems 1 and 2 above.  It should be
+     called before any of the wnmem calls.  If "wn_gp_fill" has been called,
+     "wn_alloc" fills memory it returns with 'a' characters, ensuring
+     that this memory is not NULL.   Application code that is relying
+     on this memory to be NULL will probably crash immediately and reliably.
+     Further, "wn_gp_free" and "wn_free" fill memory they free
+     with 'f' characters; application code that continues 
+     to rely on this memory will probably crash immediately and reliably.
+
+     "wn_gp_pad" helps detect problem 3 above.  It should be called
+     before any of the wnmem calls.  If "wn_gp_pad" has been called,
+     "wn_alloc" and "wn_zalloc" allocate an extra block of memory
+     called a pad, in addition to the requested memory.  The
+     pad memory is initialized to a known value.  Because the pad
+     is contiguous with the requested memory, it will probably be
+     overwritten in the event of an array overflow or a wild store.
+     "wn_allmem_verify" checks if any of the pads are changed; if
+     so it crashes with a message.  Use "wn_allmem_verify" to
+     binary search the application for the problem.
+
+     "wn_allmem_verify" checks the memory allocator for inconsistancies.
+     If "wn_gp_pad" has been called, it helps detect array overflows and
+     wild stores.  
+
+     "wn_group_verify" verifies an individual memory group.
+
+     "wn_print_mem_used" prints the total amount of memory allocated but
+     not freed, which is helpful for detecting memory leaks.
+
+     "wn_print_group_mem_used" prints the total amount of memory allocated
+     but not freed in the memory group, which is helpful for
+     detecting memory leaks.
+
+     "wn_print_all_groups_mem_used" prints the total amount of memory
+     allocated but not freed in each memory group separately, then
+     prints a total for all groups.
+
+     "wn_mem_in_group" returns TRUE iff pointer "p" was allocated
+     from memory group "group".
+
+     "wn_print_gp_stack" prints the memory group stack.
+
+     "wn_gplabel" assigns a char string label to the current group
+     for debugging purposes.  Other routines use this label if it
+     is available.  Use "wn_gplabel" immediately after "wn_gpmake".
+
+     "wn_gp_trap_address" causes allocations of memory at "address"
+     to crash.  Useful for finding where a pointer is allocated.
+
+BUGS
+
+SEE ALSO
+     wnmem, wnmlc
+
+     man/papers/heisen.bug
+
+AUTHOR
+     Will Naylor
+

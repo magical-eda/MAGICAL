@@ -1,0 +1,139 @@
+NAME
+     wnddtr -- dd tree package
+
+SYNOPSIS
+     #include "wnddtr.h"
+
+
+     WN_DD_UNBOUNDED
+     WN_DD_INCLUSIVE
+     WN_DD_EXCLUSIVE
+
+
+     wn_ddtree tree;
+     wn_ddhandle handle;
+
+     ptr (handle->key)[];
+     ptr handle->contents;
+
+
+     wn_mkddtree(&tree,num_dimensions,
+		 pcompare_keys_funcs,palloc_copy_key_funcs,pfree_key_funcs)
+     wn_ddtree tree;
+     int num_dimensions;
+     int (*(compare_keys_func[]))(/*key1,key2*/);     /* ptr key1,key2; */
+     void (*(alloc_copy_key_func[]))(/*&out_key,in_key*/); 
+						      /* ptr out_key,in_key */
+     void (*(free_key_func[]))(/*key*/);              /* ptr key; */
+
+     wn_freeddtree(tree)
+     wn_ddtree tree;
+
+
+     wn_ddins(&handle,tree,key)
+     wn_ddhandle handle;
+     wn_ddtree tree;
+     ptr key[];
+
+     wn_dddel(handle,tree)
+     wn_ddhandle handle;
+     wn_ddtree tree;
+
+     wn_ddmove(handle,tree,new_key);
+     wn_ddhandle handle;
+     wn_ddtree tree;
+     ptr new_key[];
+
+
+     wn_ddact(tree,paction,low_key,low_compare,high_key,high_compare) 
+     wn_ddtree tree;
+     void (*paction)(/*handle*/);
+     ptr low_key[],high_key[];
+     int low_compare[],high_compare[];
+
+     int wn_ddcount(tree)
+     wn_ddtree tree;
+
+     wn_ddverify(tree)
+     wn_ddtree tree;
+
+DESCRIPTION
+     A "dd tree" allows one to efficiently search a large set
+     of keys for keys with a desired magnitude or range
+     of magnitudes in multiple dimensions.  This package implements a 
+     dd tree package which allows rectangular queries.
+     The dd tree is NOT balanced; data should be inserted in random 
+     order to ensure balance.  (Use "wn_randomize_sll").
+
+     This package allows one to easily produce an 
+     efficient dd tree for any kind of key.  The type "wn_ddtree" 
+     is the generic dd tree type.  This package provides routines to
+     efficiently create, insert into, search, and delete from these
+     dd trees.
+
+RESOURCES
+     "wn_ddins", "wn_dddel", and "wn_ddmove" require
+
+       WORST:
+
+         time = n
+         stack memory = 1
+         dynamic memory = 0
+
+       AVERAGE CASE:
+
+         time = log(n)
+         stack memory = 1
+         dynamic memory = 0
+
+     "wn_ddact" requires 
+
+       WORST:
+
+         time = n*<number of iterations>
+         stack memory = n
+         dynamic memory = 0
+
+       AVERAGE CASE:
+
+         time = log(n)*<number of iterations>
+         stack memory = log(n)
+         dynamic memory = 0
+
+     "wn_ddcount" requires 
+
+       WORST and AVERAGE CASE:
+
+         time = n
+         stack memory = 0
+         dynamic memory = 0
+
+     The dd tree uses memory
+
+       WORST and AVERAGE CASE:
+
+         dynamic memory = n
+
+     In the above, n is the number of entries in the table.  The
+     average cases hold if the tree is balanced; worst cases hold
+     otherwise.
+
+DIAGNOSTICS
+     "wn_ddverify" crashes with a message if "tree" is messed up.
+  
+BUGS
+     This code is experimental and should used with extreme care.
+
+     "wn_dddel", "wn_ddmove", "wn_ddverify"
+     have not been implemented.
+
+     The dd trees are not balanced, so the package gets slow if handed
+     sorted data.  
+
+SEE ALSO
+     wnddtl, wnbtr, wnsrtl
+
+AUTHOR
+     Will Naylor
+
+

@@ -1,0 +1,54 @@
+NAME
+     wnspmat -- sparse matrix data structures and operations
+
+SYNOPSIS
+     #include "wnspmat.h"
+
+     typedef struct wn_sparse_matrix_struct
+     {
+       int len_i,len_j;
+       wn_sll *i_lists,*j_lists;  /* list of entries */
+     
+       wn_memgp group;
+     } *wn_sparse_matrix;
+     
+     typedef struct wn_sparse_matrix_entry_struct
+     {
+       double value;
+     
+       int i,j;
+     
+       ptr baggage;
+     } *wn_sparse_matrix_entry;
+     
+DESCRIPTION
+     The include file "wnlib/cc/matrix/wnspmat.h" defines the sparse matrix
+     structures above.  Sparse matrix subroutines defined in "wnlib/cc/spmat"
+     provide the following types of sparse matrix operations:
+
+         - creation (see wnspmk)
+         - input and output (see wnspio)
+         - various optimization algorithms
+
+
+     "len_i" refers to the number of rows or height of the sparse matrix;
+     "len_j" refers to the number of columns or width of the sparse matrix.
+
+     Other man pages refer to sparse matrix entry row i, column j as
+     "sparse_matrix[i][j]".  This array indexing cannot be
+     performed on sparse matrices in C, although it makes a nice
+     shorthand for use in man pages.
+
+EXAMPLES
+     Look in "wnlib/cc/spmat/examples.c" for examples of sparse matrix code.
+
+BUGS
+     Much of this code is not extensively tested.
+
+SEE ALSO
+     wnmat, wnspmk, wnspio
+
+AUTHOR
+     Will Naylor
+
+

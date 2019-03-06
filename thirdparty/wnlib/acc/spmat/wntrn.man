@@ -1,0 +1,157 @@
+NAME
+     wntrn -- transportation problem 
+
+SYNOPSIS
+     #include "wnspmat.h"
+     #include "wntrn.h"
+
+     wn_trans_problem(&code,&objective,&result,
+                      cost_mat,
+                      i_capacities,j_capacities)
+     int code;
+     double objective;
+     wn_sparse_matrix result,cost_mat;
+     double i_capacities[],j_capacities[];
+
+     wn_trans_problem_feasible(&code,&result,
+                               cost_mat,
+                               i_capacities,j_capacities)
+     int code;
+     wn_sparse_matrix result,cost_mat;
+     double i_capacities[],j_capacities[];
+
+     wn_trans_problem_simplex_improve(&code,&objective,&delta,
+                                      &new_result,result,
+                                      cost_mat,
+                                      max_time)
+     int code;
+     double objective,delta;
+     wn_sparse_matrix new_result,result,cost_mat;
+     int max_time;
+
+DESCRIPTION
+     This package is designed to assist in solving the "transportation
+     problem" easily and efficiently.  The "transportation problem"
+     is the following optimization problem:
+
+	CHOOSE result[i][j] TO MINIMIZE
+
+            sum_over(i,j){ result[i][j]*cost_mat[i][j] }
+
+	WHILE SATISFYING THE CONSTRAINTS
+
+	    for_all(i){ sum_over(j){ result[i][j] } == i_capacities[i] }
+
+	    for_all(j){ sum_over(i){ result[i][j] } == j_capacities[j] }
+
+	    for_all(i,j){ result[i][j] >= 0 } 
+
+
+     "wn_trans_problem" solves the transportation problem specified by
+     "cost_mat", "i_capacities", and "j_capacities".  The optimal
+     solution appears in "result"; its objective function appears in 
+     "objective".  "code" is set to WN_SUCCESS if the problem is 
+     solved successfully; if no solution is feasible, "code" is set to
+     WN_INFEASIBLE.  Solving a problem using "wn_trans_problem" can
+     be too slow for large problems, that is why the routines below are 
+     provided.
+
+     "wn_trans_problem_feasible" finds a feasible solution to the
+     transportation problem specified by "cost_mat", "i_capacities",
+     and "j_capacities".  The solution is placed in "result".  "code"
+     is set to WN_SUBOPTIMAL if a feasible solution is found; "code"
+     is set to WN_INFEASIBLE otherwise.  This routine is generally much
+     faster than "wn_trans_problem".
+
+     "wn_trans_problem_simplex_improve" improves a corner-feasible
+     solution to a transportation problem, spending CPU time bounded
+     by "max_time".  The resulting solution is also corner-feasible.   
+     Repeated application of this routine to a solution will eventually
+     yield the optimal solution.  Setting max_time=WN_IHUGE also yields
+     the optimal solution.  "result" contains the beginning solution.
+     "cost_mat" specifies the transportation problem to be solve.
+     Note that capacities are unnecessary because this information
+     is already contained in "result".  The improved solution is
+     placed in "new_result".  The objective function of "new_result"
+     is placed in "objective"; the improvement achieved is placed
+     in "delta".  "code" indicates the status of the solution; if
+     the solution is optimal, code=WN_SUCCESS; if the solution is not optimal,
+     code=WN_SUBOPTIMAL.  
+
+RESOURCES
+     "wn_trans_problem" runs with  
+
+       WORST and AVERAGE CASE:
+
+         time = e*(len_i+len_j)
+	 stack_memory = 1
+	 dynamic_memory = e
+
+     "wn_trans_problem_feasible" runs with  
+
+       WORST CASE:
+
+         time = e*(len_i+len_j)
+	 stack_memory = 1
+	 dynamic_memory = e
+
+       AVERAGE CASE:
+
+         time = e*log(e)
+	 stack_memory = 1
+	 dynamic_memory = e
+
+     "wn_trans_simplex_improve" 
+
+       WORST and AVERAGE CASE:
+
+         time = max_time*log(e)
+	 stack_memory = 1
+	 dynamic_memory = e
+
+     if max_time < WN_IHUGE.
+
+     "wn_trans_simplex_improve" finds the optimum solution if
+     max_time == WN_IHUGE, with
+
+       WORST CASE:
+
+         time = e*(len_i+len_j)*log(e)
+	 stack_memory = 1
+	 dynamic_memory = e
+
+     The actual time taken depends heavily on the start solution.  
+     Generally, the closer the start solution to optimum, the less
+     time to get to optimum.
+
+     In the above, "len_i" and "len_j" are the i and j lengths of "cost_mat";
+     "e" is the number of entries of "cost_mat".
+
+DIAGNOSTICS
+     "wn_trans_problem" and "wn_trans_problem_feasible" crash if
+       "i_capacities" and "j_capacities" do not sum to equal quantities.
+
+     "wn_trans_problem_simplex_improve" crashes if "result" is not
+       corner-feasible.
+
+BUGS
+     This code is new and has not been tested in large industrial 
+     applications.
+
+     It has been found to cycle on some problems and fail on others.
+     Recommend use of wnflow max-flow instead.
+
+SEE ALSO
+     wnflow, wnsplx, wnprm, wnmst
+
+REFERENCES
+     [1]  F. Hillier and G. Lieberman:  Introduction to Operations Research.
+               Holden-Day Inc.
+
+     [2]  J. Franklin:  Methods of Mathematical Economics.  
+               Springer-Verlag.
+
+AUTHOR
+     Will Naylor
+
+

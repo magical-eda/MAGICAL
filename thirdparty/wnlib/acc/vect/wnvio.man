@@ -1,0 +1,26 @@
+NAME
+     wnvio -- vector input and output
+
+SYNOPSIS
+     #include "wnvect.h"
+
+     wn_enter_vect(double vect[],int len)
+
+     wn_print_vect(double vect[],int len)
+
+DESCRIPTION
+     These routines are useful for testing and debugging vector
+     applications.
+
+     The "enter" routines prompt the user for vector data.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+
+AUTHOR
+     Will Naylor
+
+

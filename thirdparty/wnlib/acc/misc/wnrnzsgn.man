@@ -1,0 +1,20 @@
+NAME
+     wnrnzsgn -- find absolute value, sign
+
+SYNOPSIS
+     #include "wnrnzsgn.h"
+
+     int wn_sign_random_nonzero(double x)
+
+DESCRIPTION
+     "wn_sign_random_nonzero" returns -1 or 1 according to whether x is 
+     negative or positive.
+     If x == 0.0, wn_sign_random_nonzero returns randomly 1 or -1.
+
+BUGS
+
+SEE ALSO
+     wnabs, wnmax, wnint
+
+AUTHOR
+     bogdan@synopsys.com

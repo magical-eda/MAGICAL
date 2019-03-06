@@ -1,0 +1,84 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+
+#include "wnlib.h"
+#include "wnabs.h"
+#include "wnasrt.h"
+#include "wnmem.h"
+
+#include "wnconj.h"
+
+
+
+#define CEN   (10000.0)
+#define COEF3 (-0.3*1.0/10000.0)
+
+
+int count;
+
+
+
+double function(double x)
+{
+  double f;
+  double diff;
+
+/*
+  f = 1.0/(x*x);
+  if(x > 0.0)
+  {
+    f = x*x;
+  }
+  else
+  {
+    f = 0.0;
+  }
+*/
+
+  /*
+  f = -1.0/x;
+  f = 1.0/x;
+  f = 1.0/(x-3.0);
+  f = -1.0/(x-3.0);
+  f = -1.0/(x+1.0);
+  f = 1.0/(x+1.0);
+  f = 1.0;
+  */
+
+  diff = x-CEN;
+  /*
+  f = diff*diff + COEF3*diff*diff*diff;
+  f = diff*diff*diff*diff*diff*diff;
+  f = diff*diff*diff*diff*diff*diff;
+  f = pow(wn_abs(diff),4.0);
+  */
+
+  ++count;
+  printf("count=%d,x=%20.20lg,f=%20.20lg\n",count,x,f);
+
+  return(f);
+}
+
+
+void main(void)
+{
+  double x0,x1,x2,
+         f0,f1,f2;
+  int code;
+
+  x0 = 0.0;
+  x1 = 1.0;
+  x2 = 2.0;
+
+  f0 = function(x0);
+  f1 = function(x1);
+  f2 = function(x2);
+
+  wn_minimize_1d_raw(&code,&f0,&f1,&f2,&x0,&x1,&x2,-WN_FHUGE,&function,WN_IHUGE);
+
+  printf("x0=%lg,x1=%lg,x2=%lg\n",x0,x1,x2);
+  printf("f0=%lg,f1=%lg,f2=%lg\n",f0,f1,f2);
+
+  printf("code = %d\n",code);
+}

@@ -1,0 +1,208 @@
+NAME
+     wnptok -- parse stuff
+
+SYNOPSIS
+     #include "wncstr.h"
+
+     bool wn_parse_empty(stream)
+     wn_cstream stream;
+
+     bool wn_parse_eos(stream)
+     wn_cstream stream;
+
+     bool wn_parse_char(stream,&c)
+     wn_cstream stream;
+     char c;
+
+     bool wn_parse_literal_char(stream,c)
+     wn_cstream stream;
+     char c;
+
+     bool wn_parse_char_of_type(stream,&c,char_type)
+     wn_cstream stream;
+     char c,char_type[256];
+
+     bool wn_parse_blanks(stream,num)
+     wn_cstream stream;
+     int num;
+
+     bool wn_parse_blanks_with_std_comments(stream,num)
+     wn_cstream stream;
+     int num;
+
+     bool wn_parse_blanks_with_comments(stream,pparse_comment,num)
+     wn_cstream stream;
+     bool (*pparse_comment)(/*stream*/);
+     int num;
+
+     bool wn_parse_standard_comment(stream)
+     wn_cstream stream;
+
+     bool wn_parse_simple_comment(stream,start_comment,fin_comment)
+     wn_cstream stream;
+     char start_comment[],fin_comment[];
+
+     bool wn_parse_recursive_comment(stream,start_comment,fin_comment)
+     wn_cstream stream;
+     char start_comment[],fin_comment[];
+
+     bool wn_parse_literal(stream,literal)
+     wn_cstream stream;
+     char literal[];
+
+     bool wn_parse_literal_id(stream,id)
+     wn_cstream stream;
+     char id[];
+
+     bool wn_parse_literal_general_id(stream,begin_id_char_type,id_char_type,id)
+     wn_cstream stream;
+     char begin_id_char_type[256],id_char_type[256];
+     char id[];
+
+     bool wn_parse_id(stream,&id)
+     wn_cstream stream;
+     char id[];
+
+     bool wn_parse_numeric_id(stream,&id)
+     wn_cstream stream;
+     char id[];
+
+     bool wn_parse_general_id(stream,begin_id_char_type,id_char_type,&id)
+     wn_cstream stream;
+     char begin_id_char_type[256],id_char_type[256];
+     char id[];
+
+     bool wn_parse_int(stream,&i)
+     wn_cstream stream;
+     int i;
+
+     bool wn_parse_double(stream,&f)
+     wn_cstream stream;
+     double f;
+
+     bool wn_parse_quoted_string(stream,start_char,&string,fin_char)
+     wn_cstream stream;
+     char start_char,fin_char;
+     char string[];
+
+     wn_copy_between_marks_to_string(string,stream,start_mark,fin_mark)
+     char string[];
+     wn_cstream stream;
+     int start_mark,fin_mark;
+
+     bool wn_between_marks_equal_string(string,stream,start_mark,fin_mark)
+     char string[];
+     wn_cstream stream;
+     int start_mark,fin_mark;
+
+     wn_write_between_marks(out_stream,stream,start_mark,fin_mark)
+     wn_cstream out_stream,stream;
+     int start_mark,fin_mark;
+
+DESCRIPTION
+     These routines parse for the indicated object.
+     If the parse is successful, the current mark is placed after the
+     object and TRUE is returned.  Otherwise, FALSE is returned and
+     the current mark is unaltered.
+
+     "wn_parse_empty" parses the empty string.  It always succeeds.
+
+     "wn_parse_eos" returns TRUE if the current mark is at end of stream.
+     It returns FALSE otherwise.
+
+     "wn_parse_char" parses a char from "stream".  This char is placed 
+     in "c".  It succeeds unless current mark is at end of stream.
+
+     "wn_parse_literal_char" attempts to parse "c" as the next char
+     in "stream".
+
+     "wn_parse_char_of_type" attempts to parse the next char in "stream"
+     as a char of a class defined by "char_type".  If "wn_parse_char_of_type"
+     finds a char and char_type[c] == TRUE it succeeds; otherwise it fails.
+
+     "wn_parse_blanks" attempts to parse "num" or more blanks.
+
+     "wn_parse_blanks_with_std_comments" attempts to parse blanks mixed with
+     comments.  "num" or more chars must be parsed for success.  
+     "wn_parse_standard__comment" is the subroutine used to parse the
+     comments.
+
+     "wn_parse_blanks_with_comments" attempts to parse blanks mixed with
+     comments.  "num" or more chars must be parsed for success.  
+     "*pparse_comment" is a subroutine to parse the comments,
+     usually set to "wn_parse_standard_comment".
+
+     "wn_parse_standard_comment" attempts to parse a comment delimited
+     by /* and */ .  Such comments may be nested.
+
+     "wn_parse_simple_comment" attempts to parse a comment delimited
+     by the strings in "start_comment" and "fin_comment".  Nested comments
+     are not permitted.
+
+     "wn_parse_recursive_comment" attempts to parse a comment delimited
+     by the strings in "start_comment" and "fin_comment".  Nested comments
+     are permitted.
+
+     "wn_parse_literal" attempts to parse the string in "literal".
+
+     "wn_parse_literal_id" attempts to parse an identifier of the
+     style parsed by "wn_parse_id".  It succeeds iff it parses an 
+     identifier AND this identifier matches "id".
+
+     "wn_parse_literal_general_id" attempts to parse an identifier of the
+     style parsed by "wn_parse_general_id".  It succeeds iff it parses an 
+     identifier AND this identifier matches "id".
+
+     "wn_parse_id" attempts to parse an identifier.  If successful,
+     the result is placed in "id".  The identifier must begin with a
+     letter or underscore character ('_').  Its body consists of
+     letters, numbers, or underscores.  No limit is placed on its length.
+     Memory for "id" is allocated from the current memory group.
+
+     "wn_parse_numeric_id" attempts to parse an identifier.  If successful,
+     the result is placed in "id".  Its beginning and body consists of
+     letters, numbers, or underscores.  No limit is placed on its length.
+     Memory for "id" is allocated from the current memory group.
+
+     "wn_parse_general_id" attempts to parse an identifier.  If successful,
+     the result is placed in "id".  The identifier must begin with a
+     character from the class "begin_id_char_type".  Its body consists of
+     characters from the class "id_char_type".  A character c belongs to
+     a class iff class[c] == TRUE.  No limit is placed on the indentifier's
+     length.  Memory for "id" is allocated from the current memory group.
+
+     "wn_parse_int" attempts to parse a signed integer.  If successful,
+     the integer is placed in "i".
+
+     "wn_parse_double" attempts to parse a signed double-precision
+     floating point number.  If successful, the number is placed in "f".
+
+     "wn_parse_quoted_string" attempts to parse a quoted string.  
+     If successful, the result is placed in "string".
+     Memory for "string" is allocated from the current memory group.
+     The beginning of the quoted string is delimited by the character
+     "start_char", the end by the character "fin_char".
+
+     "wn_copy_between_marks_to_string" copies characters of "stream"
+     between "start_mark" (inclusive) and "fin_mark" (exclusive) into
+     "string".  "string" must be of length fin_mark-start_mark+1 (1 for
+     the '\0' terminator).  Memory for "string" must be allocated by
+     the caller.
+
+     "wn_between_marks_equal_string" tests whether characters of "stream"
+     between "start_mark" (inclusive) and "fin_mark" (exclusive) match
+     those in "string".
+
+     "wn_write_between_marks" writes characters of "stream"
+     between "start_mark" (inclusive) and "fin_mark" (exclusive) into
+     the "out_stream".
+
+BUGS
+
+SEE ALSO
+     wnwtok, wnscan, wncstr
+
+AUTHOR
+     Will Naylor
+
+

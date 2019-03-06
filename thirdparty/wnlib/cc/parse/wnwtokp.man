@@ -1,0 +1,97 @@
+NAME
+     wnwtokp -- write stuff pretty, with lines no longer than
+                some fixed length
+
+SYNOPSIS
+     #include "wncstr.h"
+
+     wn_set_pretty_linefeed_routine(stream,ppretty_linefeed_routine);
+     wn_cstream stream;
+     void (*ppretty_linefeed_routine)(/* stream */);
+
+     wn_set_line_length_limit(stream,len)
+     wn_cstream stream;
+     int len;
+
+     wn_start_pretty_block(stream)
+     wn_cstream stream;
+
+     wn_end_pretty_block(stream)
+     wn_cstream stream;
+
+     wn_write_blanks_pretty(stream,num)
+     wn_cstream stream;
+     int num;
+
+     wn_write_blanks_pretty_until_column(stream,col)
+     wn_cstream stream;
+     int col;
+
+     wn_write_linefeed(stream)
+     wn_cstream stream;
+
+     wn_write_literal_pretty(stream,literal)
+     wn_cstream stream;
+     char literal[];
+
+     wn_write_id_pretty(stream,id)
+     wn_cstream stream;
+     char id[];
+
+     wn_write_int_pretty(stream,i)
+     wn_cstream stream;
+     int i;
+
+     wn_write_double_pretty(stream,f)
+     wn_cstream stream;
+     double f;
+
+     wn_write_quoted_string_pretty(stream,start_char,string,fin_char)
+     wn_cstream stream;
+     char start_char,fin_char;
+     char string[];
+
+DESCRIPTION
+     These routines write the indicated the cstream "stream",
+     guarenteeing that no lines are longer than some fixed length.  
+
+     Most of these routines have a name from wnwtok with a "_pretty" suffix
+     tacked on.  These routines do the same thing as the corresponding
+     wnwtok routine, except that an extra linefeed is output if
+     writing the specified object first would exceed the line length
+     limit.
+
+     Enclosing write calls from wnwtok or wnwtokp between 
+     "wn_start_pretty_block" and "wn_end_pretty_block" causes 
+     these calls to be treated as a unit when deciding whether
+     to output an extra linefeed.  Outermost "wn_start_pretty_block"
+     and "wn_end_pretty_block" calls take precedence over inner
+     "wn_start_pretty_block" and "wn_end_pretty_block" calls.
+
+     "wn_set_pretty_linefeed_routine" causes "*ppretty_linefeed_routine"
+     to be used for outputing extra linefeeds for cstream "stream".
+     This might be useful if a continuation character or a tab is
+     desired with such linefeeds.  The default is to use "wn_write_linefeed".  
+       
+     "wn_set_line_length_limit" sets the line length limit of "stream" to
+     "len".  The default is 80.
+
+     "wn_write_linefeed" writes a linefeed to "stream" and makes a 
+     note of the linefeed's mark.  This is NOT the same as 
+     issuing a
+       
+       wn_write_char(stream,'\n');
+
+     "wn_write_char" makes no note of the linefeed's mark; thus the
+     line length and column number will still be computed from the
+     last "wn_write_linefeed".
+
+BUGS
+
+SEE ALSO
+     wnwtok, wncstr
+
+AUTHOR
+     Will Naylor
+
+

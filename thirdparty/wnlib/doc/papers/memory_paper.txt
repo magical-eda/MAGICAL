@@ -1,0 +1,396 @@
+
+
+
+
+
+
+
+      WNMEM -- A Better Memory Allocation Scheme for C/UNIX
+
+
+                           Will Naylor
+
+
+
+
+
+
+
+SYNOPSIS
+
+
+
+The memory allocator described  has  been  used  successfully  in
+several  large  C/UNIX  applications,  reducing paging and memory
+leakage,  saving  programmer   time,   and   increasing   program
+reliability.
+
+
+
+
+
+
+INTRODUCTION
+
+
+
+Dynamic memory allocation is a big advance  over  fixed,  compile
+time  memory  allocation  (e.g.  FORTRAN)  because it allows more
+efficient and flexible  use  of  a  process's  memory.   However,
+dynamic  memory  allocation  as  usually provided (ie. the new(p)
+interface of PASCAL and the malloc interface of C/UNIX) has  many
+defects, which will be described below.
+
+The discussion of this paper will  refer  to  the  C/UNIX  malloc
+interface.   Briefly,  UNIX  provides  two  functions  for memory
+allocation: malloc(size) returns a pointer to a memory  block  of
+size bytes, and free(ptr) frees a block of storage (pointed to by
+ptr) that was allocated by malloc.  Obviously, free needs to know
+the  size of the memory block it is freeing; this is stored in an
+integer-sized block of storage  before  the  block  allocated  by
+malloc.   Freed  blocks  are  put  on a sorted free list.  Malloc
+searches this list to find a block that is big enough to  satisfy
+its request.  This arrangement has several problems:
+
+
+1) time efficiency:
+
+     Time to search the free  list  when  malloc  is  called  and
+     insert  into  the  free  list  when  free  is  called can be
+     prohibitive if there are many  small  blocks.   Page  faults
+     caused  by  this  search in a large virtual environment make
+     this problem worse.  This problem has been fixed in the  new
+     Berkeley   4.2  release,  but  this  "fix"  has  made  space
+     efficiency worse.
+
+2) space efficiency:
+
+     Every block of allocated storage comes with an integer-sized
+     size  field,  which is pure overhead.  If the actual storage
+     requested is small, this gets expensive.
+
+3) fragmentation:
+
+     The policy of always grabbing the closest-fitting block  off
+     the   free   list   to  satisfy  a  request  will  cause  an
+     accumulation of small, possibly unuseable blocks on the free
+     list.  This will further waste space and time.
+
+4) scattering:
+
+     No attempt is made to place memory that is accessed together
+     on  the  same  page;  instead the best-fit policy "scatters"
+     memory throughout the page space in  order  to  satisfy  the
+     best-fit  objective.   The  client  application thus suffers
+     more page faults and runs more slowly than it  might.   Note
+     that the malloc interface doesn't receive enough information
+     about memory access locality to remedy this situation.
+
+5) lack of safety:
+
+     It is possible to free storage twice, or free  storage  that
+     was  never  allocated.  This can result in malloc giving out
+     the same  storage  twice,  in  a  random,  maybe  even  non-
+     repeatible fashion.  This type of bug is extremely difficult
+     to track down.
+
+6) leakage and complexity in freeing:
+
+     Very often one wants to free all at once a  large  structure
+     that  is held together by random pointers going this way and
+     that.  Examples of  such  structures  are  linked  lists  or
+     trees.   A  user-written,  often  quite complex free routine
+     must traverse this structure, chasing  random  pointers  and
+     freeing  random  blocks.   There  is  no way to know if this
+     routine in fact frees the entire structure.  The observation
+     that the free routine does not "bomb out" does not guarantee
+     that the entire structure has been freed.  The program  will
+     appear  to work, yet it will eat up all of memory because it
+     is "leaking" memory.
+
+7) lack of development tools
+
+     There exists no way to know where memory  is  going  or  how
+     much is being used.
+
+
+The  UNIX  dynamic  memory  allocation  scheme  does   have   one
+advantage:  simplicity.   It is easy to remember the two routines
+and their parameters.  The  memory  allocation  scheme  described
+below  sacrifices  this  simplicity to gain on the other 7 fronts
+mentioned above.
+
+
+
+
+
+DISCUSSION OF PREVIOUS WORK
+
+
+Most previous work has focused  on  making  the  above  described
+scheme  more  efficient.   The  literature  contains  a number of
+discussions of garbage collection, a  number  of  discussions  of
+first-fit   and   best-fit   ([1],[6],[9]),  a  few  strange  new
+algorithms([2],[3],[4]).   A  massive  study  of  35   allocation
+algorithms  in  18  environments [8] showed that keeping separate
+free lists  for  different  block  sizes  outperforms  the  other
+algorithms,  including  those discussed above.  Also outperformed
+were  LIFO  and  FIFO  ordered  free  list,  and   buddy   system
+algorithms.   The  multiple  free  list  approach  ran as fast or
+faster than the other algorithms (except buddy system)  and  used
+memory  more efficiently (buddy system wasted the most).  Various
+multiple free list algorithms  were  tested;  according  to  this
+study their performances are similar.
+
+The new Berkeley UNIX release uses an algorithm that  keeps  free
+lists  for  ranges  of  sizes rather for each size.  I am using a
+separate free list algorithm for my general-free  allocator  (see
+below).
+
+All of the above discussions imply  that  algorithm  "efficiency"
+means  using  as  little  address  space  as  possible  and  fast
+allocator execution.  I think these are the wrong goals.   Today,
+address space is cheap.  Allocator execution time is usually only
+a very  small  fraction  of  program  execution  time.   What  is
+expensive  is page faults.  Reducing address space usage can have
+the side effect of reducing page faults, but it would  be  better
+to sacrifice address space usage to further reduce page faults.
+
+The  literature  contains  little  discussion  of  reducing  page
+faults.  The literature also contains little discussion of safety
+and ease of programming and debugging.
+
+
+
+
+
+
+SYSTEM OVERVIEW
+
+
+
+The following is an overview of the wnmem system:
+
+
+Hierarchical grouping of allocated memory.
+
+     All memory allocated is "in" a memory group.  Memory  groups
+     are   "in"  other  memory  groups.   Memory  groups  can  be
+     allocated and freed.  When  memory  or  a  memory  group  is
+     allocated,  it is allocated from the "current" memory group.
+     When a memory group is freed, all member memory  and  memory
+     groups  are  freed.   This feature solves the memory leakage
+     problem cleanly and allows clustering  of  memory  to  avoid
+     page  faults.   Blocks  of  memory  in  the  same group will
+     probably be accessed together; therefore they should  be  on
+     the  same  page(s) to avoid page faults. The allocator works
+     by grabbing a (page sized) chunk of memory and  handing  out
+     pieces  of  it, thus memory in the same group will be on the
+     same pages.
+
+Stack of memory groups
+
+     wnmem maintains a stack of memory groups; the  top  of  this
+     stack  is  called  the  "current" memory group.  The typical
+     subsystem pushes a (possibly  newly  created)  memory  group
+     upon  entry, runs using this group, and then pops the memory
+     group upon exit (possibly  freeing  it  also).   Inside  the
+     subsystem, "wn_alloc" and "wn_free" calls appear in place of
+     "malloc" and "free".
+
+     Subsystems needing only temporary memory create and  push  a
+     group  upon entry and then free and pop the group upon exit.
+     Inside, calls to "wn_alloc" appear  whenever  the  subsystem
+     needs  memory.   No "wn_free" calls need appear, because all
+     memory allocated within the subsystem  will  be  freed  upon
+     exit.  This saves the programmer the effort of keeping track
+     of individual memory blocks and freeing them.
+
+Ability to restrict memory freeing within groups.
+
+     When creating a memory group,  it  is  be  possible  to  ban
+     freeing  of  individual  memory  blocks in that group.  Note
+     that in many cases, one wants to allocate a huge  structure,
+     figure something out using that structure, and then free the
+     huge structure.   The  ability  to  free  individual  memory
+     pieces  is  not  necessary.   This restriction ends a lot of
+     hassles.  No free list to manage,  saving  memory  and  time
+     overhead.  No sizes attached to memory blocks, saving memory
+     overhead. This saves both time and  memory;  time  usage  is
+     reduced by about 75%, and memory usage by about 15%.
+
+     Of course, if the user doesn't  restrict  freeing,  he  gets
+     none  of these benefits.  But in most of the cases I've come
+     across,  banning  individual  memory  block  freeing   costs
+     little.
+
+Better error handling.
+
+     When a memory request cannot be satisfied because memory  is
+     nearly  exhausted,  a (user specified) subroutine is called.
+     Normally, this routine prints an informative  error  message
+     and  exits.   This scheme has several advantages over simply
+     returning NULL when out of memory, as malloc does.  It makes
+     checking for NULL return from the allocator unnecessary.  It
+     centralizes  and  simplifies  handling   the   out-of-memory
+     problem.
+
+Debugging and development tools.
+
+     Counts of the total memory used  and  memory  used  by  each
+     group  are  printed on demand.  This set of tools is similar
+     in style to the PROFILE program of  UNIX:   PROFILE  reports
+     where  a program spends its time, these tools report where a
+     program spends its memory.
+
+     Tools are provided to trap common application program  bugs,
+     such  as array overflows and wild stores, use of unitialized
+     memory, use of freed memory, freeing memory twice or freeing
+     unallocated memory.
+
+
+A precise specification of the calling interface is  provided  in
+Appendix A, which shows the wnmem and wnmemd man pages.
+
+
+
+
+
+
+CONCLUSIONS
+
+
+
+This memory allocator has been successfully used in several large
+C   applications,   including   a  schematic  editor,  a  digital
+simulator, an automatic gate array place and route system, and an
+analog  circuit  designer.   In  all cases, the results have been
+dramatic.  A large (60,000 line) interactive  program  with  1000
+wn_alloc  calls leaked no memory -- first time, with no debugging
+to plug  leaks.   Installation  of  this  allocator  in  a  large
+graphics  program  reduced  leakage from 100K per redisplay to 0,
+with only 1 day's work.  Installation into  a  large,  very  slow
+optimization  program reduced paging by 80%. Use of the debugging
+features on a 30,000 line  application  (shipped  and  supposedly
+working)  trapped  15 memory bugs in only 2 hours debugging time.
+Presumeably, these bugs had been causing sporadic crashes in  the
+field, but the causes had been too elusive to track down and fix.
+
+It is my impression that much time, both human  and  machine,  is
+needlessly   wasted   because   of  memory  allocation  problems.
+Intelligent use of wnmem overcomes most of these difficulties;  I
+therefore hope that wnmem or a memory allocator like it will soon
+begin replacing malloc(3) as the workhorse memory  allocator  for
+most C/UNIX applications.
+
+
+
+
+
+
+ACKNOWLEDGEMENTS
+
+
+
+I would like to thank the many friends and  work  associates  who
+suggested  many of the ideas contained in this paper.  Doug Boyle
+first called my attention to some  of  the  problems  which  this
+memory  allocator  solves.   Discussions  with Bill Jensen helped
+clarify  in  my  mind  the  overall  philosophy  of  this  memory
+allocator.   Doug  Boyle  proposed including a tool to detect and
+trace memory leakage.  Mark Brown proposed checking  for  various
+corruptions,  such as freeing memory twice or freeing unallocated
+memory.  Mark Brown also proposed  calling  an  error  subroutine
+when memory is about to run out, rather than just returning a "no
+memory left" indicator.  James Bohannon brought many problems  to
+my attention which suggested many of the other debugging tools.
+
+I would also like to thank the development groups at the  various
+companies,  especially  LSI  Logic  and  Valid Logic Systems, who
+endured the unfinished versions of this allocator  and  suggested
+various improvements.
+
+
+
+
+
+                      References Consulted
+
+
+
+[1] Aho, A. V., Hopcroft, J. E., and Ullman, J. D. [1983].   Data
+     Structures   and   Algorithms,   Chap.  12,  Addison-Wesley,
+     Reading, Mass.
+
+[2] Beck, Leland L. [1979].  A Performance Study of the Age-Match
+     Dynamic Storage Allocation Technique.
+
+[3] Beck, Leland L. [1979].  The Release-Match Method for Dynamic
+     Storage Allocation.
+
+[4] Brent, R. P. [1981].  Efficient Implementation of the  First-
+     Fit Strategy for Dynamic Storage Allocation.
+
+[5] Kernighan, B. W. and D. M. Ritchie [1978].  The C Programming
+     Language, Prentice-Hall, Inc., Englewood Cliffs, NJ 07632.
+
+[6] Knuth, D. E.   THE  ART  OF  COMPUTER  PROGRAMMING,  VOL.  1:
+     FUNDAMENTAL   ALGORITHMS,  Addison-Wesley,  Reading,  Mass.,
+     1973, Section 2.5.
+
+[7] Knuth, D. E.   THE  ART  OF  COMPUTER  PROGRAMMING,  VOL.  3:
+     SORTING AND SEARCHING, Addison-Wesley, Reading, Mass., 1973.
+
+[8]  Nielsen,  N.  R.   Dynamic  memory  allocation  in  computer
+     simulation.   COMMUNICATIONS  OF  THE  ACM  20, 11 (November
+     1977), 864-873.
+
+[9] Shore, J. E.  Anomalous behavior of the fifty-percent rule in
+     dynamic memory allocation.  COMMUNICATIONS OF THE ACM 20, 11
+     (November 1977), 812-820.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

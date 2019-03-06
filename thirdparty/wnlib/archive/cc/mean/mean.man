@@ -1,0 +1,44 @@
+NAME
+    mean
+
+SYNOPSYS
+    <program> | mean
+
+    The idea is you send a stream of numbers, integers or reals, separated
+    by whitespace (no commas!) and this program will output statistics on
+    the numbers.
+
+    For example,
+
+    $ echo 1 2 3 | mean
+
+    gives
+
+    # samples = 3
+    mean = 2
+    stddev = 0.816497
+    std_dev_of_mean = 0.471405
+    min = 1
+    max = 3
+
+    where std_dev_of_mean means standard deviation of mean, or
+    stddev/sqrt(count).  If the sample is repeated multiple times and
+    the means are taken as a new sample, this is what we expect the
+    standard deviation of the new sample to be.  Quite useful.
+
+    Output is put on separate lines (and stddev is spelled differently
+    than it is in std_dev_of_mean) to facilitate grepping.  For example,
+    to get just the mean of a bunch of numbers in the file numbers.txt,
+    say
+
+    mean <numbers.txt | egrep '^mean' | sed -e '/^.* /s///'
+
+DIAGNOSTICS
+
+    This program returns 0 on success, 1 if EOF was reached without
+    encountering any data.
+
+AUTHOR
+
+    Will Naylor
+    man page: Bill Chapman

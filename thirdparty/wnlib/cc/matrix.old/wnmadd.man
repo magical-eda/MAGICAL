@@ -1,0 +1,60 @@
+NAME
+     wnmadd -- vector addition
+
+SYNOPSIS
+     #include "wnmat.h"
+
+
+     wn_add_up_vector(&result,vect)
+     double result;
+     wn_vector vect;
+
+     wn_add_up_raw_vector(&result,raw_vect,len_i)
+     double result;
+     double *raw_vect;
+     int len_i;
+
+
+     wn_vector_add_vector(&result_vect,vect1,vect2)
+     wn_vector result_vect,vect1,vect2;
+
+     wn_raw_vector_add_raw_vector(result_raw_vect,raw_vect1,raw_vect2,len_i)
+     double *result_raw_vect,*raw_vect1,*raw_vect2;
+     int len_i;
+
+
+     wn_add_into_vector_vector(to_vect,from_vect)
+     wn_vector to_vect,from_vect;
+
+     wn_add_into_raw_vector_raw_vector(to_raw_vect,from_raw_vect,len_i)
+     double *to_raw_vect,*from_raw_vect;
+     int len_i;
+
+
+     wn_add_into_vector_scaled_vector(to_vect,from_vect,scalar)
+     wn_vector to_vect,from_vect;
+     double scalar;
+
+     wn_add_into_raw_vector_scaled_raw_vector(to_raw_vect,
+                                              from_raw_vect,scalar,len_i)
+     double *to_raw_vect,*from_raw_vect;
+     double scalar;
+     int len_i;
+
+DESCRIPTION
+     Vector addition routines.
+
+     Since "wn_add_into_raw_vector_scaled_raw_vector" is the inner
+     loop of matrix inversion (wnminv) and simplex method (wnsplx) routines,
+     it is tuned to be especially fast.  
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+
+AUTHOR
+     Will Naylor
+
+

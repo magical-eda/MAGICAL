@@ -1,0 +1,463 @@
+NAME
+     wnnlp -- constrained non-linear optimization package
+
+SYNOPSIS
+     #include "wnnlp.h"
+
+
+     #define WN_EQ_COMPARISON   1
+     #define WN_GT_COMPARISON   2
+     #define WN_LT_COMPARISON   3
+
+
+     typedef struct wn_linear_constraint_type_struct
+     {
+       ...
+
+       int size;
+       int *vars;
+       int comparison_type;
+
+       double *weights;
+       double rhs;
+     } *wn_linear_constraint_type;
+
+     typedef struct wn_nonlinear_constraint_type_struct
+     {
+       ...
+
+       int size;
+       int *vars;
+       int comparison_type;
+       double offset;
+
+       ptr client_data;
+       double (*pfunction)(int size,double *values,ptr client_data);
+       void (*pgradient)(double *grad,int size,double *values,ptr client_data);
+     } *wn_nonlinear_constraint_type;
+
+
+     void wn_nlp_conj_method
+     (
+       int &code,
+       double &val_min,
+       double solution_vect[],
+       double delta_vect[],
+       wn_nonlinear_constraint_type objective,
+       wn_sll constraint_list,
+       int num_vars,
+       int conj_iterations,
+       int offset_iterations,
+       double offset_adjust_rate
+     )
+
+     void wn_make_linear_constraint
+     (
+       wn_linear_constraint_type &constraint,
+       int size,double rhs,int comparison_type
+     )
+
+     void wn_make_nonlinear_constraint
+     (
+       wn_nonlinear_constraint_type &constraint,
+       int size,int comparison_type
+     )
+
+
+     extern int wn_nlp_verbose;
+
+DESCRIPTION
+     This package is useful for minimizing general functions of many variables
+     subject to general constraints.  The function to minimize and the
+     constraints can be linear or non-linear.  If they are non-linear,
+     they must be continuous and differentiable.  The constraints
+     can be equality or inequality constraints.
+
+     The optimization algorithm works roughly as follows:  the constraints and
+     the objective function are combined to create a master unconstrained
+     objective function.  The constraints are handled by adding a
+     quadratic penalty function to the master objective function for
+     each constraint that is violated.  The master objective function is
+     optimized using the conjugate-gradient hill-climbing 
+     algorithm (see wnconj).  The resulting solution probably
+     violates some of the constraints.  Offsets are added to the 
+     violated constraints in order to push the solution toward compliance
+     with the violated constraints.  The conjugate-gradient procedure is
+     repeated.  This entire cycle is repeated until convergence.
+
+     If all goes well, the algorithm
+     converges to a local minimum; this local minimum is not necessarily
+     a global minimum or even a good local minimum.  If either the objective
+     function or the constraint functions are not differentiable, 
+     the algorithm often gets stuck in a very sub-optimal solution, and 
+     no warning is given that this has happened.
+
+     Proper scaling of the objective function and of the constraint functions
+     is important to ensure fast and accurate convergence of the algorithm.
+     The functions and variables should be scaled so that the partial
+     derivatives of all functions with respect to all variables in the 
+     region of the solution is near +1 and -1.  Partials which are always
+     very large or always very small should be scaled so as to be in
+     this region.
+     
+     "wn_nlp_conj_method" solves a constrained non-linear minimization problem.
+     "objective" specifies the linear or non-linear objective function to
+     minimize.  "constraint_list" is a singly-linked list of linear and
+     non-linear constraints.  "objective" and "constraint_list" together
+     comprise the problem to be solved.  They must be composed of objects
+     of types "wn_linear_constraint_type" and "wn_nonlinear_constraint_type".
+     "num_vars" is the number of variables in the problem.  The "objective"
+     can be of type wn_linear_constraint_type - use a cast to avoid
+     lint warnings.  "solution_vect"
+     is a vector which the caller should initialize to contain a vector
+     which is as close a possible to the solution; after termination 
+     "solution_vect" contains the solution.  "val_min" is set to the value of
+     the objective function of "solution_vect".  "code" contains the 
+     return status of the run. See section "Diagnostics" for details on
+     the potential values of "code".
+     "conj_iterations" specifies the number of iterations
+     in the conjugate-gradient algorithm.  Making it too small results
+     in erratic behavior and non-convergence; making it too big wastes
+     CPU time.  Often setting "conj_iterations" to the same value as
+     "len" works well.  "offset_iterations" specifies the number of 
+     iterations to adjust constraint offsets; often a number like 10
+     or 20 works well.  "offset_adjust_rate" specifies how aggressively
+     constraint offsets are adjusted.  1 is the most agressive, 0 means
+     no adjustment at all.  "offset_adjust_rate" should always be 
+     in the range (0,1].  For linear problems, or problems which are
+     only "mildly" nonlinear, 1 usually works well.  Using a value too large
+     results in erratic non-convergence; using a value too small wastes CPU
+     time.  "delta_vect" is a vector of delta values for computing 
+     numerical gradients if the caller does not provide symbolic 
+     gradients for all of his non-linear constraints.  If all non-linear
+     constraints have symbolic gradients, set "delta_vect" to NULL.
+     The values assigned to "delta_vect" should be large enough
+     so that the functions of the numerical difference are
+     distinguishable within the numerical precision of your machine's
+     double type, but otherwise as small as possible in order to
+     minimize error in the derivative caused by higher-order Taylor
+     expansion terms.
+
+     "wn_make_linear_constraint" makes a linear constraint or objective of
+     the form:
+	weights[0]*solution_vector[vars[0]] +
+	weights[1]*solution_vector[vars[1]] + .... 
+ 	weights[size-1]*solution_vector[vars[size-1]] comparison to "rhs"
+     "size" specifies the number of variables involved in the
+     constraint; "rhs" is the right hand side of the constraint.
+     "rhs" is ignored if the constraint is used as the objective function.
+     "comparison_type" must be one of WN_EQ_COMPARISON, WN_GT_COMPARISON,
+     or WN_LT_COMPARISON.  In the case that an objective function is 
+     created, the value of "comparison_type" must be WN_EQ_COMPARISON.
+     After creating the linear constraint, the caller
+     must set the vectors "weights" and "vars" of the linear constraint.
+     "vars" is an array of integers of size "size".  Each entry specifies
+     the index of a variable which is included in the constraint.
+     "weights" is an array of doubles of size "size".  Each entry specifies
+     a coefficient for the corresponding variable of "vars".
+ 
+     "wn_make_nonlinear_constraint" makes a non-linear constraint or
+     objective.
+     "size" specifies the number of variables involved in the
+     constraint; "comparison_type" must be one of WN_EQ_COMPARISON, 
+     WN_GT_COMPARISON, or WN_LT_COMPARISON. In the case that an objective 
+     function is created the value of "comparison_type" must be 
+     WN_EQ_COMPARISON.  After creating the non-linear 
+     constraint, the caller must set "vars", "pfunction", and possibly
+     "pgradient" and "client_data".  
+     "vars" is an array of integers of size "size".  Each entry specifies
+     the index of a variable which is included in the constraint.
+     "pfunction" is a pointer to a non-linear function of the variables in
+     "vars".  The constraint implemented is one of
+
+       (*pfunction)(...) >= 0
+
+       (*pfunction)(...) <= 0
+
+       (*pfunction)(...) == 0
+
+     depending on the value of "comparison_type".
+     "pgradient" places the gradient of "pfunction" in "grad".  If you
+     do not want to bother figuring out the gradient of "pfunction", do
+     not set "pgradient".  The gradient will be computed numerically by
+     calling "pfunction" with domain values differing by amounts from
+     "delta_vect".  This can be slow.  "client_data" is a pointer to 
+     user-defined data to be associated with the constraint. 
+
+     "wn_nlp_verbose" controls the amount of status information output by 
+     "wn_nlp_conj_method".  0 produces no output; 1 produces some
+     output; 2 produces more; 3 produces the most.
+
+
+     CONVERGENCE ISSUES
+     
+     If you are observing that the solution found by the optimizer is outside
+     of constrained space, then it may be necessary to modify the objective
+     function. The basic idea is to modify the objective function
+     so that it does not go -infinity outside of the contrainted area.
+     This modification allows the quadradic penalty functions
+     (added for each constraint) to take effect and thus makes it easier for
+     the optimizer find a solution within the constrained region. 
+     
+     The modified objective function must satisfy the following
+     properties:
+       1)  The modified objective function does not go to -infinity
+           outside the constrained region.
+       2)  The modified objective function is continuous at the boundary
+           of the constrained region.
+       3)  The slope of the modified objective is continuous at the
+           boundary of the constrained region.
+           The single exception to this rule occurs when 
+           the objective function has value +infinity at the boundary of the 
+           constrained region.
+     
+     For example suppose that F(x) is the objective function with x > 0 as a
+     constraint and you want to create a new Fnew(x) that converges better than
+     F(x). Let s0 be the value of the slope of F(x) (dF/dx) at x=0. Then
+     defining
+     
+       Fnew(x) = (x > 0.0) ? F(x) : ((x > -1.0) ? (s0*x) : (-s0))
+     
+     may improve your convergence problems.
+     
+     With complex objective functions that use multiplication, division,
+     log(), pow(), an analysis of the behavior of these operators and
+     functions at the constraint boundaries may be necessary to improve
+     convergence. Below are some simple examples of how these operators and
+     functions can cause convergence problems and modifications to them that
+     can help avoid convergence problems.
+     
+     
+     RECIPRICAL OPERATOR EXAMPLE
+     
+     Let the objective function be
+     
+       F(x, ....) = ... + 1/x
+     
+     and the constraint be
+     
+       x > 0
+     
+     The convergence issue with the "1/x" term in F is
+     that as x approaches 0 from the negative side, F 
+     goes to -infinity.  Observe that as x approaches
+     0 from the positive side, F goes to +infinity.
+     Therefore, we should replace 1/x by this function
+     
+       double my_reciprical(double x)
+       {
+         if(x > 0.0)
+         {
+           /* inside constrained region */
+           return(1.0/x);
+         }
+         else
+         {
+           /* outside constrained region:  match
+              function value at boundary of constrained
+              region */
+           return(FLT_MAX);
+         }
+       }
+     
+     
+     MULTIPLICATION OPERATOR EXAMPLE
+     
+     Let the objective function be 
+     
+        F(x, y, ....) = .... + x*y
+     
+     and the constraints be 
+     
+        x > 0
+        y > 0
+
+     The convergence issues are:
+     
+       1) When x > 0 and y approaches -infinity, F goes to -infinity
+       2) When y > 0 and x approaches -infinity, F goes to -infinity
+
+     To prevent the multiply from going to -infinity and preserve
+     function values and slopes at the boundary, we replace the
+     multiply with this function
+     
+       double my_multiply(double x,double y)
+       {
+         double prod;
+     
+         prod = x*y;
+
+         /* This if statement takes effect outside the
+            constrained region only, and so leaves objective
+            function value and slope at boundary of constrained
+            region unchanged */
+         if(!(prod >= -1.0))
+         {
+           prod = -1.0;
+         }
+        
+         return(prod);
+       }
+     
+     
+     DIVISION OPERATOR EXAMPLE
+     
+     Let the objective function be 
+     
+       F(x, y, ...) = .... + x/y 
+     
+     and the constraints be
+     
+       x > 0 
+       y > 0
+     
+     There are two convergence issues with the "x/y" term in F:
+     
+       1) As y approaches 0 from the positive side,
+          then F goes to +infinity (if x > 0)
+       2) When y > 0 and x approaches -infinity F goes to -infinity
+     
+     Note that
+     
+       x/y = x*(1/y)
+     
+     So we can use the above examples to replace the division with
+     
+       double my_divide(double x,double y)
+       {
+         return(my_multiply(x,my_reciprical(y)))
+       }
+     
+     
+     LOG FUNCTION EXAMPLE
+     
+     Let the objective function be
+     
+       F(x,....) = .... + log(x)
+     
+     With constraint
+     
+       x > 1
+     
+     The convergence issues are:
+     
+       1)  The log function is not defined for x <= 0
+       2)  When x approaches 0 for the positive side, F goes to -infinity
+     
+     Observe that at the boundary of the constraint 
+     x = 1, log(x) = 0 and d log(x)/d x = 1. So we
+     can create a better converging F by replacing log(x) by 
+     this function
+     
+       double my_log(double x)
+       {
+         if(x > 1.0)
+         {
+           return(log(x))
+         }
+         else if(x > 0.0)
+         {
+           /* match function value and slope at boundary 
+              of constrained region */
+           return(1.0*(x-1.0));  
+         }
+         else
+         {
+           /* match function value at x = 0, but stop going to -infinity */
+           return(-1.0);
+         }
+       }
+     
+     
+     POW FUNCTION EXAMPLE
+     
+     Let the objective function be
+     
+       F(x,y,....) = .... + pow(x,y)
+     
+     With constraints 
+     
+       x > 0
+       y > 0
+     
+     The convergence issues are:
+     
+       1. When x<0, F becomes imaginary (or rather, undefined in C language)
+       2. When y<0 and x-->0, F goes to -infinity or +infinity or is undefined
+     
+     Therefore, we replace pow(...) by this function
+     
+       double my_pow(double x,double y)
+       {
+         if(x > 0.0)
+         {
+           return(pow(x,y));
+         }
+         else
+         {
+           /* match function value at boundary of constrained region.
+              It is impossible to match slope because slope = +infinity
+              at x=0 */
+           return(0.0);
+         }
+       }
+
+RESOURCES
+     wn_nlp_conj_method runs with
+
+       time = conj_iterations*offset_iterations*<num terms in constraints>
+       stack memory = 1
+       dynamic memory = len
+
+     Of course, this figure tells one nothing about the time required to 
+     achieve good convergence.  This depends heavily on the problem being 
+     solved and the user's skill in properly adjusting "conj_iterations", 
+     "offset_iterations", and "offset_adjust_rate", and the problem
+     scaling.
+     
+     Typically, if the problem is reasonably behaved and well scaled, 
+     one can set "conj_iterations" to something of order of the number
+     of variables "len", and set "offset_iterations" to some number like
+     10 or 20.  
+
+     The author has succesfully used this routine to solve non-linear problems
+     with 10,000 variables and 50,000 constraints in a few hours of 
+     workstation time.  This routine can also solve large linear programming
+     problems, but the numerical accuracy is not as good as that of a
+     more specialized LP algorithm.
+     
+DIAGNOSTICS
+     code == WN_SUCCESS  means successful completion, optimum found
+     code == WN_SUBOPTIMAL  means termination before optimum found
+     code == WN_UNBOUNDED  means function is unbounded
+
+EXAMPLES
+     The file "wnlib/acc/conjdir/examples.c.nlp
+     uses the "wnnlp" non-linear constrained optimization package 
+     to solve the minimum area buffering problem.  The problem
+     formulation is below.
+
+     PROBLEM FORMULATION:
+
+       CHOOSE w[i] (1 <= i <= num_vars) TO MINIMIZE
+
+         sum_over(i){ w[i] }
+
+       WHILE SATISFYING THE CONSTRAINTS
+
+         for_all(i) { w[i] >= 0 } 
+
+         sum_over(0<=i<=NUM_VARIABLE_BUFFERS){ w[i+1]/w[i] } <= MAX_DELAY
+
+         w[0] == DRIVER_BUFFER_SIZE
+
+         w[NUM_VARIABLE_BUFFERS+1] == RECEIVER_BUFFER_SIZE
+
+BUGS
+
+SEE ALSO
+     wnconj, wnsplx, wnsll
+
+AUTHOR
+     Will Naylor
+

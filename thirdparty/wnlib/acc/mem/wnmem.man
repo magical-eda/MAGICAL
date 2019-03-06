@@ -1,0 +1,154 @@
+NAME
+     wnmem -- grouping memory allocator
+
+SYNOPSIS
+     #include "wnmem.h"
+
+     void wn_gpmake(char parms[])
+
+     void wn_gpfree(void)
+
+     void wn_gppush(wn_memgp group);
+
+     void wn_gppop(void)
+
+     wn_memgp wn_curgp(void)
+
+     wn_memgp wn_defaultgp(void)
+
+     ptr wn_alloc(int size)
+
+     ptr wn_zalloc(int size)
+
+     void wn_realloc(ptr &p,int old_size,int new_size)
+
+     void wn_zrealloc(ptr &p,int old_size,int new_size)
+
+     void wn_free(ptr p)
+
+     void wn_gperrfpush(void (*perror_func)(void))
+
+     void wn_gperrfpop(void)
+
+     typedef void *(*wn_system_memory_alloc_func_type)(unsigned int);
+     typedef void  (*wn_system_memory_free_func_type)(ptr);
+
+     void wn_set_system_memory_alloc_func(wn_system_memory_alloc_func_type)
+     void wn_set_system_memory_free_func(wn_system_memory_free_func_type)
+
+     WN_GPBEGIN(parms_string)
+     WN_GPBEGINF(flags, block_size)
+     WN_GPEND()
+
+DESCRIPTION
+     This package is a memory allocator designed to replace
+     the malloc(3) package provided by UNIX.  It is designed
+     to be faster and easier to program.
+
+     All memory comes from a "memory group", which can be declared
+     using the type "wn_memgp".  wnmem keeps a stack of memory
+     groups.  The top of this stack is called the "current memory
+     group" and can be accessed using "wn_curgp".  All memory is
+     allocated from and freed to the current memory group.  The
+     current memory group is NULL until a "wn_gppush" or "wn_gpmake"
+     is done.
+      
+     "wn_gppush" pushes "group" onto the memory group stack.
+
+     "wn_gppop" pops the memory group stack.
+
+     "wn_gpmake" makes a memory group of type specified by "parms"
+     and pushes it onto the memory group stack.  "parms" is a string 
+     with the following syntax:
+
+       parms --> free_method chunk_size
+
+       free_method --> "no_free"|"general_free" 
+
+       chunk_size --> <non-negative integer>|<empty>
+
+     "free method" controls how "wn_free" works.
+     "no_free" means that "wn_free" does nothing.  "no_free" groups
+     run much faster and waste less space.  "general_free" groups
+     allow piecemeal freeing with "wn_free".  Note that "wn_gpfree" works for
+     both types of groups.  "chunk_size" is the size of the memory
+     chunk that wnmem requests from the system.  The default is
+     4000, which is a good choice unless you have many small groups.
+     Giving 0 causes the smallest chunk possible to be requested.
+
+     Some example wn_gpmake calls follow:
+
+       wn_gpmake("no_free");
+       wn_gpmake("general_free");
+       wn_gpmake("no_free 100");
+       wn_gpmake("no_free 0");
+
+     The memory group created by "wn_gpmake" is a subgroup of
+     the current group.  If a group is freed, all of its
+     subgroups are freed.  If the current group is NULL,
+     the memory group is a subgroup of no other group.
+
+     "wn_gpfree" frees all of the memory in the current memory group,
+     recursively frees its subgroups, invalidates the group,
+     and then pops it from memory group stack.
+
+     "wn_alloc" allocates "size" bytes from the current memory
+     group and returns a pointer to it.
+
+     "wn_zalloc" allocates "size" bytes from the current memory
+     group and returns a pointer to it.  The memory is guaranteed
+     to be null initialized.
+
+     "wn_free" frees memory pointed to by "p" into the current memory
+     group.  This group must be the same group that "p" was allocated
+     from or trouble will result.  "wn_free" only works for "general_free"
+     memory groups; it will do nothing for a "no_free" group.
+
+     "wn_realloc" changes the size of a block of memory referenced by "p".
+     "p" may be moved.
+
+     "wn_zrealloc" does the same as "wn_realloc" except that all extra
+     memory allocated will be null initialized.
+
+     "wn_curgp" returns the current memory group.
+
+     "wn_defaultgp" returns the "default" memory group, which
+     is a no_free group used for various system purposes.
+
+     "wn_set_system_memory_alloc_func" and
+     "wn_set_system_memory_free_func" set new functions that wnmem is to
+     call for its internal allocation and freeing.  The function pointers
+     to be passed to these functions are to have the same argument and return
+     types as malloc() and free().  If not called, wnmem uses malloc() and
+     free().  Once these are called, all allocation for all groups goes
+     through the new routines -- it recommended to call them before
+     wnmem is initialized.
+
+     "WN_GPBEGIN" and "WN_GPBEGINF" are macros analogous to wn_gpmake()
+     and wn_gpmakef(), except that they begin a "{" block of code where
+     the group is on the stack.  The block must be terminated with a
+     "WN_GPEND()".  These macros store a pointer to the group made in
+     a local variable, and "WN_GPEND()" checks that it matches with the
+     group on the stacktop before freeing it.
+
+DIAGNOSTICS
+     If memory is exhausted, the function provided to "wn_gperrfpush"
+     is called.  By default, this function prints a message and
+     then crashes.
+
+     "wn_alloc", "wn_zalloc", and "wn_free" crash if the current
+     memory group is NULL.
+  
+BUGS
+
+SEE ALSO
+     wnmemd, wnmems
+
+     doc/papers/memory_paper.txt
+
+     cc/low/examples.c
+
+AUTHOR
+     Will Naylor
+
+

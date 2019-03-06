@@ -1,0 +1,67 @@
+NAME
+     wnrsrt -- radix sorting package
+
+SYNOPSIS
+     #include "wnsort.h"
+
+     wn_radix_sort_sll(&list,pkeyindex_func,pkeylen_func)
+     wn_sll list;
+     char (*pkeyindex_func)(/*key,index*/);   /* ptr key; int index; */
+     int (*pkeylen_func)(/*key*/);            /* ptr key; */
+
+DESCRIPTION
+     "wn_radix_sort_sll" sorts a singly linked list into ascending order,
+     using a "radix sort" algorithm.  (*pkeyindex_func)()
+     returns char "index" of the key pointed to by the contents
+     field of a wn_sll.  (*pkeylen_func)() returns the length of
+     the key pointed to by the contents field of a wn_sll.
+
+     This sort is much faster than the sorts in "wnsort" for large
+     lists; however, it is slower for |list| < 500 items.  It
+     is also less flexible:  sorts based on some keys are impossible
+     (double and float, for example).  For keys where a radix
+     sort is applicable, such as int, pointer, or character string,
+     I recommend this sort over "wnsort" if speed is at all important.
+
+     Writing the pkeylen_func and particularly the pkeyindex_func can be
+     quite treacherous, it is strongly recommended that you either use
+     the companion routines defined in wnrsrl directly or by calling them
+     from any routines you write.  Examples of this are in
+     wnlib/acc/sort/examples.c.
+
+EXAMPLES
+     For additional examples, see wnlib/acc/sort/examples.c
+
+RESOURCES
+     This routine runs with
+
+       WORST and AVERAGE CASE:
+
+         time = 1000 + sum_over_items(length of the key of the item) 
+         stack memory = 1000
+         dynamic memory = 0
+
+     For fixed length keys, this becomes
+
+       WORST and AVERAGE CASE:
+
+         time = 1000 + number_of_items*key_length 
+         stack memory = 1000
+         dynamic memory = 0
+
+     This sort is much faster than the sorts in "wnsort" for large
+     lists; however, it is slower for |list| < 500 items.  This is
+     because of the large fixed time overhead.
+
+     For large lists, this algorithm essentially examines each char of
+     each key exactly once.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnrsrl, wnsort, qsort(3), wnsll
+
+AUTHOR
+     Will Naylor

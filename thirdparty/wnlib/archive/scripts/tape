@@ -1,0 +1,4 @@
+#!/bin/csh -f
+#tar cvf /dev/rst8 .
+tar cvf - . | compress | wncrypt | dd obs=10240 conv=sync > /dev/rst8 
+#tar cvf - . | compress | dd obs=10240 conv=sync > /dev/rst8 

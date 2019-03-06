@@ -1,0 +1,26 @@
+NAME
+     wnmmk -- make matrix
+
+SYNOPSIS
+     #include "wnmat.h"
+
+     wn_make_mat(double ***pmat,int len_i,int len_j)
+
+     wn_free_mat(double **mat,int len_i,int len_j)
+
+DESCRIPTION
+     These routines allocate and free memory for matrixes (from the
+     current memory group).  The allocate routine initializes
+     the contents to zero.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnmem
+
+AUTHOR
+     Will Naylor
+
+

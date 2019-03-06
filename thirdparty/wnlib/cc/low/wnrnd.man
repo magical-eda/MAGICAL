@@ -1,0 +1,31 @@
+NAME
+     wnrnd -- random numbers
+
+SYNOPSIS
+     wn_seed_random_number_generator(seed)
+     int seed;
+
+     int wn_random_int()
+
+     int wn_random_mod_int(mod)
+     int mod
+
+     int wn_random_n_bits(n)
+     int n;
+
+     int wn_random_bit()
+
+DESCRIPTION
+     These routines generate random numbers.
+
+     "wn_seed_random_number_generator" seeds using "seed".
+
+BUGS
+
+SEE ALSO
+     wnrndd, wnrndp
+
+AUTHOR
+     Will Naylor
+
+

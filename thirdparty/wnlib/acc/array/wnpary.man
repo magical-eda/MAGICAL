@@ -1,0 +1,40 @@
+NAME
+     wnpary -- dynamic pointer array manager -- Do no use - use wnaryp instead
+
+SYNOPSIS
+     #include "wnpary.h"
+
+     void wn_mkptrarray(ptr **pptrarray,int memsize)
+
+     void wn_freeptrarray(ptr *ptrarray)
+
+     void wn_ptrarrayins(ptr **pptrarray,int *pusedsize,int *pmemsize,ptr e)
+
+     bool wn_ptrarraydel(ptr **pptrarray,int *pusedsize,int *pmemsize,ptr e)
+
+     void wn_ptrarraydelindex(ptr **pptrarray,int *pusedsize,int *pmemsize,
+			      int index)
+
+     int wn_ptrarrayindex(ptr *ptrarray,int usedsize,ptr e)
+
+     void wn_ptrarrayins_into_group(ptr **pptrarray,
+				    int *pusedsize,int *pmemsize,
+				    ptr e,
+				    wn_memgp group)
+
+DESCRIPTION
+     Do not use - use wnary instead.
+
+     This package helps manage dynamic pointer arrays.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnary, wnsll
+
+AUTHOR
+     Will Naylor
+
+

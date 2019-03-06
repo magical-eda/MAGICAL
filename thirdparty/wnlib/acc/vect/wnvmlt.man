@@ -1,0 +1,21 @@
+NAME
+     wnvmlt -- scale vector
+
+SYNOPSIS
+     #include "wnvect.h"
+
+     wn_scale_vect(double *vect,double scalar,int len)
+
+DESCRIPTION
+     Multiply vector by scalar, coded to be especially fast.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+
+AUTHOR
+     Will Naylor
+
+

@@ -1,0 +1,90 @@
+NAME
+     wnprm -- permutation package
+
+SYNOPSIS
+     #include "wnprm.h"
+
+     wn_random_permutation(permutation,size)
+     int permutation[],size;
+
+     wn_identity_permutation(permutation,size)
+     int permutation[],size;
+
+     wn_permute_permutation(result,perm1,perm2,size)
+     int result[],perm1[],perm2[],size;
+
+     wn_permute_array(result,permutation,array,size)
+     object_type result[],array[];
+     int permutation[],size;
+
+     wn_invert_permutation(inverse,permutation,size)
+     int inverse[],permutation[],size;
+
+     bool wn_is_valid_permutation(permutation,size)
+     int permutation[],size;
+
+DESCRIPTION
+     This package produces and operates on permutations.  A permutation
+     is an int array of size "size".  It contains the ints 0 to size-1
+     in some order.  A permutation defines a reordering of an
+     array of objects of size "size"; the permutation array entry
+     value defines where the reordered object comes from.
+
+     "wn_random_permutation" produces a random permutation using
+     "wn_random_int_between".
+
+     "wn_identity_permutation" produces the identity permutation, that
+     is, [0 1 2 3 ... size-1].  This permutation produces no reordering.
+
+     "wn_permute_permutation" applies permutation "perm1"
+     to "perm2", placing the result in "result".  Since entries of
+     "result" change during execution, "result" must not overlap with
+     "perm1" or "perm2".
+
+     "wn_permute_array" is a macro which applies permutation
+     "permutation" to "array", placing the result in "result".
+     The arrays "result" and "array" must be of the same type.
+     Since entries of "result" change during execution, "result" must
+     not overlap with "permutation" or "array".
+
+     "wn_invert_permutation" inverts permutation "permutation",
+     placing the result in "inverse".  Since entries of "inverse" 
+     change during execution, "inverse" must not 
+     overlap with "permutation".
+
+     "wn_is_valid_permutation" returns TRUE if "permutation" is
+     a valid permutation; otherwise it returns FALSE.
+
+EXAMPLES
+
+RESOURCES
+     "wn_random_permutation" and "wn_is_valid_permutation" run with
+
+       WORST and AVERAGE CASE:
+     
+         time = n
+         stack memory = 1
+         dynamic memory = n
+
+     "wn_identity_permutation", "wn_permute_permutation", "wn_permute_array",
+     and "wn_invert_permutation" run with
+
+       WORST and AVERAGE CASE:
+     
+         time = n
+         stack memory = 1
+         dynamic memory = 0
+
+     In the above, n is "size", the size of the permutation.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnrnd
+
+AUTHOR
+     Will Naylor
+
+

@@ -1,0 +1,80 @@
+NAME
+     wnwtok -- write stuff
+
+SYNOPSIS
+     #include "wncstr.h"
+
+     wn_write_empty(stream)
+     wn_cstream stream;
+
+     wn_write_eos(stream)
+     wn_cstream stream;
+
+     wn_write_char(stream,c)
+     wn_cstream stream;
+     char c;
+
+     wn_write_literal_char(stream,c)
+     wn_cstream stream;
+     char c;
+
+     wn_write_blanks(stream,num)
+     wn_cstream stream;
+     int num;
+
+     wn_write_blanks_until_column(stream,col)
+     wn_cstream stream;
+     int col;
+
+     wn_write_linefeed(stream)
+     wn_cstream stream;
+
+     wn_write_literal(stream,literal)
+     wn_cstream stream;
+     char literal[];
+
+     wn_write_id(stream,id)
+     wn_cstream stream;
+     char id[];
+
+     wn_write_int(stream,i)
+     wn_cstream stream;
+     int i;
+
+     wn_write_double(stream,f)
+     wn_cstream stream;
+     double f;
+
+     wn_write_quoted_string(stream,start_char,string,fin_char)
+     wn_cstream stream;
+     char start_char,fin_char;
+     char string[];
+
+     wn_write_literal_n_times(stream,literal,n)
+     wn_cstream stream;
+     char literal[];
+     int n;
+
+DESCRIPTION
+     These routines write the indicated object to the cstream "stream".
+     The meaning of the other arguments is the same as in wnptok.
+
+     "wn_write_linefeed" writes a linefeed to "stream" and makes a 
+     note of the linefeed's mark.  This is NOT the same as 
+     issuing a
+       
+       wn_write_char(stream,'\n');
+
+     "wn_write_char" makes no note of the linefeed's mark; thus the
+     line length and column number will still be computed from the
+     last "wn_write_linefeed".
+
+BUGS
+
+SEE ALSO
+     wnptok, wnwtokp, wncstr
+
+AUTHOR
+     Will Naylor
+
+

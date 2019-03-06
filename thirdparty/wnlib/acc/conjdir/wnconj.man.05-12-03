@@ -1,0 +1,186 @@
+NAME
+     wnconj -- conjugate directions function minimization package
+
+SYNOPSIS
+     #include "wnconj.h"
+
+
+     void wn_conj_direction_method(&code,&val_min,
+				   vect,initial_coord_x0s,len,
+				   pfunction,max_iterations)
+     int code;
+     double val_min;
+     double vect[];
+     double initial_coord_x0s[];
+     int len;
+     double (*pfunction)(/* vect */);
+     int max_iterations;
+
+     void wn_force_conj_direction_stop(void)
+
+
+     void wn_conj_funcgrad_method(&code,&val_min,
+                                  vect,len,
+                                  pfuncgrad,pterminate,
+                                  first_jump_len,
+				  int no_reset_run_len,
+                                  double reset_expand_factor,
+				  max_iterations) 
+     int code;
+     double val_min;
+     double vect[];
+     int len;
+     double (*pfuncgrad)(double grad[],double vect[]);
+     bool (*pterminate)(double vect[],double best_f,int iteration);
+     double first_jump_len;
+     int no_reset_run_len,
+     double reset_expand_factor,
+     int max_iterations;
+
+     void wn_force_conj_gradient_stop(void)
+
+
+     void wn_numerical_gradient(grad,vect,delta_vect,len,pfunction)
+     double grad[];
+     double vect[];
+     double delta_vect[];
+     int len;
+     double (*pfunction)(double vect[]);
+
+
+     double wn_barrier(x)
+     double x;
+
+     double wn_dbarrier(x)
+     double x;
+
+
+     double wn_penalty(x)
+     double x;
+
+     double wn_dpenalty(x)
+     double x;
+
+DESCRIPTION
+     This package is useful for minimizing continuous, differentiable 
+     functions of many
+     variables.  The routines assume that the function to minimize is well
+     approximated by a quadratic form with a positive definite Hessian.
+     For functions which are well approximated this way, convergence rates
+     are reasonably predictable.  If all goes well, these routines 
+     converge to a local minimum; this local minimum is not necessarily
+     a global minimum or even a good local minimum.  If the function
+     is not differentiable, the algorithms often get stuck in very 
+     sub-optimal solutions, and no warning is given that this has 
+     happened.
+     
+     "wn_conj_direction_method" conducts a conjugate directions search
+     without the need for derivatives of the function to minimize.
+     That is, the function must be differentiable, but the derivatives need
+     not be known explicitly.
+     Consequently, it is the easiest to use, but it runs very slowly
+     for medium-sized and large problems.  "code" indicates the status
+     of the completed search.  "val_min" is the objective function value at
+     the final solution.  "vect" should be loaded with a solution used
+     to begin the search; upon return it contains the final solution.
+     "initial_coord_x0s" should be loaded with suggested search deltas
+     for each member of vect; or set to NULL for default.
+     "len" is the number of variables in "vect".  "pfunction" is a 
+     pointer to the function to minimize.  "max_iterations" is the maximum
+     number of iterations allowed; set to WN_IHUGE for no limit.
+
+     "wn_conj_funcgrad_method" conducts a conjugate directions search
+     using derivatives of the function to minimize.  Using derivatives
+     usually results in a dramatic speedup, but it makes programming
+     much more complicated.  Furthermore, if the derivatives are in
+     error, no warning is given; the result is either very slow 
+     convergence or convergence to an incorrect result.  The
+     arguments mean the same as the arguments to "conj_direction_method".
+     The additional argument "pfuncgrad" is a pointer to a function
+     which computes the gradient of the function to minimize; that is
+
+       grad[i] = d function / d vect[i]
+
+     and returns the function value.
+     The additional argument "pterminate" is a pointer to a function
+     which returns TRUE to force early termination (pass NULL if you
+     do not want to specify an early termination function).
+     The additional argument "pjump_len" specifies the initial movement
+     of the variables in the first linesearch.  Set this to 1.0 if
+     you can afford a slow first linesearch.
+     Set "no_reset_run_len" to 0 for the default reset strategy; this
+     works well for many problems.  "no_reset_run_len" gives the
+     starting number of iterations before a reset is done.  
+     After a reset, the number of iterations before the next
+     reset is multiplied by "reset_expand_factor".  Setting
+     no_reset_run_len = 5 and reset_expand_factor = 3.0 guarantees
+     quadratic convergence, with at most a factor of 2 slowdown.
+
+     Because of the difficulty in ensuring that the derivatives are
+     correct, it is usually best to start by experimenting on a small
+     problem using "wn_conj_direction_method", even if you ultimately
+     intend to use "wn_conj_funcgrad_method".  The solutions obtained
+     from "wn_conj_funcgrad_method" using derivatives should be similar 
+     or the same as solutions obtained from "wn_conj_directions_method" 
+     not using derivatives.  If this is not so, your derivatives are 
+     probably faulty.
+
+     Another possibility is to use "wn_numerical_gradient" to find
+     the gradient numerically.  
+
+     "wn_numerical_gradient" computes the gradient of (*pfunction)(...)
+     by numerical differencing.  "delta_vect" specifies the deltas to be
+     applied to elements of "vect" to compute the gradient.
+
+     "wn_barrier", "wn_dbarrier", "wn_penalty", and "wn_dpenalty" are useful
+     for implementing barrier and penalty methods of non-linear programming.
+     They are designed to implement the constraint x >= 0.
+     
+     wn_barrier(x) returns +infinity for x <= 0 and decreases in a continuous
+     and differentiable way for x > 0. 
+
+     wn_dbarrier(x) returns the derivative of wn_barrier(x).
+
+     wn_penalty(x) returns 0 for x >= 0 and x^2 for x < 0.  It is continuous
+     and differentiable for all x.
+
+     wn_dpenalty(x) returns the derivative of penalty(x).
+
+RESOURCES
+     wn_conjugate_direction_method runs with
+
+       AVERAGE CASE:
+
+         time = len^2 * (len^2 + <time to evaluate function>)
+         stack memory = 1
+         dynamic memory = len*len
+
+     wn_conjugate_gradient_method runs with
+
+       AVERAGE CASE:
+
+         time = len * (2*<time to evaluate function> + 
+		       <time to evaluate gradien>)
+	 stack memory = 1
+	 dynamic memory = len
+
+     Run time depends heavily on the problem being solved.  If the function
+     is badly behaved, convergence can take much longer than these times.
+     If the function is not too badly behaved and the Hessian has distinct
+     eigenvalues, the times given here usually apply.  If the eigenvalues
+     of the Hessian are not distinct, much faster convergence times are 
+     possible.
+
+DIAGNOSTICS
+     code == WN_SUCCESS  means successful completion, optimum found
+     code == WN_SUBOPTIMAL  means termination before optimum found
+     code == WN_UNBOUNDED  means function is unbounded
+  
+BUGS
+
+SEE ALSO
+     wnmqf, wnffln
+
+AUTHOR
+     Will Naylor
+

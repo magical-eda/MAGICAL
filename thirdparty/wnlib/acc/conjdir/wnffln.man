@@ -1,0 +1,80 @@
+NAME
+     wnffln -- feed-forward linear network
+
+SYNOPSIS
+     #include "wnffln.h"
+
+     void wn_ffln_make(&ffln,num_inputs,num_outputs,num_total_nodes)
+     wn_ffln_type &ffln;
+     int num_inputs;
+     int num_outputs;
+     int num_total_nodes;
+
+     void wn_ffln_setup_node(ffln,node_index,num_edges,coefs,from_indexes)
+     wn_ffln_type ffln;
+     int node_index;
+     int num_edges;
+     double coefs[];
+     int from_indexes[];
+
+     void wn_ffln_mult_vect(out,ffln,in)
+     double *out;
+     wn_ffln_type ffln;
+     double *in;
+
+     void wn_ffln_print(ffln)
+     wn_ffln_type ffln;
+
+
+DESCRIPTION
+     This package is useful for minimizing continuous, differentiable 
+     functions of many
+     variables using Newton's method when the Hessian matrix is sparse
+     but contains no special structure.
+     Use this package to build a linear function which implements
+     the Hessian, and then use "wnmqf" to solve the resulting
+     quadratic form using linear conjugate-gradient method.
+
+     A feed-forward linear network is a sparse linear mapping
+     from an input vector to an output vector.  This package
+     is a run-time and memory efficient implementation of
+     a feed-forward linear network.
+
+     "wn_ffln_make" allocates memory for a feed-forward linear
+     network from the current memory group.  The ffln has
+     "num_inputs" inputs, and "num_outputs" outputs,
+     and num_total_nodes-num_inputs-num_outputs internal nodes.
+     The network is initialized with no connections.
+
+     "wn_ffln_setup_node" specifies that the value of node "node_index"
+     is a weighted sum of values of nodes in "from_indexes", with
+     weights in "coefs".  There are "num_edges" nodes in the weighted
+     sum.
+
+     "wn_ffln_mult_vect" multiplies the vector "in" into
+     the feed-forward linear network "ffln", and places the
+     result vector in "out".
+
+     "wn_ffln_print" prints the feed-forward linear network "ffln".
+
+
+RESOURCES
+     wn_ffln_mult_vect runs with
+     
+       AVERAGE CASE and WORST CASE:
+
+         time = total number of coefficients
+         stack memory = 1
+         dynamic memory = 1
+
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnmqf
+
+AUTHOR
+     Will Naylor
+

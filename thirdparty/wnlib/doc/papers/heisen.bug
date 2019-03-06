@@ -1,0 +1,138 @@
+
+
+ 		   HOW TO CATCH A HEISENBUG
+
+
+                          Will Naylor 
+
+
+
+
+INTRODUCTION
+
+
+A Heisenbug is a "now you see it, now you don't" bug.
+Heisenbugs are the nastiest kind of bug because you cannot "pin down"
+a Heisenbug: you cannot find the offending code,
+often you cannot even find a simple crash case; also, many Heisenbugs are
+not repeatible or go away when ported to other operating systems.
+This document summarizes my experience in Heisenbug hunting and explains 
+how to use some new tools in wnmemd to find Heisenbugs.
+
+
+
+
+HOW TO SPOT A HEISENBUG 
+
+
+A program infested by one or more Heisenbugs typically exhibits one
+or more of the following symptoms:
+
+(a)   Bug is not repeatible.  The program behaves differently on different 
+		         runs with THE SAME INPUT DATA.  Often this
+                         behavior depends on the last program run.
+                         For example, program A might crash when
+                         run right after program B, but run fine
+                         when it is tried again.
+
+(b)   Bug is OS dependent.  The program may work fine on UNIX, but crash
+                         if ported to CMS or VMS.
+
+(c)   Only large test cases crash.  This makes it impossible to find
+                         a simple crash case.  The bug may not be discovered
+                         until the program is in production and somebody
+                         in the field tries a huge case.
+
+(d)   Small changes in the test case cause large changes in program behavior.
+                         It may be impossible to find another case that 
+                         crashes.  Or, seemingly small changes in the test case
+                         cause the program to die in a completely different
+                         place.
+			 
+(e)   Small changes in the code cause large changes in program behavior. 
+                         For example, adding a printf or running under dbx
+			 may cause the bug to disappear.  
+
+(f)   Subroutine linkage is messed up.  Subroutines return garbage values
+                         or receive garbage values as parameters.
+
+(g)   Program flow is erratic.  Subroutines get called when the source
+                         code contains no call.  Strange loops appear.
+
+
+
+
+DIFFERENT TYPES OF HEISENBUGS: CAUSES, SYMPTOMS, AND CURES
+
+
+Heisenbugs are often caused by some memory getting clobbered some of the
+time.  The symptoms and appropriate cures vary, depending on how and
+where memory gets clobbered.  The following is a list (not complete)
+of Heisenbug causes, symptoms, and recommended cures:
+
+
+                                                probable  possible  recommended
+cause                                           symptoms  symptoms     cures
+-----                                           --------  --------  -----------
+
+
+stack problems
+  - stack gets clobbered somehow:
+     - subroutine parm number or type mismatch  e,f,g     b,c          1
+	 between caller and callee
+     - automatic (stack) array overflow         c         b,d,e,f,g    -
+     - wild write into stack                    d,e,f,g   b,c          -
+  - use of uninitialized stack variable         a         b,c,d,e      1
+  - stack overflow                              b,c,f,g                2
+
+allocated memory problems
+  - using uninitialized allocated storage       a         b,c,d,e      3
+  - using freed storage                         b,c,d     e            3
+  - allocated array overflow                              c            4
+  - wild write into allocated storage           b,d       c,e          4  
+
+
+
+
+LIST OF RECOMMENDED CURES
+
+
+(1)  Run lint on all code.  The following messages point to the trouble:
+
+      function: variable # of args ...
+      warning: var may be used before set
+      function, arg n used inconsistently ...
+
+(2)  Change the machine stack size limit.
+
+(3)  Use the debugging features of wnmemd.  Add the call
+     "wn_gpfill();" before any memory operations.  Recompile 
+     and rerun the program.
+
+     This call forces wnmem to put garbage into uninitialized and
+     freed storage.  Your program will probably crash at the
+     first use of uninitialized or freed storage.
+     Your program may also become very slow,
+     so you may want to use a very small test case
+     (yes, this will probably work... think about it).
+
+(4)  Use the debugging features of wnmemd.  Add the call
+     "wn_gppad();" before any memory operations.  Recompile
+     and rerun the program.
+     
+     This forces wnmem to "pad" storage it gives you.
+     Any array overflow and most wild writes
+     will clobber this pad storage.  This can be detected by calling
+     the subroutine "wn_allmem_verify()".  "wn_allmem_verify()" will
+     print out a message and crash if any of the pad storage has
+     been clobbered.  Use "wn_allmem_verify()" to 
+     bracket the offending code and then do a binary search with
+     "wn_allmem_verify()" calls.  
+
+     This switch wastes a lot of memory and may slow your code
+     down drastically, so you may want to use a very small test case
+     (yes, this will probably work... think about it).
+     "wn_allmem_verify" is very slow, so it must be used sparingly.
+
+
+

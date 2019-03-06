@@ -1,0 +1,641 @@
+/**************************************************************************
+**
+** Copyright (C) 1993 David E. Steward & Zbigniew Leyk, all rights reserved.
+**
+**			     Meschach Library
+** 
+** This Meschach Library is provided "as is" without any express 
+** or implied warranty of any kind with respect to this software. 
+** In particular the authors shall not be liable for any direct, 
+** indirect, special, incidental or consequential damages arising 
+** in any way from use of the software.
+** 
+** Everyone is granted permission to copy, modify and redistribute this
+** Meschach Library, provided:
+**  1.  All copies contain this copyright notice.
+**  2.  All modified copies shall carry a notice stating who
+**      made the last modification and the date of such modification.
+**  3.  No charge is made for this software or works derived from it.  
+**      This clause shall not be construed as constraining other software
+**      distributed on the same medium as this software, nor is a
+**      distribution fee considered a charge.
+**
+***************************************************************************/
+
+
+/*
+  File containing routines for computing the SVD of matrices
+  WNLIB-ified July 25, 2003 by bogdan@synopsys.com
+*/
+
+
+#include <stdio.h>
+#include <math.h>
+
+#include "wnabs.h"
+#include "wnlib.h"
+#include "wnmat.h"
+#include "wnmax.h"
+#include "wnvect.h"
+#include "wnrnzsgn.h"
+
+
+#define DISPLAY                                    FALSE
+#define	MAX_STACK                                  100
+#define MACHEPS                                    2.2e-16
+
+
+local double wn_supnorm_vect(double *vect, int len)
+{
+  int i;
+  double ret, tmp;
+
+  ret = 0.0;
+  for(i = 0; i < len; i++)
+  {
+    tmp = wn_abs(vect[i]);
+    ret = wn_max(ret, tmp);
+  }
+  return(ret);
+}
+
+
+/*
+  givens -- returns c, s parameters for Givens rotation to
+  eliminate y in the vector [ x y ]
+*/
+local void givens(double x, double y, double *pc, double *ps)
+{
+  double norm;
+
+  norm = sqrt(x * x + y * y);
+  if(norm == 0.0)
+  {
+    /* identity */
+    *pc = 1.0;
+    *ps = 0.0;
+  }
+  else
+  {
+    *pc = x/norm;
+    *ps = y/norm;
+  }
+#if DISPLAY
+  printf("Givens reduction: x = %lg, y = %lg, c = %lg, s = %lg.\n",
+	 x, y, *pc, *ps);
+#endif
+}
+
+
+/* rot_rows -- premultiply mat by Givens rotation described by c, s */
+local void rot_rows
+(
+ double **mat,
+ int i,
+ int k,
+ double c,
+ double s,
+ double **out,
+ int n
+)
+{
+  int j;
+  double temp;
+
+  wn_copy_mat(out, mat, n, n);
+
+  for(j = 0; j < n; j++)
+  {
+    temp = c * out[i][j] + s * out[k][j];
+    out[k][j] = -s * out[i][j] + c * out[k][j];
+    out[i][j] = temp;
+  }
+}
+
+
+/*
+  hhvec -- calulates Householder vector to eliminate all entries after the
+  i0 entry of the vector vec. It is returned as out. May be in-situ
+*/
+local void hhvec
+(
+ double *vec,
+ int i0,
+ double *pbeta,
+ double *out,
+ double *pnewval,
+ int n
+)
+{
+  double norm;
+  
+  wn_copy_vect(vec, out, n);
+  norm = sqrt(wn_dot_vects(out + i0, out + i0, n - i0));
+  if(norm <= 0.0)
+  {
+    *pbeta = 0.0;
+    return;
+  }
+  *pbeta = 1.0/(norm * (norm + wn_abs(out[i0])));
+  if(out[i0] > 0.0)
+    *pnewval = -norm;
+  else
+    *pnewval = norm;
+  out[i0] -= *pnewval;
+}
+
+
+/*
+  hhtrrows -- transform a matrix by a Householder vector by rows
+  starting at row i0 from column j0 -- in-situ
+*/
+local void hhtrrows
+(
+ double **a,
+ int i0,
+ int j0,
+ double *hh,
+ double beta,
+ int m,
+ int n
+ )
+{
+  double ip, scale;
+  int i;
+  
+  if(beta == 0.0)
+  {
+    return;
+  }
+  
+  /* for each row ... */
+  for(i = i0; i < m; i++)
+  {
+    /*
+    compute inner product
+    ip = 0.0;
+    for(j = j0; j < n; j++)
+    {
+      ip += a[i][j]*hh[j];
+    }
+    */
+    ip = wn_dot_vects(&(a[i][j0]), &(hh[j0]), n - j0);
+
+    scale = beta * ip;
+    if(scale == 0.0)
+    {
+      continue;
+    }
+   
+    /*
+    do operation
+    for(j = j0; j < n; j++)
+    {
+      a[i][j] -= scale * hh[j];
+    }
+    */
+    wn_add_scaled_vect(&(a[i][j0]), &(hh[j0]), -scale, n - j0);
+  }
+}
+
+
+/*
+  hhtrcols -- transform a matrix by a Householder vector by columns
+  starting at row i0 from column j0 -- in-situ
+*/
+local void hhtrcols
+(
+ double **a,
+ int i0,
+ int j0,
+ double *hh,
+ double beta,
+ int m,
+ int n
+)
+{
+  int	i;
+  double *w;
+
+  if(beta == 0.0)
+  {
+    return;
+  }
+
+  wn_make_vect(&w, n);
+  wn_zero_vect(w, n);
+
+  for(i = i0; i < m; i++)
+  {
+    if(hh[i] != 0.0)
+    {
+      wn_add_scaled_vect(&(w[j0]), &(a[i][j0]), hh[i], n - j0);
+    }
+  }
+  for(i = i0; i < m; i++)
+  {
+    if(hh[i] != 0.0)
+    {
+      wn_add_scaled_vect(&(a[i][j0]), &(w[j0]), -beta * hh[i], n - j0);
+    }
+  }
+
+  wn_free(w);
+}
+
+
+/*
+  fixsvd -- fix minor details about SVD
+         -- make singular values non-negative
+         -- sort singular values in decreasing order
+         -- variables as for bisvd()
+         -- no argument checking
+*/
+local void fixsvd(double *d, double **u, double **v, int m, int n)
+{
+  int i, j, k, l, r, sp, limit;
+  int stack[MAX_STACK];
+  double tmp, ve;
+
+  limit = wn_min(m, n);
+
+  /* make singular values non-negative */
+  for(i = 0; i < limit; i++)
+    if(d[i] < 0.0)
+    {
+      d[i] = - d[i];
+      for(j = 0; j < m; j++)
+      {
+	u[i][j] = - u[i][j];
+      }
+    }
+
+  /*
+    sort singular values
+    nonrecursive implementation of quicksort due to
+    R.Sedgewick, "Algorithms in C", p. 122 (1990)
+  */
+  sp = -1;
+  l = 0;
+  r = limit - 1;
+  for ( ; ; )
+  {
+    while (r > l)
+    {
+      /* i = partition(d, l, r) */
+      ve = d[r];
+      
+      i = l - 1;
+      j = r;
+      for ( ; ; )
+      {
+	/* inequalities are "backwards" for **decreasing** order */
+	while(d[++i] > ve)
+	  ;
+	while(d[--j] < ve)
+	  ;
+	if(i >= j)
+	  break;
+
+	/* swap entries in d */
+	tmp = d[i];
+	d[i] = d[j];
+	d[j] = tmp;
+
+	/* swap rows of U & V as well */
+	for(k = 0; k < m; k++)
+	{
+	  tmp = u[i][k];
+	  u[i][k] = u[j][k];
+	  u[j][k] = tmp;
+	}
+	for(k = 0; k < n; k++)
+	{
+	  tmp = v[i][k];
+	  v[i][k] = v[j][k];
+	  v[j][k] = tmp;
+	}
+      }
+      tmp = d[i];
+      d[i] = d[r];
+      d[r] = tmp;
+      for(k = 0; k < m; k++)
+      {
+	tmp = u[i][k];
+	u[i][k] = u[r][k];
+	u[r][k] = tmp;
+      }
+      for(k = 0; k < n; k++)
+      {
+	tmp = v[i][k];
+	v[i][k] = v[r][k];
+	v[r][k] = tmp;
+      }
+
+      /* end i = partition(...) */
+      if (i - l > r - i)
+      {
+	stack[++sp] = l;
+	stack[++sp] = i - 1;
+	l = i + 1;
+      }
+      else
+      {
+	stack[++sp] = i + 1;
+	stack[++sp] = r;
+	r = i-1;
+      }
+    }
+    if(sp < 0)
+      break;
+    r = stack[sp--];
+    l = stack[sp--];
+  }
+}
+
+
+/*
+  bisvd -- svd of a bidiagonal m x n matrix represented by d (diagonal) and
+  f (super-diagonals)
+	-- returns with d set to the singular values, f zeroed
+	-- SVD == U^T.A.V where A is initial matrix
+*/
+local void bisvd(double *d, double *f, double **u, double **v, int n1, int n2)
+{
+  int i, j, n;
+  int i_min, i_max, split;
+  double c, s, shift, size, z, d_tmp, diff, t11, t12, t22;
+  double *d_ve, *f_ve;
+
+  n = wn_min(n1, n2);
+  if(n == 1)
+  {
+    fixsvd(d, u, v, n1, n2);
+    return;
+  }
+  d_ve = d;
+  f_ve = f;
+  size = wn_supnorm_vect(d, n) + wn_supnorm_vect(f, n - 1);
+
+  i_min = 0;
+  while(i_min < n)        /* outer while loop */
+  {
+    /*
+      find i_max to suit;
+      submatrix i_min..i_max should be irreducible
+    */
+    i_max = n - 1;
+    for(i = i_min; i < n - 1; i++)
+    {
+      if(
+	 (d_ve[i] == 0.0)
+	 ||
+	 (f_ve[i] == 0.0)
+	)
+      {
+	i_max = i;
+	if(f_ve[i] != 0.0)
+	{
+	  /* have to "chase" f[i] element out of matrix */
+	  z = f_ve[i];
+	  f_ve[i] = 0.0;
+	  for (j = i; j < n-1 && z != 0.0; j++)
+	  {
+	    givens(d_ve[j+1], z, &c, &s);
+	    s = -s;
+	    d_ve[j+1] =  c * d_ve[j + 1] - s * z;
+	    if (j + 1 < n - 1)
+	    {
+	      z = s * f_ve[j + 1];
+	      f_ve[j+1] = c * f_ve[j + 1];
+	    }
+	    rot_rows(u, i, j + 1, c, s, u, n1);
+	  }
+	}
+	break;
+      }
+    }
+    if(i_max <= i_min)
+    {
+      i_min = i_max + 1;
+      continue;
+    }
+#if DISPLAY
+    printf("bisvd: i_min = %d, i_max = %d\n", i_min, i_max);
+#endif
+
+    split = FALSE;
+    while (!split)
+    {
+      /* compute shift */
+      t11 = d_ve[i_max - 1] * d_ve[i_max - 1] +
+	(i_max > i_min+1 ? f_ve[i_max - 2] * f_ve[i_max - 2] : 0.0);
+      t12 = d_ve[i_max - 1] * f_ve[i_max - 1];
+      t22 = d_ve[i_max] * d_ve[i_max] + f_ve[i_max - 1] * f_ve[i_max - 1];
+
+      /* use e-val of [[t11,t12],[t12,t22]] matrix closest to t22 */
+      diff = (t11 - t22) / 2;
+      shift = t22 - t12 * t12 /
+	(diff + wn_sign_random_nonzero(diff) * sqrt(diff * diff + t12 * t12));
+      
+      /* initial Givens' rotation */
+      givens(d_ve[i_min] * d_ve[i_min] - shift, d_ve[i_min] * f_ve[i_min],
+	     &c, &s);
+
+      /* do initial Givens' rotations */
+      d_tmp = c * d_ve[i_min] + s * f_ve[i_min];
+      f_ve[i_min] = c * f_ve[i_min] - s * d_ve[i_min];
+      d_ve[i_min] = d_tmp;
+      z = s * d_ve[i_min + 1];
+      d_ve[i_min + 1] = c * d_ve[i_min + 1];
+      rot_rows(v, i_min, i_min + 1, c, s, v, n2);
+
+      /* 2nd Givens' rotation */
+      givens(d_ve[i_min], z, &c, &s);
+      d_ve[i_min] = c * d_ve[i_min] + s * z;
+      d_tmp = c * d_ve[i_min + 1] - s * f_ve[i_min];
+      f_ve[i_min] = s * d_ve[i_min + 1] + c * f_ve[i_min];
+      d_ve[i_min + 1] = d_tmp;
+      if(i_min + 1 < i_max)
+      {
+	z = s * f_ve[i_min + 1];
+	f_ve[i_min + 1] = c * f_ve[i_min + 1];
+      }
+      rot_rows(u, i_min, i_min + 1, c, s, u, n1);
+      
+      for (i = i_min + 1; i < i_max; i++)
+      {
+	/* get Givens' rotation for zeroing z */
+	givens(f_ve[i - 1], z, &c, &s);
+	f_ve[i-1] = c * f_ve[i - 1] + s * z;
+	d_tmp = c * d_ve[i] + s * f_ve[i];
+	f_ve[i] = c * f_ve[i] - s * d_ve[i];
+	d_ve[i] = d_tmp;
+	z = s * d_ve[i + 1];
+	d_ve[i + 1] = c * d_ve[i + 1];
+	rot_rows(v, i, i + 1, c, s, v, n2);
+
+	/* get 2nd Givens' rotation */
+	givens(d_ve[i], z, &c, &s);
+	d_ve[i] = c * d_ve[i] + s * z;
+	d_tmp = c * d_ve[i + 1] - s * f_ve[i];
+	f_ve[i] = c * f_ve[i] + s * d_ve[i + 1];
+	d_ve[i + 1] = d_tmp;
+	if (i + 1 < i_max)
+	{
+	  z = s * f_ve[i + 1];
+	  f_ve[i + 1] = c * f_ve[i + 1];
+	}
+	rot_rows(u, i, i + 1, c, s, u, n1);
+      }
+
+      /* should matrix be split? */
+      for(i = i_min; i < i_max; i++)
+      {
+	if(wn_abs(f_ve[i]) < MACHEPS * (wn_abs(d_ve[i]) + wn_abs(d_ve[i+1])))
+	{
+	  split = TRUE;
+	  f_ve[i] = 0.0;
+	}
+	else if(fabs(d_ve[i]) < MACHEPS * size)
+	{
+	  split = TRUE;
+	  d_ve[i] = 0.0;
+	}
+#if DISPLAY
+	printf("bisvd: d = \n");
+	wn_print_vect(d, n);
+	printf("bisvd: f = \n");
+	wn_print_vect(f, n - 1);
+#endif
+      }
+    }
+  }
+
+  fixsvd(d, u, v, n1, n2);
+}
+
+
+/*
+  bifactor -- perform preliminary factorization for bisvd
+*/
+local void bifactor(double **a, double **u, double **v, int m, int n)
+{
+  int k, i;
+  double beta;
+  double *tmp1, *tmp2;
+
+  wn_make_vect(&tmp1, m);
+  wn_make_vect(&tmp2, n);
+
+  if(m >= n)
+  {
+    for(k = 0; k < n; k++)
+    {
+      for (i = 0; i < m; i++)
+      {
+	tmp1[i] = a[i][k];
+      }
+      hhvec(tmp1, k, &beta, tmp1, &(a[k][k]), m);
+      hhtrcols(a, k, k + 1, tmp1, beta, m, n);
+      hhtrcols(u, k, 0, tmp1, beta, m, m);
+      if ( k + 1 >= n )
+      {
+	continue;
+      }
+      wn_copy_vect(tmp2, a[k], n);
+      hhvec(tmp2, k + 1, &beta, tmp2, &(a[k][k+1]), n);
+      hhtrrows(a, k + 1, k + 1, tmp2, beta, m, n);
+      hhtrcols(v, k + 1, 0, tmp2, beta, n, n);
+    }
+  }
+  else
+  {
+    for(k = 0; k < m; k++)
+    {
+      wn_copy_vect(tmp2, a[k], n);
+      hhvec(tmp2, k, &beta, tmp2, &(a[k][k]), n);
+      hhtrrows(a, k + 1, k, tmp2, beta, m, n);
+      hhtrcols(v, k, 0, tmp2, beta, n, n);
+      if(k + 1 >= m)
+      {
+	continue;
+      }
+      for (i = 0; i < m; i++)
+      {
+	tmp1[i] = a[i][k];
+      }
+      hhvec(tmp1, k + 1, &beta, tmp1, &(a[k+1][k]), m);
+      hhtrcols(a, k + 1, k + 1, tmp1, beta, m, n);
+      hhtrcols(u, k + 1, 0, tmp1, beta, m, m);
+    }
+  }
+
+  wn_free(tmp1);
+  wn_free(tmp2);
+}
+
+
+/*
+  wn_svd -- computes the SVD of a (len_i x len_j) real matrix **a
+         -- returns vector of singular values in *d
+         -- input matrix is destroyed
+  a = u^T * diag * v, where diag is a (len_i x len_j) matrix which has as
+                            "diagonal elements" the components of *d
+*/
+EXTERN void wn_svd
+(
+ double **u,         /* a pre-allocated (len_i x len_i) square matrix */
+ double *d,          /* a pre-allocated vector of size min(len_j, len_j) */
+ double **v,         /* a pre-allocated (len_j x len_j) square matrix */
+ double **a,         /* the passed (len_i x len_j) matrix */
+ int len_i,
+ int len_j
+)
+{
+  int i, limit;
+  double *f;
+
+  wn_gpmake("general_free");
+
+  wn_identity_mat(u, len_i);
+  wn_identity_mat(v, len_j);
+  limit = wn_min(len_i, len_j);
+
+  wn_make_vect(&f, limit - 1);
+
+  bifactor(a, u, v, len_i, len_j);
+  if(len_i >= len_j)
+  {
+    for(i = 0; i < limit; i++)
+    {
+      d[i] = a[i][i];
+      if (i < limit - 1)
+      {
+	f[i] = a[i][i + 1];
+      }
+    }
+  }
+  else
+  {
+    for(i = 0; i < limit; i++)
+    {
+      d[i] = a[i][i];
+      if (i < limit - 1)
+      {
+	f[i] = a[i + 1][i];
+      }
+    }
+  }
+
+  if (len_i >= len_j)
+  {
+    bisvd(d, f, u, v, len_i, len_j);
+  }
+  else
+  {
+    bisvd(d, f, v, u, len_j, len_i);
+  }
+
+  wn_gpfree();
+}

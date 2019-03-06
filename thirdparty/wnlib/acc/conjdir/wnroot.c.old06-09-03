@@ -1,0 +1,706 @@
+/********************************************************************
+
+********************************************************************/
+#include <stdio.h>
+#include <math.h>
+
+#include "wnlib.h"
+#include "wnsqr.h"
+#include "wnnop.h"
+#include "wnabs.h"
+#include "wnasrt.h"
+#include "wnswap.h"
+#include "wnmax.h"
+#include "wncmp.h"
+#include "wnrnd.h"
+#include "wnrndd.h"
+#include "wnconj.h"
+
+#include "wnroot.h"
+
+
+
+/*
+#define DEBUG   TRUE
+*/
+#define DEBUG   FALSE
+
+
+local bool probe_legal
+(
+  double xnew,
+  double f0,double f1,double f2,
+  double x0,double x1,double x2
+)
+{
+  wn_assert(x0 < x1);
+  wn_assert(x1 < x2);
+  wn_assert(wn_abs(wn_sign(f0)) != 0);
+  wn_assert(wn_abs(wn_sign(f1)) != 0);
+  wn_assert(wn_abs(wn_sign(f2)) != 0);
+  wn_assert(wn_sign(f0) == -wn_sign(f2));
+
+  return((xnew > x0)&&(xnew != x1)&&(xnew < x2));
+}
+
+
+local void secant_projection
+(
+  double *pf,
+  double x,
+  double x0,double f0,
+  double x1,double f1
+)
+{
+  wn_assert(x0 != x1);
+  
+  *pf = ((x1-x)*f0 + (x-x0)*f1)/(x1 - x0);
+}
+
+
+local bool bisection_close_to_secant
+(
+  double f0,double f1,double f2,
+  double x0,double x1,double x2
+)
+{
+  double f1_projection;
+  double lim1,lim2;
+
+  wn_assert(x0 < x1);
+  wn_assert(x1 < x2);
+
+  secant_projection(&f1_projection,x1,x0,f0,x2,f2);
+
+  lim1 = (1.0-0.75)*f1_projection + 0.75*f0;
+  lim2 = (1.0-0.75)*f1_projection + 0.75*f2;
+
+  if(lim1 > lim2)
+  {
+    wn_swap(lim1,lim2,double);
+  }
+
+# if DEBUG
+  printf("lim1=%lg,f1=%lg,lim2=%lg\n",lim1,f1,lim2);
+# endif
+
+  return((lim1 <= f1)&&(f1 <= lim2));
+}
+
+
+local void secant_root
+(
+  bool *psuccess,
+  double *pxnew,
+  double x0,double f0,
+  double x1,double f1
+)
+{
+  double denom;
+  int sign0,sign1;
+
+  wn_assert(x0 != x1);
+
+  if(x0 > x1)
+  {
+    wn_swap(x0,x1,double);
+    wn_swap(f0,f1,double);
+  }
+
+  denom = f1-f0;
+
+  *psuccess = (denom != 0.0);
+
+  if(!(*psuccess)) 
+  {
+    return;
+  }
+
+  sign0 = wn_sign(f0);
+  sign1 = wn_sign(f1);
+
+  if(sign0 == 0)
+  {
+    if(sign1 == 0)
+    {
+      *pxnew = 0.5*(x0+x1);
+    }
+    else
+    {
+      *pxnew = x0;
+    }
+  }
+  else if(sign1 == 0)
+  {
+    wn_assert(sign0 != 0);
+
+    *pxnew = x1;
+  }
+  else 
+  {
+    wn_assert(sign0 != 0);
+    wn_assert(sign1 != 0);
+
+    *pxnew = (f1*x0-f0*x1)/denom;
+
+    if(sign0 == -sign1)
+    {
+      if((*pxnew) > x1)
+      {
+	*pxnew = x1;
+      }
+      else if((*pxnew) < x0)
+      {
+	*pxnew = x0;
+      }
+    }
+    else
+    {
+      wn_assert(sign0 == sign1);
+
+      if(wn_abs(f0) < wn_abs(f1))
+      {
+	if((*pxnew) > x0)
+	{
+	  *pxnew = x0;
+        }
+      }
+      else if(wn_abs(f0) > wn_abs(f1))
+      {
+	if((*pxnew) < x1)
+	{
+	  *pxnew = x1;
+        }
+      }
+      else
+      {
+	wn_assert_notreached();
+      }
+    }
+  }
+}
+
+
+local void gen_secant_probe
+(
+  bool *psuccess,
+  double *pxnew,
+  double f0,double f1,double f2,
+  double x0,double x1,double x2
+)
+{
+  int side;
+
+# if DEBUG
+    printf("secant probe.\n");
+# endif
+
+  wn_assert(x0 < x1);
+  wn_assert(x1 < x2);
+  wn_assert(wn_abs(wn_sign(f0)) != 0);
+  wn_assert(wn_abs(wn_sign(f1)) != 0);
+  wn_assert(wn_abs(wn_sign(f2)) != 0);
+  wn_assert(wn_sign(f0) == -wn_sign(f2));
+
+  side = wn_doublecmp(wn_abs(f0),wn_abs(f2));
+  if(side == 0)
+  {
+    side = wn_random_bit()?(1):(-1);
+  }
+
+  if(side < 0)
+  {
+    secant_root(psuccess,pxnew,x0,f0,x1,f1);
+    if(*psuccess && probe_legal(*pxnew,f0,f1,f2,x0,x1,x2))
+    {
+      return;
+    }
+
+    secant_root(psuccess,pxnew,x2,f2,x1,f1);
+    if(*psuccess)
+    {
+      *psuccess = probe_legal(*pxnew,f0,f1,f2,x0,x1,x2);
+    }
+  }
+  else if(side > 0)
+  {
+    secant_root(psuccess,pxnew,x2,f2,x1,f1);
+    if(*psuccess && probe_legal(*pxnew,f0,f1,f2,x0,x1,x2))
+    {
+      return;
+    }
+
+    secant_root(psuccess,pxnew,x0,f0,x1,f1);
+    if(*psuccess)
+    {
+      *psuccess = probe_legal(*pxnew,f0,f1,f2,x0,x1,x2);
+    }
+  }
+  else
+  {
+    wn_assert_notreached();
+  }
+}
+
+
+local void gen_inverse_parabola_probe
+(
+  bool *psuccess,
+  double *pxnew,
+  double f0,double f1,double f2,
+  double x0,double x1,double x2
+)
+{
+  int code;
+  double a,b,c;
+
+# if DEBUG
+    printf("inverse parabola probe.\n");
+# endif
+
+  wn_assert(x0 < x1);
+  wn_assert(x1 < x2);
+  wn_assert(wn_abs(wn_sign(f0)) != 0);
+  wn_assert(wn_abs(wn_sign(f1)) != 0);
+  wn_assert(wn_abs(wn_sign(f2)) != 0);
+  wn_assert(wn_sign(f0) == -wn_sign(f2));
+
+  if(!(
+        ((f0 < f1)&&(f1 < f2))
+	  ||
+        ((f0 > f1)&&(f1 > f2))
+      ))
+  {
+    *psuccess = FALSE;
+    return;
+  }
+
+  wn_fit_traditional_parabola_3p(&code,&a,&b,&c,
+				 f0,x0,
+				 f1,x1,
+				 f2,x2);
+
+  if(code != WN_SUCCESS)
+  {
+    *psuccess = FALSE;
+    return;
+  }
+
+  *pxnew = c;
+
+  *psuccess = probe_legal(*pxnew,f0,f1,f2,x0,x1,x2);
+}
+
+
+local void gen_bisection_probe
+(
+  bool *psuccess,
+  double *pxnew,
+  double f0,double f1,double f2,
+  double x0,double x1,double x2
+)
+{
+# if DEBUG
+    printf("bisection probe.\n");
+# endif
+
+  wn_assert(x0 < x1);
+  wn_assert(x1 < x2);
+  wn_assert(wn_abs(wn_sign(f0)) != 0);
+  wn_assert(wn_abs(wn_sign(f1)) != 0);
+  wn_assert(wn_abs(wn_sign(f2)) != 0);
+  wn_assert(wn_sign(f0) == -wn_sign(f2));
+
+  if(wn_sign(f1) != wn_sign(f0))
+  {
+    *pxnew = 0.5*(x1+x0);
+  }
+  else if(wn_sign(f1) != wn_sign(f2))
+  {
+    *pxnew = 0.5*(x2+x1);
+  }
+  else
+  {
+    wn_assert_notreached();
+  }
+
+  *psuccess = probe_legal(*pxnew,f0,f1,f2,x0,x1,x2);
+}
+
+
+local void insert_new_point
+(
+  double fnew,double xnew,
+  double *pf0,double *pf1,double *pf2,
+  double *px0,double *px1,double *px2
+)
+{
+  wn_assert(*px0 < *px1);
+  wn_assert(*px1 < *px2);
+  wn_assert(wn_abs(wn_sign(*pf0)) != 0);
+  wn_assert(wn_abs(wn_sign(*pf1)) != 0);
+  wn_assert(wn_abs(wn_sign(*pf2)) != 0);
+  wn_assert(wn_sign(*pf0) == -wn_sign(*pf2));
+  wn_assert(xnew < *px2);
+  wn_assert(xnew > *px0);
+  wn_assert(xnew != *px1);
+
+  if(xnew < *px1)
+  {
+    wn_assert(wn_sign(*pf0) != wn_sign(*pf1));
+
+    if((wn_sign(fnew) == wn_sign(*pf0))&&((*px2)-xnew <= (*px1)-(*px0)))
+    {
+      *pf0 = fnew;
+      *px0 = xnew;
+    }
+    else
+    {
+      *pf2 = *pf1;
+      *px2 = *px1;
+
+      *pf1 = fnew;
+      *px1 = xnew;
+    }
+  }
+  else if(xnew > *px1)
+  {
+    wn_assert(wn_sign(*pf2) != wn_sign(*pf1));
+
+    if((wn_sign(fnew) == wn_sign(*pf2))&&(xnew-(*px0) <= (*px2)-(*px1)))
+    {
+      *pf2 = fnew;
+      *px2 = xnew;
+    }
+    else
+    {
+      *pf0 = *pf1;
+      *px0 = *px1;
+
+      *pf1 = fnew;
+      *px1 = xnew;
+    }
+  }
+  else
+  {
+    wn_assert_notreached();
+  }
+}
+
+
+#if 0
+/* assume *pf0,*pf1,*pf2 already computed */
+EXTERN void wn_findroot_raw_bracketed
+(
+  int *pcode,
+  double *pf0,
+  double *pf1,
+  double *pf2,
+  double *px0,
+  double *px1,
+  double *px2,
+  double (*pfunction)(double x),
+  int max_iterations
+)
+{
+  int iteration_count;
+  double xnew,fnew,abs_f1,last_abs_f1;
+  bool success;
+  double width1,width2,last_width1,last_width2;
+  bool bisect;
+
+  wn_assert(*px0 < *px1);
+  wn_assert(*px1 < *px2);
+  wn_assert(wn_abs(wn_sign(*pf0)) != 0);
+  wn_assert(wn_abs(wn_sign(*pf1)) != 0);
+  wn_assert(wn_abs(wn_sign(*pf2)) != 0);
+  wn_assert(wn_sign(*pf0) == -wn_sign(*pf2));
+
+  bisect = FALSE;
+
+  last_abs_f1 = WN_FHUGE;
+  last_width1 = WN_FHUGE;
+  last_width2 = WN_FHUGE;
+
+  iteration_count = 0;
+
+  while(
+	 !(
+	    (max_iterations < WN_IHUGE)
+	      &&
+	    (iteration_count >= max_iterations)
+	  )
+       )
+  {
+    if(iteration_count == 14)
+    {
+      wn_do_nothing();
+    }
+
+    wn_assert(*px0 < *px1);
+    wn_assert(*px1 < *px2);
+
+    if(*pf1 == 0.0)
+    {
+      *pcode = WN_SUCCESS;
+      return;
+    }
+
+    abs_f1 = wn_abs(*pf1);
+    width1 = (*px1)-(*px0);
+    width2 = (*px2)-(*px1);
+
+#   if DEBUG
+      printf("iteration_count=%d,x0=%lg,f0=%lg,x1=%lg,f1=%lg,x2=%lg,f2=%lg\n",
+	   iteration_count,*px0,*pf0,*px1,*pf1,*px2,*pf2);
+      printf("  width1=%lg,width2=%lg,last_width1=%lg,last_width2=%lg,last_abs_f1=%lg\n",
+	   width1,width2,last_width1,last_width2,last_abs_f1);
+#   endif
+
+    if(bisect)
+    {
+      bisect = FALSE;
+    }
+    else /* !bisect */
+    {
+      if((width1 > 0.75*last_width1)&&(width2 > 0.75*last_width2)&&
+	 (abs_f1 > 0.50*last_abs_f1))
+      {
+	bisect = TRUE;
+      }
+    }
+
+    if(bisect)
+    {
+      gen_bisection_probe(&success,&xnew,*pf0,*pf1,*pf2,*px0,*px1,*px2);
+    }
+    else
+    {
+      /*
+      gen_inverse_parabola_probe(&success,&xnew,*pf0,*pf1,*pf2,*px0,*px1,*px2);
+      if(success)
+      {
+	goto done;
+      }
+      */
+      gen_secant_probe(&success,&xnew,*pf0,*pf1,*pf2,*px0,*px1,*px2);
+      if(success)
+      {
+	goto done;
+      }
+      gen_bisection_probe(&success,&xnew,*pf0,*pf1,*pf2,*px0,*px1,*px2);
+
+      done: ;
+    }
+
+    if((xnew == *px0)||(xnew == *px1)||(xnew == *px2))
+    {
+      *pcode = WN_SUCCESS;
+      return;
+    }
+
+    fnew = (*pfunction)(xnew);
+
+    ++iteration_count;
+
+    insert_new_point(fnew,xnew,pf0,pf1,pf2,px0,px1,px2);
+
+    last_abs_f1 = abs_f1;
+    last_width1 = width1;
+    last_width2 = width2;
+  }
+
+  *pcode = WN_SUBOPTIMAL;
+}
+#endif
+
+
+#if 1
+/* assume *pf0,*pf1,*pf2 already computed */
+EXTERN void wn_findroot_raw_bracketed
+(
+  int *pcode,
+  double *pf0,
+  double *pf1,
+  double *pf2,
+  double *px0,
+  double *px1,
+  double *px2,
+  double (*pfunction)(double x),
+  int max_iterations
+)
+{
+  int iteration_count;
+  double xnew,fnew,abs_f1,last_abs_f1;
+  bool success;
+  double width1,width2,last_width1,last_width2;
+  bool bisect;
+
+  wn_assert(*px0 < *px1);
+  wn_assert(*px1 < *px2);
+  wn_assert(wn_abs(wn_sign(*pf0)) != 0);
+  wn_assert(wn_abs(wn_sign(*pf2)) != 0);
+  wn_assert(wn_sign(*pf0) == -wn_sign(*pf2));
+
+  bisect = FALSE;
+
+  last_abs_f1 = WN_FHUGE;
+  last_width1 = WN_FHUGE;
+  last_width2 = WN_FHUGE;
+
+  iteration_count = 0;
+
+  while(
+	 !(
+	    (max_iterations < WN_IHUGE)
+	      &&
+	    (iteration_count >= max_iterations)
+	  )
+       )
+  {
+    wn_assert(*px0 < *px1);
+    wn_assert(*px1 < *px2);
+
+    if(*pf1 == 0.0)
+    {
+      *pcode = WN_SUCCESS;
+      return;
+    }
+
+    abs_f1 = wn_abs(*pf1);
+    width1 = (*px1)-(*px0);
+    width2 = (*px2)-(*px1);
+
+#   if DEBUG
+      printf("iteration_count=%d,x0=%lg,f0=%lg,x1=%lg,f1=%lg,x2=%lg,f2=%lg\n",
+	   iteration_count,*px0,*pf0,*px1,*pf1,*px2,*pf2);
+      printf("  width1=%lg,width2=%lg,last_width1=%lg,last_width2=%lg,last_abs_f1=%lg\n",
+	   width1,width2,last_width1,last_width2,last_abs_f1);
+#   endif
+
+    if(bisect)
+    {
+      if(bisection_close_to_secant(*pf0,*pf1,*pf2,*px0,*px1,*px2))
+      {
+	bisect = FALSE;
+      }
+    }
+    else /* !bisect */
+    {
+      if((width1 > 0.75*last_width1)&&(width2 > 0.75*last_width2)&&
+	 (abs_f1 > 0.50*last_abs_f1))
+      {
+	bisect = TRUE;
+      }
+    }
+
+    if(bisect)
+    {
+      gen_bisection_probe(&success,&xnew,*pf0,*pf1,*pf2,*px0,*px1,*px2);
+    }
+    else
+    {
+      gen_secant_probe(&success,&xnew,*pf0,*pf1,*pf2,*px0,*px1,*px2);
+      if(!success)
+      {
+        gen_bisection_probe(&success,&xnew,*pf0,*pf1,*pf2,*px0,*px1,*px2);
+      }
+    }
+
+    if((xnew == *px0)||(xnew == *px1)||(xnew == *px2))
+    {
+      *pcode = WN_SUCCESS;
+      return;
+    }
+
+    fnew = (*pfunction)(xnew);
+
+    ++iteration_count;
+
+    insert_new_point(fnew,xnew,pf0,pf1,pf2,px0,px1,px2);
+
+    last_abs_f1 = abs_f1;
+    last_width1 = width1;
+    last_width2 = width2;
+  }
+
+  *pcode = WN_SUBOPTIMAL;
+}
+#endif
+
+
+local void extract_best_root
+(
+  double *pfbest,double *pxbest,
+  double f0,double f1,double f2,
+  double x0,double x1,double x2
+)
+{
+  *pfbest = WN_FHUGE;  
+  *pxbest = 0.0;
+
+  if(wn_abs(f1) < wn_abs(*pfbest))
+  {
+    *pxbest = x1;
+    *pfbest = f1;
+  }
+  if(wn_abs(f0) < wn_abs(*pfbest))
+  {
+    *pxbest = x0;
+    *pfbest = f0;
+  }
+  if(wn_abs(f2) < wn_abs(*pfbest))
+  {
+    *pxbest = x2;
+    *pfbest = f2;
+  }
+}
+
+
+/* assume f0,f2 already computed */
+EXTERN void wn_findroot_bracketed
+(
+  int *pcode,
+  double *px1,
+  double *pf1,
+  double x0,
+  double f0,
+  double x2,
+  double f2,
+  double (*pfunction)(double x),
+  int max_iterations
+)
+{
+  bool success;
+  double x1,f1;
+
+  wn_assert(x0 != x2);
+
+  if(x0 > x2)
+  {
+    wn_swap(x0,x2,double);
+    wn_swap(f0,f2,double);
+  }
+
+  wn_assert(wn_abs(wn_sign(f0)) != 0);
+  wn_assert(wn_abs(wn_sign(f2)) != 0);
+  wn_assert(wn_sign(f0) == -wn_sign(f2));
+
+  secant_root(&success,&x1,x0,f0,x2,f2);
+  if(!success)
+  {
+    x1 = 0.5*(x0+x2);
+  }
+
+  f1 = (*pfunction)(x1);
+
+  wn_findroot_raw_bracketed(pcode,&f0,&f1,&f2,&x0,&x1,&x2,
+			    pfunction,max_iterations);
+
+  extract_best_root(pf1,px1,f0,f1,f2,x0,x1,x2);
+}
+
+
+
+
+

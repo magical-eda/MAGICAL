@@ -1,0 +1,116 @@
+<HTML>
+<HEAD>
+<TITLE>Downloading and Installing WNLIB</TITLE>
+<META name="robots" content="none">
+</HEAD>
+<BODY>
+<hr>
+<H1>Downloading and Installing WNLIB for unix users.  <small><small>Windows user click <A HREF="download_windows.html">here</A></small></small></H1>
+<P>
+To retrieve and build WNLIB, follow these instructions:
+</P>
+<P>
+<OL>
+<LI>Create a directory called "wnlib" wherever you want this code to
+   reside and go into it.  Type
+<PRE>
+     $ cd &lt; directory where wnlib is to reside &gt;
+     $ mkdir wnlib
+     $ cd wnlib
+</PRE>
+<LI> Download wnlib.tar.gz by clicking
+<A HREF="wnlib.tar.gz">here</A> (say "save it to disk").
+This gzipfile contains about 1.5 Mbytes of data compressed.  You will need about 30M of free disk space to build everything.
+<LI> Decode the gz file.  Type
+<PRE>
+     $ gunzip wnlib.tar.gz
+</PRE>
+    you probably have 'gunzip', if you don't, it can be
+    obtained from http://www.gzip.org or http://www.gnu.org.
+<LI> Un-tar the code.  Type
+<PRE>
+     $ tar xvf wnlib.tar
+</PRE>
+<LI> Compile the code.  Type
+<PRE>
+     $ make all
+</PRE>
+<LI> If this fails, it may be necessary to modify variables in acc/makefile
+to fit the platform you are running on.
+<LI>When you believe you have compiled correctly, type
+<PRE>
+     $ make selftest
+</PRE>
+to run the self-testing diagnostics.  If selftest runs successfully
+to completion with no error messages, you have successfully installed
+WNLIB.
+</OL>
+</P>
+<hr>
+<H1>Using WNLIB</H1>
+<P>
+USE:
+</P>
+<P>
+<OL>
+<LI>  Summary:
+<PRE>
+    ARCHIVE is in:      wnlib/acc/text.a
+    H FILES are in:     wnlib/acc/h/*.h
+    MAN PAGES are in:   wnlib/doc/man/*.man 
+</PRE>
+<LI> Under wnlib, the directory "acc" contains .h files to include and archive
+    files to link to.  The directory acc/h contains links to all of the 
+    .h files.  The directory acc contains an archive file called "text.a".  
+    Use the -I switch
+    of cc to include the .h files.  See the makefile's in acc for examples
+    of linking text.a files and including .h files.
+<LI> <P>man pages are to be found in doc/man.  The script "wnman" in the
+    directory "command" is a convenient way to view these man pages.
+    Type "wnman <page_name>" to view a man page.
+    The command "wnman -k <keyword>" does a keyword search on all
+    the man pages.
+    </P>
+    <P> 
+    The variable "wnlib" must point to your wnlib directory for
+    wnman to work.  A csh command of the form
+    <PRE>
+      $ set wnlib = xxx/yyy/wnlib
+    </PRE>
+    sets this up.  Include such a command in your .cshrc.
+    </P>
+</OL>
+</P>
+<hr>
+<H1>COPYRIGHT NOTICE</H1>
+<P>
+  The source code in this directory and all its subdirectories is
+  provided free of charge to anyone who wants it.  It is in the public
+  domain and therefore may be used by anybody for any purpose.  It
+  is provided "AS IS" with no warranty of any kind
+  whatsoever.
+</P>
+<P>
+This copyright notice and the above legal notice may not be removed.
+</P>
+<hr>
+<H1>AUTHORS</H1>
+<P>
+<PRE>
+  <b><big>Will Naylor</big></b>
+    email: 
+      <A HREF="mailto:pub@willnaylor.com">pub@willnaylor.com</A>
+    web: 
+      <A HREF="http://www.willnaylor.com">http://www.willnaylor.com</A>
+</PRE>
+<PRE>
+  <b><big>Bill Chapman</big></b>
+    email: 
+      <A HREF="mailto:WNLIB@CCJJ.INFO">WNLIB@CCJJ.INFO</A>
+</PRE>
+</P>
+</BODY>
+</HTML>
+
+
+

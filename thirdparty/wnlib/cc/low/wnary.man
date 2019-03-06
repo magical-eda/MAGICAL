@@ -1,0 +1,58 @@
+NAME
+     wnary -- array operations
+
+SYNOPSIS
+     #include "wnary.h"
+
+     wn_arrayfill(array,len,fill,type)
+     type array[];
+     int len;
+     type fill;
+
+     wn_arraycpy(out,in,len,type)
+     type out[],in[];
+     int len;
+
+     wn_arrayscan(&index,array,len,cond,type)
+     int index;
+     type array[];
+     int len;
+
+DESCRIPTION
+     These macros operate on arrays of some type, the lengths of which are
+     specified by length arguments. 
+
+     "wn_arrayfill" copies "fill" to each element of "array".  "array" has
+     length "len".
+
+     "wn_arraycpy" copies the entries of array "in" to the entries of
+     "out".  Both "in" and "out" have length "len".
+
+     "wn_arrayscan" scans "array" for an element satisfying "cond".  The index
+     of this element is placed in "index"; if no appropriate element is found,
+     index is set to -1.  If "len" is set to -1, the search continues
+     until "cond" is satisfied.
+
+EXAMPLES
+     The fragment
+
+       example()
+       {
+         int array[] = {0,1,2,3,4},index;
+
+         wn_arrayscan(&index,array,5,(wn_element == 3),int);
+
+         printf("%d\n",index);
+       }
+
+     prints "3".
+
+BUGS
+
+SEE ALSO
+     wnblk, wnstr
+
+AUTHOR
+     Will Naylor
+
+

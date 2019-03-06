@@ -1,0 +1,47 @@
+NAME
+     wnmgen -- generate vector/matrix with special values
+
+SYNOPSIS
+     #include "wnmat.h"
+
+
+     wn_zero_raw_vector(raw_vect,len_i)
+     double *raw_vect;
+     int len_i;
+
+
+     wn_zero_raw_matrix(raw_mat,len_i,len_j)
+     double **raw_mat;
+     int len_i,len_j;
+
+
+     wn_identity_matrix(&mat,len_i)
+     wn_matrix mat;
+     int len_i;
+
+     wn_identity_raw_matrix(raw_mat,len_i)
+     double **raw_mat;
+     int len_i;
+
+
+     wn_hilbert_matrix(&mat,len_i)
+     wn_matrix mat;
+     int len_i;
+
+     wn_hilbert_raw_matrix(raw_mat,len_i)
+     double **raw_mat;
+     int len_i;
+
+DESCRIPTION
+     Routines to generate a vector/matrix with special values.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+
+AUTHOR
+     Will Naylor
+
+

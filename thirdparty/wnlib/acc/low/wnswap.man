@@ -1,0 +1,46 @@
+NAME
+     wnswap -- swap 2 variables
+
+SYNOPSIS
+     #include "wnswap.h"
+
+     wn_swap(a,b,type)
+
+DESCRIPTION
+     "wn_swap" is a macro which swaps "a" and "b".   "a" and "b" must
+     be of type "type".  "type" is used to declare a temporary.
+
+EXAMPLES
+     {
+       int a,b;
+
+       ...
+       wn_swap(a,b,int);
+       ...
+     }
+
+     {
+       ptr p1,p2;
+
+       ...
+       wn_swap(p1,p2,ptr);
+       ...
+     }
+
+     {
+       char *p1,*p2;
+
+       ...
+       wn_swap(p1,p2,char *);
+       ...
+     }
+
+BUGS
+
+SEE ALSO
+     wnsort
+
+AUTHOR
+     Will Naylor
+
+

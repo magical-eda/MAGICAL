@@ -1,0 +1,11 @@
+#!/usr/bin/csh
+
+foreach option (-r -n -d -t)
+  echo Option $option
+  set i = 0
+  while ($i < 20)
+    examples $option $i
+    @ i = $i + 1
+  end
+  echo ''
+end

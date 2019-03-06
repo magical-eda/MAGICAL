@@ -1,0 +1,40 @@
+NAME
+     wnrnd -- random numbers
+
+SYNOPSIS
+     #include "wnrnd.h"
+
+     void wn_seed_random_number_generator(int seed)
+
+     int wn_random_int(void)
+     int wn_random_int_func(void)
+
+     unsigned int wn_random_mod_int(unsigned int mod)
+
+     int wn_random_n_bits(int n)
+
+     int wn_random_bit(void)
+
+DESCRIPTION
+     These routines generate pseudo-random numbers.
+
+     wn_random_int() produces an int of 32 independent random bits.
+
+     wn_random_int() may be a macro or a function.  wn_random_int_func()
+     has exactly the same behavior as wn_random_int(), except that it
+     is guaranteed to be a function and not a macro.
+
+     "wn_seed_random_number_generator" seeds using "seed".  If it is not
+     called, the state starts out as though it has been called with seed
+     0.
+
+     For true random numbers, as opposed to pseudo-random numbers,
+     see wnrndt.
+
+BUGS
+
+SEE ALSO
+     wnrndd, wnrndt
+
+AUTHOR
+     Will Naylor

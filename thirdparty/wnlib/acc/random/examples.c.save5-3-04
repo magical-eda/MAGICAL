@@ -1,0 +1,749 @@
+/****************************************************************************
+
+COPYRIGHT NOTICE:
+
+  The source code in this file is provided free of charge
+  to the author's consulting clients.  It is in the
+  public domain and therefore may be used by anybody for
+  any purpose.
+
+AUTHORS:
+
+  Will Naylor, Bill Chapman
+
+****************************************************************************/
+
+
+/* if there are problems porting the timing code, undefine this */
+#define WN_RANDOM_EXAMPLES_TIMES
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#if defined(WN_RANDOM_EXAMPLES_TIMES)
+# include <sys/times.h>
+# include <math.h>
+# include <unistd.h>
+#endif
+
+#include "wnlib.h"
+#include "wnasrt.h"
+#include "wnrnd.h"
+
+#include "wnrndt.h"
+#include "wnrndd.h"
+
+
+/*   for speed measurements.  Just #if this guy out if it causes trouble in
+** a port. */
+
+#if defined(WN_RANDOM_EXAMPLES_TIMES)
+static clock_t lo_time(void)
+{
+  struct tms time_buf;
+  int sts;
+
+  sts = times(&time_buf);
+  wn_assert(-1 != sts);
+  return time_buf.tms_utime + time_buf.tms_stime;
+}
+#endif
+
+
+static void lo_test_1(void)
+{
+  int i,num_iter;
+  int bit,last_bit;
+  int sum1,sum00,sum01,sum10,sum11;
+  double expected_sum, variance_of_sum, stddev_of_sum;
+
+  printf("Examples Test 1:\n");
+
+  last_bit = 0;
+
+/* 80 hours
+  num_iter = 1000000000;
+*/
+  num_iter = 5000000;
+
+  sum1 = 0;
+  sum00 = 0;
+  sum01 = 0;
+  sum10 = 0;
+  sum11 = 0;
+
+  for(i=0;i<num_iter;++i)
+  {
+    /*
+    bit = wn_true_random_int();
+    bit = wn_true_random_bit();
+    */
+    bit = wn_random_bit();
+
+    sum1 += bit;
+
+    if(bit == 0)
+    {
+      if(last_bit == 0)
+      {
+        ++sum00;
+      }
+      else /* last_bit == 1 */
+      {
+        ++sum10;
+      }
+    }
+    else /* bit == 1 */
+    {
+      if(last_bit == 0)
+      {
+        ++sum01;
+      }
+      else /* last_bit == 1 */
+      {
+        ++sum11;
+      }
+    }
+    /*
+    printf("%d",bit);
+    fflush(stdout);
+    */
+
+    last_bit = bit;
+  }
+
+  printf("  num_iter = %d\n",num_iter);
+  printf("\n");
+
+  printf("  sum1:\n");
+  
+  expected_sum = num_iter / 2;
+  /* variance = 1/2 - 1/4 == 1/4 */
+  variance_of_sum = 0.25 * num_iter;
+  stddev_of_sum = sqrt(variance_of_sum);
+
+  printf("    sum1 = %d\n", sum1);
+  printf("    expected sum1: %g, stddev of sum1: %g\n",
+  /**/						expected_sum, stddev_of_sum);
+  printf("    sum1: dev == %g stddev_of_sum\n", (sum1 - expected_sum) /
+  /**/							stddev_of_sum);
+
+  printf("\n");
+
+  printf("  sum[01][01]:\n");
+  printf("    sum00 = %d, sum01=%d\n", sum00, sum01);
+  printf("    sum10 = %d, sum11=%d\n", sum10, sum11);
+
+  expected_sum = num_iter / 4;
+  variance_of_sum = num_iter * 3.0 / 16;
+  stddev_of_sum = sqrt(variance_of_sum);
+
+  printf("    expected sum[01][01]: %g, stddev_of_mean of sum[01][01]: %g\n",
+  /**/						expected_sum, stddev_of_sum);
+  printf("    sum00: dev == %g stddev_of_sum\n", (sum00 - expected_sum) /
+  /**/							stddev_of_sum);
+  printf("    sum01: dev == %g stddev_of_sum\n", (sum01 - expected_sum) /
+  /**/							stddev_of_sum);
+  printf("    sum10: dev == %g stddev_of_sum\n", (sum10 - expected_sum) /
+  /**/							stddev_of_sum);
+  printf("    sum11: dev == %g stddev_of_sum\n", (sum11 - expected_sum) /
+  /**/							stddev_of_sum);
+} /* lo_test_1 */
+
+
+static void lo_test_2(void)
+{
+  int i,num;
+  int count[1<<3];
+  int num_iter;
+  double mean,sdev;
+  double p,g;
+
+  printf("\nExamples Test 2:\n");
+
+  wn_seed_random_number_generator(1);
+  /*
+  */
+
+  num_iter = 5000000;
+
+  for(i=0;i<(1<<3);++i)
+  {
+    count[i] = 0;
+  }
+
+  for(i=0;i<num_iter;++i)
+  {
+    ++(count[wn_random_n_bits(3)]);
+  }
+
+  p = 1.0/(1<<3);
+  mean = num_iter*p;
+  sdev = sqrt(num_iter*p*(1.0-p));
+
+  for(i=0;i<(1<<3);++i)
+  {
+    g = (count[i] - mean)/sdev;
+
+    printf("  count[%d] = %d, g = %lg\n",i,count[i],g);
+  }
+}
+
+
+static void lo_test_2_5(void)
+{
+  int i;
+  double fi;
+  double num;
+  double count[1<<8];
+  double num_iter;
+  double mean,sdev;
+  double p,g;
+
+  printf("\nExamples Test 2.5:\n");
+
+  wn_seed_random_number_generator(1);
+  /*
+  */
+
+  num_iter = 50000000000.0;
+
+  for(i=0;i<(1<<8);++i)
+  {
+    count[i] = 0;
+  }
+
+  for(fi=0;fi<num_iter;++fi)
+  {
+    ++(count[wn_random_n_bits(8)]);
+  }
+
+  p = 1.0/(1<<8);
+  mean = num_iter*p;
+  sdev = sqrt(num_iter*p*(1.0-p));
+
+  for(i=0;i<(1<<8);++i)
+  {
+    g = (count[i] - mean)/sdev;
+
+    printf("  count[%d] = %lg, g = %lg\n",i,count[i],g);
+  }
+}
+
+
+static void lo_test_3(void)
+{
+  FILE *fp;
+  int i,num;
+
+  printf("\nExamples Test 3: Written to file examples3.tmp\n");
+
+  fp = fopen("examples3.tmp", "w");
+  wn_assert(fp);
+
+  wn_seed_random_number_generator(1);
+  /*
+  */
+
+  for(i=0;i<10000;++i)
+  {
+    fprintf(fp, "  %x\n",wn_random_n_bits(3));
+
+    /*
+    fprintf(fp, "  %lf\n ",wn_cauchy_distribution());
+    fprintf(fp, "  %d",wn_random_mod_int(6));
+    fprintf(fp, "  %x\n",num);
+    num = wn_random_int();
+    num = random();
+    fprintf(fp, "  %d",wn_random_bit());
+    fprintf(fp, "  %x\n",wn_random_int());
+    fprintf(fp, "  %x\n",wn_random_int());
+
+    fprintf(fp, "  %d",wn_random_mod_int(2));
+    fprintf(fp, "  %lf\n ",wn_normal_distribution());
+    fprintf(fp, "  %d\n ",wn_poisson_distribution(21));
+    fprintf(fp, "  %lf\n ",wn_exponential_distribution());
+    */
+  }
+
+  fclose(fp);
+}
+
+
+static void lo_test_4(void)
+{
+  register int i;
+  register int accum;
+  register int *p;
+  int num[20];
+
+  printf("\nExamples Test 4:\n");
+  printf("  Test skipped -- silly, no calls to random, no output\n");
+  if (TRUE) return;
+
+  accum = 2;
+  p = num;
+
+  for(i=0;i<20;++i)
+  {
+    p[i] = i;
+  }
+
+  for(i=0;i<100000000;++i)
+  {
+    accum += (p[1]&p[3]);
+  }
+}
+
+
+#define MAXSHIFT  1000
+#define SAMPLE_SIZE 25000000
+
+/*
+#define wn_random_bit()  (random()&1)
+*/
+
+
+local void test_raw_bit(void)
+{
+  int i,bit;
+  int sum;
+  double sample_mean,deviation,merit;
+
+  sum = 0;
+
+  for(i=0;i<SAMPLE_SIZE;++i)
+  {
+    bit = wn_random_bit();
+
+    sum += bit;
+  }
+
+  /*
+  printf("sum = %d,sample_size = %d\n",sum,SAMPLE_SIZE);
+  */
+
+  sample_mean = ((double)sum)/(double)SAMPLE_SIZE;
+  deviation = sample_mean-0.5;
+  merit = deviation*2.0*sqrt((double)SAMPLE_SIZE);
+
+  /*
+  printf("merit = %lf,sample_mean = %lf,deviation = %lf\n",
+	 merit,sample_mean,deviation);
+  */
+
+  printf("  raw bit test:  merit = %lf\n",merit);
+}
+
+local void test_for_shift(int shift)
+{
+  char shift_array[MAXSHIFT];
+  int pointer,trail_pointer;
+  int i,bit;
+  int sum;
+  double sample_mean,deviation,merit;
+
+  /*
+  printf("shift = %d ---------------------------------------------\n",shift);
+  */
+
+  pointer = MAXSHIFT-1;
+  trail_pointer = pointer-shift;
+
+  for(i=0;i<shift;++i)
+  {
+    bit = wn_random_bit();
+    shift_array[pointer] = bit;
+
+    ++pointer; if(pointer >= MAXSHIFT) pointer = 0;
+    ++trail_pointer; if(trail_pointer >= MAXSHIFT) trail_pointer = 0;
+  }
+
+  sum = 0;
+
+  for(i=0;i<SAMPLE_SIZE;++i)
+  {
+    bit = wn_random_bit();
+    shift_array[pointer] = bit;
+
+    sum += (bit^shift_array[trail_pointer]);
+
+    ++pointer; if(pointer >= MAXSHIFT) pointer = 0;
+    ++trail_pointer; if(trail_pointer >= MAXSHIFT) trail_pointer = 0;
+  }
+
+  /*
+  printf("sum = %d,sample_size = %d\n",sum,SAMPLE_SIZE);
+  */
+
+  sample_mean = ((double)sum)/(double)SAMPLE_SIZE;
+  deviation = sample_mean-0.5;
+  merit = deviation*2.0*sqrt((double)SAMPLE_SIZE);
+
+  /*
+  printf("merit = %lf,sample_mean = %lf,deviation = %lf\n",
+	 merit,sample_mean,deviation);
+  */
+
+  printf("  shift = %d, merit = %lf\n",shift,merit);
+}
+
+
+#if 0
+static void lo_test_5(void)
+{
+  int i,shift;
+
+  printf("\nExamples Test 5\n");
+
+  wn_seed_random_number_generator(0);
+
+  test_raw_bit();
+
+  for(shift=1;shift<MAXSHIFT;++shift)
+  {
+    test_for_shift(shift);
+  }
+  /*
+  for(shift=32;shift<MAXSHIFT;shift+=32)
+  {
+    test_for_shift(shift);
+  }
+  */
+}
+#endif
+
+
+static void lo_test_6(void)
+{
+  int i;
+  unsigned int num;
+
+  printf("\nExamples Test 6:\n");
+
+  wn_seed_random_number_generator(1);
+
+  for(i=0;i<20;++i)
+  {
+    num = wn_random_int();
+
+    printf("  i = %d, num = %u\n",i,num);
+  }
+}
+
+
+/* flat histogram */
+local void lo_test_7(void)
+{
+  double hits[50], r, maxhits;
+  const double max_int = ((double) ( ((unsigned)1) << 31));
+  int ir;
+  int i, j;
+
+  printf("\nExamples Test 7 -- 2 histograms:\n");
+
+  for (i = 0;  i < 50;  ++i)
+  {
+    hits[i] = 0;
+  }
+
+  for (i = 0;  i < 1000000;  ++i)
+  {
+    ir = (int) ((wn_random_int() / max_int) * 25.0 + 25);
+
+    wn_assert(0 <= ir  &&  50 >= ir);
+    hits[ir] += 1;
+  }
+
+  maxhits = 0;
+  for (i = 0;  i < 50;  ++i)
+  {
+    if (hits[i] > maxhits)
+    /**/		   maxhits = hits[i];
+  }
+
+  printf("\nFlat distribution:\n");
+  for (i = 0;  i < 50;  ++i)
+  {
+    for (j = (int) (75 * hits[i] / maxhits);  j > 0;  --j)
+    {
+      printf("*");
+    }
+    printf("\n");
+  }
+
+  /* ---------------------------------------------------------------- */
+
+  for (i = 0;  i < 50;  ++i)
+  {
+    hits[i] = 0;
+  }
+
+  for (i = 0;  i < 1000000;  ++i)
+  {
+    ir = (int) (wn_normal_distribution() * 8.0 + 25);
+
+    if (0 <= ir  &&  50 > ir)
+    {
+      hits[ir] += 1;
+    }
+  }
+
+  maxhits = 0;
+  for (i = 0;  i < 50;  ++i)
+  {
+    if (hits[i] > maxhits)
+    /**/		   maxhits = hits[i];
+  }
+
+  printf("\nNormal distribution:\n");
+  for (i = 0;  i < 50;  ++i)
+  {
+    for (j = (int) (75 * hits[i] / maxhits);  j > 0;  --j)
+    {
+      printf("*");
+    }
+    printf("\n");
+  }
+} /* lo_test_7 */
+
+
+bool wn_random_20_bits_false(int trials)
+{
+
+  for (  ;  trials > 0;  --trials)
+  {
+    if (! wn_random_n_bits(20))
+    {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+} /* wn_random_20_bits_false */
+
+
+bool wn_nth_bit_set_20_times(int trials)
+{
+  int i, j;
+
+  for (  ;  trials > 0;  --trials)
+  {
+    i = wn_random_mod_int(32);
+
+    for (j = 0;  j < 20;  ++j)
+    {
+      if (! (wn_random_int() & (1 << i)))
+      {
+        break;
+      }
+    }
+
+    if (j == 20)
+    {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+} /* wn_nth_bit_set_20_times */
+
+
+bool wn_fail_diag_bits_always_set(int trials)
+{
+  int i, k;
+
+  i = wn_random_mod_int(32);
+
+  for (  ;  trials > 0;  --trials)
+  {
+    for (k = 0;  k < 20;  ++k)
+    {
+      if (!(wn_random_int() & (1 << ((i+k) % 32))))
+      {
+	break;
+      }
+    }
+
+    if (20 == k)
+    {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+} /* wn_fail_diag_bits_always_set */
+
+
+bool wn_two_in_a_row(int trials)
+{
+  for (  ;  trials > 0;  --trials)
+  {
+    if (wn_random_n_bits(20) == wn_random_n_bits(20))
+    {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+} /* wn_two_in_a_row */
+
+
+int main(int argc,char *argv[])
+{
+  static bool arg_c;	/* call check */
+  static bool arg_d;	/* diag bits check */
+  static bool arg_g;	/* gauntlet of demos */
+  static bool arg_n;	/* nth bit set */
+  static bool arg_p;	/* print state table after seed(0) */
+  static bool arg_r;	/* random 20 bits false test */
+  static bool arg_s;	/* speed */
+  static bool arg_t;	/* two in a row */
+  static char *bool_names[] = { "FALSE", "TRUE" };
+  int trials, random_seed_arg;
+  int sts, i;
+
+  if (argc < 2)
+  {
+    fprintf(stderr,
+    /**/	"Usage: examples -rndt <random seed> <trials = 726817>\n%s",
+    /**/	"  where exactly one of d, g, n, r, s, or t must be set\n");
+    return 1;
+  }
+
+  if (!strcmp("-c", argv[1]))
+  {
+    arg_c = TRUE;
+  }
+
+  if (!strcmp("-d", argv[1]))
+  {
+    arg_d = TRUE;
+  }
+
+  if (!strcmp("-g", argv[1]))
+  {
+    arg_g = TRUE;
+  }
+
+  if (!strcmp("-n", argv[1]))
+  {
+    arg_n = TRUE;
+  }
+
+  if (!strcmp("-r", argv[1]))
+  {
+    arg_r = TRUE;
+  }
+
+  if (!strcmp("-p", argv[1]))
+  {
+    arg_p = TRUE;
+  }
+
+  if (!strcmp("-s", argv[1]))
+  {
+    arg_s = TRUE;
+  }
+
+  if (!strcmp("-t", argv[1]))
+  {
+    arg_t = TRUE;
+  }
+
+  if (argc >= 3)
+  {
+    sts = sscanf(argv[2], "%d", &random_seed_arg);
+    if (1 != sts)
+    {
+      fprintf(stderr, "Random seed \"%s\" should be an integer\n", argv[2]);
+      return 1;
+    }
+
+    wn_seed_random_number_generator(random_seed_arg);
+  }
+
+  if (argc >= 4)
+  {
+    sts = sscanf(argv[3], "%u", &trials);
+    if (1 != sts)
+    {
+      fprintf(stderr, "Trials \"%s\" should be an integer\n", argv[3]);
+      return 1;
+    }
+  }
+  else
+  {
+    trials = (int) (log(.5) / log((1024*1024-1.0)/(1024*1024)));
+    /**/		/* comes out to 726817, should yield a 50-50 chance */
+  }
+
+  if (arg_c + arg_d + arg_g + arg_n + arg_p + arg_r + arg_s + arg_t  !=  1)
+  {
+    fprintf(stderr,
+    /**/	"Usage: examples -rndt <random seed> <trials = 726817>\n%s",
+    /**/	"  where exactly one of r, n, d, s, or t must be set\n");
+    return 1;
+  }
+
+  if (arg_c)
+  {
+    /*
+    wnrnd_check();
+    */
+  }
+  else if (arg_d)
+  {
+    printf("Result = %s\n", bool_names[wn_fail_diag_bits_always_set(trials)]);
+  }
+  else if (arg_g)
+  {
+    lo_test_1();
+    lo_test_2();
+    lo_test_2_5();
+    lo_test_3();
+    lo_test_4();
+#   if 0
+      lo_test_5();
+#   else
+      printf("\nExamples Test 5 skipped, too slow, not important:\n");
+#   endif
+    lo_test_6();
+    lo_test_7();
+  }
+  else if (arg_n)
+  {
+    printf("Result = %s\n", bool_names[wn_nth_bit_set_20_times(trials)]);
+  }
+  else if (arg_p)
+  {
+    /*
+    wn_rand_print_state();
+    */
+  }
+  else if (arg_r)
+  {
+    printf("Result = %s\n", bool_names[wn_random_20_bits_false(trials)]);
+  }
+# if defined(WN_RANDOM_EXAMPLES_TIMES)
+    else if (arg_s)
+    {
+      clock_t t_start = lo_time(), t_elapsed;
+
+      for (i = trials;  i > 0;  -- i)
+      {
+	(void) wn_random_int();
+      }
+
+      t_elapsed = lo_time() - t_start;
+      printf("%d trials took %.2f seconds == %g sec / trial\n", trials,
+      /**/		t_elapsed / 100.0, t_elapsed / 100.0 / trials);
+    }
+# endif
+  else
+  {
+    wn_assert(arg_t);
+    printf("Result = %s\n", bool_names[wn_two_in_a_row(trials)]);
+  }
+} /* main */

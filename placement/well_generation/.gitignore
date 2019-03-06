@@ -1,0 +1,8 @@
+*.pyc
+*.o
+DataTest
+bin
+build
+docs
+results
+pix2pix-tensorflow

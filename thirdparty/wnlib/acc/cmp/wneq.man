@@ -1,0 +1,42 @@
+NAME
+     wneq -- functions which determine equality (for hash tables)
+
+SYNOPSIS
+     #include "wneq.h"
+
+     bool wn_streq(char s1[],char s2[])
+
+     bool wn_streqnc(char s1[],char s2[])
+
+     bool wn_inteq(int i1,int i2)
+
+     bool wn_ptreq(ptr p1,ptr p2)
+
+     bool wn_ptrNULLeq(bool &success,ptr p1,ptr p2)
+
+     bool wn_memeq(ptr m1,ptr m2,int len)
+
+DESCRIPTION
+     These routines are designed to assist building hash tables (with 
+     the exception of wn_streqnc).  They determine whether their arguments
+     are equal or not, and return TRUE if equal, FALSE if not equal.
+
+     "wn_ptrNULLeq" sets "success" to TRUE iff "p1" or "p2" is NULL.
+     If "p1" and "p2" are NULL, it returns TRUE.  If "p1" is NULL but
+     "p2" is not NULL, it returns FALSE.  If "p1" is not NULL but
+     "p2" is NULL, it returns FALSE.  This function is useful for
+     constructing complicated linked structure equality tests where it 
+     is possible for some pointers to be NULL.
+
+     "wn_streqnc" ignores case.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnhtbl, wncpy
+
+AUTHOR
+     Will Naylor
+

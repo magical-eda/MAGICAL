@@ -1,0 +1,14 @@
+results_*
+*.log
+*.bk
+*.sh
+*backup*
+Makefile
+main
+post_compact_backup.cpp
+*.pyc
+params.in
+*.rules
+bin
+docs
+build

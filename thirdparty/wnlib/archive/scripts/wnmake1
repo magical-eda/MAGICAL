@@ -1,0 +1,20 @@
+#!/bin/sh
+
+#     give a list of .c,.cpp,.cxx, or .C files.  They will be compile with
+# $WNMAKE_CC and linked into a program named after the first stripped
+# of its suffix.  See wnmake1.man.
+
+if [ "T$WNLIB" = T ] ; then
+  if [ "T$wnlib" != T ] ; then
+    WNLIB=$wnlib
+    export WNLIB
+  else
+    echo $0: you must define '$'WNLIB to the wnlib root directory
+    exit 1
+  fi
+fi
+
+. $WNLIB/command/wnmake_flags
+
+d=`dirname $0`
+$d/wnmake1_aux.pl "$@"

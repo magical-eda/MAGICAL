@@ -1,0 +1,9 @@
+#!/bin/bash
+
+for option in -r -n -d -t ; do
+  echo Option $option
+  for (( i=0 ;  i < 20 ;  ++i )) ; do
+    examples $option $i
+  done
+  echo ''
+done

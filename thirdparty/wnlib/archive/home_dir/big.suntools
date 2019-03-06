@@ -1,0 +1,4 @@
+shelltool  -Wp    0   0 -Ws 990  95 -WP    0  0 -Wl "<< CONSOLE >>" -WL console -C
+shelltool  -Wp    0  94 -Ws 1130 1186 -WP   64   0 
+shelltool  -Wp  470   0 -Ws 1130 395 -WP  128   0 
+shelltool  -Wp  470 394 -Ws 1130 886 -WP  192   0 

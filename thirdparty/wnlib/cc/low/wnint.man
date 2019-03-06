@@ -1,0 +1,35 @@
+NAME
+     wnint -- convert double to int
+
+SYNOPSIS
+     double wn_ceil(x)
+     double x;
+
+     double wn_floor(x)
+     double x;
+
+     double wn_round(x)
+     double x;
+
+DESCRIPTION
+     Each function returns an integer-valued double generated from its
+     argument as follows:
+
+     "wn_ceil" returns the nearest integer >= x.
+
+     "wn_floor" returns the nearest integer <= x.
+
+     "wn_round" returns the nearest integer to x.  In case of
+     a tie, it returns the smaller candidate.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnabs, wnmax
+
+AUTHOR
+     Will Naylor
+
+

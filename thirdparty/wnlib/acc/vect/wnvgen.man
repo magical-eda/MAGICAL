@@ -1,0 +1,21 @@
+NAME
+     wnvgen -- vector fill with zero
+
+SYNOPSIS
+     #include "wnvect.h"
+
+     void wn_zero_vect(double vect[],int len);
+
+DESCRIPTION
+     Zero out vect.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+
+AUTHOR
+     Will Naylor
+
+

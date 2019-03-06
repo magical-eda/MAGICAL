@@ -1,0 +1,69 @@
+NAME
+     wncrsh -- allows application to commit suicide
+
+SYNOPSIS
+     #include "wnlib.h"
+
+     wn_assert(condition)
+     bool condition;
+
+     wn_assertmsg(condition,msg)
+     bool condition;
+     char msg[];
+
+     wn_crash()
+
+     wn_crashmsg(msg)
+     char msg[];
+
+     wn_assert_nc(condition)
+     bool condition;
+
+     wn_assertmsg_nc(condition,msg)
+     bool condition;
+     char msg[];
+
+     wn_crash_nc()
+
+     wn_crashmsg_nc(msg)
+     char msg[];
+
+     wn_set_crash_print(pcrash_print)
+     void (*pcrash_print)(/*string*/);   /* char string[]; */
+
+     wn_set_crash_abort(pcrash_abort)
+     void (*pcrash_abort)();
+
+DESCRIPTION
+     "wn_crash" prints a message giving the file name and line number
+     where it was called from.  Then it crashes the application using
+     abort(3).
+
+     "wn_crashmsg" prints a user-specified message and then terminates
+     as does "wn_crash".
+
+     "wn_assert" crashes as does "wn_crash" if "condition" is 
+     not TRUE.
+
+     "wn_assertmsg" crashes as does "wn_crashmsg" if "condition" is 
+     not TRUE.
+
+     The routines with "_nc" print a message but do not crash.
+
+     "wn_set_crash_print" allows the programmer to change the
+     routine used for printing messages.
+
+     "wn_set_crash_abort" allows the programmer to change the
+     routine used to abort the application.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     abort(3)
+
+AUTHOR
+     Will Naylor
+
+

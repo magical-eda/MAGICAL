@@ -1,0 +1,524 @@
+/********************************************************************
+
+void wn_minimize_1d(pval_min,px_min,x_start,pfunction)
+
+********************************************************************/
+#include <stdio.h>
+#include <math.h>
+
+#include "wnlib.h"
+#include "wnabs.h"
+#include "wnasrt.h"
+#include "wnswap.h"
+#include "wnmax.h"
+#include "wnrnd.h"
+#include "wnrndd.h"
+
+#include "wnconj.h"
+
+
+
+#define GOLDEN_RATIO          1.618034
+#define GOLDEN_SECTION        0.3819660
+/*
+#define GOLDEN_SECTION        0.15
+*/
+#define MAX_ITERATIONS        500
+#define MAX_MAGNIFICATION     10000.0
+
+
+
+local void order_args(double *pf0,double *pf1,double *pf2,
+		      double *px0,double *px1,double *px2)
+{
+  if(*px0 > *px2)
+  {
+    wn_swap(*px0,*px2,double);
+    wn_swap(*pf0,*pf2,double);
+  }
+  if(*px0 > *px1)
+  {
+    wn_swap(*px0,*px1,double);
+    wn_swap(*pf0,*pf1,double);
+  }
+  else
+  {
+    if(*px1 > *px2)
+    {
+      wn_swap(*px1,*px2,double);
+      wn_swap(*pf1,*pf2,double);
+    }
+  }
+
+  wn_assert(*px0 < *px1);
+  wn_assert(*px1 < *px2);
+}
+
+
+local bool number_good(double x)
+{
+  return(x < WN_FHUGE);
+}
+
+
+local int numcmp(double x1,double x2)
+{
+  if(x1 < x2)
+  {
+    return(-1);
+  }
+  else if(x1 > x2)
+  {
+    return(1);
+  }
+  else if (x1 == x2)
+  {
+    return(0);
+  }
+  else
+  {
+    bool good1,good2;
+
+    good1 = number_good(x1);
+    good2 = number_good(x2);
+
+    wn_assert(!(good1&&good2));
+
+    if(good1&&(!good2))
+    {
+      return(-1);
+    }  
+    else if((!good1)&&good2)
+    {
+      return(1);
+    }
+    else 
+    {
+      wn_assert((!good1)&&(!good2));
+
+      return(0);
+    }
+  }
+}
+
+
+local void insert_new_bracket_point
+(
+  double *pf0,
+  double *pf1,
+  double *pf2,
+  double *px0,
+  double *px1,
+  double *px2,
+  double xnew,
+  double fnew
+)
+{
+  wn_assert(*px0 < *px1);  /* x's are in order */
+  wn_assert(*px1 < *px2);
+
+  /* bracket not yet found */
+  wn_assert((numcmp(*pf1,*pf0) >= 0)||(numcmp(*pf1,*pf2) >= 0));   
+
+  if(xnew < *px0)
+  {
+    wn_assert(numcmp(*pf0,*pf2) <= 0);
+    wn_assert(numcmp(*pf0,*pf1) <= 0);
+
+    /* small bracket found */
+    if(numcmp(*pf0,*pf1) < 0)
+    {
+      /* make it as small as possible */
+      *px2 = *px1;  *pf2 = *pf1;
+      *px1 = *px0;  *pf1 = *pf0;
+      *px0 = xnew;  *pf0 = fnew;
+    }
+    else
+    {
+      wn_assert(numcmp(*pf0,*pf1) == 0);
+
+      /* make range as big as possible */
+      *px0 = xnew;  *pf0 = fnew;
+    }
+  }
+  else if(xnew > *px2)
+  {
+    wn_assert(numcmp(*pf2,*pf0) <= 0);
+    wn_assert(numcmp(*pf2,*pf1) <= 0);
+
+    /* small bracket found */
+    if(numcmp(*pf2,*pf1) < 0)
+    {
+      /* make it as small as possible */
+      *px0 = *px1;  *pf0 = *pf1;
+      *px1 = *px2;  *pf1 = *pf2;
+      *px2 = xnew;  *pf2 = fnew;
+    }
+    else
+    {
+      wn_assert(numcmp(*pf2,*pf1) == 0);
+
+      /* make range as big as possible */
+      *px2 = xnew;  *pf2 = fnew;
+    }
+  }
+  else /* *px0 <= xnew <= *px2 */
+  {
+    wn_assert_notreached();
+  }
+
+  wn_assert(*px0 < *px1);
+  wn_assert(*px1 < *px2);
+}
+
+
+local void expand_width(double *pwidth,
+			double f0,double f1,double f2,
+			double x0,double x1,double x2)
+{
+  bool code;
+  double a,cen,b,diff;
+
+  (*pwidth) *= GOLDEN_RATIO;
+
+  wn_fit_parabola_3p(&code,&a,&cen,&b,x0,f0,x1,f1,x2,f2);
+
+  if((code != WN_SUCCESS)||(a <= 0))
+  {
+    (*pwidth) *= MAX_MAGNIFICATION/GOLDEN_RATIO;
+  }
+  else
+  {
+    diff = cen-x1;
+    diff = wn_abs(diff);
+    diff *= 2;
+
+    if(diff > *pwidth)
+    {
+      if(diff > (*pwidth)*MAX_MAGNIFICATION/GOLDEN_RATIO)
+      {
+        (*pwidth) *= MAX_MAGNIFICATION/GOLDEN_RATIO;
+      }
+      else
+      {
+        (*pwidth) = diff;
+      }
+    }
+  }
+}
+
+
+local void bracket_minimum
+(
+  int *pcode,
+  double *pf0,
+  double *pf1,
+  double *pf2,
+  double *px0,
+  double *px1,
+  double *px2,
+  double (*pfunction)(double x)
+)
+{
+  int iteration_count,cmp;
+  double xnew,fnew,width;
+
+  wn_assert(*px0 < *px1);   /* x's ordered properly */
+  wn_assert(*px1 < *px2);
+
+  width = *px2 - *px0;
+
+  iteration_count = 0;
+
+  for(;;)
+  {
+    wn_assert(*px0 < *px1);   /* x's ordered properly */
+    wn_assert(*px1 < *px2);
+
+    /* minimum successfully bracketed */
+    if((numcmp(*pf1,*pf0) < 0)&&(numcmp(*pf1,*pf2) < 0))
+    {
+      *pcode = WN_SUCCESS;
+      return;
+    }
+
+    ++iteration_count;
+    if(iteration_count > MAX_ITERATIONS)
+    {
+      *pcode = WN_UNBOUNDED;
+      return;
+    }
+
+    expand_width(&width,*pf0,*pf1,*pf2,*px0,*px1,*px2);
+
+    cmp = numcmp(*pf0,*pf2);
+
+    if(cmp < 0)
+    {
+      xnew = *px0 - width;
+    }
+    else if(cmp > 0)
+    {
+      xnew = *px2 + width;
+    }
+    else  
+    {
+      wn_assert(cmp == 0);
+
+      if(wn_random_bit())
+      {
+        xnew = *px0 - width;
+      }
+      else
+      {
+        xnew = *px2 + width;
+      }
+    }
+
+    if(!number_good(wn_abs(xnew)))
+    {
+      *pcode = WN_UNBOUNDED;
+      return;
+    }
+
+    fnew = (*pfunction)(xnew);
+
+    insert_new_bracket_point(pf0,pf1,pf2,px0,px1,px2,xnew,fnew);
+  }
+}
+
+
+local bool xnew_is_new(double xnew,double x0,double x1,double x2)
+{
+  return((xnew > x0)&&(xnew != x1)&&(xnew < x2));
+}
+
+
+local void golden_section_probe(bool *psuccess,double *pxnew,
+				double x0,double x1,double x2)
+{
+  double diff01,diff12;
+
+  diff01 = x1 - x0;
+  diff12 = x2 - x1;
+
+  if(diff01 > diff12)
+  {
+    *pxnew = x1 - GOLDEN_SECTION*diff01;
+  }
+  else
+  {
+    *pxnew = x1 + GOLDEN_SECTION*diff12;
+  }
+
+  *psuccess = xnew_is_new(*pxnew,x0,x1,x2);
+}
+
+
+local void insert_new_trap_point
+(
+  double *pf0,
+  double *pf1,
+  double *pf2,
+  double *px0,
+  double *px1,
+  double *px2,
+  double xnew,
+  double fnew
+)
+{
+  wn_assert(xnew > *px0);
+  wn_assert(xnew < *px2);
+  wn_assert(xnew != *px1);
+
+  if(xnew < *px1)
+  {
+    if(numcmp(fnew,*pf1) < 0)
+    {
+      *px2 = *px1;  *pf2 = *pf1;
+      *px1 = xnew;  *pf1 = fnew;
+    }
+    else
+    {
+      *px0 = xnew;
+      *pf0 = fnew;
+    }
+  }
+  else if(xnew > *px1)
+  {
+    if(numcmp(fnew,*pf1) < 0)
+    {
+      *px0 = *px1;  *pf0 = *pf1;
+      *px1 = xnew;  *pf1 = fnew;
+    }
+    else
+    {
+      *px2 = xnew;
+      *pf2 = fnew;
+    }
+  }
+  else  /* xnew == *px1 */
+  {
+    wn_assert(xnew == *px1);
+    wn_assert(fnew == *pf1);
+    wn_assert_notreached();
+  }
+}
+
+
+/* assume *pf0,*pf1,*pf2 already computed */
+local void trap_minimum
+(
+  double *pf0,
+  double *pf1,
+  double *pf2,
+  double *px0,
+  double *px1,
+  double *px2,
+  double f_goal,
+  double (*pfunction)(double x),
+  int max_iterations
+)
+{
+  double xnew,fnew;
+  bool success;
+  int improvement_count;
+
+  wn_assert(*px0 < *px1);
+  wn_assert(*px1 < *px2);
+  wn_assert(numcmp(*pf1,*pf0) < 0);
+  wn_assert(numcmp(*pf1,*pf2) < 0);
+
+  /*
+  printf("trap min.\n");
+  */
+
+  improvement_count = 0;
+
+  if(
+      (numcmp(*pf0,f_goal) <= 0)
+        ||
+      (numcmp(*pf2,f_goal) <= 0)
+    )
+  {
+    wn_assert(numcmp(*pf1,f_goal) <= 0);
+
+    ++improvement_count;
+  }
+
+  while((numcmp(*pf0,*pf1) > 0)||(numcmp(*pf2,*pf1) > 0))
+  {
+    /*
+    printf("x0=%lg,x1=%lg,x2=%lg\n",*px0,*px1,*px2);
+    printf("f0=%lg,f1=%lg,f2=%lg\n",*pf0,*pf1,*pf2);
+    */
+
+    if(improvement_count >= max_iterations)
+    {
+      break;
+    }
+
+    golden_section_probe(&success,&xnew,*px0,*px1,*px2);
+    if(!success)
+    {
+      break;
+    }
+
+    fnew = (*pfunction)(xnew);
+
+    insert_new_trap_point(pf0,pf1,pf2,px0,px1,px2,xnew,fnew);
+
+    if(
+	(numcmp(*pf1,f_goal) <= 0)
+	  &&
+	(numcmp(fnew,f_goal) <= 0)
+      )
+    {
+      ++improvement_count;
+    }
+  }
+}
+
+
+/* assume *pf0,*pf1,*pf2 already computed */
+void wn_minimize_1d_raw
+(
+  int *pcode,
+  double *pf0,
+  double *pf1,
+  double *pf2,
+  double *px0,
+  double *px1,
+  double *px2,
+  double f_goal,
+  double (*pfunction)(double x),
+  int max_iterations
+)
+{
+/*
+  double original_f1,original_x1;
+*/
+
+  wn_assert(number_good(*pf0)||number_good(*pf1)||number_good(*pf2));
+
+  order_args(pf0,pf1,pf2,px0,px1,px2);
+
+/*
+  original_f1 = *pf1;
+  original_x1 = *px1;
+*/
+
+  bracket_minimum(pcode,pf0,pf1,pf2,px0,px1,px2,pfunction);
+
+  if(*pcode == WN_SUCCESS)
+  {
+    trap_minimum(pf0,pf1,pf2,px0,px1,px2,f_goal,pfunction,max_iterations);
+  }
+  else if(*pcode == WN_UNBOUNDED)
+  {
+/*
+    if((original_f1 == *pf0)&&(original_f1 == *pf1)&&(original_f1 == *pf2))
+    {
+      *px0 = *px1 = *px2 = original_x1;
+
+      *pcode = WN_SUCCESS;
+    }
+*/
+    if(
+        ((numcmp(*pf0,*pf1) >= 0)&&(*pf1 == *pf2))
+          ||
+        ((*pf0 == *pf1)&&(numcmp(*pf1,*pf2) <= 0))
+      )
+    {
+      *pcode = WN_SUCCESS;
+    } 
+  }
+}
+
+
+void wn_minimize_1d
+(
+  int *pcode,
+  double *pval_min,
+  double *px_min,
+  double (*pfunction)(double x),
+  int max_iterations
+)
+{
+  double x0,x1,x2,f0,f1,f2;
+
+  x1 = *px_min;
+  x0 = x1-1.0;
+  x2 = x1+1.0;
+
+  f0 = (*pfunction)(x0);
+  f1 = (*pfunction)(x1);
+  f2 = (*pfunction)(x2);
+
+  wn_minimize_1d_raw(pcode,&f0,&f1,&f2,&x0,&x1,&x2,f1,pfunction,max_iterations);
+
+  *pval_min = f1;
+  *px_min = x1;
+}
+
+

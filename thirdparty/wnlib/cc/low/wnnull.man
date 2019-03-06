@@ -1,0 +1,39 @@
+NAME
+     wnnull -- functions to deal with possibly NULL pointers.
+
+SYNOPSIS
+     int wn_ptrNULLcmp(&success,p1,p2)
+     bool success;
+     ptr p1,p2;
+
+     bool wn_ptrNULLeq(&success,p1,p2)
+     bool success;
+     ptr p1,p2;
+
+DESCRIPTION
+     "wn_ptrNULLcmp" sets "success" to TRUE iff "p1" or "p2" is NULL.
+     If "p1" and "p2" are NULL, it returns 0.  If "p1" is NULL but
+     "p2" is not NULL, it returns a number < 0.  If "p1" is not NULL but
+     "p2" is NULL, it returns a number > 0.  If both "p1" and "p2" are not
+     NULL, it returns 0.  This function is useful for
+     constructing complicated linked structure compares where it is possible
+     for some pointers to be NULL.
+
+     "wn_ptrNULLeq" sets "success" to TRUE iff "p1" or "p2" is NULL.
+     If "p1" and "p2" are NULL, it returns TRUE.  If "p1" is NULL but
+     "p2" is not NULL, it returns FALSE.  If "p1" is not NULL but
+     "p2" is NULL, it returns FALSE.  If both "p1" and "p2" are not
+     NULL, it returns TRUE.  This function is useful for
+     constructing complicated linked structure equal functions where 
+     it is possible for some pointers to be NULL.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnsrtl, wnhtbl
+
+AUTHOR
+     Will Naylor
+

@@ -1,0 +1,38 @@
+NAME
+     wnnop -- standard do-nothing functions
+
+SYNOPSIS
+     #include "wnnop.h"
+
+
+     void wn_do_nothing(void)
+
+     void wn_trap(void)
+
+
+     int wn_return_0(void)
+
+     int wn_return_1(void)
+
+     int wn_return_neg_1(void)
+
+
+     bool wn_return_FALSE(void)
+
+     bool wn_return_TRUE(void)
+
+DESCRIPTION
+     These are do-nothing functions.  Each routine ignores its 
+     arguments and returns the indicated value.
+
+     wn_trap() is intended for debugging breakpoints and
+     not to be used in actual code.
+
+BUGS
+
+SEE ALSO
+
+AUTHOR
+     Will Naylor
+
+

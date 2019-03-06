@@ -1,0 +1,21 @@
+NAME
+     wnmcpy -- matrix copy
+
+SYNOPSIS
+     #include "wnmat.h"
+
+     wn_copy_mat(double **out_mat,double **in_mat,int len_i,int len_j)
+
+DESCRIPTION
+     Matrix copy routines.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+
+AUTHOR
+     Will Naylor
+
+

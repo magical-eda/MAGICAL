@@ -1,0 +1,26 @@
+NAME
+     wnvadd -- fast vector addition
+
+SYNOPSIS
+     #include "wnvect.h"
+
+     wn_add_scaled_vect(double *to_vect,double *from_vect,double scalar,int len)
+
+     wn_add_vect_and_scaled_vect(double *out,
+				 double *v1,double *v2,double s2,
+				 int len)
+
+DESCRIPTION
+     Vector addition routines, coded to be especially fast.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wndot, wnvnrm
+
+AUTHOR
+     Will Naylor
+
+

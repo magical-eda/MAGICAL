@@ -1,0 +1,43 @@
+NAME
+     wnspmk -- make sparse matrix 
+
+SYNOPSIS
+     #include "wnspmat.h"
+
+     void wn_make_sparse_matrix(&mat,len_i,len_j)
+     wn_sparse_matrix mat;
+     int len_i,len_j;
+
+     void wn_free_sparse_matrix(mat)
+     wn_sparse_matrix mat;
+
+     void wn_make_sparse_matrix_entry(&entry,value,i,j)
+     wn_sparse_matrix_entry *pentry;
+     double value;
+     int i,j;
+     
+     void wn_insert_sparse_matrix_entry(mat,entry)
+     wn_sparse_matrix mat;
+     wn_sparse_matrix_entry entry;
+
+     void wn_insert_sparse_matrix_value(mat,value,i,j)
+     wn_sparse_matrix mat;
+     double value;
+     int i,j;
+
+     void wn_sort_sparse_matrix(mat)
+     wn_sparse_matrix mat;
+
+DESCRIPTION
+
+EXAMPLES
+
+BUGS
+
+SEE ALSO
+     wnspmat, wnspio
+
+AUTHOR
+     Will Naylor
+
+

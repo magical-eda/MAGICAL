@@ -1,0 +1,216 @@
+NAME
+     wnbtr -- generic sorted tree package
+
+SYNOPSIS
+     #include "wnbtr.h"
+
+
+     WN_B_MIN 
+     WN_B_MAX
+     WN_B_LT
+     WN_B_GT
+     WN_B_LE
+     WN_B_GE
+     WN_B_EQ 
+
+
+     wn_btree tree;
+     wn_bhandle handle;
+
+     ptr handle->key;
+     ptr handle->contents;
+
+
+     wn_mkbtree(&tree,pcompare_keys_func,palloc_copy_key_func,pfree_key_func)
+     wn_btree tree;
+     int (*pcompare_keys_func)(/*key1,key2*/);          /* ptr key1,key2; */
+     void (*palloc_copy_key_func)(/*&out_key,in_key*/); /* ptr out_key,in_key */
+     void (*pfree_key_func)(/*key*/);                   /* ptr key; */
+
+     wn_freebtree(tree)
+     wn_btree tree;
+
+
+     wn_bget(&handle,tree,key,compare)
+     wn_bhandle handle;
+     wn_btree tree;
+     ptr key;
+     int compare;
+
+     wn_bins(&handle,tree,key)
+     wn_bhandle handle;
+     wn_btree tree;
+     ptr key;
+
+     wn_bdel(handle,tree)
+     wn_bhandle handle;
+     wn_btree tree;
+
+     wn_bmove(handle,tree,new_key);
+     wn_bhandle handle;
+     wn_btree tree;
+     ptr new_key;
+
+
+     wn_bget_index_of_handle(&index,tree,handle)
+     int index;
+     wn_btree tree;
+     wn_bhandle handle;
+
+     wn_bget_handle_of_index(&handle,tree,index)
+     wn_bhandle handle;
+     wn_btree tree;
+     int index;
+
+
+     wn_bact(tree,paction,low_key,low_compare,high_key,high_compare) 
+     wn_btree tree;
+     void (*paction)(/*handle*/);
+     ptr low_key,high_key;
+     int low_compare,high_compare;
+
+     int wn_bcount(tree)
+     wn_btree tree;
+
+     wn_bverify(tree)
+     wn_btree tree;
+
+DESCRIPTION
+     A "sorted tree" allows one to efficiently search a large set
+     of keys for keys with a desired magnitude or range
+     of magnitudes.  This package implements a fully general
+     sorted tree, which may be used as a priority queue, small
+     database, sparse array, etc.  However, this generality costs
+     in both time and space; it is best to use one of the less general
+     "wn" packages if possible.  If key ordering is unimportant,
+     use "wnhtab" instead.  If ordering is important, you might
+     be able to use "wnsort" instead, possibly preceded by "wnhtab".
+
+     This package allows one to easily produce an 
+     efficient sorted tree (in this case, a balanced binary tree)
+     for any kind of key.  The type "wn_btree" is the generic
+     sorted tree type.  This package provides routines to efficiently
+     create, insert into, search, and delete from these generic
+     sorted trees.
+
+     "wn_mkbtree" allocates a "wn_btree" from the current memory group.
+     All memory allocations and frees triggered by other "wnbtr" calls
+     will use the same memory group as "wn_mkbtree".  The function
+     arguments tell "wn_mkbtree" what kind of sorted tree to make.
+     "pcompare_keys_func" returns an int >, ==, or < to 0, according
+     to whether "key1" is >, ==, or < than "key2".
+     "palloc_copy_key_func" is used to make a private copy of the
+     key when an insert is done.  "pfree_key_func" frees this
+     private memory when a delete is done.  "pfree_key_func"
+     is frequently set to a do nothing function.
+
+     Using these arguments to "wn_mkbtree", it is possible to make
+     a sorted tree for any kind of key.  Routines for frequently
+     used kinds of keys, such as ints, doubles, and strings, are provided
+     in "wnbtrl".
+
+     "wn_freebtree" frees "tree" into the memory group it was allocated
+     from.
+
+     "wn_bget" gets the handle from "tree" whose key meets the specification
+     of "key" and "compare".  If "tree" does not contain a handle whose key
+     meets this specification, "handle" is set to NULL.
+     "compare" must be one of "WN_B_MIN", "WN_B_MAX",
+     "WN_B_LT", "WN_B_GT", "WN_B_LE", "WN_B_GE", or "WN_B_EQ".
+     If "compare" is "WN_B_MIN" , "key" is ignored
+     and "handle" is set to the handle whose key is the smallest in "tree".
+     If "compare" is "WN_B_MAX" , "key" is ignored
+     and "handle" is set to the handle whose key is the largest in "tree".
+     If "compare" is "WN_B_LT" , "handle" is set to the handle
+     whose key is the largest less than "key".
+     If "compare" is "WN_B_GT" , "handle" is set to the handle
+     whose key is the smallest greater than "key".
+     If "compare" is "WN_B_LE" , "handle" is set to the handle
+     whose key is the largest less than or equal to "key".
+     If "compare" is "WN_B_GE" , "handle" is set to the handle
+     whose key is the smallest greater than or equal to "key".
+     If "compare" is "WN_B_EQ" , "handle" is set to a handle 
+     whose key is equal to "key".
+
+     "wn_bins" makes a handle in "tree" for "key".  This handle
+     is placed in "handle".  The client program should place a pointer
+     to any client data to be associated with "key" in handle->contents.
+     The client program should save "handle" because many routines
+     require "handle" rather than "key".  It is legal to have more
+     than one handle with the same key.
+
+     "wn_bdel" deletes the handle "handle" from "tree".
+
+     "wn_bmove" changes the key of "handle" to "new_key" and 
+     reorganizes "tree" to reflect this change.  It is a grave
+     error to set handle->key directly, without using "wn_bmove".
+     
+     "wn_bget_index_of_handle" computes the number of handles
+     with keys less than the key of "handle" and places the
+     result in "index".  Handles with keys equal to the key of "handle"
+     are placed in arbitrary order; some of these will also be counted.
+
+     "wn_bget_handle_of_index" is the inverse of "wn_bget_index_of_handle".
+     It finds the handle whose key is larger than exactly "index" keys.
+
+     "wn_bact" calls (*paction)(/*handle*/) for every handle in
+     "tree" that is in the range specified, in increasing order.
+
+     "wn_bcount" returns the number of handles in "tree".
+
+     "wn_bverify" checks that "tree" is not messed up in some way.
+
+RESOURCES
+     "wn_bget", "wn_bins", "wn_bdel", "wn_bmove", "wn_bget_index_of_handle",
+     and "wn_bget_handle_of_index" require
+
+       WORST and AVERAGE CASE:
+
+         time = log(n)
+         stack memory = 1
+         dynamic memory = 0
+
+     "wn_bact" requires 
+
+       WORST and AVERAGE CASE:
+
+         time = log(n)*<number of iterations>
+         stack memory = log(n)
+         dynamic memory = 0
+
+     "wn_bcount" requires 
+
+       WORST and AVERAGE CASE:
+
+         time = 1
+         stack memory = 0
+         dynamic memory = 0
+
+     The sorted tree uses memory
+
+       WORST and AVERAGE CASE:
+
+         dynamic memory = n
+
+     In the above, n is the number of entries in the table.
+
+     These requirements have worse constant factors than for similar
+     operations in "wnhtab" and "wnsort".
+
+DIAGNOSTICS
+     "wn_bact" crashes with a message if the range specified is not
+     meaningful.
+
+     "wn_bverify" crashes with a message if "tree" is messed up.
+  
+BUGS
+
+SEE ALSO
+     wnbtrl, wnsrtl, wnddtr, wnhtab, wnsort
+
+     cc/low/examples.c
+
+AUTHOR
+     Will Naylor
+
+

@@ -1,0 +1,69 @@
+NAME
+     wnminv -- matrix inversion
+
+SYNOPSIS
+     #include "wnmat.h"
+
+     wn_invert_matrix(&code,&mat_inverse,mat)
+     int code;
+     wn_matrix mat_inverse,mat;
+
+     wn_invert_raw_matrix(&code,raw_mat_inverse,raw_mat,len_i)
+     int code;
+     double **raw_mat_inverse,**raw_mat;
+     int len_i;
+
+     wn_ls_invert_matrix(&code,&mat_inverse,mat)
+     int code;
+     wn_matrix mat_inverse,mat;
+
+     wn_ls_invert_raw_matrix(&code,raw_mat_inverse,raw_mat,len_i,len_j)
+     int code;
+     double **raw_mat_inverse,**raw_mat;
+     int len_i,len_j;
+
+DESCRIPTION
+     "wn_invert_matrix" inverts "mat", placing the result in 
+     "mat_inverse". "wn_invert_raw_matrix" does the same for
+     a raw matrix. 
+
+     "wn_ls_invert_matrix" computes the least squares inverse of
+     "mat", placing the result in "mat_inverse".  "wn_ls_invert_raw_matrix"
+     does the same for a raw matrix.  "len_i" must be >= to "len_j".
+
+RESOURCES
+     Inverting a matrix requires 
+
+       WORST and AVERAGE CASE:
+
+         time = len_i^3
+         stack memory = 1
+         dynamic memory = len_i
+
+     where the matrix to be inverted is a len_i*len_i matrix.
+
+     Computing a least squares inverse requires
+
+       WORST and AVERAGE CASE:
+
+         time = len_i * len_j^2
+         stack memory = 1
+         dynamic memory = len_j^2
+
+     where the matrix to be inverted is a len_i*len_j matrix.
+
+DIAGNOSTICS
+     code == WN_SUCCESS  for successful inversion.
+     code == WN_SINGULAR  for singular matrix.
+  
+BUGS
+     Cannot handle complex numbers, making these useless for many
+       engineering applications.
+
+SEE ALSO
+     wnmmlt, wnsplx
+
+AUTHOR
+     Will Naylor
+
+

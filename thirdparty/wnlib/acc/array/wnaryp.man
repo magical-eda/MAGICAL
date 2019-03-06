@@ -1,0 +1,48 @@
+NAME
+     wnaryp -- dynamic array manager macros with pointer bookkeeping
+
+SYNOPSIS
+     #include "wnary.h"
+
+     wn_arraypins(array,nextptr,finptr,e,type)
+     type array[];
+     type *nextptr;
+     type *finptr;
+     type e;
+
+     wn_arraypins_into_group(array,nextptr,finptr,e,group,type)
+     type array[];
+     type *nextptr;
+     type *finptr;
+     type e;
+     wn_memgp group;
+
+     wn_arraypdeloffset(array,nextptr,entry_offset,type)
+     type array[];
+     type *nextptr;
+     int entry_offset;  /* offset of entry in bytes from array start */
+
+     int wn_arrayp_entry_offset(array,nextptr)
+     type array[];
+     type *nextptr;
+
+     wn_arraypdelindex(array,nextptr,entry_index,type)
+     type array[];
+     type *nextptr;
+     int entry_index;  /* index of entry from array start */
+
+DESCRIPTION
+     This package helps manage dynamic arrays.  The package
+     is designed to be super-fast, but has no bounds checking.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnary, wnarypl, wnsll
+
+AUTHOR
+     Will Naylor
+
+

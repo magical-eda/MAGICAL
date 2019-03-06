@@ -1,0 +1,31 @@
+NAME
+     wnspio -- print sparse matrix
+
+SYNOPSIS
+     #include "wnspmat.h"
+
+     void wn_enter_sparse_matrix(&mat)
+     wn_sparse_matrix mat;
+
+     void wn_print_sparse_matrix(mat)
+     wn_sparse_matrix mat;
+
+     void wn_print_sparse_matrix_entry(entr)
+     wn_sparse_matrix_entry entry;
+
+     void wn_print_symmetric_sparse_matrix(mat)
+     wn_sparse_matrix mat;
+
+DESCRIPTION
+
+EXAMPLES
+
+BUGS
+
+SEE ALSO
+     wnspmat, wnspio
+
+AUTHOR
+     Will Naylor
+
+

@@ -1,0 +1,190 @@
+NAME
+     wnsll -- singly linked list manager
+
+SYNOPSIS
+     #include "wnsll.h"
+
+     wn_sll el;
+     el->contents;
+     el->next;
+
+     wn_mksll(&ll)
+     wn_sll ll;
+
+     wn_freesll(ll);
+     wn_sll ll;
+
+     wn_freesll_list(ll);
+     wn_sll ll;
+
+     wn_sllins(&list,e)
+     wn_sll list;
+     ptr e;
+
+     wn_slleins(&list,el)
+     wn_sll list,el;
+
+     wn_slldel(&list,e)
+     wn_sll list;
+     ptr e;
+
+     wn_slledel(pel)
+     wn_sll *pel;
+
+     wn_slleunlink(pel)
+     wn_sll *pel;
+
+     wn_sllindex(&contents,list,index)
+     ptr contents;
+     wn_sll list;
+     int index;
+
+     wn_slleindex(&el,list,index)
+     wn_sll el,list;
+     int index;
+
+     wn_sllget_index(&index,list,e)
+     int index;
+     wn_sll list;
+     ptr e;
+
+     wn_sllrev(&list)
+     wn_sll list;
+
+     wn_sllcpy(&out,in)
+     wn_sll out,in;
+
+     wn_sllcat(&out,in)
+     wn_sll out,in;
+
+     wn_sllins_sll(&out,in)
+     wn_sll out,in;
+
+     wn_sllend(&pend,&list)
+     wn_sll *pend,list;
+
+     wn_slllast(&last,list)
+     wn_sll last,list;
+
+     bool wn_sllempty(list)
+     wn_sll list;
+
+     int wn_sllcount(list)
+     wn_sll list;
+
+     void wn_randomize_sll(&list)
+     wn_sll list;
+
+     WN_FOR_LIST(type, varname, list)
+     WN_END_FOR_LIST()
+
+DESCRIPTION
+     This package defines a singly linked list type called
+     "wn_sll".  Routines and macros operate on lists and elements
+     of lists.  
+
+     The declaration
+
+       wn_sll ll;
+
+     declares a list element, which is also a list.  The fragment
+
+       ll->next
+
+     refers to the next linked list element.  The fragment
+
+       ll->contents
+
+     is a pointer associated with the linked list element.
+
+     "wn_mksll" allocates a "wn_sll" from the current memory group.
+     "ll->next" and "ll->contents" are NULL.
+
+     "wn_sllins" inserts e into list "list" by allocating a list
+     element (from the current memory group), setting its "contents"
+     to "e", and chaining it to the front of "list".
+
+     "wn_slleins" chains "el" to the front of "list".
+
+     "wn_slldel" searches "list" until it finds a list element
+     with "contents" == "e".  This element is deleted from
+     the list and freed into the current memory group.
+
+     "wn_slledel" deletes the list element *pel from its
+     containing list by setting "*pel = (*pel)->next;".  Then
+     the list element is freed into the current memory group.
+
+     "wn_slleunlink" deletes the list element *pel from its
+     containing list by setting "*pel = (*pel)->next;". 
+
+     "wn_sllindex" places the contents of the "index"'th element of
+     "list" into "contents".  Unreasonable values of "index" are NOT 
+     trapped.
+
+     "wn_slleindex" places the "index"'th element of
+     "list" into "el".  Unreasonable values of "index" are NOT 
+     trapped.
+
+     "wn_sllrev" reverses the order of "list".  Useful because
+     "wn_sllins" leaves the list reversed from the order of insertion.
+
+     "wn_sllcpy" places a memory-allocated copy of "in" into "out".
+     The memory is allocated from the current memory group.
+
+     "wn_sllcat" concatonates "in" to the end of "out", preserving
+     the order of both.  No new memory is allocated.
+
+     "wn_sllins_sll" chains the list "in" to the front of "out".
+
+     "wn_sllend" places the last "->next" pointer of "list" into
+     "pend".
+
+     "wn_slllast" gets the last element of "list".
+
+     "wn_sllempty" returns TRUE iff "list" is empty.
+
+     "wn_sllcount" returns the number of entries in "list".
+
+     "wn_randomize_sll" randomizes the order of "list" using the
+     random number generator "wnrnd".
+
+     ----------------------------------------------------------------
+
+     This package also defines macros WN_FOR_LIST() and WN_END_FOR_LIST()
+     for easy creation of loops to traverse linked lists.
+
+     If you have
+
+       typedef struct ab_blah_struct *ab_blah;
+       struct ab_blah_struct {
+         int x, y;
+       };
+
+     and you build a list mylist where mylist is of type wn_sll and
+     the contents of each node is a pointer to an ab_blah struct, you
+     can traverse the list by saying    
+
+       WN_FOR_LIST( ab_blah, my_blah, mylist) {
+         ...
+         guts of loop, for example:
+         ...
+         printf("(%d, %d)\n", my_blah->x, my_blah->y);
+       } WN_END_FOR_LIST();
+
+     Note that the variable my_blah is not declared by the caller,
+     it is declared by the macro WN_FOR_LIST() to be of type ab_blah
+     and assigned to by the macro.
+
+     "break"s and "continue"s within the loop work as they should.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnsllp, wnhtab, wnrnd
+
+AUTHOR
+     Will Naylor
+
+

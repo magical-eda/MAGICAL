@@ -1,0 +1,61 @@
+NAME
+     wncstl -- make various kinds of cstreams
+
+SYNOPSIS
+     #include "wncstr.h"
+
+     wn_make_file_parse_cstream(&stream,f)
+     wn_cstream stream;
+     wn_file f;
+
+     wn_make_file_write_cstream(&stream,f)
+     wn_cstream stream;
+     wn_file f;
+
+     wn_make_string_parse_cstream(&stream,string)
+     wn_cstream stream;
+     char *string;
+
+     void wn_file_parse_move_block(block,pactually_moved,request_moved,pf)
+     char block[];
+     int *pactually_moved,request_moved;
+     wn_file *pf;
+
+     void wn_file_write_move_block(block,pactually_moved,request_moved,pf)
+     char block[];
+     int *pactually_moved,request_moved;
+     wn_file *pf;
+
+     void wn_string_parse_move_block(block,pactually_moved,request_moved,
+                                     pstring)
+     char block[];
+     int *pactually_moved,request_moved;
+     char **pstring;
+
+DESCRIPTION
+     These routines are helpful in making various kinds of cstreams.
+
+     "wn_make_file_parse_cstream" makes a parse cstream using the file "f".
+     "f" must already be opened for read.  "f" must be closed after the parse
+     is complete.
+
+     "wn_make_file_write_cstream" makes a write cstream using the file "f".
+     "f" must already be opened for write.  "f" must be closed after the write
+     is complete.
+
+     "wn_make_string_parse_cstream" make a parse cstream using the string
+     "string".  
+
+     "wn_file_parse_move_block", "wn_file_write_move_block", and
+     "wn_string_parse_move_block" may be used to help build more
+     complicated cstream's for files and strings.
+
+BUGS
+
+SEE ALSO
+     wncstr
+
+AUTHOR
+     Will Naylor
+
+

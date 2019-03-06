@@ -1,0 +1,66 @@
+NAME
+     wnchtl -- make hash tables for common kinds of keys
+
+SYNOPSIS
+     #include "wnchtl.h"
+
+    void wn_mkstrchtab(
+      wn_chtab *ptable,
+      int start_table_length,		/* how long should the table start as?
+      **				**  Rounded up to 2^1. */
+      float fraction_full_before_grow	/* how full should the table get before
+      **				** we grow it?  0 < x < 1 */
+    );
+    void wn_mkptrchtab(
+      wn_chtab *ptable,
+      int start_table_length,		/* how long should the table start as?
+      **				**  Rounded up to 2^1. */
+      float fraction_full_before_grow	/* how full should the table get before
+      **				** we grow it?  0 < x < 1 */
+    );
+    void wn_mklongchtab(
+      wn_chtab *ptable,
+      int start_table_length,		/* how long should the table start as?
+      **				**  Rounded up to 2^1. */
+      float fraction_full_before_grow	/* how full should the table get before
+      **				** we grow it?  0 < x < 1 */
+    );
+
+DESCRIPTION
+    Note that although these tables use different types of keys, they all
+    use the same type of data -- wn_chget() always returns a ptr through
+    the first argument (which is a &ptr).  It is very important that you
+    not pass "&i" where i is an int to the first arg of wn_hget(), because
+    on some architectures the object returned, a ptr, will be bigger than
+    i and will overwrite memory after i.
+
+    In all routines, "start_table_length" is the desired initial length of
+    the array.  It is advisory only, wn_mkchtab may decide upon some other
+    length for the array.
+    "fraction_full_before_grow" is a float between 0 and 1 what fraction of
+    the table can be occuppied before an additional insert will grow the
+    table, recommended value is 0.5.
+
+    "wn_mkstrchtab()" allocates a hash table indexed by null-terminated char
+    strings (from the current memory group).
+
+    "wn_mkptrchtab()" allocates a hash table indexed by pointer keys, that
+    is, by the value of the pointer itself (as opposed to what the
+    pointer points to).
+
+    "wn_mklongchtab()" allocates a hash table indexed by long keys (which
+    the caller just casts to ptrs and passes by value to the routines).  It
+    is a lot like "wn_mkptrhtab" except it uses a different hash function.
+
+EXAMPLES
+  
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnhtab, wnhash, wncpy
+
+AUTHOR
+     Will Naylor
+

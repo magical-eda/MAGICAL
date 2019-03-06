@@ -1,0 +1,81 @@
+NAME
+     wnfft -- discrete Fourier transform package
+
+SYNOPSIS
+     #include "wncplx.h"
+
+
+     wn_fft_vect(vector,len_i)
+     wn_cplx vector[];
+     int len_i;
+
+     wn_inverse_fft_vect(vector,len_i)
+     wn_cplx vector[];
+     int len_i;
+
+
+     wn_sft_vect(vector,len_i)
+     wn_cplx vector[];
+     int len_i;
+
+     wn_inverse_sft_vect(vector,len_i)
+     wn_cplx vector[];
+     int len_i;
+
+
+DESCRIPTION
+     This package implements the discrete Fourier transform and its
+     inverse.  "vector" is the data to be transformed; "len_i" is
+     its length.  The resulting transformed data is also placed in
+     "vector".
+
+     wn_fft_vect and wn_sft_vect implement the following DFT:
+
+       out[f] =
+	    (len_i^(-1/2))*sum_over(0<=t<len_i){in[t]*exp(-j*2*PI*f*t/len_i)}
+
+     wn_inverse_fft_vect and wn_inverse_sft_vect implement 
+     the following inverse DFT:
+
+       out[t] = 
+	    (len_i^(-1/2))*sum_over(0<=f<len_i){in[f]*exp(j*2*PI*f*t/len_i)}
+
+     where j == (-1)^(1/2).
+    
+     "sft" stands for "slow Fourier transform" while "fft" stands
+     for "fast Fourier transform".  The fft routines are much faster,
+     but they require that "len_i" be a power of 2.  The sft routines
+     are much slower, but place no restriction on "len_i".
+
+     Applying fft and then inverse_fft to a vector yields the original
+     vector.
+
+RESOURCES
+     "wn_fft_vect" and "wn_inverse_fft_vect" require
+
+       WORST and AVERAGE CASE:
+
+         time = len_i*log(len_i)
+         stack memory = log(len_i)
+         dynamic memory = len_i
+
+     "wn_sft_vect" and "wn_inverse_sft_vect" require
+
+       WORST and AVERAGE CASE:
+
+         time = len_i^2
+         stack memory = 1
+         dynamic memory = len_i
+
+DIAGNOSTICS
+  
+BUGS
+     This code is new and has not been tested in large industrial
+     applications.
+
+SEE ALSO
+
+AUTHOR
+     Will Naylor
+
+

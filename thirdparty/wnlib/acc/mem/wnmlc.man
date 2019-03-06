@@ -1,0 +1,48 @@
+NAME
+     wnmlc -- simple substitutions for malloc calls
+
+SYNOPSIS
+     #include "wnmlc.h"
+
+     char *wn_f_malloc(size)
+     unsigned int size;
+
+     char *wn_f_calloc(nelem,elsize)
+     unsigned int nelem,elsize;
+
+     wn_f_free(p)
+     char *p;
+
+     wn_f_cfree(p)
+     char *p;
+
+DESCRIPTION
+     These calls allow mechanical replacement of malloc(3) calls
+     by calls based on wnmem.  Simply add the prefix "wn_f_" to
+     all malloc calls.
+
+     Doing so gives the following advantages:
+     
+       - Less paging.
+
+       - Debugging using wn_memd calls works.
+
+       
+     Memory allocated using these calls comes from a general_free
+     memory group, labeled as "wn_f_malloc_group".
+
+     Use of these calls should be only a first step in replacing
+     all malloc(3) calls with wn_mem calls.  
+
+DIAGNOSTICS
+     Same as wnmem.
+  
+BUGS
+
+SEE ALSO
+     wnmem, wnmemd, malloc(3)
+
+AUTHOR
+     Will Naylor
+
+

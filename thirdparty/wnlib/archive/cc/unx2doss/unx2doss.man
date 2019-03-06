@@ -1,0 +1,32 @@
+NAME
+     unx2doss -- program for translating text file from unix format to dos
+		 format
+
+SYNOPSIS
+        unx2doss <list of files>
+
+DESCRIPTION
+  	This program will translate all the files whose names are
+    given on the command line from unix format (lines ending with
+    \n) to dos format (lines ending with \r\n).  It assumes no one
+    wants to put a \r anywhere without a following \n, which is
+    the case for text files.
+  	This program will work when run on unix or on dos.
+  	Note that if this program is run on a file that is already
+    in dos format, no changes will be made to the file, so you
+    don't have to worry about accidentally running it twice on
+    the same file.
+
+        Note this program uses "unx2doss.tmp" in the current
+    directory as a temporary file, and will destroy one there if
+    if finds it.
+
+SEE ALSO
+
+	There is also unx2doss.pl, which is a perl script that does
+    exactly the same thing, if you have perl working on your system
+    (unx2doss is provided as a .exe for windows users who might not
+    have perl available).
+
+AUTHOR
+     Bill Chapman

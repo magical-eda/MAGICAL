@@ -1,0 +1,236 @@
+NAME
+     wnskl -- generic skip list package
+
+SYNOPSIS
+     #include "wnskl.h"
+
+     WN_SK_MIN
+     WN_SK_MAX
+     WN_SK_LT
+     WN_SK_GT
+     WN_SK_LE
+     WN_SK_GE
+     WN_SK_EQ
+
+     wn_sklist sklist;
+     wn_skhandle handle;
+
+     ptr handle->key;
+     ptr handle->contents;
+
+     wn_mksklist(&sklist, threshold, pcompare_keys_func, palloc_copy_key_func,
+     /**/						pfree_key_func)
+     wn_sklist sklist;
+     double threshold;
+     int (*pcompare_keys_func)(/*key1,key2*/);         /* ptr key1,key2; */
+     void (*palloc_copy_key_func)(/*&out_key,in_key*/);/* ptr out_key,in_key */
+     void (*pfree_key_func)(/*key*/);                  /* ptr key; */
+
+     wn_freesklist(sklist)
+     wn_sklist sklist;
+
+     wn_skget(&handle, sklist, key, compare)
+     wn_skhandle handle;
+     wn_sklist sklist;
+     ptr key;
+     int compare;
+
+     wn_skins(&handle, sklist, key)
+     wn_skhandle handle;
+     wn_sklist sklist;
+     ptr key;
+
+     wn_skdel(handle, sklist)
+     wn_skhandle handle;
+     wn_sklist sklist;
+
+     wn_skmove(handle, sklist, new_key);
+     wn_skhandle handle;
+     wn_sklist sklist;
+     ptr new_key;
+
+     wn_skact(sklist, paction, low_key, low_compare, high_key, high_compare) 
+     wn_sklist sklist;
+     void (*paction)(/*handle*/);
+     ptr low_key, high_key;
+     int low_compare, high_compare;
+
+     int wn_skcount(sklist)
+     wn_sklist sklist;
+
+     wn_skverify(sklist)
+     wn_sklist sklist;
+
+     WN_FOR_SKL(data_type, data_name, chash_table, key_type, key_name)
+     WN_END_FOR_SKL()
+
+DESCRIPTION
+     This package manipulates skip lists, highly analogous to the btr
+     package described in wnbtr.man, but the data structure is very
+     different.  It is 1.4X slower than using the btr package, but 
+     2X more memory efficient.  It is similar to a sorted singly linked list,
+     but it takes more memory and is faster.
+
+     The idea is to start with a sorted singly linked list, and then augment
+     the links with another set of links that only link some, not all, of the
+     handles of the list.  Then add another such set of pointers, and another,
+     each linking fewer of the nodes on the list.
+     Fast lookup is achieved because most of the searching is on the highest
+     order, that is, sparcest, linked list.  Memory saving is achieved
+     because most of the handles only contain one pointer and hence are very
+     small.
+
+     Data structure:
+
+     index:   0   1   2   3
+
+     -----------------------
+
+     node1:  ptr ptr ptr ptr
+	      |   |   |   |
+	      V   V   |   |
+     node2:  ptr ptr  |   |
+	      |   |   |   |
+	      V   V   V   |
+     node3:  ptr ptr ptr  |
+	      |   |   |   |
+	      V   |   |   |
+     node4:  ptr  |   |   |
+	      |   |   |   |
+	      V   |   |   |
+     node5:  ptr  |   |   |
+	      |   |   |   |
+	      V   V   V   V
+     node6:  ptr ptr ptr nil
+	      |   |   |
+	      V   V   |
+     node7:  ptr ptr  |
+	      |   |   |
+	      V   V   V
+     node8:  ptr nil nil
+	      |
+	      V
+     node9:  nil
+
+     The number of pointers a node is to have is assigned probabalistically,
+     using the "threshold" argument to wn_mksklist to be the probability of
+     adding one more pointer to the handle.  A high value of threshold means
+     faster access but more memory usage, a low value means low memory usage
+     but slower access.  In general, a threshold of 0.25 is a pretty good
+     trade-off.
+
+     Other than the "threshold" argument to wn_mksklist, the interface to this
+     package is exactly like that of the btr package (except
+     that there is no wn_skget_index_of_handle or wn_skget_handle_of_index), 
+     so consult wnbtr.man.
+
+     This package also defines macros WN_FOR_SKL() and WN_END_FOR_SKL()
+     for easy creation of loops to traverse skip lists without having
+     to declare a separate routine or use recursion.
+
+     If you have
+
+       typedef struct ab_blah_struct *ab_blah;
+       struct ab_blah_struct {
+         int x, y;
+       };
+
+     and you build a chash table my_table storing pointers to ab_blah structs
+     indexed by character strings.  To go through them in sorted order,
+     you say
+
+       WN_FOR_SKL(ab_blah, my_blah, my_table, char *, my_str) {
+
+         ... guts of loop, for example: ...
+
+         printf("%s: (%d, %d)\n", my_str, my_blah->x, my_blah->y);
+       } WN_END_FOR_SKL();
+
+     Note that variables 'ab_blah my_blah;' and 'char *my_str;' are not
+     declared by the caller, they are declared and assigned to by the macro.
+
+     "break"s and "continue"s within the loop work as they should.
+
+     Note that WN_FOR_SKL() does not fully obsolete wn_skact() - WN_FOR_SKL()
+     always traverses the entire list, while wn_skact() can be directed to
+     traverse only a range.
+
+RESOURCES
+     This package is implemented without the use of recursion, so stack
+     memory usage is always insignificant.  Dynamic memory activity, if
+     any, is limited to a single handle being allocated or destroyed.
+
+     "wn_skget", "wn_skins", "wn_skdel", "wn_skmove" require
+
+       AVERAGE CASE:
+
+         time = log(n)
+
+       WORST CASE:
+
+	 time = n
+
+     "wn_skact" requires 
+
+       WORST and AVERAGE CASE:
+
+         time = n
+
+     "wn_skcount" requires 
+
+       WORST and AVERAGE CASE:
+
+         time = n
+
+     Note that 
+     "wn_skcount" performs much worse than do their counterparts in
+     the btr package and their use should be avoided.  They are really
+     included in the package only to provide a complete analogy to the
+     interface provided by btr.
+
+     The skip list uses memory
+
+       WORST and AVERAGE CASE:
+
+         dynamic memory ~= n
+
+     In the above, n is the number of entries in the table.
+
+     Depending on "threshold", these requirements have better constant
+     factors than for similar operations in "wnhtab" and "wnbtr" and
+     slightly worse constant factors than "wnsll" and "wnsort".
+
+EMPIRICAL PERFORMANCE
+
+     Doing 1000000 random lookups on a datastructure of 1000000 elements,
+     wnbtr required 30.86 Mbytes of RAM, while the skip list with a
+     threshold of 0.25 needed only 16.74 Mbytes.  On the btr, the lookups
+     took 2.33 seconds, on the skip list, 6.59 seconds.
+
+     Raising the threshold to 0.33 increased the memory usage a bit, while
+     hardly speeding up access.  Decreasing the threshold to 0.2 decreased
+     memory usage a small amount, but slowed down the accesses to 7.36
+     seconds.
+
+     Based on this data, a threshold of 0.25 is recommended, depending
+     on your tradeoff of memory vs speed.
+
+     Experiments can be conducted on this using the "examples" program with
+     the -a option, setting the -threshold and -trials values on the
+     command line.
+
+DIAGNOSTICS
+     "wn_skact" crashes with a message if the range specified is not
+     meaningful.
+
+     "wn_skverify" crashes with a message if the skip list is messed up.
+
+BUGS
+
+SEE ALSO
+     wnskll, wnbtr, wnbtrl, wnhtab, wnsort
+
+     cc/skip/examples.c
+
+AUTHOR
+     Bill Chapman

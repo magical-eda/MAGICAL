@@ -1,0 +1,58 @@
+NAME
+     wnstk -- stack manager
+
+SYNOPSIS
+     #include "wnlib.h"
+
+     wn_mkstack(&stack)
+     wn_stack stack;
+
+     wn_push(stack,e)
+     wn_stack stack;
+     ptr e;
+
+     wn_pop(stack)
+     wn_stack stack;
+
+     ptr wn_stacktop(stack)
+     wn_stack stack;
+
+     bool wn_stackempty(stack)
+     wn_stack stack;
+
+     wn_get_stackmark(&mark,stack)
+     wn_stackmark mark;
+     wn_stack stack;
+
+     wn_stackjmp(stack,mark,paction)
+     wn_stack stack;
+     wn_stackmark mark;
+     void (*paction)(/* e */);
+
+DESCRIPTION
+     This package defines a stack type called "wn_stack".
+
+     "wn_mkstack" allocates a "wn_stack" from the current memory group.
+     All memory allocations and frees triggered by other stack calls
+     will use the same memory group as "wn_mkstack".
+
+     "wn_push" pushes "e" onto the stack.
+
+     "wn_pop" pops the stack.
+
+     "wn_stacktop" returns the top of the stack.
+
+     "wn_stackempty" returns TRUE iff the stack is empty.
+
+DIAGNOSTICS
+     "wn_pop" crashes if the stack is empty.
+     "wn_stacktop" crashes if the stack is empty.
+  
+BUGS
+
+SEE ALSO
+
+AUTHOR
+     Will Naylor
+
+

@@ -1,0 +1,8 @@
+#!/bin/csh -f
+
+if ( ! -d $2 ) then
+  mkdir $2
+endif
+
+(cd $1; tar cf - .) | (cd $2; tar xvf -)
+

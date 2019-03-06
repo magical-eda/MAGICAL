@@ -1,0 +1,132 @@
+NAME
+     wnsplx -- simplex method package
+
+SYNOPSIS
+     #include "wnmat.h"
+
+
+     wn_simplex_method(&code,&objective,shadow_prices,solution,
+                       objective_vect,mat,right_side,
+                       len_i,len_j)
+     int code;
+     double objective;
+     double *shadow_prices,*solution,*objective_vect;
+     double **mat;
+     double *right_side;
+     int len_i,len_j;
+
+
+     wn_simplex_loop(&code,mat,right_side,right_side_control,
+			   non_zero_vars,zero_vars,
+                           len_i,len_j)
+     int code;
+     double **mat;
+     double *right_side,*right_side_control;
+     int *non_zero_vars,*zero_vars;
+     int len_i,len_j;
+
+
+DESCRIPTION
+     This package solves the "linear programming" problem easily and
+     efficiently.  The "linear programming" problem is the following
+     optimization problem:
+
+         CHOOSE solution[j] TO MAXIMIZE
+
+             sum_over(j){ objective_vect[j]*solution[j] } 
+
+         WHILE SATISFYING THE CONSTRAINTS
+
+             for_all(i){ sum_over(j){mat[i][j]*solution[j]} == right_side[i] }
+
+                 AND
+
+             for_all(j){ solution[j] >= 0 }
+
+     Note the i contraints above, unlike the j constraints, are EQUALITY
+     constraints.  If you have inequality constraints, you have to
+     convert them to equality constraints by adding slack variables
+     to your matrix.  For an example of this, see wnlib/acc/mat/selftest.c
+
+     Difficult optimization problems from many fields can be put into
+     this form, and thus solved efficiently with this package.
+
+     Set "objective_vect" to NULL if you want any feasible solution;
+     set "shadow_prices" to NULL if you don't care about shadow prices.
+
+     For an introduction to the linear programming problem, consult
+     [1] and [2].  The basis of the algorithm used here is the "revised
+     simplex method" given in [3].  However, the algorithm used has these 
+     improvements:
+     
+       1)  It is randomized to avoid various degeneracy problems.  
+
+       2)  The pivot element is selected for numerical stability
+
+       3)  A perturbed right side is provided as an anti-cycling 
+	   measure.
+
+     Naive users should confine themselves to "wn_simplex_method".
+
+     "wn_simplex_loop" makes available to sophisticated users the 
+     (improved) simplex loop given in [3] in raw form.
+     The 0'th row is the objective row.  right_side[0] contains minus 
+     the objective after completion of the algorithm.  "right_side_control" 
+     should be an array with "len_i" entries, initialized to the values
+     in "right_side" plus a small random perturbation.  The perturbation
+     is necessary to prevent cycling.
+     "wn_simplex_loop" uses "right_side_control" to control the basis;
+     "right_side" is carried along with it to give the exact answer.
+
+RESOURCES
+     Solving the simplex problem using "wn_simplex_method" requires
+
+       AVERAGE CASE:
+
+         time = len_i^2 * len_j
+         stack memory = 1
+         dynamic memory = len_i*len_j
+
+     Randomizing is used to avoid exponential worst-case performance.
+
+     "wn_simplex_loop" requires
+
+       AVERAGE CASE:
+
+         time = len_i * len_j
+         stack memory = 1
+         dynamic memory = 0
+
+     for each iteration.  Usually no more than order len_i iterations 
+     are required for an optimal solution.
+
+DIAGNOSTICS
+     code == WN_SUCCESS  for successful solution.
+     code == WN_UNBOUNDED  for unbounded solution.
+     code == WN_INFEASIBLE if no solution satisfies the constraints.
+
+     WN_INFEASIBLE also given if "mat" is degenerate, even if solutions
+     are feasible.
+  
+BUGS
+
+SEE ALSO
+     wnminv, wnanl, wnnlp
+     wnlib/acc/mat/selftest.c
+
+REFERENCES
+     [1]  F. Hillier and G. Lieberman:  Introduction to Operations Research.
+               Holden-Day Inc.
+
+     [2]  J. Franklin:  Methods of Mathematical Economics.  
+               Springer-Verlag.
+
+     [3]  G. B. Dantzig, A. Orden, and P. Wolfe:  Generalized Simplex 
+               Method for Minimizing a Linear Form under Linear 
+               Inequality Restraints, Pacific J. Math. Vol. 5 (1955)
+               pp. 183-195.
+
+AUTHOR
+     Will Naylor
+
+

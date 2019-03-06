@@ -1,0 +1,3 @@
+#/bin/csh -f
+
+lint -h -I../lib -I$wnlib/cc/h $1 |& tee errors.txt

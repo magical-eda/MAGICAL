@@ -1,0 +1,58 @@
+NAME
+     wnpq -- priority queue with floating point keys package
+
+SYNOPSIS
+     #include "wnpq.h"
+
+     wn_pqueue queue;
+     wn_pqhandle handle;
+
+     double handle->key;
+     ptr handle->contents;
+
+
+     void wn_mkpqueue(&queue)
+     wn_pqueue queue;
+
+     void wn_freepqueue(queue)
+     wn_pqueue queue;
+
+     void wn_emptypqueue(queue)
+     wn_pqueue queue;
+
+     void wn_pqgetmin(&handle,queue)
+     wn_pqhandle handle;
+     wn_pqueue queue;
+
+     void wn_pqins(&handle,queue,key)
+     wn_pqhandle handle;
+     wn_pqueue queue;
+     double key;
+
+     void wn_pqdel(handle,queue)
+     wn_pqhandle handle;
+     wn_pqueue queue;
+
+     void wn_pqmove(handle,queue,new_key);
+     wn_pqhandle handle;
+     wn_pqueue queue;
+     double new_key;
+
+     int wn_pqcount(queue)
+     wn_pqueue queue;
+
+DESCRIPTION
+
+RESOURCES
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnbtr, wnsort
+
+AUTHOR
+     Will Naylor
+
+

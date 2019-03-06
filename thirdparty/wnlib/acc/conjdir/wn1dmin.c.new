@@ -1,0 +1,1046 @@
+/********************************************************************
+
+void wn_minimize_1d(pval_min,px_min,x_start,pfunction)
+
+********************************************************************/
+#include <stdio.h>
+#include <math.h>
+
+#include "wnlib.h"
+#include "wnsqr.h"
+#include "wnabs.h"
+#include "wnasrt.h"
+#include "wnswap.h"
+#include "wnmax.h"
+#include "wnrnd.h"
+#include "wnrndd.h"
+
+#include "wnconj.h"
+
+
+
+#define GOLDEN_RATIO          1.618034
+#define GOLDEN_SECTION        0.3819660
+#define MAX_ITERATIONS        500
+#define MAX_MAGNIFICATION     10000.0
+#define TOLERANCE             (1.0/(1<<24))
+
+#define INFINITY              WN_FHUGE
+
+#define BUF_RADIUS   5
+#define BUF_SIZE (2*BUF_RADIUS-1)
+#define BUF_MID_INDEX (BUF_RADIUS)
+
+
+/* function data known so far */
+local double xs_buf[BUF_SIZE];
+local double fs_buf[BUF_SIZE];
+local double low_x_max_offshifted_f,high_x_max_offshifted_f;
+local double low_x,high_x;
+
+local double *xs = xs_buf+BUF_MID_INDEX;
+local double *fs = fs_buf+BUF_MID_INDEX;
+local int num_low_data,num_high_data;
+
+local double f_goal;
+local double (*pfunction)(double x);
+local int max_iterations;
+
+local bool terminate;
+
+
+local double clip_f(double f)
+{
+  if(f < INFINITY)
+  {
+    return(f);
+  }
+  else
+  {
+    return(INFINITY);
+  }
+}
+
+
+local void init_minmax(double *pmin,double *pmax)
+{
+  *pmin = INFINITY;
+  *pmax = -INFINITY;
+}
+
+
+local void add_x_to_minmax(double *pmin,double *pmax,double x)
+{
+  if(x < *pmin)
+  {
+    *pmin = x;
+  }
+  if(x > *pmax)
+  {
+    *pmax = x;
+  }
+}
+
+
+local void clear_data(void)
+{
+  num_low_data = num_high_data = 0;
+}
+
+
+local void print_data(void)
+{
+  int i;
+
+  printf("max_offshifted_fs = (%lg - %lg)\n",
+	 low_x_max_offshifted_f,high_x_max_offshifted_f);
+  printf("low_xy = (%lg - %lg)\n",low_x,high_x);
+
+  printf("[ ");
+
+  for(i=-num_low_data+1;i<=num_high_data-1;++i)
+  {
+    if(i==0)
+    {
+      printf(" <(%20.20lg %20.20lg)>",xs[i],fs[i]);
+    }
+    else
+    {
+      printf(" (%20.20lg %20.20lg)",xs[i],fs[i]);
+    }
+  }
+
+  printf("]\n");
+}
+
+
+local void check_data(void)
+{
+  int i;
+
+  wn_assert(num_low_data >= 0);
+  wn_assert(num_high_data >= 0);
+  wn_assert(num_low_data <= BUF_RADIUS);
+  wn_assert(num_high_data <= BUF_RADIUS);
+
+  for(i=-num_low_data+1;i<=num_high_data-1-1;++i)
+  {
+    wn_assert(xs[i] < xs[i+1]);
+  }
+  for(i=-num_low_data+1;i<=num_high_data-1;++i)
+  {
+    wn_assert(fs[0] <= fs[i]);
+  }
+}
+
+
+local void shift_data(int start,int fin,int offset)
+{
+  int from_i,to_i;
+
+  if(start > fin)
+  {
+    return;
+  }
+
+  wn_assert(start <= fin);
+  wn_assert(-BUF_RADIUS+1 <= start);
+  wn_assert(fin <= BUF_RADIUS-1);
+
+  if(offset > 0)
+  {
+    for(from_i=fin;from_i>=start;--from_i)
+    {
+      to_i = from_i+offset;
+
+      if(to_i <= BUF_RADIUS-1)
+      {
+        xs[to_i] = xs[from_i];
+        fs[to_i] = fs[from_i];
+      }
+      else
+      {
+	if(fs[from_i] > high_x_max_offshifted_f)
+	{
+	  high_x_max_offshifted_f = fs[from_i];
+	  high_x = xs[from_i];
+	}
+      }
+    }
+  }
+  else if(offset < 0)
+  {
+    for(from_i=start;from_i<=fin;++from_i)
+    {
+      to_i = from_i+offset;
+
+      if(to_i >= -BUF_RADIUS+1)
+      {
+        xs[to_i] = xs[from_i];
+        fs[to_i] = fs[from_i];
+      }
+      else
+      {
+	if(fs[from_i] > low_x_max_offshifted_f)
+	{
+	  low_x_max_offshifted_f = fs[from_i];
+	  low_x = xs[from_i];
+	}
+      }
+    }
+  }
+}
+
+
+local void recenter_data(void)
+{
+  double f,f_min;
+  int i,best_i;
+
+  f_min = INFINITY;
+  best_i = 0;
+
+  for(i=-num_low_data+1;i<=num_high_data-1;++i)
+  {
+    f = fs[i];
+
+    if(f < f_min)
+    {
+      f_min = f;
+      best_i = i;
+    }
+  }
+
+  if(best_i != 0)
+  {
+    shift_data(-num_low_data+1,num_high_data-1,-best_i);
+
+    num_low_data += best_i;
+    num_high_data -= best_i;
+
+    if(num_low_data > BUF_RADIUS-1)
+    {
+      num_low_data = BUF_RADIUS-1;
+    }
+    if(num_high_data > BUF_RADIUS-1)
+    {
+      num_high_data = BUF_RADIUS-1;
+    }
+
+    wn_assert(num_low_data > 0);
+    wn_assert(num_high_data > 0);
+  }
+}
+
+
+local int get_x_index(double x)
+{
+  int i;
+
+  for(i=-num_low_data+1;i<=num_high_data-1;++i)
+  {
+    wn_assert(x != xs[i]);
+
+    if(x < xs[i])
+    {
+      return(i);
+    }
+  }
+
+  return(i);
+}
+
+
+local void insert_new_point(double xnew,double fnew)
+{
+  if((num_low_data == 0)&&(num_high_data == 0))
+  {
+    fs[0] = fnew;
+    xs[0] = xnew;
+    num_low_data = num_high_data = 1;
+  }
+  else
+  {
+    int x_index;
+
+    x_index = get_x_index(xnew);
+
+    if(fnew < fs[0])
+    {
+      int neg_shift,pos_shift;
+
+      neg_shift = -x_index;
+      pos_shift = -x_index+1;
+
+      shift_data(-num_low_data+1,x_index-1,neg_shift);
+      shift_data(x_index,num_high_data-1,pos_shift);
+
+      fs[0] = fnew;
+      xs[0] = xnew;
+
+      num_low_data -= neg_shift;
+      if(num_low_data > BUF_RADIUS)
+      {
+	num_low_data = BUF_RADIUS;
+      }
+      else if(num_low_data < 1)
+      {
+	num_low_data = 1;
+      }
+
+      num_high_data += pos_shift;
+      if(num_high_data > BUF_RADIUS)
+      {
+	num_high_data = BUF_RADIUS;
+      }
+      else if(num_high_data < 1)
+      {
+	num_high_data = 1;
+      }
+    }
+    else /* fnew >= fs[0] */
+    {
+      if(x_index > 0)
+      {
+	if(x_index <= BUF_RADIUS-1)
+	{
+	  shift_data(x_index,num_high_data-1,1);
+          fs[x_index] = fnew;
+          xs[x_index] = xnew;
+	  if(num_high_data < BUF_RADIUS)
+	  {
+	    ++num_high_data;
+          }
+	}
+	else
+	{
+	  wn_assert(x_index == BUF_RADIUS);
+
+	  if(
+	      (fnew > high_x_max_offshifted_f)
+		||
+	      ((fnew == high_x_max_offshifted_f)&&(xnew > high_x))
+            )
+	  {
+	    high_x_max_offshifted_f = fnew;
+	    high_x = xnew;
+	  }
+	}
+      }
+      else /* x_index <= 0 */
+      {
+	if(x_index > -BUF_RADIUS+1)
+	{
+	  shift_data(-num_low_data+1,x_index-1,-1);
+          fs[x_index-1] = fnew;
+          xs[x_index-1] = xnew;
+	  if(num_low_data < BUF_RADIUS)
+	  {
+	    ++num_low_data;
+          }
+	}
+	else
+	{
+	  wn_assert(x_index == -BUF_RADIUS+1);
+
+	  if(
+	      (fnew > low_x_max_offshifted_f)
+		||
+	      ((fnew == low_x_max_offshifted_f)&&(xnew < low_x))
+            )
+	  {
+	    low_x_max_offshifted_f = fnew;
+	    low_x = xnew;
+	  }
+	}
+      }
+    }
+  }
+
+  /*
+  print_data();
+  */
+  check_data();
+}
+
+
+local bool x0_is_in_legal_range(double x0)
+{
+  if(num_low_data > 1)
+  {
+    if(!(xs[-1] < x0))
+    {
+      return(FALSE);
+    }
+  }
+
+  if(num_high_data > 1)
+  {
+    if(!(x0 < xs[1]))
+    {
+      return(FALSE);
+    }
+  }
+
+  return(TRUE);
+}
+
+
+local void gen_quadratic_probe(bool *psuccess,double *pxnew)
+{
+  int i;
+  double a,x0[3],b,worst_f[3];
+  double test_x0;
+  int code;
+  bool success[3];
+  double best_worst_f;
+  double a_min,a_max;
+  double x0_min,x0_max;
+  double xs_min,xs_max;
+
+  init_minmax(&a_min,&a_max);
+  init_minmax(&x0_min,&x0_max);
+  init_minmax(&xs_min,&xs_max);
+
+  /* fit to center points */
+  if((num_low_data > 1)&&(num_high_data > 1))
+  {
+    wn_fit_parabola_3p(&code,&a,&(x0[0]),&b,
+		       xs[-1],fs[-1],xs[0],fs[0],xs[1],fs[1]);
+    if(
+	(code == WN_SUCCESS)
+	  &&
+	(a > 0.0) && (a < INFINITY)
+	  &&
+	(xs[-1] < x0[0])&&(x0[0] < xs[1])
+      )
+    {
+      success[0] = TRUE;
+      worst_f[0] = wn_max(fs[-1],fs[1]);
+      add_x_to_minmax(&a_min,&a_max,a);
+      add_x_to_minmax(&x0_min,&x0_max,x0[0]);
+      add_x_to_minmax(&xs_min,&xs_max,0.5*(xs[-1]+xs[1]));
+    }
+    else
+    {
+      *psuccess = FALSE;
+      return;
+    }
+  }
+  else
+  {
+    success[0] = FALSE;
+  }
+
+  /* fit to left points */
+  if((num_low_data > 2)&&(num_high_data > 0))
+  {
+    wn_fit_parabola_3p(&code,&a,&(x0[1]),&b,
+		       xs[-2],fs[-2],xs[-1],fs[-1],xs[0],fs[0]);
+    if(
+	(code == WN_SUCCESS)
+	  &&
+	(a > 0.0) && (a < INFINITY)
+      )
+    {
+      success[1] = TRUE;
+      worst_f[1] = fs[-2];
+      add_x_to_minmax(&a_min,&a_max,a);
+      add_x_to_minmax(&x0_min,&x0_max,x0[1]);
+      add_x_to_minmax(&xs_min,&xs_max,0.5*(xs[-2]+xs[0]));
+
+      if((num_high_data == 1)&&(num_low_data > 3))
+      {
+        wn_fit_parabola_3p(&code,&a,&test_x0,&b,
+		           xs[-3],fs[-3],xs[-2],fs[-2],xs[-1],fs[-1]);
+        if(
+	    (code == WN_SUCCESS)
+	      &&
+	    ((a > 0.0) && (a < INFINITY))
+	  )
+        {
+          add_x_to_minmax(&a_min,&a_max,a);
+          add_x_to_minmax(&x0_min,&x0_max,test_x0);
+          add_x_to_minmax(&xs_min,&xs_max,0.5*(xs[-1]+xs[-3]));
+	}
+	else
+	{
+	  *psuccess = FALSE;
+	  return;
+	}
+      }
+    }
+    else
+    {
+      *psuccess = FALSE;
+      return;
+    }
+  }
+  else
+  {
+    success[1] = FALSE;
+  }
+
+  /* fit to right points */
+  if((num_low_data > 0)&&(num_high_data > 2))
+  {
+    wn_fit_parabola_3p(&code,&a,&(x0[2]),&b,
+		       xs[0],fs[0],xs[1],fs[1],xs[2],fs[2]);
+    if(
+	(code == WN_SUCCESS)
+	  &&
+	(a > 0.0) && (a < INFINITY)
+      )
+    {
+      success[2] = TRUE;
+      worst_f[2] = fs[2];
+      add_x_to_minmax(&a_min,&a_max,a);
+      add_x_to_minmax(&x0_min,&x0_max,x0[2]);
+      add_x_to_minmax(&xs_min,&xs_max,0.5*(xs[0]+xs[2]));
+
+      if((num_low_data == 1)&&(num_high_data > 3))
+      {
+        wn_fit_parabola_3p(&code,&a,&test_x0,&b,
+		           xs[1],fs[1],xs[2],fs[2],xs[3],fs[3]);
+        if(
+	    (code == WN_SUCCESS)
+	      &&
+	    ((a > 0.0) && (a < INFINITY))
+	  )
+        {
+          add_x_to_minmax(&a_min,&a_max,a);
+          add_x_to_minmax(&x0_min,&x0_max,test_x0);
+          add_x_to_minmax(&xs_min,&xs_max,0.5*(xs[1]+xs[3]));
+	}
+	else
+	{
+	  *psuccess = FALSE;
+	  return;
+	}
+      }
+    }
+    else
+    {
+      *psuccess = FALSE;
+      return;
+    }
+  }
+  else
+  {
+    success[2] = FALSE;
+  }
+
+  if(!(success[0]||success[1]||success[2]))
+  {
+    *psuccess = FALSE;
+    return;
+  }
+
+  wn_assert(x0_min <= x0_max);
+  wn_assert(xs_min <= xs_max);
+  wn_assert(a_min <= a_max);
+
+  /*
+  printf("x0_max=%lg,x0_min=%lg,xs_max=%lg,xs_min=%lg\n",
+	 x0_max,x0_min,xs_max,xs_min);
+  printf("(x0_max-x0_min)/(xs_max-xs_min) = %lg\n",
+         (x0_max-x0_min)/(xs_max-xs_min));
+  printf("a_max/a_min = %lg\n",a_max/a_min);
+  */
+
+  /* check if parabolic fit any good */
+  if(
+      ((xs_max > xs_min)&&((x0_max-x0_min)/(xs_max-xs_min) > 
+       1.0-GOLDEN_SECTION))
+	||
+      (a_max/a_min > wn_square(GOLDEN_RATIO))
+    )
+  {
+    *psuccess = FALSE;  /* parabolic fit not good */
+    return;
+  }
+
+  /* find best fit points */
+  *psuccess = FALSE;
+  best_worst_f = INFINITY;
+
+  for(i=0;i<3;++i)
+  {
+    if(success[i]&&x0_is_in_legal_range(x0[i]))
+    {
+      best_worst_f = worst_f[i];
+      *pxnew = x0[i];
+      *psuccess = TRUE;
+    }
+  }
+
+  if(!(*psuccess))
+  {
+    return;
+  }
+
+  if(*pxnew == xs[0])
+  {
+    double fract;
+
+    fract = 1.0/MAX_MAGNIFICATION;
+
+    if(num_low_data < 2)
+    {
+      do
+      {
+        *pxnew += fract*(xs[0]-xs[-1]);
+	fract = 2.0*fract;
+      } while(*pxnew == xs[0]);
+    }
+    else if(num_high_data < 2)
+    {
+      do
+      {
+        *pxnew += -fract*(xs[1]-xs[0]);
+	fract = 2.0*fract;
+      } while(*pxnew == xs[0]);
+    }
+    else if((xs[1]-xs[0])>(xs[0]-xs[-1]))
+    {
+      do
+      {
+        *pxnew += fract*(xs[1]-xs[-1]);
+	if(*pxnew >= xs[1])
+	{
+	  terminate = TRUE;
+	  return;
+	}
+	fract = 2.0*fract;
+      } while(*pxnew == xs[0]);
+    }
+    else /* ((xs[1]-xs[0])<=(xs[0]-xs[-1])) */
+    {
+      do
+      {
+        *pxnew += -fract*(xs[1]-xs[-1]);
+	if(*pxnew <= xs[-1])
+	{
+	  terminate = TRUE;
+	  return;
+	}
+	fract = 2.0*fract;
+      } while(*pxnew == xs[0]);
+    }
+  }
+
+  if(!(wn_abs(*pxnew) < INFINITY))
+  {
+    *psuccess = FALSE;
+  }
+}
+
+
+local bool pos_greater_found(void)
+{
+  int i;
+
+  if(high_x_max_offshifted_f > fs[0])
+  {
+    return(TRUE);
+  }
+
+  for(i=1;i<=num_high_data-1;++i)
+  {
+    if(fs[i] > fs[0])
+    {
+      return(TRUE);
+    }
+  }
+
+  return(FALSE);
+}
+
+
+local bool neg_greater_found(void)
+{
+  int i;
+
+  if(low_x_max_offshifted_f > fs[0])
+  {
+    return(TRUE);
+  }
+
+  for(i=-1;i>=-num_low_data+1;--i)
+  {
+    if(fs[i] > fs[0])
+    {
+      return(TRUE);
+    }
+  }
+
+  return(FALSE);
+}
+
+
+local double get_x_min(void)
+{
+  double x_min;
+
+  if(low_x_max_offshifted_f > -INFINITY)
+  {
+    x_min = wn_min(low_x,xs[-num_low_data+1]);
+  }
+  else
+  {
+    x_min = xs[-num_low_data+1];
+  }
+
+  return(x_min);
+}
+
+
+local double get_x_max(void)
+{
+  double x_max;
+
+  if(high_x_max_offshifted_f > -INFINITY)
+  {
+    x_max = wn_max(high_x,xs[num_high_data-1]);
+  }
+  else
+  {
+    x_max = xs[num_high_data-1];
+  }
+
+  return(x_max);
+}
+
+
+local double search_width(void)
+{
+  double x_min,x_max;
+
+  x_min = get_x_min();
+  x_max = get_x_max();
+
+  wn_assert(x_max >= x_min);
+
+  return(x_max-x_min);
+}
+
+
+local void gen_golden_probe(double *pxnew)
+{
+  double width;
+
+  if(pos_greater_found())
+  {
+    if(neg_greater_found())
+    {
+      double dpos,dneg;
+
+      dpos = xs[1]-xs[0];
+      dneg = xs[0]-xs[-1];
+
+      if(dpos > dneg)
+      {
+	*pxnew = xs[0] + GOLDEN_SECTION*dpos;
+      }
+      else
+      {
+	*pxnew = xs[0] - GOLDEN_SECTION*dneg;
+      }
+
+      if(*pxnew == xs[0])
+      {
+	terminate = TRUE;
+      }
+    }
+    else
+    {
+      width = search_width();
+      width *= GOLDEN_RATIO;
+      *pxnew = get_x_min() - width;
+    }
+  }
+  else
+  {
+    if(neg_greater_found())
+    {
+      width = search_width();
+      width *= GOLDEN_RATIO;
+      *pxnew = get_x_max() + width;
+    }
+    else
+    {  /* totally flat plane, expand equally in both directions */
+      width = search_width();
+      width *= GOLDEN_RATIO;
+      if((get_x_max()-xs[0])>(xs[0]-get_x_min()))
+      {
+	*pxnew = get_x_min() - width;
+      }
+      else
+      {
+	*pxnew = get_x_max() + width;
+      }
+    }
+  }
+}
+
+
+local double fract_diff(double n1,double n2)
+{
+  n1 = wn_abs(n1);
+  n2 = wn_abs(n2);
+
+  if(n1 > n2)
+  {
+    return(n1/n2-1.0);
+  }
+  else
+  {
+    return(n2/n1-1.0);
+  }
+}
+
+
+local bool optimum_found(void)
+{
+  if((num_low_data < 2)||(num_high_data < 2))
+  {
+    return(FALSE);
+  }
+
+  if((!(fs[0]<=fs[-1]))||(!(fs[0]<=fs[1])))
+  {
+    return(FALSE);
+  }
+
+  if(!(neg_greater_found()&&pos_greater_found()))
+  {
+    return(FALSE);
+  }
+
+  if(xs[0] != 0.0)
+  {
+    if(fract_diff(xs[1],xs[0]) > TOLERANCE)
+    {
+      return(FALSE);
+    }
+    if(fract_diff(xs[-1],xs[0]) > TOLERANCE)
+    {
+      return(FALSE);
+    }
+  }
+  else
+  {
+    if(wn_abs(xs[1]-xs[0]) > TOLERANCE)
+    {
+      return(FALSE);
+    }
+    if(wn_abs(xs[-1]-xs[0]) > TOLERANCE)
+    {
+      return(FALSE);
+    }
+  }
+
+  return(TRUE);
+}
+
+
+local void check_termination_conditions(double xnew,double fnew)
+{
+  if(wn_abs(xnew) >= INFINITY)
+  {
+    terminate = TRUE;
+    return;
+  }
+  if(fnew <= -INFINITY)
+  {
+    terminate = TRUE;
+    return;
+  }
+  if(optimum_found())
+  {
+    terminate = TRUE;
+    return;
+  }
+}
+
+
+local void extract_solution
+(
+  int *pcode,
+  double *pf0,
+  double *pf1,
+  double *pf2,
+  double *px0,
+  double *px1,
+  double *px2,
+  double xnew,
+  double fnew
+)
+{
+  *pf1 = fs[0];
+  *px1 = xs[0];
+
+  if(num_low_data > 1)
+  {
+    *pf0 = fs[-1];
+    *px0 = xs[-1];
+  }
+  else
+  {
+    *pf0 = fs[0];
+    *px0 = xs[0];
+  }
+  if(num_high_data > 1)
+  {
+    *pf2 = fs[1];
+    *px2 = xs[1];
+  }
+  else
+  {
+    *pf2 = fs[0];
+    *px2 = xs[0];
+  }
+
+  if(wn_abs(xnew) >= INFINITY)
+  {
+    if(fnew == fs[0])
+    {
+      *pcode = WN_SUCCESS;
+    }
+    else
+    {
+      *pcode = WN_UNBOUNDED;
+    }
+    return;
+  }
+  if(fnew <= -INFINITY)
+  {
+    *pcode = WN_UNBOUNDED;
+    return;
+  }
+
+  if(optimum_found())
+  {
+    *pcode = WN_SUCCESS; 
+  }
+  else
+  {
+    *pcode = WN_SUBOPTIMAL; 
+  }
+}
+
+
+/* assume *pf0,*pf1,*pf2 already computed */
+void wn_minimize_1d_raw
+(
+  int *pcode,
+  double *pf0,
+  double *pf1,
+  double *pf2,
+  double *px0,
+  double *px1,
+  double *px2,
+  double passed_f_goal,
+  double (*passed_pfunction)(double x),
+  int passed_max_iterations
+)
+{
+  int iteration_count;
+  bool success;
+  double xnew,fnew;
+
+  clear_data();
+
+  f_goal = clip_f(passed_f_goal);
+  pfunction = passed_pfunction;
+  max_iterations = passed_max_iterations;
+
+  insert_new_point(*px1,clip_f(*pf1));
+  insert_new_point(*px0,clip_f(*pf0));
+  insert_new_point(*px2,clip_f(*pf2));
+
+  low_x_max_offshifted_f = high_x_max_offshifted_f = -INFINITY;
+  terminate = FALSE;
+
+  iteration_count = 0;
+
+  while(!terminate)
+  {
+    /*
+    print_data();
+    */
+
+    gen_quadratic_probe(&success,&xnew);
+
+    if(terminate) 
+    {
+      break;
+    }
+    if(!success)
+    {
+      /*
+      printf("golden probe.\n");
+      */
+      gen_golden_probe(&xnew);
+    }
+
+    /*
+    gen_golden_probe(&xnew);
+    */
+
+    fnew = clip_f((*pfunction)(xnew));
+
+    check_termination_conditions(xnew,fnew);
+    if(terminate) 
+    {
+      break;
+    }
+
+    insert_new_point(xnew,fnew);
+
+    if(fs[0] < f_goal)
+    {
+      ++iteration_count;
+      if(iteration_count >= max_iterations)
+      {
+	break;
+      }
+    }
+
+    check_termination_conditions(xnew,fnew);
+  }
+
+  /*
+  print_data();
+  */
+
+  extract_solution(pcode,pf0,pf1,pf2,px0,px1,px2,xnew,fnew);
+}
+
+
+void wn_minimize_1d
+(
+  int *pcode,
+  double *pval_min,
+  double *px_min,
+  double (*pfunction)(double x),
+  int max_iterations
+)
+{
+  double x0,x1,x2,f0,f1,f2;
+
+  x1 = *px_min;
+  x0 = x1-1.0;
+  x2 = x1+1.0;
+
+  f0 = (*pfunction)(x0);
+  f1 = (*pfunction)(x1);
+  f2 = (*pfunction)(x2);
+
+  wn_minimize_1d_raw(pcode,&f0,&f1,&f2,&x0,&x1,&x2,f1,pfunction,max_iterations);
+
+  *pval_min = f1;
+  *px_min = x1;
+}
+
+

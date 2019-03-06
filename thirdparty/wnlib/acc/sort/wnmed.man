@@ -1,0 +1,53 @@
+NAME
+     wnmed -- find median or any percentile of list
+
+SYNOPSIS
+     #include "wnmed.h"
+
+     void wn_find_nth_sll
+     (
+       ptr *presult,
+       wn_sll *plist,
+       int n,
+       int (*pcompare_func)(ptr p1,ptr p2)
+     );
+
+     void wn_split_sll_by_pivot
+     (
+       wn_sll *plt_list,int *plt_count,
+       wn_sll *peq_list,int *peq_count,
+       wn_sll *pgt_list,int *pgt_count,
+       wn_sll list,
+       ptr pivot,
+       int (*pcompare_func)(ptr p1,ptr p2)
+     );
+
+DESCRIPTION
+     "wn_find_nth_sll" finds the nth item in the list, according
+     to the total ordering defined by the compare function
+     "*pcompare_function".  That is, n=0 gives the smallest
+     item in the list; n=1 gives the next to smallest item
+     in the list, etc.
+
+     The input list is destroyed.  
+
+RESOURCES
+     Both of these routines run with
+
+       WORST and AVERAGE CASE:
+
+         time = N
+         stack memory = log(N)
+         dynamic memory = 0
+
+     where N is the number of items in the lists.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnsort
+
+AUTHOR
+     Will Naylor

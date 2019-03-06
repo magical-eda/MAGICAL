@@ -1,0 +1,314 @@
+#include <stdio.h>
+
+#include "wnlib.h"
+#include "wnmem.h"
+#include "wnasrt.h"
+
+#include "wnrndd.h"
+#include "wnvect.h"
+#include "wnmat.h"
+
+
+#define LEN   4000
+
+
+#if 0
+void main(void)
+{
+  double **mat,**mat2,**mat3;
+  int code;
+
+  wn_gpmake("general_free");
+
+  wn_make_mat(&mat,LEN,LEN);
+  wn_make_mat(&mat2,LEN,LEN);
+  wn_make_mat(&mat3,LEN,LEN);
+
+  printf("start...\n");
+
+  wn_random_mat(mat,LEN,LEN);
+  /*
+  wn_print_mat(mat,LEN,LEN);
+  */
+
+  wn_copy_mat(mat2,mat,LEN,LEN);
+
+  printf("inverting...\n");
+
+  wn_invert_mat(&code,mat2,LEN);
+  wn_assert(code == WN_SUCCESS);
+  /*
+  wn_print_mat(mat2,LEN,LEN);
+  */
+
+  printf("multiplying...\n");
+
+  wn_mult_mats(mat3,mat,mat2,LEN,LEN,LEN);
+  wn_print_mat(mat3,LEN,LEN);
+
+  /*
+  wn_gramm_schmidt(&code,mat,LEN,LEN);
+  wn_print_mat(mat,LEN,LEN);
+  */
+
+  wn_free_mat(mat,LEN,LEN);
+
+  wn_gpfree();
+}
+#endif
+
+
+#if 0
+int main(void)
+{
+  double **mat;
+  int len,code;
+
+  wn_gpmake("no_free");    /* temp memory group */
+
+  len = LEN;
+
+  wn_make_mat(&mat,len,len);
+
+  wn_random_mat(mat,len,len);
+  /*
+  wn_enter_mat(mat,len,len);
+  */
+
+  /*
+  wn_print_mat(mat,len,len);
+  */
+
+  printf("started.\n");
+  wn_gramm_schmidt(&code,mat,len,len);
+
+  printf("code = %d\n",code);
+  /*
+  wn_print_mat(mat,len,len);
+  */
+
+  return(0);
+}
+#endif
+
+
+#if 0
+main()
+{
+  extern double wn_dist();
+  double **m1,**m2,**m3,*v1,*v2,*v3;
+  int len,code;
+
+  wn_gpmake("no_free");    /* temp memory group */
+
+  len = 100;
+
+  wn_make_mat(&m1,len,len);
+  wn_make_mat(&m2,len,len);
+  wn_make_mat(&m3,len,len);
+
+  wn_make_vect(&v1,len);
+  wn_make_vect(&v2,len);
+  wn_make_vect(&v3,len);
+
+  while(TRUE)
+  {
+    wn_random_mat(m1,len,len);
+
+    wn_copy_mat(m2,m1,len,len);
+    wn_invert_mat(&code,m2,len);
+    printf("code = %d\n",code);
+
+    wn_mult_mats(m3,m1,m2,len,len,len);
+    wn_print_mat(m3,len,len);
+    wn_mult_mats(m3,m2,m1,len,len,len);
+    wn_print_mat(m3,len,len);
+  }
+
+  wn_random_vect(v1,len);
+  /*
+  wn_print_mat(m1,len,len);
+  */
+  wn_mult_mat_by_vect(v2,m1,v1,len,len);
+
+  wn_copy_mat(m2,m1,len,len);
+  wn_invert_mat(&code,m2,len);
+  printf("code = %d\n",code);
+
+  wn_solve_system(v3,v2,m2,m1,len,5);
+
+  printf("error = %lg\n",wn_dist(v1,v3,len));
+}
+#endif
+
+
+#if 0
+main()
+{
+  double val,objective,*solution_vect,*objective_vect,*right_side,**mat;
+  int vars,eqs;
+  int len_i,len_j,code,i,j;
+
+  wn_gpmake("no_free");    /* temp memory group */
+
+  vars = LEN;
+  eqs = LEN;
+
+  len_i = eqs;
+  len_j = vars+eqs;
+
+  wn_make_mat(&mat,len_i,len_j);
+
+  wn_make_vect(&solution_vect,len_j);
+  wn_make_vect(&objective_vect,len_j);
+  wn_make_vect(&right_side,len_i);
+
+  for(j=0;j<len_j;++j)
+  {
+    val = wn_normal_distribution();
+    /*
+    if(val < 0.0)
+    {
+      val = -val;
+    }
+    */
+
+    objective_vect[j] = val; 
+    /*
+    objective_vect[j] = 1.0;
+    */
+  }
+
+  for(i=0;i<len_i;++i)
+  {
+    val = wn_normal_distribution();
+    if(val < 0.0)
+    {
+      val = -val;
+    }
+
+    right_side[i] = val; 
+  }
+
+  for(i=0;i<len_i;++i)
+  {
+  wn_zero_vect(mat[i],len_j);
+
+  for(j=0;j<vars;++j)
+  {
+    val = wn_normal_distribution();
+    if(val < 0.0)
+    {
+      val = -val;
+    }
+
+    mat[i][j] = val;
+  }
+
+  mat[i][vars+i] = 1;
+  }
+
+  /*
+  printf("mat =\n");
+  wn_print_mat(mat,len_i,len_j);
+  printf("rhs =\n");
+  wn_print_vect(right_side,len_i);
+  printf("ob =\n");
+  wn_print_vect(objective_vect,len_j);
+  */
+
+  printf("starting....\n");
+  wn_simplex_method(&code,&objective,NULL,solution_vect,
+		    objective_vect,mat,right_side,
+		    len_i,len_j);
+
+  printf("code = %d\n",code);
+  printf("objective = %lf\n",objective);
+  /*
+  wn_print_vect(solution_vect,len_j);
+  */
+}
+#endif
+
+
+#if 1
+int main(void)
+{
+  double val,objective,*solution_vect,*objective_vect,
+	 *right_side,*right_side_control,**mat;
+  int vars,eqs;
+  int len_i,len_j,code,i,j;
+  int *zero_vars,*non_zero_vars;
+
+  wn_gpmake("no_free");    /* temp memory group */
+
+  len_j = LEN;
+  len_i = 3*len_j;
+
+  wn_make_mat(&mat,len_i,len_j);
+
+  wn_make_vect(&solution_vect,len_j);
+  wn_make_vect(&objective_vect,len_j);
+  wn_make_vect(&right_side,len_i);
+  wn_make_vect(&right_side_control,len_i);
+
+  zero_vars = (int *)wn_zalloc(len_j*sizeof(int));
+  non_zero_vars = (int *)wn_zalloc(len_i*sizeof(int));
+
+  for(j=0;j<len_j;++j)
+  {
+    val = wn_normal_distribution();
+    if(val < 0.0)
+    {
+      val = -val;
+    }
+
+    objective_vect[j] = val; 
+  }
+
+  for(i=0;i<len_i;++i)
+  {
+    val = wn_normal_distribution();
+    if(val < 0.0)
+    {
+      val = -val;
+    }
+
+    right_side[i] = val; 
+    right_side_control[i] = val;
+  }
+
+  for(i=0;i<len_i;++i)
+  for(j=0;j<len_j;++j)
+  {
+    val = wn_normal_distribution();
+    if(val < 0.0)
+    {
+      val = -val;
+    }
+
+    mat[i][j] = val;
+  }
+
+  /*
+  printf("mat =\n");
+  wn_print_mat(mat,len_i,len_j);
+  printf("rhs =\n");
+  wn_print_vect(right_side,len_i);
+  printf("ob =\n");
+  wn_print_vect(objective_vect,len_j);
+  */
+
+  wn_simplex_loop(&code,mat,right_side,right_side_control,
+		  non_zero_vars,zero_vars,
+		  len_i,len_j);
+
+  printf("code = %d\n",code);
+  /*
+  wn_print_vect(solution_vect,len_j);
+  */
+
+  return(0);
+}
+#endif
+

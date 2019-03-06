@@ -1,0 +1,132 @@
+main_man -- documentation pages for wnlib
+
+(Note this document exists in two forms, .html and .txt.  The .html is
+preferred as it has links to all the other documentation.  You may want to
+adjust the font size smaller).
+
+Memory Allocation
+     wnmem   -- group (or pool) oriented memory allocation
+     wnmemd   -- debugging aids for group oriented memory allocation
+     wnmems   -- special version of memory allocation for use with purify-
+     like tools (unix only)
+Data Structures (also called 'containers')
+     wnsll    -- linked list package
+
+     wnbtr    -- height-balanced binary tree package
+     wnbtrl    -- declare btrees if type str, int, and double
+
+     wnskl    -- skip list (sort of halfway between a linked list and a
+     binary tree)
+
+     wnpq    -- priority queue with type "double" keys
+
+     wnbvec    -- bit vector, packed array of bits with boolean operations
+
+     wnchtb    -- hash table (closed, array based)
+     wnchtl   -- make closed hash tables of types generic, str, ptr, and
+     int
+     wnhash   -- hash functions for common keys for wnchtb and wnhtab
+     wnhtab    -- hash table (incremental, binary tree based)
+     wnhtbl   -- make incremental hash tables of types generic, str, ptr,
+     and int
+
+     wnddtr    -- binary tree over an n-dimensional coordinate space,
+     determines proximity of objects
+     wnddtl__-- make ddtr's of type int and double
+Random Numbers
+     wnrnd    -- random numbers, much higher quality than rand()
+     wnrndd   -- more random numbers, including various floating
+     distributions
+     wnrndt    -- 'true' random numbers (not available on Windows)
+Sorting
+     wnsort    -- merge sort and quick sort, quick sort higher quality
+     than unix qsort
+     wnrsrt    -- radix sort (faster on large problems)
+     wnrsrl   -- utlilities needed for radix sort
+     wnmed    -- find median or any percentile of list
+Command Line Argument Parser
+     wnargp   -- command line argument parser
+     wnargv   -- parse command line from string
+Matrices
+     wnmmk    -- make & free matrices
+     wnmcpy    -- matrix copy
+     wnmgen    -- generate matrices with special values
+     wnminv    -- matrix inversion
+     wnmio    -- matrix input and output
+     wnmrnd    -- random matrix generator
+     wnmtrn    -- transpose matrix
+     wnsplx    -- simplex method
+     wngs    -- Gramm-Schmidt orthogonalization of a matrix
+     wnmmlt    -- matrix / vector multiplication
+Vectors
+     wnvmk    -- vector make and free
+     wndot    -- vector dot product
+     wnvadd    -- vector addition
+     wnvcpy    -- vector copy
+     wnvgen    -- zero out vector
+     wnvio    -- vector i/o
+     wnvmlt    -- vector multiply
+     wnvnrm    -- vector norm
+     wnvrnd    -- random vector generator
+Sparse Matrices
+     wnspmk    -- make, initialize & free sparse matrices
+     wnspio    -- print sparse matrix
+     wnspmat    -- sparse matrix datastructures and operations
+     wncp    -- solve for critical path in sparse matrix
+     wnflow    -- min-cost max-flow problem solution
+     wntrn    -- transportation problem
+     wnlp    -- longest path solution on a sparse matrix
+     wnsp    -- shortest path solution on a sparse matrix
+     wnmst    -- minimum spanning tree on a matrix
+Parsing Utilities
+     wncstr    -- cstream overview
+     wncstl    -- cstream: parsing utilities
+     wncinf
+     wnptok
+     wnscan
+
+     wnwtok    -- write stuff
+     wnwtokp    -- write stuff pretty
+Small Utilities
+     wnabs -- abs, min, max, sign, and nop macros and functions
+     wnmax
+     wnnop
+     wnsqr    -- find square & cube
+     wnswap    -- swap 2 variables
+     wncase    -- upper / lower case utilities
+
+     wncmp    -- small comparison and copy utilities
+     wncpy
+     wneq
+
+     wnstr    -- string operations
+
+     wnasrt    -- assertions package
+
+     wncplx    -- complex numbers
+
+     wnmemb -- byte by byte operations on blocks of memory
+Other
+     wnprm    -- permutation package
+
+     wnanl    -- general simulated annealing package
+
+     wnconj    -- conjugate direction method
+     wnnlp    -- constrained non-linear optimization package
+
+     wnfft    -- discrete fourier transform
+
+     wnio   -- layer on top of system calls, also calls that mimic popular
+     unix commands
+Programs & Scripts
+     unx2doss    -- converts unix-style text files to dos-style
+     excl    -- exclude file names from a list on command line
+     mean    -- give statistics (mean, stddev, etc) on a set of real
+     numbers
+     wnmake1    -- quickly make small programs using wnlib without having
+     to build a makefile (unix only)
+
+     html2text.bash  -- convert a .html file on the command line to an
+     equivalent .txt file.  Gracefully handle case where Linux html2text
+     is not implemented.  (unix only, no doc page).
+

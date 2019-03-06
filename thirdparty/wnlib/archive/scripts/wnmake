@@ -1,0 +1,46 @@
+#!/bin/sh
+
+#	This is really only useful if you are doing development directly
+#   on wnlib code.
+
+#	There is a problem with building wnlib subdirectories with make,
+#   that is, the desired values for the variables CC and ADDCFLAGS, and
+#   sometimes AR and RANLIB may change.  When this happens, you have to
+#   go edit the makefile in acc, and do a 'make all' from there.
+#   acc/makefile then calls make on all the submakefiles, passing in
+#   CC=$(CC) ADDCFLAGS=$(ADDCFLAGS) AR=$(AR) RANLIB=$(RANLIB) so that
+#   all the subdirectories build with the same values of those 4 variables.
+#	The problem comes when you go to do work on individual directories
+#   and want to rebuild them individually.  You have to then edit the
+#   makefile of that directory to have the $(CC) you want, but nobody
+#   ever edits them back, so they all wind up being inconsistent with
+#   each other, which doesn't work (right now, wnlib either all has to be
+#   compiled as C or all as C++).
+#	Now, with wnmake, it's simple.  Just use "wnmake" whereever you
+#   would use "make" with the same args, and it will set those variables
+#   on the command line for you.  If you want to change compilers, it's
+#   no longer necessary to edit any makefiles at all, just set the
+#   environment variable WNMAKE_CC to what you want it to be.  If you
+#   don't have any of the environment variables set, that's OK, because
+#   they will just default to something reasonable until you set them.
+
+if [ "T$WNLIB" = T ] ; then
+  if [ "T$wnlib" != T ] ; then
+    WNLIB=$wnlib
+    export WNLIB
+  else
+    echo $0: you must define '$'WNLIB to the wnlib root directory
+    exit 1
+  fi
+fi
+
+. $WNLIB/command/wnmake_flags
+
+#   the main purpose of WNMAKE_DIR is just to show up on the trace so we
+# know what directory we're in
+
+echo ======================================= $WNMAKE_DIR
+set -x
+$WNMAKE_MAKE CC="$WNMAKE_CC" ADDCFLAGS="$WNMAKE_ADDCFLAGS" \
+		TARGET_ARCH="$WNMAKE_TARGET_ARCH" \
+		AR="$WNMAKE_AR" RANLIB="$WNMAKE_RANLIB" "$@"

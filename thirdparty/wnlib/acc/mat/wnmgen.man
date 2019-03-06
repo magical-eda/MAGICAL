@@ -1,0 +1,26 @@
+NAME
+     wnmgen -- generate matrix with special values
+
+SYNOPSIS
+     #include "wnmat.h"
+
+     wn_zero_mat(double **mat,int len_i,int len_j)
+
+     wn_identity_matrix(double **mat,int len)
+
+     wn_hilbert_matrix(double **mat,int len)
+
+DESCRIPTION
+     Routines to generate a matrix with special values.  These routines assume
+     memory for the matrix is already allocated.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+
+AUTHOR
+     Will Naylor
+
+
