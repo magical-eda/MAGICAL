@@ -101,6 +101,9 @@ def main(argv):
             elif 'para' in inst.parameters:
                 cell = Resistor(False, inst.name, get_val(inst.parameters['wr']), get_val(inst.parameters['lr']), int(inst.parameters['series']),
                     get_val(inst.parameters['segspace']), inst.attr[1:])
+            else:
+                cell = Resistor(False, inst.name, get_val(inst.parameters['wr']), get_val(inst.parameters['lr']), 1,
+                    0.18, inst.attr[1:])
         else:
             print >> sys.stderr, "instance not supported"
         gdspy.write_gds(path+'gds/'+inst.name+'.gds', [cell], unit=1.0e-6, precision=1.0e-9)
