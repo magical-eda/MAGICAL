@@ -64,10 +64,10 @@ def read_netlist( nl, inst, parent, lnets, of):
             current_instance_count+=1 
             if inst.reference in nmos_set:
                 of.write("Inst\n%d \n%s\n%s\n" % (current_instance_count-1,"NMOS", parent+inst.name))
-                of.write("%s %s\n" % (get_value(inst.parameters['w']), get_value(inst.parameters['l'])))
+                of.write("%s %s %d\n" % (get_value(inst.parameters['w']), get_value(inst.parameters['l']), int(inst.parameters['nf'])))
             elif inst.reference in pmos_set:
                 of.write("Inst\n%d \n%s\n%s\n" % (current_instance_count-1, "PMOS", parent+inst.name))
-                of.write("%s %s\n" % (get_value(inst.parameters['w']), get_value(inst.parameters['l'])))
+                of.write("%s %s %d\n" % (get_value(inst.parameters['w']), get_value(inst.parameters['l']), int(inst.parameters['nf'])))
             for i in range(4):
                 of.write("%d\n" % lnets[i])
             net_con[lnets[0]].append([new_inst.name,'D'])
@@ -79,7 +79,7 @@ def read_netlist( nl, inst, parent, lnets, of):
             current_instance_count+=1;
             if inst.reference in capacitor_set:
                 of.write("Inst\n%d \n%s\n%s\n" % (current_instance_count-1, "CAP", parent+inst.name))
-                of.write("%s\n" % get_value(inst.parameters['w']))
+                of.write("%s %s\n" % (get_value(inst.parameters['w']), get_value(inst.parameters['lr'])))
             elif inst.reference in resistor_set:
                 of.write("Inst\n%d \n%s\n%s\n" % (current_instance_count-1, "RES", parent+inst.name))
                 of.write('%s %s\n' % (get_value(inst.parameters['wr']), get_value(inst.parameters['lr'])))

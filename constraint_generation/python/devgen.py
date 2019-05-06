@@ -99,7 +99,7 @@ def main(argv):
                 cell = Resistor(True, inst.name, get_val(inst.parameters['wr']), get_val(inst.parameters['lr']), int(inst.parameters['series']),
                     get_val(inst.parameters['segspace']), inst.attr[1:])
             elif 'para' in inst.parameters:
-                cell = Resistor(False, inst.name, get_val(inst.parameters['wr']), get_val(inst.parameters['lr']), int(inst.parameters['series']),
+                cell = Resistor(False, inst.name, get_val(inst.parameters['wr']), get_val(inst.parameters['lr']), int(inst.parameters['para']),
                     get_val(inst.parameters['segspace']), inst.attr[1:])
             else:
                 cell = Resistor(False, inst.name, get_val(inst.parameters['wr']), get_val(inst.parameters['lr']), 1,
