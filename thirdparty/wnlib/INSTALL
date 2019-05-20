@@ -1,0 +1,147 @@
+
+                    HOW TO INSTALL WNLIB
+                    ====================
+
+LEGAL:
+
+  BY DOWNLOADING OR COMPILING THIS LIBRARY, YOU ACCEPT AND AGREE TO THE TERMS 
+  AND CONDITIONS PRINTED BELOW.  IF YOU DO NOT AGREE, DO NOT DOWNLOAD OR 
+  COMPILE THIS LIBRARY.
+
+  The author provides this C code in the hope
+  that it will be helpful, however, we assume no responsibility 
+  for the use of this code, nor any responsibility for its support.
+  The software is distributed on an "AS IS" basis, without warranty.
+  Neither the authors nor the software developers
+  make any representation, or warranty, either express or implied, with
+  respect to the software programs and subroutines, their quality, accuracy, 
+  or fitness for a specific purpose.  Therefore, neither the authors nor the 
+  software developers shall have any liability to 
+  you or any other person or entity with respect to any liability, loss, 
+  or damage caused or alleged to have been caused directly or indirectly by 
+  the programs and subroutines contained in this library.  This includes, but 
+  is not limited to, interruption of service, loss of data, loss of classroom 
+  time, loss of consulting or anticipatory profits, or consequential damages 
+  from the use of these programs.  
+
+
+COPYRIGHT NOTICE:
+
+  The source code in this directory and all its subdirectories is
+  provided free of charge to anyone who wants it.  It is in the public
+  domain and therefore may be used by anybody for any purpose.  It
+  is provided "AS IS" with no warranty of any kind
+  whatsoever.  For further details see the README files in
+  the wnlib parent directory.
+
+  This copyright notice and the above legal notice may not be removed.
+
+
+FEATURES:
+
+  WNLIB is an ANSI C subroutine library that contains numerous tools that
+  we have found to be useful in our programming practices.
+
+
+AUTHORS:
+
+  Will Naylor
+    email: 
+      pub@willnaylor.com
+    web: 
+      http://www.willnaylor.com
+
+  Bill Chapman
+    email: 
+      WNLIB@CCJJ.INFO
+
+
+DOWNLOADING and INSTALLATION:
+
+1)  Create a directory called "wnlib" wherever you want this code to
+    reside and go into it.  Type
+
+      $ cd <directory where wnlib is to reside>
+      $ mkdir wnlib
+      $ cd wnlib
+
+2)  Download the gzip file wnlib.tar.gz into the wnlib directory
+    from the website www.willnaylor.com/wnlib.html
+
+3)  Decompress the downloaded file
+
+      $ gunzip wnlib.tar.gz
+
+    'gunzip' can be obtained from www.gzip.org or www.gnu.org
+
+4)  Untar the file
+
+      $ tar xvf wnlib.tar
+
+5)  Build the code.  Type
+
+      $ make all
+
+    from the wnlib directory.
+
+    If this fails, it may be necessary to modify variables in acc/makefile
+    to fit the platform you are running on.  Be sure your makefiles should
+    by default be using the -I switch of cc (or equivalent) to include the
+    .h files.
+
+6)  When you believe you have compiled correctly, type
+
+      $ make selftest
+
+    to run the self-testing diagnostics.  If selftest runs successfully
+    to completion with no error messages, you have successfully installed
+    wnlib.
+
+7)  Extensive man pages, over 70 of them, are to be found in doc/man once
+    you have built.  The script "wnman" in the directory "command" is a
+    convenient way to view these man pages.  To set it up, do the following
+
+    a)	copy or link wnman into your $PATH somewhere
+
+    b)	set the environment variable $EDITOR to your favorite editor (usually
+	vi or emacs), and the environment variable WNLIB to your wnlib
+	directory.
+	    For example, in bash and sh, add the lines to your login
+	startup file
+
+		EDITOR=emacs
+		export EDITOR
+		WNLIB=<path to wnlib directory>
+		export WNLIB
+
+	or in csh, add
+
+		setenv EDITOR=emacs
+		setenv WNLIB=<path to wnlib directory>
+
+    wnman will work similarly to the "man" command when invoked from the
+    shell.  Unfortunately, the man pages are not integrated well with the
+    emacs "manual-entry" command.  If the wnman command is called from
+    an emacs shell, it will just output the full name of the file for you
+    to cut and paste to open the file.
+
+    Type "wnman <page_name>" to view a man page.  The command
+    "wnman -k <keyword>" does a keyword search on all the wnlib man pages.
+
+
+----------------------------------------------------------------
+
+USE:
+
+A)  Summary: After building,
+
+    ARCHIVE is at:              wnlib/acc/text.a
+    H FILES are at:             wnlib/acc/h/*.h
+    MAN PAGES are at:           wnlib/doc/man/*.man
+      main html man page:	wnlib/doc/mantext/main_man.html
+
+B)  Under wnlib, after building, the directory "acc" contains the archive
+    file to link to.  The directory acc/h contains links to all of the
+    .h files.  See the makefile's in the acc subdirectories building
+    selftests and examples for examples of linking text.a files and
+    including .h files.

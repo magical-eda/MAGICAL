@@ -1,0 +1,26 @@
+NAME
+     wnmtrn -- transpose matrix
+
+SYNOPSIS
+     #include "wnmat.h"
+
+     wn_transpose_mat(mat,len_i,len_j)
+     double **mat;
+     int len_i,len_j;
+
+DESCRIPTION
+     Routine to transpose a matrix.
+
+     "len_i" and "len_j" refer to "mat".
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnmmlt
+
+AUTHOR
+     Will Naylor
+
+

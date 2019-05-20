@@ -1,0 +1,38 @@
+This directory contains the MATLAB interface to CSDP.  There are three
+MATLAB functions:
+ 
+  csdp              Solve a problem in SeDuMi format.
+  writesdpa         Takes a problem in SeDuMi format and outputs it
+                    to a file in SDPA sparse format.
+  readsol           Reads a CSDP solution into the workspace in SeDuMi form.
+  convertf          Converts free variables in a SeDuMi problem into the
+                    differences of nonnegative variables, so that the problem
+                    can be solved by CSDP.
+
+Note that these .m files must be in your MATLAB search path, and that
+the csdp executable must be in your shell's search path for this
+interface to work.
+
+To add the .m files to the MATLAB path, see the path function in MATLAB. 
+It can be used to show the current path and add new directories to the 
+current path. 
+
+Once you've installed CSDP and the MATLAB interface routines, you can test
+them with
+
+>> load control1.mat
+>> whos
+>> pars.objtol=1.0e-9;
+>> [x,y,z,info]=csdp(At,b,c,K,pars);
+>> info
+ 
+The file control1.correct shows correct output from these commands.  Your
+results should be similar, although there are likely to be slight differences
+in the actual values.  
+
+For help with using the routines, see
+
+>> help csdp
+>> help writesdpa
+>> help readsol
+>> help convertf

@@ -1,0 +1,59 @@
+NAME
+     wnmnrm -- vector norm, unit vector
+
+SYNOPSIS
+     #include "wnmat.h"
+
+
+     wn_norm_squared_vector(&result,vect)
+     double result;
+     wn_vector vect;
+
+     wn_norm_squared_raw_vector(&result,raw_vect,len_i)
+     double result;
+     double *raw_vect;
+     int len_i;
+
+
+     wn_norm_vector(&result,vect)
+     double result;
+     wn_vector vect;
+
+     wn_norm_raw_vector(&result,raw_vect,len_i)
+     double result;
+     double *raw_vect;
+     int len_i;
+
+
+     wn_unit_vector(&result_vect,vect)
+     wn_vector result_vect,vect;
+
+     wn_unit_raw_vector(result_raw_vect,raw_vect,len_i)
+     double *result_raw_vect,*raw_vect;
+     int len_i;
+
+DESCRIPTION
+     Routines to compute vector norm, find unit vector.
+
+     "wn_norm_vector" and "wn_norm_raw_vector" compute the
+     euclidean norms of their inputs.
+
+     "wn_norm_squared_vector" and "wn_norm_squared_raw_vector" compute
+     the euclidean norms squared of their inputs.
+
+     "wn_unit_vector" and "wn_unit_raw_vector" compute norm=1 vectors
+     with the same direction as their inputs.
+
+DIAGNOSTICS
+  
+BUGS
+     "wn_unit_vector" and "wn_unit_raw_vector" crash if handed 
+       norm=0 vectors.
+
+SEE ALSO
+     wnmmlt
+
+AUTHOR
+     Will Naylor
+
+

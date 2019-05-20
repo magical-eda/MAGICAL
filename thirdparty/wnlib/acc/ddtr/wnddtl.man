@@ -1,0 +1,35 @@
+NAME
+     wnddtl -- create dd tree for common kinds of keys
+
+SYNOPSIS
+     #include "wnddtl.h"
+
+     wn_mkintddtree(&tree,num_dimensions)
+     wn_ddtree tree;
+     int num_dimensions;
+
+     wn_mkdoubleddtree(&tree,num_dimensions)
+     wn_btree tree;
+     int num_dimensions;
+
+DESCRIPTION
+     "wn_mkdoublebtree" allocates a dd tree indexed by double keys.
+     A "double" is a long floating-point number.
+
+     It should be noted that when working with this package in the
+     integer case, "key" is a pointer to a vector of ints.  With
+     doubles, "key" is a pointer to a vector of POINTERS TO doubles.
+
+DIAGNOSTICS
+
+BUGS
+     There was a "wn_mkintddtree", but it doesn't work on 64 bit platforms,
+     it is deprecated and may be discontinued and we advise against your
+     using it.
+
+SEE ALSO
+     wnddtr
+
+AUTHOR
+     Will Naylor
+

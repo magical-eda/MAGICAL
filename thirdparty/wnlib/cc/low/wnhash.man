@@ -1,0 +1,105 @@
+NAME
+     wnhash -- hash functions for common keys
+
+SYNOPSIS
+     int wn_strhash(s)
+     char s[];
+
+     int wn_ptrhash(p)
+     ptr p;
+
+     int wn_inthash(i)
+     int i;
+
+     int wn_blkhash(b,len)
+     ptr b;
+     int len;
+
+     wn_cumhasho(&accum,hash)
+     int accum,hash;
+
+     wn_cumhashu(&accum,hash)
+     int accum,hash;
+
+DESCRIPTION
+     A "hash function" returns a pseudo-random integer which depends 
+     on a "key" argument.  The hash functions provided here are very
+     fast and produce very random looking results.
+
+     "wn_strhash" hashes a string.
+
+     "wn_ptrhash" hashes a pointer.
+
+     "wn_inthash" hashes an int.
+
+     "wn_blkhash" hashes a memory block of size "len".  One can use it to hash
+     structures.  
+
+     The above functions can be assembled to produce hash functions
+     for more complicated data structures, possibly using 
+     "wn_cumhasho" and "wn_cumhashu" as glue.  
+
+     "wn_cumhasho" is designed to produce a joint hash value from several
+     base hash values.  The base hash values are passed in "hash";
+     the result is accumulated in "accum".  The resulting hash value
+     DEPENDS very heavily on the ORDER of accumulation.
+
+     "wn_cumhashu" is designed to produce a joint hash value from several
+     base hash values.  The base hash values are passed in "hash";
+     the result is accumulated in "accum".  The resulting hash value
+     does NOT DEPEND on the ORDER of accumulation.
+
+     If you are hashing together objects of different types, use for glue
+     the C bit exclusive-or operator "^" instead of the above functions.
+
+EXAMPLES
+     The following function produces a hash value for a list of strings.
+     The result depends very heavily on the order of the list.
+
+       int string_list_hash(list)
+       wn_sll list;
+       {
+         wn_sll el;
+         int hash;
+         char *string;
+  
+         hash = 0;
+  
+         for(wn_loopinit(),el = list;wn_sllloop(&el,&string);)
+         {
+           wn_cumhasho(&hash,wn_strhash(string));
+         }
+  
+         return(hash);
+       }
+
+     The following function produces a hash value for a set of strings.
+     The result does not depend on the order in which the hash calls happen
+     to occur.
+
+       int string_set_hash(s)
+       wn_set s;
+       {
+         int hash;
+         char *string;
+  
+         hash = 0;
+  
+         for(wn_loopinit();wn_setloop(s,&string);)
+         {
+           wn_cumhashu(&hash,wn_strhash(string));
+         }
+  
+         return(hash);
+       }
+  
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnhtab, wnhtbl
+
+AUTHOR
+     Will Naylor
+

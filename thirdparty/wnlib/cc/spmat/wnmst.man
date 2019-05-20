@@ -1,0 +1,75 @@
+NAME
+     wnmst -- minimum spanning tree problem
+
+SYNOPSIS
+     #include "wnsmat.h"
+
+     wn_min_spanning_tree(&code,&len,&result,mat)
+     int code;
+     double len;
+     wn_sparse_matrix result,mat;
+
+DESCRIPTION
+     This package solves the "minimum spanning tree" problem easily and
+     efficiently using Kruskal's algorithm [1].  "mat" is treated
+     as an UNDIRECTED GRAPH; thus it must be square.  The smaller
+     of mat[i][j] and mat[j][i] is used as the edge length; negative
+     edge lengths are allowed.  "len" is set to the total length of
+     the solution.
+
+     The minimum spanning tree problem is the following 
+     optimization problem:
+
+         CHOOSE result TO MINIMIZE
+
+             sum of the weights of the edges of "result"
+
+         WHILE SATISFYING THE CONSTRAINTS
+
+             1)  "result" is a sub-graph of "mat".
+
+             2)  "result" includes all nodes of "mat".
+
+             3)  "result" is a connected graph.
+
+     If "mat" is not a connected graph, minimum spanning trees for all
+     of the connected subgraphs are found, and the sum of their lengths
+     placed in "len".  These minimum spanning trees are placed in "result".
+     "code" is set to WN_INFEASIBLE.
+
+     Difficult optimization problems from many fields can be put into
+     this form, and thus solved efficiently with this package.  
+
+     For an introduction to the minimum spanning tree problem, consult
+     [1]. 
+
+RESOURCES
+     Solving a minimum spanning tree problem requires
+
+       WORST and AVERAGE CASE:
+
+         time = e*log(e)
+         stack memory = 1
+         dynamic memory = e
+
+      where e is the number of matrix entries.
+
+DIAGNOSTICS
+     code == WN_SUCCESS  for successful solution.
+     code == WN_INFEASIBLE if "mat" is an unconnected graph.
+
+     len_i != len_j causes a crash.
+
+BUGS
+
+SEE ALSO
+     wnsplx, wnsp, wntrn
+
+REFERENCES
+     [1]  A. Aho, J. Hopcroft, and J. Ullman:  Data Stuctures and 
+               Algorithms.  Addison-Wesley Publishing.
+
+AUTHOR
+     Will Naylor
+
+

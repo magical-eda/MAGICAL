@@ -1,0 +1,62 @@
+NAME
+     wnrndd -- random distribution
+
+SYNOPSIS
+     bool wn_true_with_probability(prob)
+     double prob;
+
+     int wn_random_int_between(low,high)
+     int low,high;
+
+     double wn_random_double_between(low,high)
+     double low,high;
+
+     double wn_flat_distribution()
+
+     double wn_normal_distribution()
+
+     double wn_exponential_distribution()
+
+     int wn_poisson_distribution(mean)
+     double mean;
+
+DESCRIPTION
+     These routines generate random numbers with various probability
+     distributions, using wnrnd.
+
+     "wn_true_with_probability" returns (randomly) TRUE with probability "prob"
+     and FALSE with probability 1-prob.
+
+     "wn_random_int_between" returns a randomly chosen integer in the
+     range [low,high).  "low" is in the range; "high" is not.
+
+     "wn_random_double_between" returns a randomly chosen double in the
+     range (low,high).  It will never return "low" or "high".
+
+     "wn_flat_distribution" is equivalent to 
+     "wn_random_double_between(0.0,1,0)".
+
+     "wn_normal_distribution" returns a double randomly chosen according
+     to a normal (gaussian) probability density with mean = 0 and
+     standard deviation = 1.
+
+     "wn_exponential_distribution" returns a double randomly chosen according
+     to an exponential probability density with mean = 1.  An exponential
+     probability density function has values 
+
+       p(x) = exp(-x)    for all x >= 0
+
+       p(x) = 0          for all x <  0
+
+     "wn_poisson_distribution" returns an integer randomly chosen according
+     to a Poisson distribution with mean "mean".
+
+BUGS
+
+SEE ALSO
+     wnrnd
+
+AUTHOR
+     Will Naylor
+
+

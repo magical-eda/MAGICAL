@@ -1,0 +1,127 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+
+#include "wnlib.h"
+#include "wnasrt.h"
+#include "wnmem.h"
+
+#include "wnconj.h"
+
+
+#define NUM_VARS  5
+#define NUM_DATA 33
+
+
+local int grad_count,func_count;
+
+local double data[] = 
+{
+  0.844e0,0.908e0,0.932e0,0.936e0,0.925e0,0.908e0,
+  0.881e0,0.850e0,0.818e0,0.784e0,0.751e0,0.718e0,
+  0.685e0,0.658e0,0.628e0,0.603e0,0.580e0,0.558e0,
+  0.538e0,0.522e0,0.506e0,0.490e0,0.478e0,0.467e0,
+  0.457e0,0.448e0,0.438e0,0.431e0,0.424e0,0.420e0,
+  0.414e0,0.411e0,0.406e0
+};
+
+
+local void dfit(double grad[5],double t,double x[5])
+{
+  grad[0] = 1.0;
+  grad[1] = exp(-x[3]*t);
+  grad[2] = exp(-x[4]*t);
+  grad[3] = -x[1]*t*grad[1];
+  grad[4] = -x[2]*t*grad[2];
+}
+
+
+local double fit(double t,double x[5])
+{
+  return(x[0] + x[1]*exp(-x[3]*t) + x[2]*exp(-x[4]*t));
+}
+
+
+local void gradient(double grad[],double vect[])
+{
+  int i,j;
+  double diff;
+  double fit_grad[5];
+
+  printf("gradient.  count = %d\n",grad_count);
+  ++grad_count;
+
+  wn_zero_vect(grad,5);
+
+  for(i=0;i<NUM_DATA;++i)
+  {
+    diff = data[i] - fit(10.0*i,vect);
+    dfit(fit_grad,10.0*i,vect); 
+
+    for(j=0;j<5;++j)
+    {
+      grad[j] += 2.0*diff*fit_grad[j];
+    }
+  }
+}
+
+
+/*
+*/
+local double function(double vect[])
+{
+  int i;
+  double sum,diff;
+
+  sum = 0.0;
+
+  for(i=0;i<NUM_DATA;++i)
+  {
+    diff = data[i] - fit(10.0*i,vect);
+    sum += diff*diff;
+  }
+
+  printf("ob = %20.20lg,func_count = %d\n",sum,func_count);
+  ++func_count;
+
+  return(sum);
+}
+
+
+void main(void)
+{
+  double vect[5],delta_vect[5];
+  int code;
+  double val_min;
+
+  /*
+  wn_gpmake("no_free");
+  */
+
+  grad_count = func_count = 0;
+
+  vect[0] = 0.5;
+  vect[1] = 1.5;
+  vect[2] = -1.0;
+  vect[3] = 0.01;
+  vect[4] = 0.02;
+
+  delta_vect[0] = 0.001;
+  delta_vect[1] = 0.001;
+  delta_vect[2] = 0.001;
+  delta_vect[3] = 0.001;
+  delta_vect[4] = 0.001;
+
+  /*
+  wn_conj_direction_method(&code,&val_min,vect,NUM_VARS,(function),WN_IHUGE);
+  wn_conj_gradient_diff_method(&code,&val_min,vect,delta_vect,NUM_VARS,(function),WN_IHUGE);
+  */
+  wn_conj_gradient_method(&code,&val_min,vect,NUM_VARS,(function),(gradient),WN_IHUGE);
+
+  printf("code = %d\n",code);
+  printf("objective = %20.20lg\n",val_min);
+  val_min = function(vect);
+  printf("actual objective = %20.20lg\n",val_min);
+  wn_print_vect(vect,NUM_VARS);
+  printf("grad_count = %d,func_count = %d\n",grad_count,func_count);
+}

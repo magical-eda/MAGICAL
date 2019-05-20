@@ -1,0 +1,5 @@
+test/test_reader
+test/test_writer
+test/test_driver
+test/valgrind.*
+test/test_writer2.gds

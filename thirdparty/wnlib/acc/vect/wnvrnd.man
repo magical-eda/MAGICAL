@@ -1,0 +1,22 @@
+NAME
+     wnvrnd -- random vector generator
+
+SYNOPSIS
+     #include "wnvect.h"
+
+     wn_random_vect(double vect[],int len)
+
+DESCRIPTION
+     Generate random vector.  Each element chosen according to
+     standard normal distribution, with mean=0, sdev=1.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+
+AUTHOR
+     Will Naylor
+
+

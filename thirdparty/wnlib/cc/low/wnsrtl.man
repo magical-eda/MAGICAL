@@ -1,0 +1,61 @@
+NAME
+     wnsrtl -- comparison functions for sorting and sorted trees.
+
+SYNOPSIS
+     int wn_intcmp(i1,i2)
+     int i1,i2;
+
+     int wn_ptrcmp(p1,p2)
+     ptr p1,p2;
+
+     int wn_ptrNULLcmp(&success,p1,p2)
+     bool success;
+     ptr p1,p2;
+
+     int wn_boolcmp(b1,b2)
+     bool b1,b2;
+
+     int wn_doublecmp(d1,d2)
+     double d1,d2;
+
+     int wn_pdoublecmp(pd1,pd2)
+     double *pd1,*pd2;
+
+     int wn_strcmp(s1,s2)
+     char s1[],s2[];
+
+     int wn_numstrcmp(s1,s2)
+     char s1[],s2[];
+
+     int wn_blkcmp(b1,l1,b2,l2)
+     ptr b1,b2;
+     int l1,l2;
+
+DESCRIPTION
+     These routines are designed to assist in sorting (see wnsort) and in
+     building sorted trees (see wnbtr).  They return an int
+     >, ==, or < than zero, according to whether arg 1 is >, ==, or <
+     than arg 2.
+
+     "wn_numstrcmp" compares strings "s1" that "s2" so that the intuitively
+     correct notion of numerical order is respected.  Thus, the
+     string "var9" is < "var10", according to "wn_numstrcmp".
+     Similarly, "var99" < "var100", "x99y" < "x200y", etc.
+
+     "wn_ptrNULLcmp" sets "success" to TRUE iff "p1" or "p2" is NULL.
+     If "p1" and "p2" are NULL, it returns 0.  If "p1" is NULL but
+     "p2" is not NULL, it returns a number < 0.  If "p1" is not NULL but
+     "p2" is NULL, it returns a number > 0.  This function is useful for
+     constructing complicated linked structure compares where it is possible
+     for some pointers to be NULL.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnsort, wnbtr, wnbtrl, wnhtbl, wncpy
+
+AUTHOR
+     Will Naylor
+

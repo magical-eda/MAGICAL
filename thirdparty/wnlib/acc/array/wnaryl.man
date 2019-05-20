@@ -1,0 +1,33 @@
+NAME
+     wnaryl -- dynamic arrays of common types
+
+SYNOPSIS
+     #include "wnaryl.h"
+
+     typedef struct wn_int_array_type_struct *wn_int_array_type;
+     struct wn_int_array_type_struct
+     {
+       int usedsize;
+       int memsize;
+       int *array;
+     };
+
+     void wn_make_int_array(wn_int_array_type *parray);
+
+     void wn_initialize_int_array(wn_int_array_type array);
+
+
+DESCRIPTION
+     This package helps manage dynamic arrays. 
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnary
+
+AUTHOR
+     Will Naylor
+
+

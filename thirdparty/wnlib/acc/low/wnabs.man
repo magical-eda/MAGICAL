@@ -1,0 +1,26 @@
+NAME
+     wnabs -- find absolute value, sign
+
+SYNOPSIS
+     #include "wnabs.h"
+
+     wn_abs(x)
+
+     wn_sign(x)
+
+DESCRIPTION
+     "wn_abs" is a macro which returns the absolute value of "x".
+     "x" may be of any type for which the C "<" operator is defined.
+
+     "wn_sign" returns -1, 0, or 1 according to whether x is <, ==, or > 
+     zero.  "x" may be of any type for which the C "<" operator is defined.
+
+BUGS
+
+SEE ALSO
+     wnmax, wnint, wnrnzsgn
+
+AUTHOR
+     Will Naylor
+
+

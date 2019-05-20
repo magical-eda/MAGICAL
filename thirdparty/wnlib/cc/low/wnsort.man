@@ -1,0 +1,120 @@
+NAME
+     wnsort -- sorting package
+
+SYNOPSIS
+     wn_sort_sll(&list,pcompare_func)
+     wn_sll list;
+     int (*pcompare_func)(/*p1,p2*/);   /* ptr p1,p2; */
+
+     wn_sort_ptrarray(array,size,pcompare_func)
+     ptr array[];
+     int size;
+     int (*pcompare_func)(/*p1,p2*/);   /* ptr p1,p2; */
+
+DESCRIPTION
+     "wn_sort_sll" sorts a singly linked list into ascending order,
+     using a "merge sort" algorithm.  (*pcompare_func)()
+     compares contents fields of 2 wn_sll's and returns
+     an int < == or > to 0, according to whether object
+     "p1" is < == or > to "p2".
+
+     "wn_sort_ptrarray" sorts (in place) "array" into ascending order,
+     using a "quick sort" algorithm.
+     "size" is the number of entries in "array".  (*pcompare_func)()
+     compares 2 array entries and returns an int < == or > to 0, according
+     to whether object "p1" is < == or > to "p2".  Note that 
+     "wn_sort_ptrarray" understands only pointers to structs, unlike qsort(3),
+     which can manipulate an array of structs directly. 
+
+     I recommend use of "wn_sort_sll" rather than "wn_sort_ptrarray"
+     because lists are generally simpler and more flexible than arrays.
+     See "wnrsrt" for a radix list sort; this is often much faster
+     than "wn_sort_sll" or "wn_sort_ptrarray".
+
+     If you must use an array-based sort, I recommend use of 
+     "wn_sort_ptrarray" rather than "qsort(3)" for the following reasons:
+
+       1)  "wn_sort_ptrarray" has no degenerate cases, unlike qsort(3).  If
+           qsort(3) is passed sorted or almost sorted data or
+           data with many of the keys equal, it degenerates into a
+           time=n^2 algorithm.
+
+       2)  "wn_sort_ptrarray" is faster for non-degenerate data for several
+           reasons.
+
+       3)  "wn_sort_ptrarray" is easier to understand.
+
+EXAMPLES
+     Both of the following subroutines
+
+       example1()     /* list sort */
+       {
+         extern int wn_strcmp();
+         wn_sll list,el;
+         char *string;
+
+         list = NULL;
+
+         wn_sllins(&list,"foo");
+         wn_sllins(&list,"bar");
+         wn_sllins(&list,"tim");
+         wn_sllins(&list,"mouse");
+         wn_sllins(&list,"ant");
+         wn_sllins(&list,"turkey");
+  
+         wn_sort_sll(&list,(wn_strcmp));
+  
+         for(el=list,wn_loopinit();wn_sllloop(&el,&string);)
+         {
+           printf("%s\n",string);
+         }
+       }
+
+       example2()     /* array sort */
+       {
+         extern int wn_strcmp();
+         char *array[] = {"foo","bar","tim","mouse","ant","turkey"};
+         int i;
+  
+         wn_sort_ptrarray((ptr *)array,6,(wn_strcmp));
+  
+         for(i=0;i<6;i++)
+         {
+           printf("%s\n",array[i]);
+         }
+       }
+
+     print the sorted strings 
+
+       ant
+       bar
+       foo
+       mouse
+       tim
+       turkey
+
+RESOURCES
+     Both of these routines run with
+
+       WORST and AVERAGE CASE:
+
+         time = n*log(n)*<time for compare>
+         stack memory = log(n)
+         dynamic memory = 0
+
+     where n is the number of items to sort. 
+
+     See "wnrsrt" for a radix list sort; this is often much faster
+     than "wn_sort_sll" or "wn_sort_ptrarray".
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnsrtl, wnrsrt, qsort(3), wnsll, wnrndp
+
+AUTHOR
+     Will Naylor
+
+

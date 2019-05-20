@@ -1,0 +1,112 @@
+NAME
+     wnargp -- parse UNIX-style arguments
+
+SYNOPSIS
+     #include "wnargp.h"
+
+     wn_parse_args(argc,argv,arg_format_array)
+     int argc;
+     char *argv[];
+     wn_arg_format arg_format_array[];
+
+     wn_push_parse_args_error_print(ppassed_print_error)
+     void (*ppassed_print_error)(/* string */);
+
+     wn_pop_parse_args_error_print()
+
+DESCRIPTION
+     This package allows one to easily parse argc-argv arguments in
+     the standard UNIX way.
+
+     "wn_parse_args" parses "argv" according to the format specified
+     in "arg_format_array".  "argv" has "argc" arguments. 
+     The following types of arguments are recognized:
+
+       1)  Keyword boolean.  The presence or absence of a flag controls
+           a boolean variable in your C program.  A "flag" is any string
+           immediately preceded by a '-' character.  Specify a keyword boolean 
+           by placing a WN_KEY_BOOL call in your format array.
+           Position in the argument list is ignored.  
+
+       2)  Keyword string.  A keyword string is a flag followed by
+           a string argument.  If this argument is present, a variable
+           in your program is set to the value of the string argument.
+           Position in the argument list is ignored.  Specify a
+           keyword string by placing a WN_KEY_STRING call
+           in your format array.
+
+       3)  Positional string.  A positional string is a string argment
+           with no associated flag.  Its meaning depends on its position
+           relative to other positional strings.  If this argument is
+           present, a variable in your program is set to the value of the
+           string argument.  Specify a keyword boolean flag by placing 
+           a WN_POS_STRING call in your format array.  The order
+           in which WN_POS_STRING calls appear in the format array
+           determine the order the positional string arguments are
+           expected in the argument list.
+
+     Key strings or positional strings may be optional or required.
+     Not including a required argument is an argument syntax error.
+
+     All argument syntax errors (that is, the user types in the wrong
+     arguments to a command) cause a standard UNIX command usage 
+     message to be printed.  By default, the message goes to 
+     standard error and the program exits.  This may be changed 
+     by pushing a different print routine using 
+     "wn_push_parse_args_error_print" and "wn_pop_parse_args_error_print".
+
+EXAMPLES
+     Consider the code fragment below.
+
+       #include "wnargp.h"
+
+       bool recover;
+       char *control_filename,*error_filename,*in_filename,*out_filename;
+       int si;
+       unsigned su;
+       double d;
+
+       main(argc,argv)
+       int argc;
+       char *argv[];
+       {
+         static wn_arg_format arg_format_array[] =
+         {
+           WN_KEY_BOOL(&recover,"r"),
+           WN_KEY_STRING(&control_filename,"g","control_file",WN_REQUIRED),
+           WN_KEY_STRING(&error_filename,"log","error_file",WN_OPTIONAL),
+	   WN_KEY_INT(&si, "si", "credits", WN_OPTIONAL),
+	   WN_KEY_UNSIGNED(&su, "u", "planets", WN_OPTIONAL),
+	   WN_KEY_DOUBLE(&d, "d", "temperatue", WN_OPTIONAL),
+           WN_POS_STRING(&in_filename,"in_file",WN_REQUIRED),
+           WN_POS_STRING(&out_filename,"out_file",WN_OPTIONAL),
+           WN_ARG_TERMINATE
+         };
+  
+         error_filename = "dastoinf.log";  /* defaults */
+         in_filename = "net.inf";
+
+	 /* note booleans are always nulled out, not allowed to default */
+
+         wn_parse_args(argc,argv,arg_format_array);
+
+         ...
+       }
+  
+     Note only optional, non-boolean arguments can be assigned default values,
+     all others get nulled out by wn_parse_args.
+
+     Typing bad arguments produces the message:
+
+       usage: command [-r] -g control_file [-log error_file] [-si credits]
+			[-su planets] [-d temperature] in_file [out_file]
+
+BUGS
+     Note that if there are boolean arguments -a and -b, users cannot
+     combine them into -ab like they can on most Unix commands.
+
+SEE ALSO
+     wnargv
+
+AUTHOR
+     Will Naylor, Bill Chapman

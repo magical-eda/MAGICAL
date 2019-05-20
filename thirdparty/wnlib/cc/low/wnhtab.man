@@ -1,0 +1,134 @@
+NAME
+     wnhtab -- generic hash table package
+
+SYNOPSIS
+     #include "wnlib.h"
+
+     wn_mkhtab(&table,phash_func,pkeys_eq_func,palloc_copy_func,pfree_func)
+     wn_htab table;
+     int (*phash_func)(/*key*/);               /* ptr key; */
+     bool (*pkeys_eq_func)(/*key1,key2*/);     /* ptr key1,key2; */
+     void (*palloc_copy_func)(/*pkey,key*/);   /* ptr *pkey,key */
+     void (*pfree_func)(/*key*/);              /* ptr key; */
+
+     wn_freehtab(table)
+     wn_htab table;
+
+     bool wn_hget(&data,table,key)
+     ptr data;
+     wn_htab table;
+     ptr key;
+
+     bool wn_hins(data,table,key)
+     ptr data;
+     wn_htab table;
+     ptr key;
+
+     bool wn_hfins(data,table,key)
+     ptr data;
+     wn_htab table;
+     ptr key;
+
+     bool wn_hdel(table,key)
+     wn_htab table;
+     ptr key;
+
+     int wn_hcount(table)
+     wn_htab table;
+
+     wn_hact(table,paction)
+     wn_htab table;
+     void (*paction)(/*data,key*/);  /* ptr data,key; */
+
+DESCRIPTION
+     A "hash table" allows one to associate data with a key,
+     and later quickly search for the key in the table and retrieve
+     the data.  This package allows one to easily produce an 
+     efficient hash table for any kind of key.  
+     This hash table is a variable-sized hash table, which grows and
+     shrinks with the number of entries, in a manner that is efficient
+     in both time and memory.  The type
+     "wn_htab" is the generic hash table type.  This package 
+     provides routines to efficiently create, insert into,
+     search, and delete from these generic hash tables. 
+
+     "wn_mkhtab" allocates a "wn_htab" from the current memory group.
+     All memory allocations and frees triggered by other hash table calls
+     will use the same memory group as "wn_mkhtab".  The function
+     arguments tell "wn_mkhtab" what kind of hash table to make.
+     "phash_func" returns an integer which is the hash of its argument.
+     All bits of the integer are used and must appear nearly random.
+     "pkeys_eq_func" returns TRUE iff its key arguments are equal.
+     "palloc_copy_func" is used by the hash code to make a private
+     copy of the hash key when an insert is done.  
+     "pfree_func" frees this private memory when a delete is
+     done.  "pfree_func" is frequently set to a do nothing function.
+
+     Using these arguments to "wn_mkhtab", it is possible to make
+     a hash table for any kind of key.  Routines for frequently
+     used kinds of keys, such as strings and pointers, are provided
+     in "wnhtbl".
+
+     "wn_freehtab" frees "table" into the memory group it was allocated
+     from.
+
+     "wn_hget" gets "data" that is associated with "key" in hash table
+     "table".  "wn_hget" returns TRUE if the search for "key" is successful;
+     FALSE otherwise.
+
+     "wn_hins" makes an entry into "table" which associates "data"
+     with "key".  If an entry indexed by "key" already exists,
+     "wn_hins" returns FALSE and does NOT overwrite the existing
+     entry.  Otherwise, it returns TRUE.
+
+     "wn_hfins" makes an entry into "table" which associates "data"
+     with "key".  If an entry indexed by "key" already exists,
+     "wn_hfins" overwrites the existing entry (the "f" is for "force").
+     "wn_hfins" always returns TRUE.
+
+     "wn_hdel" deletes an entry indexed by "key".  "wn_hdel"
+     returns TRUE iff it finds the entry to delete.
+
+     "wn_hcount" returns the number of entries in "table".
+
+     "wn_hact" calls (*paction)(/*data,key*/) for every entry
+     of the hash table, in no guaranteed order.  
+
+RESOURCES
+     Insert, get, and delete operations run with
+
+       WORST and AVERAGE CASE:
+  
+         time = log(n) + <time to hash> + <time to compare>
+         stack memory = 1
+         dynamic memory = 0
+
+     The above assumes that your hash function is fairly good (that is,
+     it produces fairly random hash values).
+     Although asymtotically these operations take log(n), in practice,
+     they take constant time unless the table is very large.  This
+     hash package is much faster than sorted tree types of approaches
+     such as AVL trees and B-trees.
+
+     The hash table uses memory
+
+       WORST and AVERAGE CASE:
+
+         dynamic memory = n
+
+     In the above, n is the number of entries in the table.
+
+DIAGNOSTICS
+  
+BUGS
+     There is no "wn_hloop" (yet).
+
+SEE ALSO
+     wnhtbl, wnhash, wnbtr, wnset
+
+     cc/low/examples.c
+
+AUTHOR
+     Will Naylor
+
+

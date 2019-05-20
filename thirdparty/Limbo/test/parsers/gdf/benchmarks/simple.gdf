@@ -1,0 +1,96 @@
+(gdif
+ (gdifVersion 1 0 0)
+ (comment Written to s9234_t.gdf)
+ (comment Date: Fri Dec 10 16:17:42 1999)
+ (cell:INST_MASTER_0
+  (port:M0OUT0 (type INOUT)(layer MET1)(pt 3.42 2.16))
+  (path:BBOX
+    (new)(layer LEV)(width 0)(pt 0 0)(pt 0 5.76)
+    (new)(layer LEV)(width 0)(pt 0 5.76)(pt 7.56 5.76)
+    (new)(layer LEV)(width 0)(pt 7.56 5.76)(pt 7.56 0)
+    (new)(layer LEV)(width 0)(pt 7.56 0)(pt 0 0)
+  )
+ )
+ (cell:INST_MASTER_1
+  (port:M1IN0 (type INOUT)(layer MET1)(pt 3.15 0.72))
+  (port:M1OUT1 (type INOUT)(layer MET1)(pt 3.15 1.44))
+  (path:BBOX
+    (new)(layer LEV)(width 0)(pt 0 0)(pt 0 2.16)
+    (new)(layer LEV)(width 0)(pt 0 2.16)(pt 7.56 2.16)
+    (new)(layer LEV)(width 0)(pt 7.56 2.16)(pt 7.56 0)
+    (new)(layer LEV)(width 0)(pt 7.56 0)(pt 0 0)
+  )
+ )
+ (cell:INST_MASTER_2
+  (port:M2IN0 (type INOUT)(layer MET1)(pt 3.69 0.72))
+  (port:M2IN1 (type INOUT)(layer MET1)(pt 3.69 2.16))
+  (port:M2OUT2 (type INOUT)(layer MET1)(pt 3.78 1.44))
+  (path:BBOX
+    (new)(layer LEV)(width 0)(pt 0 0)(pt 0 2.88)
+    (new)(layer LEV)(width 0)(pt 0 2.88)(pt 7.56 2.88)
+    (new)(layer LEV)(width 0)(pt 7.56 2.88)(pt 7.56 0)
+    (new)(layer LEV)(width 0)(pt 7.56 0)(pt 0 0)
+  )
+ )
+ (cell:LATCH_MASTER
+  (port:LATCH_IN0 (type INOUT)(layer MET1)(pt 3.15 0.72))
+  (port:LATCH_OUT1 (type INOUT)(layer MET1)(pt 3.24 9.36))
+  (path:BBOX
+    (new)(layer LEV)(width 0)(pt 0 0)(pt 0 11.43)
+    (new)(layer LEV)(width 0)(pt 0 11.43)(pt 7.56 11.43)
+    (new)(layer LEV)(width 0)(pt 7.56 11.43)(pt 7.56 0)
+    (new)(layer LEV)(width 0)(pt 7.56 0)(pt 0 0)
+  )
+ )
+ (cell:PI_MASTER
+  (port:PI_TERM (type INOUT)(layer MET1)(pt 0.135 0.135))
+  (path:BBOX
+    (new)(layer LEV)(width 0)(pt 0 0)(pt 0 0.27)
+    (new)(layer LEV)(width 0)(pt 0 0.27)(pt 0.27 0.27)
+    (new)(layer LEV)(width 0)(pt 0.27 0.27)(pt 0.27 0)
+    (new)(layer LEV)(width 0)(pt 0.27 0)(pt 0 0)
+  )
+ )
+ (cell:PO_MASTER
+  (port:PO_TERM (type INOUT)(layer MET1)(pt 0.135 0.135))
+  (path:BBOX
+    (new)(layer LEV)(width 0)(pt 0 0)(pt 0 0.27)
+    (new)(layer LEV)(width 0)(pt 0 0.27)(pt 0.27 0.27)
+    (new)(layer LEV)(width 0)(pt 0.27 0.27)(pt 0.27 0)
+    (new)(layer LEV)(width 0)(pt 0.27 0)(pt 0 0)
+  )
+ )
+ (cell:design
+  (port:PI_g89 (type IN)(layer MET1)(pt 400.95 17.887))
+  (port:PO_g2584 (type OUT)(layer MET1)(pt 400.95 110.61))
+  (instance:g678 (cellRef LATCH_MASTER)(pt 280.012 201.15)(orient 0))
+  (instance:g207 (cellRef LATCH_MASTER)(pt 83.452 27.99)(orient 0))
+  (text:number_of_layers "3")
+	(text:wire_spacings "0.36 0.36 0.36")
+	(text:via_spacings "0.36 0.36 0.36")
+	(text:wire_widths "0.36 0.36 0.36")
+	(text:via_widths "0.36 0.36 0.36")
+	(text:vertical_wire_costs "2 1 2 1 2 1")
+	(text:horizontal_wire_costs "1 2 1 2 1 2")
+	(text:via_costs "10 10 10 10 10 10")
+  (path:BBOX
+	(new)(layer LEV)(width 0)(pt -2 -2)(pt -2 223)
+	(new)(layer LEV)(width 0)(pt -2 223)(pt 402 223)
+	(new)(layer LEV)(width 0)(pt 402 223)(pt 402 -2)
+	(new)(layer LEV)(width 0)(pt 402 -2)(pt -2 -2)
+  )
+  (net:n1 
+   (portRef LATCH_OUT1 (instRef g678))
+   (portRef LATCH_IN0 (instRef g207))
+  )
+  (net:n2 
+   (portRef LATCH_IN0 (instRef g678))
+   (portRef PI_g89)
+  )
+  (net:n245 
+   (portRef LATCH_OUT1 (instRef g207))
+   (portRef PO_g2584)
+  )
+ )
+)
+

@@ -1,0 +1,95 @@
+NAME
+     wnflow -- min cost - max flow 
+
+SYNOPSIS
+     #include "wnspmat.h"
+     #include "wnflow.h"
+
+     wn_max_flow(&flow,&cost,&result,
+                 capacity_mat,cost_mat,source_i_index,dest_j_index)
+     double flow,cost;
+     wn_sparse_matrix result;
+     wn_sparse_matrix capacity_mat,cost_mat;
+     int source_i_index,dest_j_index;
+
+DESCRIPTION
+     This package is designed to assist in solving the "min-cost max-flow
+     problem" easily and efficiently.  
+
+     The "max-flow problem" is the following optimization problem:
+
+	CHOOSE result[i][j] TO MAXIMIZE
+
+            sum_over(j){ result[source_i_index][j] } == 
+
+            sum_over(i){ result[i][dest_j_index] } 
+
+	WHILE SATISFYING THE CONSTRAINTS
+
+            for_all(k){ sum_over(i){ result[i][k] } == 
+                        sum_over(j){ result[k][j] } }
+
+	    for_all(i,j){ 0 <= result[i][j] <= capacity_mat[i][j] } 
+
+     The "min-cost max-flow problem" is the above problem with following 
+     additional optimization:
+   
+	CHOOSE result[i][j] TO MINIMIZE
+
+            sum_over(i,j){ result[i][j]*cost_mat[i][j] } 
+
+        while also satisfying the max-flow criteria
+
+     "wn_max_flow" solves the min-cost max-flow problem specified by
+     "capacity_mat", "cost_mat", "source_i_index", "dest_j_index".
+     The value of the maximum flow appears in "flow"; the cost of the flow
+     appears in "cost".
+     "cost_mat" and "capacity_mat" must be square.  capacity_mat[i][j] must
+     be greater than 0.  The costs can be any value, including negative 
+     values.
+
+     The min-cost max-flow problem finds the min-cost maximum-flow through
+     a network of limited capacity edges specified by capacity_mat[i][j].
+     The cost of a unit flow through an edge is given by cost_mat[i][j].
+     If cost_mat[i][j] does not exist, the cost is assumed to be zero.
+     If capacity_mat[i][j] does not exist, the capacity is assumed to be zero.
+
+     If "capacity_mat" is NULL, an uncosted max-flow problem is solved.
+
+RESOURCES
+     "wn_max_flow_problem" runs with  
+
+       WORST CASE
+
+         time = very slow
+	 stack_memory = 1
+	 dynamic_memory = e
+
+       AVERAGE CASE
+
+         time = len*e
+	 stack_memory = 1
+	 dynamic_memory = e
+
+     In the above, "len" is the i and j lengths of "cost_mat" and 
+     "capacity_mat";
+     "e" is the number of entries of "capacity_mat".
+
+DIAGNOSTICS
+     "wn_max_flow" crashes if "capacity_mat" or "cost_mat" is not square
+     or if they are not of the same size, or if "source_i_index or 
+     "dest_j_index" do not address valid nodes in the graph.
+
+BUGS
+     This code is new and has not been tested in large industrial 
+     applications.
+
+SEE ALSO
+     wnsplx
+
+REFERENCES
+
+AUTHOR
+     Will Naylor
+
+

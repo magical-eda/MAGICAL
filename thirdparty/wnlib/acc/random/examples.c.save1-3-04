@@ -1,0 +1,493 @@
+/****************************************************************************
+
+COPYRIGHT NOTICE:
+
+  The source code in this file is provided free of charge
+  to the author's consulting clients.  It is in the
+  public domain and therefore may be used by anybody for
+  any purpose.
+
+AUTHORS:
+
+  Will Naylor, Bill Chapman
+
+****************************************************************************/
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+
+#include "wnlib.h"
+#include "wnasrt.h"
+#include "wnrnd.h"
+
+#include "wnrndt.h"
+#include "wnrndd.h"
+
+
+#if 1
+int main(void)
+{
+  int i,num_iter;
+  int bit,last_bit;
+  int sum1,sum00,sum01,sum10,sum11;
+
+  last_bit = 0;
+
+/* 80 hours
+  num_iter = 5000000;
+*/
+  num_iter = 500000000;
+
+  sum1 = 0;
+  sum00 = 0;
+  sum01 = 0;
+  sum10 = 0;
+  sum11 = 0;
+
+  for(i=0;i<num_iter;++i)
+  {
+    /*
+    bit = wn_true_random_int();
+    bit = wn_true_random_bit();
+    */
+    bit = wn_random_bit();
+
+    sum1 += bit;
+
+    if(bit == 0)
+    {
+      if(last_bit == 0)
+      {
+        ++sum00;
+      }
+      else /* last_bit == 1 */
+      {
+        ++sum10;
+      }
+    }
+    else /* bit == 1 */
+    {
+      if(last_bit == 0)
+      {
+        ++sum01;
+      }
+      else /* last_bit == 1 */
+      {
+        ++sum11;
+      }
+    }
+    /*
+    printf("%d",bit);
+    fflush(stdout);
+    */
+
+    last_bit = bit;
+  }
+
+  printf("\n\n");
+
+  printf("num_iter = %d\n",num_iter);
+  printf("sum1 = %d,t = %lg\n",sum1,(sum1-0.5*num_iter)/(0.5*sqrt(num_iter)));
+  printf("sum00 = %d,sum01=%d,t = %lg\n",
+         sum00,sum01,(sum01-0.5*(sum00+sum01))/(0.5*sqrt((double)(sum00+sum01))));
+  printf("sum10 = %d,sum11=%d,t = %lg\n",
+         sum10,sum11,(sum11-0.5*(sum10+sum11))/(0.5*sqrt((double)(sum10+sum11))));
+
+  return(0);
+}
+#endif
+
+
+#if 0
+void main(void)
+{
+  int i,num;
+  int count[8];
+
+  wn_seed_random_number_generator(1);
+  /*
+  */
+
+  for(i=0;i<8;++i)
+  {
+    count[i] = 0;
+  }
+
+  for(i=0;i<8000000;++i)
+  {
+    ++(count[wn_random_n_bits(3)]);
+  }
+
+  for(i=0;i<8;++i)
+  {
+    printf("count[%d] = %d\n",i,count[i]);
+  }
+}
+#endif
+
+
+#if 0
+void main(void)
+{
+  int i,num;
+
+  wn_seed_random_number_generator(1);
+  /*
+  */
+
+  for(i=0;i<10000;++i)
+  {
+    printf("%x\n",wn_random_n_bits(3));
+
+    /*
+    printf("%lf\n ",wn_cauchy_distribution());
+    printf("%d",wn_random_mod_int(6));
+    printf("%x\n",num);
+    num = wn_random_int();
+    num = random();
+    printf("%d",wn_random_bit());
+    printf("%x\n",wn_random_int());
+    printf("%x\n",wn_random_int());
+
+    printf("%d",wn_random_mod_int(2));
+    printf("%lf\n ",wn_normal_distribution());
+    printf("%d\n ",wn_poisson_distribution(21));
+    printf("%lf\n ",wn_exponential_distribution());
+    */
+  }
+}
+#endif
+
+
+#if 0
+void main(void)
+{
+  register int i;
+  register int accum;
+  register int *p;
+  int num[20];
+
+  accum = 2;
+  p = num;
+
+  for(i=0;i<20;++i)
+  {
+    p[i] = i;
+  }
+
+  for(i=0;i<100000000;++i)
+  {
+    accum += (p[1]&p[3]);
+  }
+}
+#endif
+
+
+#if 0
+#define MAXSHIFT  1000
+#define SAMPLE_SIZE 1000000000
+
+/*
+#define wn_random_bit()  (random()&1)
+*/
+
+
+local void test_raw_bit(void)
+{
+  int i,bit;
+  int sum;
+  double sample_mean,deviation,merit;
+
+  sum = 0;
+
+  for(i=0;i<SAMPLE_SIZE;++i)
+  {
+    bit = wn_random_bit();
+
+    sum += bit;
+  }
+
+  /*
+  printf("sum = %d,sample_size = %d\n",sum,SAMPLE_SIZE);
+  */
+
+  sample_mean = ((double)sum)/(double)SAMPLE_SIZE;
+  deviation = sample_mean-0.5;
+  merit = deviation*2.0*sqrt((double)SAMPLE_SIZE);
+
+  /*
+  printf("merit = %lf,sample_mean = %lf,deviation = %lf\n",
+	 merit,sample_mean,deviation);
+  */
+
+  printf("raw bit test:  merit = %lf\n",merit);
+}
+
+local void test_for_shift(int shift)
+{
+  char shift_array[MAXSHIFT];
+  int pointer,trail_pointer;
+  int i,bit;
+  int sum;
+  double sample_mean,deviation,merit;
+
+  /*
+  printf("shift = %d ---------------------------------------------\n",shift);
+  */
+
+  pointer = MAXSHIFT-1;
+  trail_pointer = pointer-shift;
+
+  for(i=0;i<shift;++i)
+  {
+    bit = wn_random_bit();
+    shift_array[pointer] = bit;
+
+    ++pointer; if(pointer >= MAXSHIFT) pointer = 0;
+    ++trail_pointer; if(trail_pointer >= MAXSHIFT) trail_pointer = 0;
+  }
+
+  sum = 0;
+
+  for(i=0;i<SAMPLE_SIZE;++i)
+  {
+    bit = wn_random_bit();
+    shift_array[pointer] = bit;
+
+    sum += (bit^shift_array[trail_pointer]);
+
+    ++pointer; if(pointer >= MAXSHIFT) pointer = 0;
+    ++trail_pointer; if(trail_pointer >= MAXSHIFT) trail_pointer = 0;
+  }
+
+  /*
+  printf("sum = %d,sample_size = %d\n",sum,SAMPLE_SIZE);
+  */
+
+  sample_mean = ((double)sum)/(double)SAMPLE_SIZE;
+  deviation = sample_mean-0.5;
+  merit = deviation*2.0*sqrt((double)SAMPLE_SIZE);
+
+  /*
+  printf("merit = %lf,sample_mean = %lf,deviation = %lf\n",
+	 merit,sample_mean,deviation);
+  */
+
+  printf("shift = %d, merit = %lf\n",shift,merit);
+}
+
+
+void main(void)
+{
+  int i,shift;
+
+  wn_seed_random_number_generator(0);
+
+  test_raw_bit();
+
+  for(shift=1;shift<MAXSHIFT;++shift)
+  {
+    test_for_shift(shift);
+  }
+  /*
+  for(shift=32;shift<MAXSHIFT;shift+=32)
+  {
+    test_for_shift(shift);
+  }
+  */
+}
+#endif
+
+
+#if 0
+void main(void)
+{
+  int i;
+  unsigned int num;
+
+  wn_seed_random_number_generator(1);
+
+  for(i=0;i<20;++i)
+  {
+    num = wn_random_int();
+
+    printf("i = %d, num = %u\n",i,num);
+  }
+}
+#endif
+
+
+bool wn_random_20_bits_false(int trials)
+{
+
+  for (  ;  trials > 0;  --trials)
+  {
+    if (! wn_random_n_bits(20))
+    {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+} /* wn_random_20_bits_false */
+
+
+bool wn_nth_bit_set_20_times(int trials)
+{
+  int i, j;
+
+  for (  ;  trials > 0;  --trials)
+  {
+    i = wn_random_mod_int(32);
+
+    for (j = 0;  j < 20;  ++j)
+    {
+      if (! (wn_random_int() & (1 << i)))
+      {
+        break;
+      }
+    }
+
+    if (j == 20)
+    {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+} /* wn_nth_bit_set_20_times */
+
+
+bool wn_fail_diag_bits_always_set(int trials)
+{
+  int i, k;
+
+  i = wn_random_mod_int(32);
+
+  for (  ;  trials > 0;  --trials)
+  {
+    for (k = 0;  k < 20;  ++k)
+    {
+      if (!(wn_random_int() & (1 << ((i+k) % 32))))
+      {
+	break;
+      }
+    }
+
+    if (20 == k)
+    {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+} /* wn_fail_diag_bits_always_set */
+
+
+bool wn_two_in_a_row(int trials)
+{
+  for (  ;  trials > 0;  --trials)
+  {
+    if (wn_random_n_bits(20) == wn_random_n_bits(20))
+    {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+} /* wn_two_in_a_row */
+
+
+#if 0
+int main(int argc,char *argv[])
+{
+  static bool arg_r;
+  static bool arg_n;
+  static bool arg_d;
+  static bool arg_t;
+  static char *bool_names[] = { "FALSE", "TRUE" };
+  int trials, random_seed_arg;
+  int sts;
+
+  if (argc < 2)
+  {
+    fprintf(stderr,
+    /**/ "Usage: %s <one of -r, -n, -d, -t> <opt. rand seed> <opt trials>\n",
+    /**/                                                  argv[0]);
+    return 1;
+  }
+
+  if (!strcmp("-r", argv[1]))
+  {
+    arg_r = TRUE;
+  }
+
+  if (!strcmp("-n", argv[1]))
+  {
+    arg_n = TRUE;
+  }
+
+  if (!strcmp("-d", argv[1]))
+  {
+    arg_d = TRUE;
+  }
+
+  if (!strcmp("-t", argv[1]))
+  {
+    arg_t = TRUE;
+  }
+
+  if (argc >= 3)
+  {
+    sts = sscanf(argv[2], "%d", &random_seed_arg);
+    if (1 != sts)
+    {
+      fprintf(stderr, "Random seed \"%s\" should be an integer\n", argv[2]);
+      return 1;
+    }
+
+    wn_seed_random_number_generator(random_seed_arg);
+  }
+
+  if (argc >= 4)
+  {
+    sts = sscanf(argv[3], "%d", &trials);
+    if (1 != sts)
+    {
+      fprintf(stderr, "Trials \"%s\" should be an integer\n", argv[3]);
+      return 1;
+    }
+  }
+  else
+  {
+    trials = (int) (log(.5) / log((1024*1024-1.0)/(1024*1024)));
+    /**/		/* comes out to 726817, should yield a 50-50 chance */
+  }
+
+  if (arg_r + arg_n + arg_d + arg_t  !=  1)
+  {
+    fprintf(stderr,
+    /**/	"Usage: examples -rndt <random seed> <trials = 726817>\n%s",
+    /**/	"  where exactly one of r, n, d, or t must be set\n");
+    return 1;
+  }
+
+  if (arg_r)
+  {
+    printf("Result = %s\n", bool_names[wn_random_20_bits_false(trials)]);
+  }
+  else if (arg_n)
+  {
+    printf("Result = %s\n", bool_names[wn_nth_bit_set_20_times(trials)]);
+  }
+  else if (arg_d)
+  {
+    printf("Result = %s\n", bool_names[wn_fail_diag_bits_always_set(trials)]);
+  }
+  else
+  {
+    wn_assert(arg_t);
+    printf("Result = %s\n", bool_names[wn_two_in_a_row(trials)]);
+  }
+} /* main */
+#endif

@@ -1,0 +1,11 @@
+test/test_spirit
+test/test_bison
+test/bisontest.lef
+bison/bak
+bison/LefParser.cc
+bison/LefParser.h
+bison/LefScanner.cc
+*.hh
+test/valgrind*.txt
+test/*.log
+test/cells.lef

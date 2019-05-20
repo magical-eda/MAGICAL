@@ -1,0 +1,40 @@
+NAME
+     wnmnrm -- vector norm, unit vector
+
+SYNOPSIS
+     #include "wnmat.h"
+
+     double wn_norm2(vect,len)
+     double vect[];
+     int len_i;
+
+     double wn_norm(vect,len)
+     double vect[];
+     int len_i;
+
+     double wn_dist2(v1,v2,len)
+     double v1[],v2[];
+     int len;
+
+     double wn_dist(v1,v2,len)
+     double v1[],v2[];
+     int len;
+
+     wn_unit_vect(vect,len)
+     double vect[];
+     int len;
+
+DESCRIPTION
+     Routines to compute vector norm, find unit vector.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnmmlt
+
+AUTHOR
+     Will Naylor
+
+

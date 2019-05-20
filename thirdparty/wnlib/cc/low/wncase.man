@@ -1,0 +1,50 @@
+NAME
+     wncase -- routines to deal with capitalization
+
+SYNOPSIS
+     wn_strupcase(string)
+     char string[];
+
+     wn_strlowcase(string)
+     char string[];
+
+     wn_blkupcase(string,len)
+     char string[];
+     int len;
+
+     wn_blklowcase(string,len)
+     char string[];
+     int len;
+
+     wn_charupcase(&c)
+     char c;
+
+     wn_charlowcase(&c)
+     char c;
+
+DESCRIPTION
+     "wn_strupcase" converts all letters in "string" to 
+     upper-case.
+
+     "wn_strlowcase" converts all letters in "string" to 
+     lower-case.
+
+     "wn_blkupcase" converts all letters in "string" to 
+     upper-case.  "string" is assumed to be "len" chars long.
+
+     "wn_blklowcase" converts all letters in "string" to 
+     lower-case.  "string" is assumed to be "len" chars long.
+
+     "wn_charupcase" converts "c" to upper case if it is a letter.
+
+     "wn_charlowcase" converts "c" to lower case if it is a letter.
+
+BUGS
+
+SEE ALSO
+     wnstr
+
+AUTHOR
+     Will Naylor
+
+

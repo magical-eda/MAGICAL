@@ -1,0 +1,22 @@
+NAME
+     wndot -- fast vector dot product
+
+SYNOPSIS
+     #include "wnvect.h"
+
+     double wn_dot_vects(double *vect1,double *vect2,int len)
+
+DESCRIPTION
+     Vector dot product, coded to be especially fast.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnvadd, wnvnrm
+
+AUTHOR
+     Will Naylor
+
+

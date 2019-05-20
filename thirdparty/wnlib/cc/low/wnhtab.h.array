@@ -1,0 +1,66 @@
+/****************************************************************************
+
+COPYRIGHT NOTICE:
+
+  The source code in this file is provided free of charge
+  to the author's consulting clients.  It is in the
+  public domain and therefore may be used by anybody for
+  any purpose.
+
+AUTHOR:
+
+  Will Naylor
+
+****************************************************************************/
+#ifndef wnhtabH
+#define wnhtabH
+
+
+#include "wnset.h"
+#include "wnmem.h"
+
+
+#define EXPON  13
+
+typedef struct wn_htab_struct *wn_htab;
+typedef struct wn_open_list_data_struct *wn_open_list_data;
+
+typedef struct wn_htab_struct
+{
+  wn_open_list_data array[1<<EXPON];
+
+  int (*phash_func)(/* key */);
+  bool (*pkeys_eq_func)(/* key1,key2 */);
+  void (*palloc_copy_func)(/* pkey,key */);
+  void (*pfree_func)(/* key */);
+
+  wn_memgp group;
+};
+
+typedef struct wn_open_list_data_struct
+{
+  wn_open_list_data next;
+  int hashed_key;
+  ptr data,key;
+};
+  
+
+
+extern bool wn_hget_routine(),
+            wn_hins_routine(),wn_hfins_routine(),
+            wn_hdel_routine();
+
+#define wn_hget(_pdata,_table,_key) \
+               wn_hget_routine((ptr *)(_pdata),(_table),(ptr)(_key))
+#define wn_hins(_data,_table,_key) \
+               wn_hins_routine((ptr)(_data),(_table),(ptr)(_key))
+#define wn_hfins(_data,_table,_key) \
+               wn_hfins_routine((ptr)(_data),(_table),(ptr)(_key))
+#define wn_hdel(_table,_key) \
+               wn_hdel_routine((_table),(ptr)(_key))
+
+
+
+#endif
+
+

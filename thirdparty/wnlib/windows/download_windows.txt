@@ -1,0 +1,20 @@
+Instructions for downloading and installing wnlib on Windows
+
+1) Create a directory somewhere on your disk.  It is recommended you name it
+"wnlib".  You will need 30 MBytes of free space to build everything in debug
+mode.
+
+2) cd into that directory.
+
+3) Download wnlib.zip into that directory. It is about 2 Mbytes of data
+compressed, you will need about 30 Mbytes of free disk space to build
+everything.
+
+4) Unzip it.  (You can delete the zip file after the unzip to save space).
+
+5) Read wnlib\README_WINDOWS.txt
+
+6) IGNORE  wnlib\INSTALL.  It's only for Unix users.
+
+7) For building instructions, click here or see the same info in text form in
+wnlib/windows/install_windows.txt. c

@@ -1,0 +1,7 @@
+test/test_bison
+bison/BookshelfParser.cc
+bison/BookshelfParser.h
+bison/BookshelfScanner.cc
+*.hh
+test/valgrind*.txt
+test/valgrind*.log

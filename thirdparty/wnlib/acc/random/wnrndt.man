@@ -1,0 +1,25 @@
+NAME
+     wnrndt -- true random numbers
+
+SYNOPSIS
+     #include "wnrndt.h"
+
+     int wn_true_random_int(void)
+
+     int wn_true_random_bit(void)
+
+DESCRIPTION
+     These routines generate true random numbers by XOR-ing together
+     bits from /usr/spool/news.  They are much slower than routines
+     for pseudo-random numbers in wnrnd, and they fail when /usr/spool/news
+     runs out of bits.
+
+BUGS
+
+SEE ALSO
+     wnrnd
+
+AUTHOR
+     Will Naylor
+
+

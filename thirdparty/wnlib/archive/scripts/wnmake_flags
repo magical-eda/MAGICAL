@@ -1,0 +1,51 @@
+
+#     this file is not intended to be used as a command, it is intended
+# to be sourced by other files, such as wnmake and wnmake1
+
+if [ "T$WNMAKE_MAKE" = T ] ; then
+        WNMAKE_MAKE=make
+	export WNMAKE_MAKE
+fi
+if [ "T$WNMAKE_CC" = T ] ; then
+# Red Hat & SuSE & Solaris 32 bit, Red Hat Itanium 64 bit C:
+#	WNMAKE_CC='gcc'
+# Red Hat & SuSE & Solaris 32 bit, Red Hat Itanium 64 bit C++:
+	WNMAKE_CC='g++'	
+# Red Hat Opteron 64 bit C:
+#	WNMAKE_CC='/usr/bin/gcc'
+# Red Hat Opteron 64 bit C++:
+#	WNMAKE_CC='/usr/bin/g++'	
+# Red Hat & SuSE & Solaris 32 bit, Itanium, Opteron 64 bit C:
+#	WNMAKE_CC='cc'
+# Solaris 32 bit C
+#	WNMAKE_CC='acc'
+# Solaris 32 bit C
+#	WNMAKE_CC='/depot/SUNWspro/bin/cc'
+# Solaris 64 bit C
+#	WNMAKE_CC='cc -xarch=v9 -xildoff'
+# Solaris 32 bit C++
+#	WNMAKE_CC='CC'
+# Solaris 64 bit C++
+#	WNMAKE_CC='CC -xarch=v9 -xildoff'
+	export WNMAKE_CC
+fi
+if [ "T$WNMAKE_ADDCFLAGS" = T ] ; then
+	WNMAKE_ADDCFLAGS='-g'
+	export WNMAKE_ADDCFLAGS
+fi
+if [ "T$WNMAKE_TARGET_ARCH" = T ] ; then
+	WNMAKE_TARGET_ARCH=
+	export WNMAKE_TARGET_ARCH
+fi
+if [ "T$WNMAKE_AR" = T ] ; then
+	WNMAKE_AR='ar lrcu'
+	export WNMAKE_AR
+fi
+if [ "T$WNMAKE_RANLIB" = T ] ; then
+        WNMAKE_RANLIB=ranlib
+	export WNMAKE_RANLIB
+fi
+
+# note we don't inherit $WNMAKE_DIR, WNMAKE_DIR is intended as a comment
+d=`pwd`
+WNMAKE_DIR=`basename $d`

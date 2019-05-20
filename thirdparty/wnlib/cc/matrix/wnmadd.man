@@ -1,0 +1,47 @@
+NAME
+     wnmadd -- vector and matrix addition
+
+SYNOPSIS
+     #include "wnmat.h"
+
+     wn_add_vects(result_vect,vect1,vect2,len_i)
+     double *result_vect,*vect1,*vect2;
+     int len_i;
+
+     wn_add_mats(result_mat,mat1,mat2,len_i,len_j)
+     double **result_mat,**mat1,**mat2;
+     int len_i,len_j;
+
+     wn_add_vect(to_vect,from_vect,len_i)
+     double *to_vect,*from_vect;
+
+     wn_add_mat(result_mat,from_mat,len_i,len_j)
+     double **result_mat,**from_mat;
+     int len_i,len_j;
+
+     wn_add_scaled_vect(to_vect,from_vect,scalar,len)
+     double *to_vect,*from_vect;
+     double scalar;
+     int len;
+
+     wn_add_vect_and_scaled_vect(out,v1,v2,s2,len)
+     double *out,*v1,*v2;
+     double s2;
+     int len_i;
+
+DESCRIPTION
+     Vector addition routines.
+
+     "wn_add_scaled_vect" and "wn_add_vect_and_scaled_vect"
+     are tuned to be especially fast.  
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+
+AUTHOR
+     Will Naylor
+
+

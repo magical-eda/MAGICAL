@@ -1,0 +1,54 @@
+Copyright 1997-2006, Brian Borchers.  This copy of CSDP is made
+available under the Common Public License.  See LICENCE for the
+details of the CPL.
+
+CSDP is a software package for solving semidefinite programming
+problems. The algorithm is a predictor-corrector version of the
+primal-dual barrier method of Helmberg, Rendl, Vanderbei, and
+Wolkowicz.
+
+This file includes source for a C code for SDP that uses BLAS and
+LAPACK subroutines.  The directories are as follows:
+
+  doc                  documentation.
+
+  lib                  C source for libsdp.a.
+
+  include              Common include files used in lib, theta, and solver.
+
+  solver               C source for a program that reads in problems in
+                       SDPA sparse format and solves them.  
+
+  theta                A code for computing the Lovasz Theta number of 
+                       a graph.  The theta code solves this problem directly.
+                       A program called graphtoprob can be used to produce
+                       a problem file in SDPA sparse format.  Also includes a 
+                       random graph generator and a program to compute the 
+                       complement of a graph.  
+
+  example              A very simple example of how to use the easy_sdp()
+                       routine.  This code solves a problem with 2 constraints
+                       and 3 blocks in the block diagonal X matrix.  This
+                       example is discussed in the user's guide.
+
+  test                 This directory contains test problems to verify that
+                       the code works correctly.    
+
+  matlab               MATLAB/Octave routines for interfacing to CSDP.  
+
+Installation:  See the INSTALL file
+
+Contact/Support: 
+
+If you are having trouble compiling or running the code, see the doc 
+directory first. The project's website can be found at <INSERT WEB SITE>.
+The project's maintainer can be reached by email at borchers@nmt.edu. All 
+bug reports and feature requests can be made here: <INSERT BUG REPORTS>, 
+<INSERT FEATURE REQUESTS>. 
+
+##############################
+## !!!!!!!!!!!!!!!!!!!!!!!! ##
+## this build is modified by Yibo Lin for external thread safety 
+## it is modified for single internal thread 
+## in lib/op_o.c, static variables are changed to local variables 
+##############################

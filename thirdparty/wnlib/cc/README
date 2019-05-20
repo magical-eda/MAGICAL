@@ -1,0 +1,23 @@
+
+COPYRIGHT NOTICE:
+
+  The source code in this directory is provided free of charge
+  to the author's consulting clients.  It is in the
+  public domain and therefore may be used by anybody for
+  any purpose.
+
+AUTHOR:
+
+  Will Naylor
+
+CONTENTS OF SUBDIRECTORIES:
+
+  low    -- contains low-level routines for general programming
+
+  matrix -- contains matrix handling routines
+
+  parse  -- general parsing package
+
+  spmat  -- contains sparse matrix handling routines
+
+  

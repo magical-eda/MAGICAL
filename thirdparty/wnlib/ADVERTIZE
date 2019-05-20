@@ -1,0 +1,55 @@
+Newsgroups: sci.math.num-analysis,sci.op-research,comp.theory
+Subject: Announcing WNLIB 9.0 - Free C Subroutine Library
+Summary: 
+Expires: 
+Sender: 
+Followup-To: 
+Distribution: 
+Organization: Synopsys
+Keywords: 
+Cc: 
+
+WNLIB 9.0 is now available for download.
+During my 15 years of C programming, I have accumulated a large library of
+subroutines which I have found most useful in quickly writing fast, portable,
+clean C programs.  I am now making it available to all, with no usage
+restrictions.
+
+Of particular interest to readers of this newsgroup:
+
+  - various matrix and vector routines.
+
+  - very good pseudo-random number generator.  Also a routine to generate
+    true random numbers (no kidding!).  Normal distribution,
+    Poisson distribution, Cauchy distribution, etc.
+
+  - unconstrained non-linear optimization routines:  implementation of
+    conjugate-gradient and conjugate-directions algorithms.
+
+  - constrained non-linear optimization routines:  based on conjugate-gradient
+    algorithm with penalties.
+
+  - simplex method for linear programming:  contains anti-cycling and numerical
+    stability hacks.  No optimization for sparse matrix.
+
+  - transportation problem/assignment problem routine:  optimization for
+    sparse matrix.
+
+  - fast Fourier transform routines.
+
+  - general simulated annealing routine
+
+  - improved memory allocator and memory debugger; parsing package
+
+  - data structures: linked list; balanced binary tree; 
+    hash table - with common hash functions; dd tree
+
+  - sorting for lists and arrays
+
+You can download it by going to this URL:
+http://www.willnaylor.com/wnlib.html
+
+Happy hacking!
+
+
+

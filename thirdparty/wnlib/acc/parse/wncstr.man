@@ -1,0 +1,117 @@
+NAME
+     wncstr -- general parsing and writing package
+
+SYNOPSIS
+     #include "wncstr.h"
+
+     WN_PARSE
+     WN_WRITE
+
+     wn_make_cstream(&stream,pmove_block,move_block_ptr,
+                     block_size,parse_or_write)
+     wn_cstream stream;
+     void (*pmove_block)(/* block,&actually_moved,request_moved,
+                            move_block_ptr */);
+     ptr move_block_ptr;
+     int block_size,parse_or_write;
+
+     wn_free_cstream(stream)
+     wn_cstream stream;
+
+     int wn_current_mark(stream)
+     wn_cstream stream;
+
+     bool wn_set_current_mark(stream,mark)
+     wn_cstream stream;
+     int mark;
+
+     wn_flush_to_mark(stream,mark)
+     wn_cstream stream;
+     int mark;
+
+     bool wn_cstream_debug(stream)
+     wn_cstream stream;
+
+DESCRIPTION
+     wncstr, wncstl, wnptok, wnwtok, wnwtokp, and wncinf comprise
+     an integrated package designed to parse and write complicated
+     files and strings.  Parsing is accomplished using a generalized
+     recursive-descent methodology [1]; writing is accomplished 
+     using a recursive-descent like methodology.  Identical or very similar
+     grammars work for parsing and for writing a language.  The C code
+     is also very similar.  Very complicated grammars
+     can be parsed efficiently using this package, including context-free
+     grammars with long lookahead and many context-sensitive grammars.
+     No distinction is made between lexical analysis and parsing proper;
+     the lexical analysis is handled in the same way as the parsing.
+
+     The object to be parsed or written must first
+     be converted to a logical character array (a cstream).  
+     "wn_make_cstream" accomplishes this in general; for files and
+     strings see wncstl for shortcuts.  A cstream is logically an array of
+     characters (that is, bytes), together with a cursor or 
+     "current mark".  The current mark points to the character
+     currently being looked at.  Thus, during parsing or writing,
+     the current mark moves from 0 (beginning of stream) to 
+     larger and larger values and eventually reaches end of stream.
+
+     Parsing is accomplished using a generalized recursive-descent
+     methodology.  Generally, you need a C subroutine for each non-terminal in
+     the grammar.  The subroutine generally has 2 or more arguments
+     and returns a boolean.  The first argument is the cstream to
+     parse; the other arguments are parse trees and other data constructed
+     if the parse succeeds; the return value says whether the parse
+     succeeded.  When called, the subroutine attempts to parse the
+     non-terminal from the cstream, starting at the current mark.
+     If it fails, it returns FALSE and sets the current mark back
+     to its start value (using "wn_set_current_mark" and 
+     "wn_current_mark").  If its succeeds, it returns TRUE,
+     usually generates some data (such as a parse tree), and 
+     leaves the current mark after the parsed non-terminal in
+     the cstream.  These subroutines are built from other
+     non-terminal parsing subroutines.  The hierarchy bottoms out
+     with the subroutines in wnptok.  Subroutines are often combined
+     in logical expressions.
+
+     All characters earlier in the cstream than the current mark
+     take up dynamic memory unless flushed using "wn_flush_to_mark".
+     Use "wn_flush_to_mark" when it is clear that characters before
+     "mark" will never be examined again.
+
+     "wn_cstream_debug" prints the characters from "stream" in the
+     neighborhood of the current mark.  This information is very useful
+     for debugging parsers.  "wn_cstream_debug" always returns TRUE, so
+     it can be inserted into logical expressions.
+
+     Writing is also accomplished with a recursive-descent like
+     methodology, with a subroutine for each non-terminal in the 
+     grammar.  The subroutine generally has 2 or more arguments;
+     no value is returned.  The first argument is the cstream to
+     write into; the other arguments contain the information to write.
+     These subroutines are built from other non-terminal writing subroutines.
+     The hierarchy bottoms out with the subroutines in wnwtok and wnwtokp.
+
+     Generally, the same or similar subroutine hierarchies works for
+     parsing and writing a language.
+
+     Routines in wncinf assist in printing error messages with 
+     line numbers.  
+
+     Routines in wnscan scan a cstream for patterns.
+
+BUGS
+     Too many subroutine names to remember.
+
+     This package may be slower than less general parsing packages.
+
+SEE ALSO
+     wncstl, wnptok, wnscan, wnwtok, wnwtokp, wncinf
+
+REFERENCES
+     [1] Alfred V. Aho, Jeffrey D. Ullman: Principles of Compiler Design,
+	 April 1979, Addison-Wesley Publishing, Reading Massachusetts.
+
+AUTHOR
+     Will Naylor
+
+

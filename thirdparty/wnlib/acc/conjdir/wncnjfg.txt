@@ -1,0 +1,52 @@
+January - March 2002. Improvements in wncnjfg.c:
+Below is a list of the major changes inside the conjugate gradient minimizer done as part of the January - March 2002 revamp. Other (minor) corrections have been done.
+
+
+=== 1 === Additional test when deciding how far to backout:
+Whenever a fast line search had failed and the minimizer was trying to decide if the previous line search should be redone or not, it was checking if the optimum improvement on the previous line search is adequate by testing c->f1opt against c->f1. This leads to the following bug:
+If c->f1opt is an optimum improvement over c->f1 but c->f1s holds the best value, the backout will not be done. However, the value of c->f1s got stored by the variable c->best_f. If, in addition, the next 10 line searches fail to get values smaller than this c->best_f we stored, then the minimizer stops, giving bad QOR.
+The fix is to add the requirement that
+  (fdcmp(c->f0,c->dot_grad0_dir1,c->f1s,c->dot_grad1s_dir1) <= 0)
+  ||
+  (fcmp(c->f0s,c->f1s) <= 0) 
+Other (additional) changes were tested:
+a. Replacing the original test
+  opt_improvement_adequate(c->x1opt,c->f0,c->dot_grad0_dir1,
+                           0.0,c->f1,c->dot_grad1_dir1, 0.75)
+with
+  (fdcmp(c->f0,c->dot_grad0_dir1,c->f1,c->dot_grad1_dir1) <= 0)
+  ||
+  (fcmp(c->f0s,c->f1) <= 0)
+This is presently commented in the code as the tests showed no significant speedup and the old test is more robust from the theoretical standpoint.
+b. Adding a cos test (insisting that the angle made by the gradient c->grad1opt with the old direction c->dir1 is large enough):
+  (wn_abs(c->dot_grad0_dir1)/sqrt(c->norm2_dir1)/sqrt(c->norm2_grad0) < .25)
+This is presently left commented in the code as tests showed it does not bring much improvement and it comes with the cost of doing one more vectorial operation whenever we call determine_how_far_to_backout:
+  c->norm2_grad0 = wn_norm2_vect_par(c->pc,c->grad0,c->num_vars)
+
+
+=== 2 === Three new slow line search termination criteria:
+Due to the fact that the slow line searches were very confused when they were trying to optimize the function in regions where noise (round off errors) is no longer negligible, three new slow line search termination criteria have been introduced. They are based on the observations that, in the regions where round off errors become large compared to the variations in the function, the algorithm tends to do a lot of bisections (robust probes) and even lose the real minimum.
+
+a. The first termination criterium is a decision to stop the slow/expensive optimization in the case when we lost a minimum and we reduced the size of the bracketing interval by a certain factor. We count all the 'good' bisections (i.e., probes for which both ends of the bisected interval had function values smaller than the starting value) and we stop the slow line search when we lost a minimum and we did at least BISECTION_MAX (parameter #defined at the beginning of the program) good bisections.
+
+b. The second termination criterium attempts to fix cases when c->sls.fstart is a very good value and it takes a lot of function evaluations to get to the point where we bisect intervals with the function value in both ends smaller than c->sls.fstart. We declare as suspicious all bisections for which the derivatives in the two ends of the interval and the derivative in the middle are close to each other. We stop the slow line search when we lost MAX_LOST_MIN minima and we did MAX_SUSPECT_BISECTIONS suspicious bisections. Again, MAX_LOST_MIN and MAX_SUSPECT_BISECTIONS are parameters that a user can #define at the beginning of the code.
+
+c. The third termination criterium stops the slow line search when we lost a minimum and we have some improvement in the function value (improvement measured by a decrease in the derivative).
+
+
+=== 3 === Slow line search initialization:
+When initializing a slow line search, the best point found so far had a chance of not being considered (in the case when it was introduced last and it was outside the interval defined by the first two points). To fix this,
+a. the method insert_adds_info has been modified to return TRUE whenever the tested point had better function value
+b. the method insert_funcgrad_into_slow_linesearch_data gives now preferential treatment to the new point in the case when it holds the best function value but is outside the present bracketing interval.
+
+=== 4 === Fast line search success check:
+One more criterium has been added when testing if the fast line search is successful - we are now insisting that the angle that the searcg direction makes with the gradient in the optimum point is large enough. We are measuring this angle by means of its cos value and we are insisting that this value be smaller than a user #defined MAX_COS_VALUE. Tests have shown that imposing this additional condition brings a slight speedup of the coarse placer and also brings a major improvement when optimizing ill conditioned functions (25% speed improvement, roughly).
+
+
+=== 5 === Termination check:
+The update_best_f method now calls the user-supplied termination condition even if the value of the function in the new point only equals (and is not strictly smaller than) the best function value seen so far. This is to prevent the user of losing control of the optimization process in the end part of the minimization, when the function value stops decreasing and the only quantity that gets improved is the directional derivative.
+
+
+=== 6 === Jump length guess check:
+Tests have shown that, while the curvature based guess for the jump length is more accurate than setting c->x0s = c->x1opt, it is not too stable when exposed to noise. To correct unreasonable guesses based on curvature in the situations when there are round-off errors, a test has been added inside the set_jump_length method. If the curvature based guess differs too much from c->x1opt (i.e., by a user #defined factor), then we reset c->x0s to equal c->x1opt.
+

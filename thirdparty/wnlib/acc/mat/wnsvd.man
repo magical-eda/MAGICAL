@@ -1,0 +1,112 @@
+NAME
+     wnsvd -- singular value decomposition
+
+SYNOPSIS
+     #include "wnmat.h"
+
+     void wn_svd(image_basis,d,arg_basis,in_mat,len_i,len_j)
+     double **image_basis;  /* image_basis[len_i][len_i] */
+     double *d;             /* d[min(len_i, len_j)] */
+     double **arg_basis;    /* arg_basis[len_j][len_j] */
+     double **in_mat;       /* in_mat[len_i][len_j] */
+     int len_i, int len_j;  /* dimension of matrix **in_mat */
+
+DESCRIPTION
+     wn_svd computes the singular value decomposition (SVD) of input
+     matrix "in_mat", placing the result in
+     "image_basis", "d", and "arg_basis".  "image_basis" is 
+     matrix of dimension len_i X len_i,
+     "d" is array of dimension min(len_i,len_j), "arg_basis" is matrix of
+     dimension len_j X len_j.  "in_mat" is destroyed.
+
+     Singular value decomposition is useful for many applications,
+     including linear system solving, least-squares solving/fitting, 
+     pseudo-inverse,
+     eigenvalue-vector finding, and orthogonalization.  
+     It always works, even if the input
+     matrix is singular, and values of "d" help you diagnose singularity
+     problems and fix them.  
+
+     Singular value decomposition is the following factorization
+     of the input matrix:
+
+       in_mat = (image_basis^t) * diag(d) * arg_basis
+
+     where 
+       diag(d) = diagonal matrix with diagonal elements d[i], 
+		 or 0 if too big
+       image_basis^t is the transpose of the matrix image_basis
+
+     and matrices image_basis and arg_basis are row orthornormal, 
+     meaning that
+
+       sum_over_j { image_basis[i1][j]*image_basis[i2][j] } == 0  iff  i1 != i2
+
+       sum_over_j { image_basis[i1][j]*image_basis[i2][j] } == 1  iff  i1 == i2
+
+       sum_over_j { arg_basis[i1][j]*arg_basis[i2][j] } == 0  iff  i1 != i2
+
+       sum_over_j { arg_basis[i1][j]*arg_basis[i2][j] } == 1  iff  i1 == i2
+
+     The singular values d[i] are always non-negative, and they
+     are sorted in descending order; largest is d[0], next largest d[1],
+     etc.
+
+     The inverse or pseudo inverse of in_mat is 
+
+       in_mat^(-1) = (arg_basis^t) * diag(1/d[i]) * image_basis
+
+     If a d[i] == 0, the inverse does not exist because
+     in_mat is singular.  However, replacing
+     1/d[i] by 0 if d[i] == 0 gives the pseudo-inverse,
+     which can be used to solve least-squares problem
+     and smallest-norm problem.  If the matrix is near-singular,
+     (that is d[i] is close to 0) replacing 1/d[i] by 0 causes
+     problem solution to be numerically stable, where it would
+     have been unstable otherwise.
+     
+     If d[i]/d[0] is smaller than machine precision, 
+     then the user may wish to consider d[i] to be 0.
+
+     Singular value decomposition gives an orthonormal
+     basis for the range and nullspace of in_mat.
+     The range of in_mat is spanned by the
+     rows of image_basis corresponding to non-zero d[i];
+     the nullspace of in_mat is spanned by the
+     rows of arg_basis corresponding to the zero d[i].
+     Singular value decomposition has better numerical
+     stability than Gramm-Schmidt process.
+
+     The rank of in_mat is the number of d[i]'s that
+     are not 0. 
+
+     The condition number of in_mat is given by
+      
+	condition_number = d[0]/min_over_i(d[i],where d[i] > 0)
+       
+     If in_mat is symmetric (and square),
+     the rows of arg_basis are the eigenvectors of in_mat.
+     d[i]'s are the absolute values of the eigenvalues.
+     Rows of image_basis are either negative or positive eigenvectors,
+     depending on whether the corresponding eigenvalue is
+     positive or negative.
+
+RESOURCES
+     Computing a singular value decomposition requires
+
+       WORST and AVERAGE CASE:
+
+         time = (max(len_i,len_j))^3
+         stack memory = log(min(len_i,len_j))
+         dynamic memory = len_i + len_j
+
+     where the in_mat is a len_i*len_j matrix.
+  
+BUGS
+
+SEE ALSO
+     wnmat.h
+
+AUTHOR
+     Copyright (C) 1993 David E. Steward & Zbigniew Leyk, all rights reserved.
+     WNLIB-ified July 25, 2003 by bogdan@synopsys.com

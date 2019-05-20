@@ -1,0 +1,1161 @@
+/**********************************************************************
+
+wn_seed_random_number_generator(seed)
+
+int wn_random_int()
+
+int wn_random_n_bits(n)
+
+int wn_random_bit()
+
+**********************************************************************/
+/****************************************************************************
+
+COPYRIGHT NOTICE:
+
+  The source code in this file is provided free of charge
+  to the author's consulting clients.  It is in the
+  public domain and therefore may be used by anybody for
+  any purpose.
+
+AUTHOR:
+
+  Will Naylor
+  Bill Chapman -- 3/3/2004 -- sped up wn_random_int()
+
+****************************************************************************/
+
+#include <stdio.h>
+
+#include "wnlib.h"
+#include "wnasrt.h"
+#include "wnmax.h"
+#include "wnmemb.h"
+#include "wnrtab.h"
+#include "wnrnd.h"
+
+
+
+#define NUM_MUNGE_FUNCS  283  /* prime number */
+#define MAX_IN_P_INDEX	 293
+#define WINDOW_SIZE      587  /*     prime number > 16 + 16 + 256 +
+**			      ** MAX_IN_P_INDEX */
+
+#if WINDOW_SIZE < 16 + 256 + 16 + MAX_IN_P_INDEX
+#error WINDOW_SIZE too small
+#endif
+
+#define BUFFER_SIZE     2017  /* prime >> WINDOW_SIZE */
+
+local int pointer = 0;
+local int munge_pointer = 70;  
+
+local int saved_bits;
+local int number_of_saved_bits;
+
+local int state[BUFFER_SIZE] =  /* for seed 0 */ {
+  (int) 0x5702f4ba, (int) 0x357a0774, (int) 0x82b3f536, (int) 0x3cd10a93,
+  (int) 0x26fd21f6, (int) 0xd8db9792, (int)  0x506598f, (int) 0x82f10a02,
+  (int) 0x34075162, (int) 0xab5271f8, (int) 0xafbe65bc, (int) 0x2676fb67,
+  (int) 0xc0e71509, (int) 0x899bb385, (int) 0x117847d9, (int) 0x926d88ff,
+  (int) 0x5cd9354d, (int) 0x441e85d4, (int) 0xccaee195, (int) 0x7c1368ec,
+  (int) 0x169dc2a9, (int) 0x46de6141, (int) 0x99ee7f32, (int) 0x3a5eb65f,
+  (int) 0xd6d0ad93, (int) 0xd3511cbd, (int) 0x98cca1dd, (int) 0x6a42c1e8,
+  (int) 0x416e2007, (int) 0xcb2126f1, (int) 0xd750f88b, (int) 0xadf25fc6,
+  (int) 0xe9e9f49b, (int) 0x12d27a3b, (int) 0xf2900306, (int) 0x1c4f87bf,
+  (int) 0x87db6ab6, (int) 0x7b41e2e3, (int) 0xef34d353, (int) 0xf55407af,
+  (int) 0x135554b4, (int) 0xf53cdbdf, (int) 0xda9ff34b, (int) 0x62859aa1,
+  (int) 0x837cadc1, (int) 0x6d2c855b, (int) 0xd48cf08b, (int) 0xebe6f9fb,
+  (int) 0xd2a10c7d, (int) 0x68fbb85d, (int) 0xd82b0568, (int) 0x71f212a6,
+  (int) 0x5e6dd563, (int) 0xf52b888a, (int) 0x36bf4095, (int) 0xd5dd7760,
+  (int) 0x41e009a7, (int) 0x98f86426, (int) 0xd38b785f, (int)  0x4a3ad95,
+  (int) 0x996def7f, (int) 0x82234241, (int) 0xe7044cb4, (int) 0xbadd084b,
+  (int) 0xdd6986a3, (int) 0xc176bd77, (int) 0xaaba3966, (int) 0xf08f68f0,
+  (int) 0x7191e6e0, (int) 0xfd544564, (int) 0x18d9d7b0, (int) 0x46ace798,
+  (int) 0x59d14fd7, (int) 0xaa5c91d4, (int) 0x747a4b0e, (int) 0xe6007e12,
+  (int) 0xf3e13afd, (int) 0xf15f199c, (int) 0xb99e2fb1, (int) 0x4e8af393,
+  (int) 0x1232cbde, (int) 0xf90cec01, (int) 0x72712f31, (int)  0x38134cb,
+  (int) 0xc0fb5e88, (int)  0xe7211ac, (int) 0x9ded9b97, (int) 0xd0a4f084,
+  (int) 0x2e966686, (int) 0xa94844bd, (int) 0x4e49c465, (int)  0xf336022,
+  (int) 0xd71ba098, (int) 0x675abfa7, (int) 0x5e35dc81, (int) 0x27fed793,
+  (int) 0xf0a7ff6a, (int) 0x2445e35b, (int)  0xf905af7, (int) 0xb37844e4,
+  (int) 0x32d371b3, (int) 0xb8d81c4a, (int) 0x1e7f2141, (int) 0x4496dc67,
+  (int) 0xac75be74, (int) 0x5e65d5cd, (int) 0xb00e07f3, (int) 0xec5db4a6,
+  (int) 0x6ac6a53b, (int) 0x88d55017, (int) 0xc691ae83, (int) 0x95154228,
+  (int) 0x39deca8e, (int) 0x1dc85942, (int) 0x8da9b40c, (int) 0x57322d89,
+  (int) 0xc56cc2e7, (int) 0x4f58b288, (int) 0x1f728545, (int) 0x5d0cdf52,
+  (int) 0xaf4e6b87, (int) 0xd5481c7b, (int) 0xecb8a43f, (int) 0xe5db9d82,
+  (int) 0xc61179db, (int)  0xe3f61e1, (int) 0xe3c9fa54, (int) 0x28c44b9e,
+  (int) 0xb67fbe1f, (int) 0x44ab334f, (int) 0xcca337e0, (int) 0xd9b30f2c,
+  (int) 0xadd060af, (int) 0xea034903, (int) 0x97ae991c, (int) 0xcf30adfe,
+  (int) 0x3077ed48, (int) 0xbbbf7e96, (int) 0xe304fab7, (int) 0x373a4b32,
+  (int) 0xfefde70d, (int) 0x27da0b65, (int)  0x66da747, (int) 0x5cf398cf,
+  (int) 0x1e52e357, (int) 0x1c0a402f, (int) 0x691aba96, (int) 0xf561d6b2,
+  (int) 0x4ad8a1a1, (int) 0x672af57b, (int) 0x207611c1, (int) 0x6ffa0ff1,
+  (int) 0xa3bfaed3, (int) 0x988a427f, (int) 0x33d37ec5, (int) 0xc8b44e0d,
+  (int) 0xf0b0becf, (int) 0x489a438d, (int) 0x7912e489, (int) 0xdd6e16ab,
+  (int) 0xa24f374b, (int) 0xde80f295, (int) 0x59b39c4a, (int) 0x85ff609e,
+  (int) 0xdea8628d, (int) 0xbf4fbc00, (int) 0xad6453a5, (int) 0xd66e2d76,
+  (int) 0xfb692f36, (int) 0x31373125, (int) 0xa182dbfc, (int)  0x6408145,
+  (int) 0x6b2f809b, (int) 0x51109779, (int) 0x33527b34, (int) 0x9f4d7d34,
+  (int) 0x13f4a926, (int) 0xfa5099f0, (int) 0x7f6cde69, (int) 0x84c7ca86,
+  (int) 0xc4c67fca, (int) 0x10f2b2fd, (int) 0x70c15058, (int) 0xc72b0d0e,
+  (int) 0x2a506376, (int) 0xb9edec16, (int) 0xb5f93d1b, (int) 0x6ead8a9a,
+  (int) 0x1bf729df, (int) 0xbb8b0678, (int) 0x9d63fc15, (int)  0x206028f,
+  (int) 0xada2e089, (int) 0xccadec1b, (int) 0x528c0e7b, (int) 0x6fe4b96f,
+  (int) 0x2524a34c, (int) 0x1ea43484, (int) 0xd3ba2298, (int) 0x39cfe18c,
+  (int) 0x4f73f795, (int) 0xfe8d2354, (int) 0x1ddf0490, (int) 0x9843230b,
+  (int) 0x3591ecf4, (int) 0xf3b4ce10, (int) 0x3dbe4d7a, (int) 0x604c7c4f,
+  (int) 0xabeaf2f6, (int) 0x503f6c7f, (int) 0x60c101aa, (int) 0x1775bcc0,
+  (int)  0x7ccd950, (int) 0x36f94f3f, (int) 0xf7a3fd30, (int) 0x2347ffa1,
+  (int) 0xacb42ef5, (int) 0x24147092, (int) 0x4ef87a9e, (int) 0x69d52c23,
+  (int) 0xa6da33a3, (int) 0xc8d1ca5f, (int) 0xfd39dbeb, (int) 0x59e5bdc5,
+  (int) 0x5abd044b, (int) 0x9181c47f, (int) 0x7564fb8b, (int) 0x15d46f4e,
+  (int) 0x65c2e55e, (int) 0xb793ba30, (int) 0xac78f4dc, (int) 0xcc0924bd,
+  (int)  0xdc0aabc, (int) 0xb7f97765, (int) 0x569cb3b3, (int) 0xedb05044,
+  (int) 0x75648805, (int) 0xbc913e62, (int)  0xd359839, (int) 0x9ff2da1c,
+  (int)  0x6bd2b27, (int) 0x80662115, (int) 0x1b144165, (int) 0x664162de,
+  (int) 0xaefdf74b, (int) 0x27e5db69, (int) 0xdf470c57, (int) 0xc34d6503,
+  (int) 0xd70d3955, (int) 0x1c2eab75, (int) 0x104c188e, (int) 0xe710238a,
+  (int) 0xf1e948be, (int) 0x56e1b3c9, (int) 0x86413b95, (int) 0x2b7c348d,
+  (int) 0xe20347fe, (int)  0x1cbcb57, (int) 0xff3a4155, (int) 0x42b50b66,
+  (int) 0x1b668560, (int) 0x61100418, (int) 0x776e29dd, (int) 0xeb4af5ed,
+  (int) 0x54b3bebc, (int) 0x26a554b4, (int) 0x454e4f39, (int) 0x30f56942,
+  (int) 0xc47f78f5, (int) 0x21753fc8, (int) 0xcbc28266, (int) 0xc9cc122f,
+  (int) 0xd8ccebf6, (int) 0x472b46e8, (int) 0xd2c57e52, (int) 0x23fef686,
+  (int) 0x1389ac74, (int)  0x135a472, (int)  0xde8e690, (int) 0x2e7364ce,
+  (int) 0xc9e1c2cd, (int) 0x341692a4, (int) 0x436de060, (int) 0xa04887d9,
+  (int) 0x20237693, (int) 0x3db304ff, (int) 0xc82bc31b, (int) 0x32656244,
+  (int) 0x12f94a83, (int) 0x3da6970e, (int) 0xda0cd59a, (int) 0x2b53c27c,
+  (int) 0x74304adb, (int) 0xb9e0ca57, (int)  0x536bc14, (int)  0x321cb6b,
+  (int) 0x17147645, (int) 0xf9ce336a, (int) 0xf201f494, (int) 0x733c7831,
+  (int) 0xe881734b, (int) 0xc2b9e6f3, (int) 0x14ecca41, (int) 0x96abfd58,
+  (int) 0x6fc6348a, (int) 0x9a2eeddd, (int) 0x14c3ac58, (int) 0x2261c824,
+  (int) 0xaa51ed73, (int) 0x6b417a13, (int) 0x4edfa6b5, (int) 0x550ca375,
+  (int) 0xd2531d8f, (int) 0x2d140e73, (int) 0x64230c75, (int) 0xffb7b211,
+  (int) 0x8fc88050, (int) 0x5fe901cb, (int) 0xf43c522c, (int)  0x759000f,
+  (int) 0x19c28bbf, (int) 0x3ac54cb9, (int) 0x8bf8c90c, (int) 0x65923521,
+  (int) 0xc5f7a589, (int) 0xddcfc0fd, (int) 0x560fe4bd, (int)  0x19f7761,
+  (int) 0x8ee72bcd, (int) 0xc2dd4baa, (int) 0xc3e0194d, (int) 0x35f64b03,
+  (int) 0x9dc2ca17, (int) 0x169185a6, (int) 0xcb6e7b5f, (int) 0xb574e7dc,
+  (int) 0x1c94af86, (int) 0x5a880aa9, (int) 0x112738f5, (int) 0x859d7fcf,
+  (int) 0x3804e76f, (int) 0xbe2562b4, (int) 0x9d76ce37, (int) 0x5b76bb4c,
+  (int) 0x474c6512, (int) 0x41ef7042, (int) 0x32a11204, (int)  0x709f6e2,
+  (int) 0x90348883, (int) 0x79326ae9, (int) 0xbab61cb5, (int) 0x874f922e,
+  (int) 0x4c0cce18, (int) 0x777fd08b, (int) 0xa78d2ccf, (int) 0x3233ad7a,
+  (int)  0xd1676c5, (int) 0x118506c3, (int) 0x786a202f, (int) 0x40534f1a,
+  (int) 0x95bb0419, (int) 0xe44101aa, (int) 0x2adef21a, (int) 0x449a55d5,
+  (int) 0x2a56ec5b, (int) 0x93f5bd94, (int) 0xa987b794, (int) 0x2c8563c3,
+  (int)  0xb9c8488, (int) 0xfb18946c, (int) 0x9c1b5b36, (int) 0x3ac41aeb,
+  (int)  0x234227a, (int) 0x3fbef9ef, (int) 0x822f4bc7, (int) 0x3db8546f,
+  (int) 0x5340094e, (int) 0x37095927, (int)  0x189d7c9, (int) 0xfbbc6365,
+  (int) 0x9151c8df, (int) 0x1e8bf3ab, (int) 0xf3e40e73, (int) 0x7157fbdf,
+  (int) 0x93b4c47b, (int) 0x7213d276, (int) 0x908ba325, (int) 0x1753c7b2,
+  (int) 0x80734791, (int) 0x34afd9d9, (int) 0x7563d1c2, (int) 0xc506bac5,
+  (int) 0xd4d4675e, (int) 0xcb6387b6, (int) 0xaee94b0f, (int) 0x6c73844d,
+  (int) 0xbe61d0bf, (int) 0xbd31823b, (int) 0x8334ed90, (int) 0x551b962f,
+  (int) 0x3a062ad2, (int) 0xb68337ec, (int) 0x96da3c40, (int) 0x35e710a9,
+  (int) 0xef971d8b, (int) 0x994caf42, (int) 0x6abfc2dd, (int) 0xafe10271,
+  (int) 0xf45a64bc, (int) 0x3f17d99e, (int) 0xb7902d29, (int) 0xb565742f,
+  (int) 0x3a067cb2, (int) 0x9964ecc6, (int) 0x40824e7f, (int) 0x2089c92c,
+  (int) 0x1bd1f4d3, (int) 0x4e42e25b, (int) 0x37c12fad, (int) 0xb199da1e,
+  (int) 0x584eaf29, (int) 0xeefdb058, (int) 0xa91fa241, (int) 0x307cfb2f,
+  (int) 0x9001405c, (int) 0xf3714afc, (int) 0x2103d593, (int) 0xf92f8975,
+  (int) 0xc2730d90, (int) 0x5196023f, (int) 0xb0d32f5f, (int) 0x51e48367,
+  (int) 0x748eae64, (int) 0xab19e348, (int) 0x45e25a1d, (int) 0xf4cb899f,
+  (int) 0xa9237691, (int) 0xb3f673e6, (int) 0xb89b5ab8, (int) 0xad52b1e6,
+  (int) 0x55ca7965, (int) 0xc8cf1d16, (int) 0xa267762d, (int) 0xdb44ea94,
+  (int) 0x94de8d5c, (int) 0xd8ed8096, (int) 0xdf235a8b, (int) 0x6751232f,
+  (int) 0x72af351c, (int) 0x9a2fb4d3, (int) 0xec265ae8, (int) 0x4c6e346f,
+  (int) 0xf09afcbe, (int) 0xa8b68d9b, (int) 0x88959a18, (int) 0x3caf5232,
+  (int) 0x73bf14e6, (int) 0xc81b893b, (int) 0xd05b14f1, (int) 0x1803a981,
+  (int) 0x3c4041ee, (int) 0xb169a483, (int) 0x8b81016c, (int) 0xdc2c8542,
+  (int) 0xfbc7a2c8, (int) 0x8c803551, (int)  0x7438345, (int) 0x50767ae6,
+  (int) 0xf8d0bdb1, (int) 0xbd4fe2e0, (int) 0xd1eccf2c, (int) 0xc6b2d7a4,
+  (int) 0xaa116bc5, (int) 0x446abdeb, (int) 0xd44cc500, (int) 0xd28a0eb4,
+  (int) 0x6ed77a3e, (int)  0x62c6498, (int)  0x463faee, (int) 0x25b22b22,
+  (int) 0x74ca3db2, (int) 0x86192a15, (int) 0xd6e1b8bc, (int) 0xb72fd9fa,
+  (int) 0x2d0e9c95, (int)  0x4a1a80c, (int) 0x87b90a81, (int) 0x5c7c03cd,
+  (int)  0xb031701, (int) 0x13af30f8, (int) 0x788389df, (int) 0xad9799a2,
+  (int) 0xf6afa3de, (int) 0x450d4970, (int) 0xd9a7a2b7, (int) 0x7e1bc980,
+  (int) 0x669f99bf, (int) 0x779b6b00, (int) 0xb7fcca5d, (int) 0xa0872ca6,
+  (int) 0xa0b01c3a, (int) 0xa4e3cef4, (int) 0x1ed56b74, (int) 0xa84d873b,
+  (int) 0x47b510e3, (int) 0x13f33592, (int) 0x17bf5c5a, (int) 0x2d6ddbdf,
+  (int) 0xcef859f3, (int)  0x92ae935, (int) 0x70baa959, (int) 0x99c2037d,
+  (int) 0xbe344ce5, (int) 0xffd75ba6, (int) 0x3c44756d, (int) 0x82e8f76e,
+  (int) 0xc29e9b4c, (int) 0x1bf33c17, (int) 0xfcae405f, (int) 0x94d2bc12,
+  (int) 0x7d8d60b8, (int) 0xe59fdd28, (int) 0x3dbb1f60, (int) 0x25e5fcf4,
+  (int) 0x247b879f, (int) 0xe755bbc1, (int) 0xb95a4d4c, (int) 0xfb7eb455,
+  (int) 0xc6dafccd, (int)  0x4bda448, (int) 0x7bbf55e3, (int) 0x7d3a05b9,
+  (int) 0xdb317338, (int) 0xea2b3562, (int) 0xb21a566b, (int) 0xe942efb1,
+  (int) 0xb25f2a9f, (int) 0xf18f34b8, (int) 0x1978a921, (int) 0x607a9cff,
+  (int) 0x34336eab, (int) 0xc71fa602, (int) 0xbe17da81, (int) 0xf0778647,
+  (int) 0x9cc30ee3, (int) 0x73cdc29f, (int) 0x61b08729, (int)  0xa97376,
+  (int) 0xc220c469, (int) 0xa6f2779a, (int) 0x4dbb00cd, (int) 0x7ee21e00,
+  (int) 0x49ff7b42, (int) 0x581278ad, (int) 0x9e960ae9, (int) 0xb9dd7ddd,
+  (int) 0xd7f68dc0, (int) 0x92a04c88, (int) 0xa3f6f497, (int)  0x1754905,
+  (int) 0x83fb2678, (int) 0xc5960454, (int) 0xac95fbec, (int) 0x1a8622ae,
+  (int) 0x987e65e9, (int) 0xa004ac9a, (int) 0x690f8116, (int) 0x308108f9,
+  (int) 0x3b774d90, (int) 0xfc5eeaa4, (int) 0xbdd5f361, (int) 0x7ded6321,
+  (int) 0x2f6b649f, (int) 0x8b11f52d, (int) 0x18585f4f, (int) 0x82c3553c,
+  (int) 0xb935709d, (int) 0x20403275, (int) 0x8300acbd, (int) 0x3a81156c,
+  (int) 0x8ae694ac, (int) 0xe6ca8934, (int) 0x1a858228, (int) 0x80198b7f,
+  (int) 0xd91fdfa5, (int) 0x10dc8601, (int) 0x50088b30, (int) 0x844ce22c,
+  (int) 0xa696822c, (int) 0x83c5e367, (int) 0xeb42f048, (int) 0x6c0deeb3,
+  (int) 0xe67cb455, (int) 0xb75a57b1, (int) 0x4a93ff20, (int) 0x4d76368e,
+  (int) 0x811c77f1, (int) 0xa8a7fb9b, (int)  0x5232efe, (int) 0x4f93224f,
+  (int) 0x799951d8, (int) 0xf89ddadc, (int) 0x5d77d6ad, (int) 0x9650daa9,
+  (int) 0xed35ab04, (int) 0x46a7dded, (int) 0xdb1fc9ce, (int) 0xdb842bca,
+  (int) 0x1bbad5df, (int) 0x6ee4d48b, (int) 0xbd2b820f, (int) 0xe5b156aa,
+  (int) 0x3b4b837c, (int) 0x25f9bafc, (int)  0xcdbea3c, (int) 0x5e6e375d,
+  (int) 0xa40baa5c, (int) 0x58cc6c60, (int) 0x4b88c518, (int) 0xa993b729,
+  (int) 0x3dc90616, (int)  0xc965957, (int) 0x48a89ae9, (int) 0x4d15a084,
+  (int) 0xaf114d85, (int) 0xebd1087a, (int) 0xa14b9c3c, (int) 0x6b5a1bb3,
+  (int) 0xae5a557a, (int) 0x4240ec41, (int) 0xb82ee3e3, (int) 0x4de6c827,
+  (int) 0x2ec39140, (int) 0x1fa5e3e5, (int) 0x32ed2eca, (int) 0xcb20f72f,
+  (int) 0x65f4be40, (int) 0x4ef4f02a, (int) 0x60726af0, (int) 0x8756b1f1,
+  (int) 0x47fe2b56, (int) 0xd1cc0c45, (int) 0x75b39e17, (int) 0x3172bb0c,
+  (int) 0x4c9e6a38, (int) 0x63f56d0d, (int) 0x1c071d0f, (int) 0xf9c18688,
+  (int) 0xa6185c33, (int) 0xe521d922, (int) 0x4d40d91a, (int) 0x1679bac6,
+  (int) 0xc309bf9c, (int) 0xcde79e8c, (int)  0xdade73b, (int)  0x20e23e9,
+  (int) 0xccdcce4f, (int) 0xd7aa1b64, (int) 0x51028cd9, (int) 0x13779201,
+  (int) 0x95951dc6, (int) 0xea5ed2a7, (int) 0xcc0df1ea, (int) 0x63253a97,
+  (int) 0x5ae5b899, (int)  0xe7ea2b2, (int) 0xee36e50b, (int) 0x26e2831f,
+  (int) 0x9f528e77, (int) 0x5c16af5b, (int) 0x1b8e3ec3, (int) 0x626d381f,
+  (int) 0x29e4f469, (int) 0xf7713412, (int) 0xb5d5ddfd, (int) 0x500bb0d2,
+  (int) 0xe1ef6177, (int) 0x5d973479, (int) 0x20852e13, (int) 0xe59e632e,
+  (int) 0x1e1b10a0, (int) 0x717f5d7a, (int) 0xf282a18d, (int) 0x182c64d3,
+  (int) 0x1b9e606a, (int) 0x553b59bf, (int) 0x6200ebdd, (int) 0xad2490b8,
+  (int)  0x9fc6337, (int) 0x9a54cc21, (int) 0x93f94bfe, (int) 0x890d071a,
+  (int) 0xc28b1a48, (int)  0x348bc97, (int) 0xf53b10af, (int) 0x935bf456,
+  (int) 0xfc7864e5, (int) 0xfd663a8c, (int) 0x5e7eabe4, (int) 0xaeb0061c,
+  (int) 0xb80281bb, (int) 0xd0486a1d, (int) 0x64fa67bd, (int) 0x24ee4209,
+  (int) 0xc4360f4a, (int) 0x367def84, (int) 0x2663618f, (int) 0xacc9378e,
+  (int) 0x9edcb98b, (int) 0x4418e4f9, (int) 0xee861826, (int) 0xb01b7bf3,
+  (int) 0xb6c8c242, (int) 0x6aca8b63, (int) 0xb27d2183, (int) 0x39d08bef,
+  (int) 0x91d6a44b, (int) 0x7eb6892e, (int) 0x9f0234d5, (int)  0x1175cc3,
+  (int) 0xe494578a, (int)  0x633b138, (int) 0xc94dc313, (int)  0x41a86a4,
+  (int) 0x5b85f43e, (int) 0xa1ea50d0, (int) 0x11ff6c46, (int) 0x377f4723,
+  (int) 0x79e98de0, (int) 0x600d7213, (int) 0x318c962d, (int) 0xff8e0176,
+  (int) 0x875980b9, (int) 0x20892df3, (int) 0x184d84cb, (int) 0x3becede2,
+  (int) 0x328144e6, (int) 0x3c5922e9, (int) 0x69d77e26, (int)  0xdbc9afc,
+  (int) 0xce5a138c, (int) 0xbc1b8e01, (int) 0x294468d0, (int) 0xbc4c356c,
+  (int) 0x9b75da84, (int) 0x34dacdf0, (int) 0x82de6e72, (int) 0x893e0ab4,
+  (int) 0x53ec4fa6, (int) 0xaddf86ca, (int) 0x6924cc73, (int) 0xc236fcc1,
+  (int) 0x24c661fc, (int) 0x7041bae3, (int) 0x2e51eaa1, (int)  0x2bece83,
+  (int) 0x7dc5317b, (int) 0x7965e7b1, (int) 0x82f820e3, (int) 0xe57cf665,
+  (int) 0x2e602b1d, (int) 0xa3f2d829, (int) 0xe446b4b1, (int) 0x5bd70a3e,
+  (int) 0x842fe059, (int) 0xba146cfc, (int) 0xaf524301, (int) 0xa627ef6c,
+  (int) 0x3ba5c281, (int) 0xb893ab5b, (int) 0x8e84e39e, (int) 0x953908d1,
+  (int) 0xa1a50125, (int) 0xb88582fb, (int) 0xc1daccdd, (int) 0xea685bbd,
+  (int) 0xe587bcd6, (int) 0x69053849, (int) 0x66a32387, (int) 0x3e9552d0,
+  (int) 0x8e5c3774, (int) 0xc6bad7f8, (int) 0xc66d1030, (int) 0xc1920526,
+  (int) 0x98eeb2eb, (int) 0x5cf29fb0, (int) 0x9c95cc25, (int) 0xab57d20e,
+  (int)  0x1da05ed, (int) 0x7f1719bd, (int) 0x74343954, (int) 0x18f3800c,
+  (int) 0x1388e759, (int) 0x439a0ccc, (int) 0xff075c3e, (int) 0xe1fe433b,
+  (int) 0xcb9dfd18, (int) 0x7c30070a, (int) 0xdde91ecd, (int) 0x87613ba3,
+  (int) 0x4f66d8ea, (int) 0x615a074d, (int)  0x4ef5845, (int) 0xce7e1fbc,
+  (int) 0x1c4eff2e, (int) 0x7a2f2cd5, (int) 0xa561d2e9, (int) 0xba691150,
+  (int) 0xcb01c764, (int) 0x65d94c5a, (int)  0x9323bb1, (int) 0xd47cca49,
+  (int) 0x6af85dc6, (int) 0xe09d6bc2, (int) 0x83366e3c, (int) 0x60642e1c,
+  (int) 0x8e65d4d6, (int) 0xc2ade802, (int) 0xf9d9fb8a, (int)  0x73db10b,
+  (int) 0x4d07f320, (int) 0xbe1f0b2b, (int) 0xf2cdecde, (int) 0x52f54859,
+  (int) 0x9b17d7f5, (int) 0x6c8dc319, (int) 0x5fe318bf, (int) 0x1d5e38cc,
+  (int) 0xe22be4c6, (int) 0x2aa52c01, (int) 0xee952269, (int) 0x3f69338b,
+  (int) 0x166ba90f, (int) 0x76af270c, (int) 0x6706a9b1, (int) 0x486ecb5d,
+  (int) 0xb8844f09, (int) 0xd3b4e88f, (int) 0x354ae877, (int) 0x9052b67f,
+  (int)  0xdcd6a57, (int) 0x4d18321e, (int) 0xf8a847d9, (int) 0x28083d7e,
+  (int) 0xbef6cb0d, (int) 0xd4d5998b, (int) 0x7b5f7ee8, (int) 0xf1913682,
+  (int) 0x542d61e8, (int) 0xcc7dc3c7, (int) 0x1c95424e, (int) 0xec079312,
+  (int) 0xafe7cfba, (int) 0xc2c243ce, (int) 0x2df76968, (int) 0x23483e32,
+  (int) 0xdb56e37a, (int) 0xd27f8ac9, (int) 0x1dd096b2, (int) 0x432867ff,
+  (int)  0x58432b7, (int) 0xb1ea145a, (int) 0x55bdac66, (int) 0x4a9cfe11,
+  (int) 0x50e5fa07, (int) 0x9a32b7a2, (int) 0x73617d8f, (int) 0x31f64732,
+  (int) 0x1ddb61cb, (int) 0x9d6fe92e, (int) 0xd2a0d9a3, (int) 0x20f8030c,
+  (int) 0x796ab512, (int) 0xcddcaac1, (int) 0xbbf03153, (int) 0xf7e5b5b8,
+  (int) 0xd664fca1, (int)  0x75b68e4, (int) 0x9a13b9af, (int) 0x77f5b84e,
+  (int) 0x50b3871a, (int)  0x1263d1f, (int) 0x2f8799e2, (int) 0x36dd5a4b,
+  (int) 0x6f4c19a4, (int) 0xbd0fe614, (int) 0x5f046609, (int) 0x6a1cd4b5,
+  (int) 0x5acbb04d, (int) 0xc2f768d1, (int) 0x5cb96021, (int) 0xf969ed1a,
+  (int) 0x75e9990f, (int) 0x479a543b, (int) 0x30cb9e3b, (int) 0x31262b2a,
+  (int) 0xa6dffc75, (int)  0xadb1932, (int) 0xf4784e68, (int) 0xcd231ad9,
+  (int) 0x6466b888, (int) 0x605541a5, (int) 0x73f3e951, (int) 0xde452680,
+  (int) 0xb76f0fde, (int) 0xa525dab5, (int) 0xdce61b93, (int) 0x11652f03,
+  (int) 0xf3709a7f, (int) 0x353257bf, (int) 0x787c177f, (int) 0xfb8fc536,
+  (int) 0x4d34d765, (int) 0xab094d1e, (int) 0x140d1663, (int) 0xbb50bb4e,
+  (int)  0x1fbb026, (int) 0x582b9ccc, (int) 0x69fd1904, (int) 0xe086588e,
+  (int) 0x510a31d1, (int) 0x3a6c9240, (int) 0x646d9ef4, (int) 0x23567928,
+  (int) 0x6066c6aa, (int) 0x69447532, (int) 0x61d289b9, (int) 0x8ba90b44,
+  (int) 0x7376ddce, (int) 0xf3194da1, (int) 0xb00eae44, (int) 0xad8c7b17,
+  (int) 0x3873d82d, (int) 0xece56922, (int) 0x8277775e, (int) 0x76381f7d,
+  (int) 0xc1a01f67, (int) 0x7414b01d, (int) 0xfe38795a, (int) 0x1cdfdc54,
+  (int) 0x5f917b2d, (int) 0xf95ac023, (int) 0x636f152b, (int) 0xb76d4345,
+  (int) 0xbd8012f6, (int) 0xc8fef29f, (int) 0x70c1c0b6, (int) 0xd4983556,
+  (int) 0x34094b40, (int) 0x36f8e965, (int) 0x345914d9, (int) 0x5c96834e,
+  (int)  0x60ef4f4, (int) 0x5c5b4bb8, (int) 0xc647adb2, (int) 0x32c85a74,
+  (int) 0x259581c5, (int) 0x94ac6342, (int) 0xaba7842a, (int) 0x378b7722,
+  (int) 0x87787c14, (int) 0x762d5919, (int) 0xe0d005b0, (int) 0x9b15cb75,
+  (int) 0x11270745, (int) 0xcddfd828, (int) 0x5a33328c, (int) 0x72bac3df,
+  (int) 0xa4b89d3c, (int) 0x80b01a67, (int) 0x7915a8f2, (int) 0x6461930c,
+  (int) 0x31e0eb1e, (int) 0x7187910c, (int) 0x62509335, (int) 0x6a7398cf,
+  (int) 0xc7faf050, (int) 0xbf6d3736, (int) 0xd6938adb, (int) 0x43367652,
+  (int) 0xcb437a3a, (int) 0x6d6ac465, (int) 0x1b3cef7f, (int) 0x9ea5b39e,
+  (int) 0x69f591a8, (int) 0xf29431b2, (int) 0xcc21debb, (int) 0x13f973da,
+  (int) 0x2feeab90, (int) 0x7b80133e, (int) 0x806e6ec9, (int) 0xa8e56e55,
+  (int) 0xb7af347d, (int) 0xfd2884aa, (int) 0xc051ec8d, (int) 0xc14ead38,
+  (int) 0x3c54186b, (int) 0x5883fb97, (int) 0xf49c3de5, (int) 0xef9c68c3,
+  (int) 0x917310fd, (int) 0xa79acb5e, (int) 0xbfe4e961, (int) 0xdd8960cf,
+  (int) 0x2055b112, (int) 0x63099fc0, (int) 0x8cc748de, (int) 0x84c2f551,
+  (int) 0x54ce5f2c, (int) 0x8627a9bb, (int) 0xc7564a62, (int) 0x3ecbfb5a,
+  (int) 0x577742b0, (int) 0x7be776aa, (int) 0xf7fd729b, (int) 0xc7e2cd4e,
+  (int) 0x73c97c39, (int) 0x6a32f9e8, (int)  0x223045, (int) 0xf155f634,
+  (int) 0xe3b1e882, (int) 0x182a2c6a, (int) 0x8efed639, (int) 0x6d5a5ceb,
+  (int) 0x7a4975a4, (int) 0x3faa1e07, (int) 0xdd57ebc1, (int) 0xf773a8eb,
+  (int) 0xdbd74ae0, (int) 0x1f9eb490, (int) 0xf5ee372f, (int) 0x91c3daed,
+  (int)  0x4abbf3c, (int) 0xca04b2fe, (int) 0x922050a0, (int) 0x662c0339,
+  (int) 0x8a80bb72, (int) 0x4ca7b507, (int) 0xec16c4d6, (int) 0x45986d7f,
+  (int) 0xf443c1d1, (int) 0x727850fd, (int) 0x23ac89e0, (int)  0x4f93aae,
+  (int) 0x38329576, (int) 0x87183edc, (int)  0xeb9b572, (int) 0x89235c8a,
+  (int) 0x931fe89b, (int) 0x847a1715, (int) 0x981bf606, (int) 0xd722b2f1,
+  (int) 0x38a3d505, (int)  0xd825943, (int) 0x2be3fe0f, (int) 0x57194c32,
+  (int) 0x36053571, (int) 0xdf705a54, (int) 0x82fa272f, (int) 0xda56aa14,
+  (int) 0xe78b81e8, (int) 0xb8324237, (int) 0xd26fe443, (int) 0x57d8d603,
+  (int) 0xec95ac96, (int) 0xf7c1891f, (int) 0x9f5f0ba8, (int) 0x6178a306,
+  (int) 0x16cdfc85, (int) 0xf04abd93, (int) 0x960f9c3c, (int) 0xc5004976,
+  (int) 0xcb9ece46, (int) 0xf6b453dd, (int) 0xce6fcc66, (int) 0x710a0657,
+  (int) 0xd9d7e7a5, (int) 0xb75d1ab3, (int) 0x75ff3d61, (int) 0x162536e5,
+  (int) 0xb84e94f3, (int) 0x9729fd56, (int) 0xc3ab5e52, (int) 0x44551f49,
+  (int) 0x31e1d15a, (int) 0x7ac92899, (int) 0x24c03418, (int) 0x288a147d,
+  (int) 0xfc1fa445, (int) 0x11990a22, (int) 0xdd40f83c, (int) 0xdaac9da0,
+  (int) 0xc0d1ec16, (int) 0xca257689, (int) 0xdb008122, (int) 0x7822ae7d,
+  (int) 0xa5ca5f0a, (int) 0x396f48b6, (int) 0xfe65c468, (int) 0x1a328f9c,
+  (int) 0x324eeac8, (int) 0x20128e48, (int) 0xa80e90f6, (int) 0x4c87f273,
+  (int) 0xe0cc8714, (int) 0x2253b629, (int) 0x9a08b149, (int) 0x4589a267,
+  (int) 0x567bac9c, (int) 0xfba44168, (int) 0x4937f960, (int) 0x747ccc8e,
+  (int)  0x2b75c62, (int) 0x5b6fbd00, (int) 0xc9e8f12c, (int) 0x5724b940,
+  (int) 0x5ac6c66f, (int) 0xcabbfd62, (int) 0xde43961b, (int) 0x784a73a0,
+  (int) 0x298e9d94, (int) 0xd7b276d8, (int) 0x96eb504d, (int) 0x423354b9,
+  (int) 0x6ade196c, (int) 0xb76830f9, (int) 0x9eb41349, (int) 0xd1df7bfe,
+  (int) 0x14098fba, (int) 0x5bfe8829, (int) 0x268247c6, (int) 0x45ecf8cb,
+  (int) 0x63451927, (int) 0x30950286, (int) 0x9783f639, (int)  0xd992d33,
+  (int) 0x7893310e, (int) 0x9c245de7, (int) 0xc38dc1e8, (int) 0xe2e73c5e,
+  (int) 0xc1b2284e, (int) 0x9fad6b0b, (int) 0xf3b3cc45, (int) 0x32b89072,
+  (int) 0xa51daafa, (int) 0xb1acf3c0, (int) 0x9a81d4b8, (int) 0x7654653a,
+  (int) 0x3f09bf14, (int) 0x2e30a228, (int) 0x8c436736, (int)  0xaa18f3a,
+  (int) 0x9915adde, (int) 0x3b1cda9b, (int) 0x3bf323fa, (int) 0xea11f416,
+  (int) 0x548b3119, (int) 0x222c07f2, (int) 0x91b8240d, (int) 0x4d5f9dd9,
+  (int) 0x8f3b0f7d, (int) 0x59a9aa56, (int) 0xf65b1396, (int) 0x27ec5733,
+  (int) 0x644e9eab, (int) 0x351be96f, (int) 0xa363f5f2, (int) 0xd80cf0ce,
+  (int) 0xcbb81052, (int) 0x8e9f677f, (int) 0x3ebeef71, (int) 0xba1392aa,
+  (int) 0xc36b48c0, (int) 0xb5f4e361, (int) 0x3100077b, (int) 0x82dd336d,
+  (int) 0xc7004e28, (int) 0x3d5c3345, (int) 0x6b431036, (int) 0xd38a1f52,
+  (int) 0xcc889884, (int) 0x82e4dcf7, (int) 0x3fd8147d, (int) 0x31816669,
+  (int) 0xd3ba49b8, (int) 0xb79c52d0, (int) 0xec47234d, (int) 0xf3768cbf,
+  (int) 0x70ee56c2, (int) 0xb17bfb40, (int) 0xeb4fb90a, (int) 0xe531b499,
+  (int) 0x9155f7a9, (int) 0x5bb0dab0, (int) 0x9c801598, (int) 0x9c42b314,
+  (int) 0xa9ddce85, (int) 0xb6512102, (int)  0xf680fd7, (int) 0x90b547e4,
+  (int) 0xba213579, (int) 0x26b4a3bf, (int) 0x27eefeb5, (int) 0x3369ca79,
+  (int) 0x79f65a0e, (int) 0xa6fc5a5a, (int) 0xa328c386, (int) 0x3265b194,
+  (int) 0xc44c830b, (int) 0x40b2d795, (int) 0xd9c4c1c4, (int) 0xacf0962b,
+  (int) 0x69980068, (int) 0xee5c691c, (int) 0x5dc9bc13, (int) 0x5d8bc29b,
+  (int) 0x6acd4ddd, (int) 0x68759135, (int) 0x107f118d, (int) 0x5b1f2c6c,
+  (int) 0xc1069457, (int) 0x49dbbb79, (int) 0x456e6318, (int) 0x21cf016e,
+  (int) 0x3b5215a8, (int) 0xf3021550, (int) 0xb1093522, (int) 0xb943d70d,
+  (int)  0x17fbe23, (int) 0x4cd0b8c5, (int) 0x7827c208, (int) 0xe870287a,
+  (int) 0x2a654638, (int) 0xad8001a5, (int) 0x11d8e83f, (int) 0x921d7c32,
+  (int) 0x45fc8d68, (int) 0x94a7ed1b, (int) 0xcdd131cf, (int) 0x802a6100,
+  (int) 0x6c7ccbaa, (int) 0xa9660b54, (int) 0x2f66959d, (int) 0xabf52b8c,
+  (int) 0x7b4c0be2, (int) 0x6ae18e3c, (int) 0x4a8de1a7, (int) 0x3186d2ec,
+  (int) 0x831ef78f, (int)  0x37801cb, (int) 0x13ac4943, (int) 0xe0a39516,
+  (int) 0x44f2f628, (int) 0xded2b185, (int) 0x9066b361, (int) 0xef2586b6,
+  (int) 0x9686737b, (int) 0x123d1f55, (int) 0x16f666a8, (int) 0x1b72658a,
+  (int) 0x5aed9d35, (int) 0xfe48ca09, (int) 0x48e0510e, (int) 0x24c5d81b,
+  (int) 0xbadb4768, (int)  0x5fafa7c, (int) 0xa4d110f1, (int) 0x73b709b1,
+  (int) 0x235899fa, (int) 0x5616ff6d, (int) 0x1ae6431c, (int) 0x3b708479,
+  (int) 0x98ce30cf, (int) 0x2c8a52fd, (int)  0x8f193aa, (int) 0x2b0f7d27,
+  (int) 0xe64330c9, (int) 0xb857ff44, (int) 0xfc31c709, (int) 0xbfa7ef97,
+  (int) 0xbd67bae0, (int) 0x85188d70, (int) 0xf479271c, (int) 0xbd67db08,
+  (int) 0xb8353ad6, (int) 0xf2a5eddf, (int) 0xdc83911f, (int) 0x97f139d8,
+  (int) 0x8a6d91b0, (int) 0x6cba092f, (int) 0x11669a42, (int) 0xda919948,
+  (int) 0x597211d3, (int) 0x72d091dd, (int) 0x7864d027, (int) 0xa2afece0,
+  (int) 0x87ebfce2, (int) 0xbfc5198f, (int) 0xfc58f2d7, (int)  0xc0ddfc6,
+  (int) 0x6b1f4bfa, (int) 0xd3552351, (int) 0xb12ccd26, (int) 0x80ee0941,
+  (int) 0x88da2426, (int) 0x48956248, (int) 0x8d8ee296, (int) 0xf458b4b4,
+  (int) 0x84fa969c, (int) 0x613419c2, (int) 0xa447207e, (int) 0x4d607b05,
+  (int) 0x14e0a81c, (int) 0xc64c21d5, (int) 0x930c850d, (int) 0x5aa493ab,
+  (int) 0xaa2d3b95, (int) 0x737c0906, (int) 0x520ffc6f, (int) 0x589d4182,
+  (int) 0x27d9fb36, (int) 0xd9508ad4, (int) 0x177f12b3, (int) 0x6fe8a1ab,
+  (int) 0x8fd4b126, (int) 0xad4342f0, (int) 0xdd97f004, (int) 0x46bdd68c,
+  (int) 0xaba2e97f, (int) 0x2ee5edb5, (int) 0xbebac403, (int) 0x88ee0827,
+  (int) 0x8d5c73dc, (int) 0x4c3086d1, (int) 0xed8f1cd2, (int) 0x9a635b7d,
+  (int) 0xcd3cee8d, (int) 0xab4af9db, (int) 0x4a09f39f, (int) 0x43049dcf,
+  (int)  0xaeec69c, (int) 0x51180120, (int)  0x427ec9b, (int) 0x1efca223,
+  (int) 0xb4749912, (int) 0xdd270382, (int) 0x60e11551, (int) 0x4548eb5d,
+  (int) 0x895f518f, (int) 0xa0bb8b94, (int) 0xa725b3a8, (int) 0xe6e07c47,
+  (int) 0xeafa438b, (int) 0xf7bb3a7b, (int) 0xa2877132, (int) 0x8156aff2,
+  (int) 0x6ad7b299, (int) 0xfd952ab9, (int) 0xeedc50b6, (int) 0x1fddf482,
+  (int) 0x17cb911c, (int) 0xaf6719a2, (int) 0x18cad9a4, (int) 0x75060ad2,
+  (int) 0x30d93478, (int) 0x94a72bb6, (int) 0x1fcb3f3b, (int) 0xc078710c,
+  (int) 0x502a7e5a, (int) 0x3a1bda49, (int) 0xfb7cee19, (int) 0xffbdd477,
+  (int) 0x3084e151, (int) 0x2628f8b3, (int) 0x399c9d22, (int)  0x748b810,
+  (int) 0xc0e5796b, (int) 0x515c96cf, (int) 0xed7bc335, (int) 0x186303ad,
+  (int) 0x1c094538, (int) 0x808c2a11, (int) 0xce5b25ff, (int) 0x88603989,
+  (int)  0x8a97c77, (int) 0xc341bf67, (int) 0xf7305e31, (int) 0x3e8fcf26,
+  (int) 0x7e66d003, (int) 0x177cba9e, (int) 0xe44b09cd, (int) 0x2c073c80,
+  (int) 0xcb21cb20, (int) 0x51016364, (int) 0x642558cf, (int) 0x718859e0,
+  (int) 0xc03ce758, (int) 0xd3f8fed0, (int) 0xdddda8dc, (int)  0xb899ddb,
+  (int) 0x77705187, (int) 0xd4f5565d, (int) 0xaafd4855, (int) 0x18915b38,
+  (int) 0xd16413b3, (int) 0x62ce9afd, (int) 0x3fd95aa4, (int) 0xe8c7074c,
+  (int)  0x13a7a4f, (int) 0xda74a54f, (int) 0x1d84c5c9, (int) 0xff1c9ba0,
+  (int)  0x8a65750, (int) 0xd66780b7, (int) 0x80d5dbbf, (int) 0x75157206,
+  (int) 0xc88b727b, (int) 0x44372307, (int) 0x693096a3, (int)  0xa489b08,
+  (int) 0xedcd790d, (int) 0xfb9e2734, (int) 0xd2dc6b2a, (int) 0x798f7e65,
+  (int) 0x630adef9, (int)  0xca61fa, (int)  0xd86c092, (int) 0x2b3a89ca,
+  (int) 0x5e04978f, (int) 0x96ad3161, (int) 0xad554183, (int) 0xb077cd14,
+  (int) 0xce73e681, (int) 0x8dd6ade0, (int) 0xbc6b17a9, (int) 0x9bd0335b,
+  (int) 0x45bd0fc4, (int) 0xe386ba9d, (int)  0xd717ba7, (int) 0x961c6dad,
+  (int) 0xcdce7ce5, (int) 0x22ad1068, (int) 0xbb03c673, (int) 0x51a05664,
+  (int) 0xc0c95cbd, (int) 0x78eeda50, (int)  0xc9a104, (int) 0x73955f5c,
+  (int) 0x7ee6390b, (int) 0xf3c517a1, (int) 0xeffa297d, (int) 0xaa3c9a39,
+  (int) 0x3f679aa2, (int) 0x89b71248, (int) 0xad3c97e5, (int) 0xead85d7e,
+  (int) 0x5cd9354d, (int) 0x441e85d4, (int) 0xccaee195, (int) 0x7c1368ec,
+  (int) 0x169dc2a9, (int) 0x46de6141, (int) 0x99ee7f32, (int) 0x3a5eb65f,
+  (int) 0xd6d0ad93, (int) 0xd3511cbd, (int) 0x98cca1dd, (int) 0x6a42c1e8,
+  (int) 0x416e2007, (int) 0xcb2126f1, (int) 0xd750f88b, (int) 0xadf25fc6,
+  (int) 0xe9e9f49b, (int) 0x12d27a3b, (int) 0xf2900306, (int) 0x1c4f87bf,
+  (int) 0x87db6ab6, (int) 0x7b41e2e3, (int) 0xef34d353, (int) 0xf55407af,
+  (int) 0x135554b4, (int) 0xf53cdbdf, (int) 0xda9ff34b, (int) 0x62859aa1,
+  (int) 0x837cadc1, (int) 0x6d2c855b, (int) 0xd48cf08b, (int) 0xebe6f9fb,
+  (int) 0xd2a10c7d, (int) 0x68fbb85d, (int) 0xd82b0568, (int) 0x71f212a6,
+  (int) 0x5e6dd563, (int) 0xf52b888a, (int) 0x36bf4095, (int) 0xd5dd7760,
+  (int) 0x41e009a7, (int) 0x98f86426, (int) 0xd38b785f, (int)  0x4a3ad95,
+  (int) 0x996def7f, (int) 0x82234241, (int) 0xe7044cb4, (int) 0xbadd084b,
+  (int) 0xdd6986a3, (int) 0xc176bd77, (int) 0xaaba3966, (int) 0xf08f68f0,
+  (int) 0x7191e6e0, (int) 0xfd544564, (int) 0x18d9d7b0, (int) 0x46ace798,
+  (int) 0x59d14fd7, (int) 0xaa5c91d4, (int) 0x747a4b0e, (int) 0xe6007e12,
+  (int) 0xf3e13afd, (int) 0xf15f199c, (int) 0xb99e2fb1, (int) 0x4e8af393,
+  (int) 0x1232cbde, (int) 0xf90cec01, (int) 0x72712f31, (int)  0x38134cb,
+  (int) 0xc0fb5e88, (int)  0xe7211ac, (int) 0x9ded9b97, (int) 0xd0a4f084,
+  (int) 0x2e966686, (int) 0xa94844bd, (int) 0x4e49c465, (int)  0xf336022,
+  (int) 0xd71ba098, (int) 0x675abfa7, (int) 0x5e35dc81, (int) 0x27fed793,
+  (int) 0xf0a7ff6a, (int) 0x2445e35b, (int)  0xf905af7, (int) 0xb37844e4,
+  (int) 0x32d371b3, (int) 0xb8d81c4a, (int) 0x1e7f2141, (int) 0x4496dc67,
+  (int) 0xac75be74, (int) 0x5e65d5cd, (int) 0xb00e07f3, (int) 0xec5db4a6,
+  (int) 0x6ac6a53b, (int) 0x88d55017, (int) 0xc691ae83, (int) 0x95154228,
+  (int) 0x39deca8e, (int) 0x1dc85942, (int) 0x8da9b40c, (int) 0x57322d89,
+  (int) 0xc56cc2e7, (int) 0x4f58b288, (int) 0x1f728545, (int) 0x5d0cdf52,
+  (int) 0xaf4e6b87, (int) 0xd5481c7b, (int) 0xecb8a43f, (int) 0xe5db9d82,
+  (int) 0xc61179db, (int)  0xe3f61e1, (int) 0xe3c9fa54, (int) 0x28c44b9e,
+  (int) 0xb67fbe1f, (int) 0x44ab334f, (int) 0xcca337e0, (int) 0xd9b30f2c,
+  (int) 0xadd060af, (int) 0xea034903, (int) 0x97ae991c, (int) 0xcf30adfe,
+  (int) 0x3077ed48, (int) 0xbbbf7e96, (int) 0xe304fab7, (int) 0x373a4b32,
+  (int) 0xfefde70d, (int) 0x27da0b65, (int)  0x66da747, (int) 0x5cf398cf,
+  (int) 0x1e52e357, (int) 0x1c0a402f, (int) 0x691aba96, (int) 0xf561d6b2,
+  (int) 0x4ad8a1a1, (int) 0x672af57b, (int) 0x207611c1, (int) 0x6ffa0ff1,
+  (int) 0xa3bfaed3, (int) 0x988a427f, (int) 0x33d37ec5, (int) 0xc8b44e0d,
+  (int) 0xf0b0becf, (int) 0x489a438d, (int) 0x7912e489, (int) 0xdd6e16ab,
+  (int) 0xa24f374b, (int) 0xde80f295, (int) 0x59b39c4a, (int) 0x85ff609e,
+  (int) 0xdea8628d, (int) 0xbf4fbc00, (int) 0xad6453a5, (int) 0xd66e2d76,
+  (int) 0xfb692f36, (int) 0x31373125, (int) 0xa182dbfc, (int)  0x6408145,
+  (int) 0x6b2f809b, (int) 0x51109779, (int) 0x33527b34, (int) 0x9f4d7d34,
+  (int) 0x13f4a926, (int) 0xfa5099f0, (int) 0x7f6cde69, (int) 0x84c7ca86,
+  (int) 0xc4c67fca, (int) 0x10f2b2fd, (int) 0x70c15058, (int) 0xc72b0d0e,
+  (int) 0x2a506376, (int) 0xb9edec16, (int) 0xb5f93d1b, (int) 0x6ead8a9a,
+  (int) 0x1bf729df, (int) 0xbb8b0678, (int) 0x9d63fc15, (int)  0x206028f,
+  (int) 0xada2e089, (int) 0xccadec1b, (int) 0x528c0e7b, (int) 0x6fe4b96f,
+  (int) 0x2524a34c, (int) 0x1ea43484, (int) 0xd3ba2298, (int) 0x39cfe18c,
+  (int) 0x4f73f795, (int) 0xfe8d2354, (int) 0x1ddf0490, (int) 0x9843230b,
+  (int) 0x3591ecf4, (int) 0xf3b4ce10, (int) 0x3dbe4d7a, (int) 0x604c7c4f,
+  (int) 0xabeaf2f6, (int) 0x503f6c7f, (int) 0x60c101aa, (int) 0x1775bcc0,
+  (int)  0x7ccd950, (int) 0x36f94f3f, (int) 0xf7a3fd30, (int) 0x2347ffa1,
+  (int) 0xacb42ef5, (int) 0x24147092, (int) 0x4ef87a9e, (int) 0x69d52c23,
+  (int) 0xa6da33a3, (int) 0xc8d1ca5f, (int) 0xfd39dbeb, (int) 0x59e5bdc5,
+  (int) 0x5abd044b, (int) 0x9181c47f, (int) 0x7564fb8b, (int) 0x15d46f4e,
+  (int) 0x65c2e55e, (int) 0xb793ba30, (int) 0xac78f4dc, (int) 0xcc0924bd,
+  (int)  0xdc0aabc, (int) 0xb7f97765, (int) 0x569cb3b3, (int) 0xedb05044,
+  (int) 0x75648805, (int) 0xbc913e62, (int)  0xd359839, (int) 0x9ff2da1c,
+  (int)  0x6bd2b27, (int) 0x80662115, (int) 0x1b144165, (int) 0x664162de,
+  (int) 0xaefdf74b, (int) 0x27e5db69, (int) 0xdf470c57, (int) 0xc34d6503,
+  (int) 0xd70d3955, (int) 0x1c2eab75, (int) 0x104c188e, (int) 0xe710238a,
+  (int) 0xf1e948be, (int) 0x56e1b3c9, (int) 0x86413b95, (int) 0x2b7c348d,
+  (int) 0xe20347fe, (int)  0x1cbcb57, (int) 0xff3a4155, (int) 0x42b50b66,
+  (int) 0x1b668560, (int) 0x61100418, (int) 0x776e29dd, (int) 0xeb4af5ed,
+  (int) 0x54b3bebc, (int) 0x26a554b4, (int) 0x454e4f39, (int) 0x30f56942,
+  (int) 0xc47f78f5, (int) 0x21753fc8, (int) 0xcbc28266, (int) 0xc9cc122f,
+  (int) 0xd8ccebf6, (int) 0x472b46e8, (int) 0xd2c57e52, (int) 0x23fef686,
+  (int) 0x1389ac74, (int)  0x135a472, (int)  0xde8e690, (int) 0x2e7364ce,
+  (int) 0xc9e1c2cd, (int) 0x341692a4, (int) 0x436de060, (int) 0xa04887d9,
+  (int) 0x20237693, (int) 0x3db304ff, (int) 0xc82bc31b, (int) 0x32656244,
+  (int) 0x12f94a83, (int) 0x3da6970e, (int) 0xda0cd59a, (int) 0x2b53c27c,
+  (int) 0x74304adb, (int) 0xb9e0ca57, (int)  0x536bc14, (int)  0x321cb6b,
+  (int) 0x17147645, (int) 0xf9ce336a, (int) 0xf201f494, (int) 0x733c7831,
+  (int) 0xe881734b, (int) 0xc2b9e6f3, (int) 0x14ecca41, (int) 0x96abfd58,
+  (int) 0x6fc6348a, (int) 0x9a2eeddd, (int) 0x14c3ac58, (int) 0x2261c824,
+  (int) 0xaa51ed73, (int) 0x6b417a13, (int) 0x4edfa6b5, (int) 0x550ca375,
+  (int) 0xd2531d8f, (int) 0x2d140e73, (int) 0x64230c75, (int) 0xffb7b211,
+  (int) 0x8fc88050, (int) 0x5fe901cb, (int) 0xf43c522c, (int)  0x759000f,
+  (int) 0x19c28bbf, (int) 0x3ac54cb9, (int) 0x8bf8c90c, (int) 0x65923521,
+  (int) 0xc5f7a589, (int) 0xddcfc0fd, (int) 0x560fe4bd, (int)  0x19f7761,
+  (int) 0x8ee72bcd, (int) 0xc2dd4baa, (int) 0xc3e0194d, (int) 0x35f64b03,
+  (int) 0x9dc2ca17, (int) 0x169185a6, (int) 0xcb6e7b5f, (int) 0xb574e7dc,
+  (int) 0xe8d00961, (int) 0x51bdeeff, (int) 0xf107567e, (int) 0x8a897324,
+  (int) 0xe83d652a, (int) 0x95344a45, (int) 0x1a6eac6f, (int) 0x79e78540,
+  (int) 0x4e990b7e, (int) 0xeb3f7636, (int) 0x23517838, (int)  0x158a2f6,
+  (int)  0xa741eda, (int) 0x7b3aaada, (int) 0x5bb8561a, (int) 0xe0e83b83,
+  (int) 0xe710f16f, (int) 0xf8d4ab0f, (int) 0xeaf2948a, (int) 0xc6afc5ff,
+  (int) 0x2d67b112, (int) 0xf074696c, (int) 0xf878a297, (int) 0xf3d29a89,
+  (int) 0xef579714, (int) 0xa84773f6, (int) 0x2a890ff4, (int) 0x1767fb55,
+  (int) 0x26164630, (int) 0x7a9c5c12, (int) 0x4416ca71, (int) 0x4390a70f,
+  (int) 0x5d22c3a2, (int) 0xbfe358cf, (int) 0xf16c4d53, (int) 0x7dd31fd0,
+  (int) 0xb3fa7a3c, (int) 0xbc80c30a, (int)  0xd35266a, (int) 0x7be47353,
+  (int) 0x47b6fc05, (int) 0x4b31e065, (int) 0x2c3bb200, (int) 0xc99c0888,
+  (int) 0x7b161dc4, (int) 0x8e890fa5, (int) 0x3ef19018, (int) 0xbd9fe3e9,
+  (int) 0xbe4bb372, (int) 0xbda5894d, (int) 0xcf3233b8, (int) 0x3b24d48c,
+  (int) 0x681ad6bf, (int) 0xff8212d9, (int) 0x1ecf6586, (int) 0xc119d903,
+  (int) 0xe865d08d, (int) 0x5a4ae56b, (int) 0x1147c9b6, (int) 0x4afb96d8,
+  (int) 0x46a438ff, (int) 0x2cddc362, (int) 0xe0c4af20, (int) 0x474ab65d,
+  (int) 0x70717dba, (int) 0xa189bba7, (int) 0xbdc41ac2, (int) 0xa79be97f,
+  (int) 0x57a0bbb9, (int) 0x6aeeafe9, (int) 0xa8f8ac70, (int) 0x87224f4d,
+  (int) 0x1868288a, (int) 0xa87e02b7, (int) 0xb66c2b74, (int) 0xfe46cefa,
+  (int) 0x680de0c6, (int) 0xa080df71, (int) 0xb88cb2bf, (int) 0x9508f3b1,
+  (int)  0xac57772, (int) 0x5d5dc888, (int) 0x87dbd8d6, (int) 0x2b9576da,
+  (int) 0x9f62ca59, (int) 0x235e0a9e, (int) 0xe18eb897, (int) 0x92acf5f9,
+  (int) 0x228d6a15, (int) 0x687923ff, (int) 0x57198a7d, (int) 0x6e185b3a,
+  (int) 0x3a19ab5e, (int) 0xa1e5cc39, (int) 0x424216a2, (int) 0x7da8a7db,
+  (int) 0xd5ad026d, (int) 0x5c9a8679, (int) 0x58a9db56, (int) 0xe2de0421,
+  (int) 0x23d93446, (int) 0xd24ab522, (int) 0xf5e3644a, (int) 0xc471fcaa,
+  (int) 0x4c450e39, (int) 0x99515422, (int) 0x1c95673f, (int) 0xd1c659eb,
+  (int) 0xf7529db8, (int) 0xc1236d6b, (int) 0x701365d8, (int) 0x13b6ee9b,
+  (int) 0x9cc003f2, (int) 0x8e0d13ec, (int) 0xd14c4a7c, (int)  0xfbe8e90,
+  (int) 0x4339365b, (int) 0xc35d328e, (int) 0x700d9e7b, (int) 0xa47e1daf,
+  (int) 0xd8195de1, (int) 0xde6fcdd9, (int) 0xc4a32bcb, (int)  0x2a0673e,
+  (int) 0x95a4a5ff, (int) 0x6de28550, (int) 0x7580c5b8, (int) 0xec023595,
+  (int) 0xcf64c724, (int) 0x1f2a5c4a, (int) 0x2110f2b9, (int) 0xd3188556,
+  (int) 0x753c089d, (int) 0xc588d2e2, (int) 0x37726d89, (int) 0xfb595ab6,
+  (int) 0xce0b3bcd, (int) 0x5168c2c1, (int) 0xcd9c1021, (int) 0x6077d714,
+  (int) 0xdca73e1d, (int) 0x8825c8f1, (int) 0x508f924d, (int) 0x5c41eaf0,
+  (int) 0x5fc99ca7, (int) 0xe2e5d705, (int) 0x34908f06, (int) 0x32db41b4,
+  (int) 0x7a32e79a, (int) 0x1fe91bd6, (int) 0x3458517c, (int) 0xd5455224,
+  (int)  0x5b21f64, (int) 0x9602adef, (int) 0x3ff9c309, (int) 0xbda7f5af,
+  (int) 0xec2074d3, (int) 0xab4cf949, (int) 0x5af0f18d, (int) 0x5b1eb05d,
+  (int) 0x4f70e61f, (int) 0x8941e02f, (int)  0x328a098, (int) 0xd56ff343,
+  (int) 0x305bb575, (int) 0x9088a486, (int) 0x76cd5e2f, (int) 0xd7a1c617,
+  (int) 0x5524fcbf, (int) 0xa2844298, (int) 0x940f191b, (int) 0xd97d1e3e,
+  (int)  0xb929a4d, (int) 0x703c42a8, (int) 0xc67cc822, (int) 0xc7c550cc,
+  (int) 0xdfac22c1, (int) 0x98345018, (int) 0x80aecd87, (int) 0xe7bea0ba,
+  (int) 0x7d109f12, (int) 0xa25825ce, (int) 0xf805f244, (int) 0xe74bbb6f,
+  (int) 0x5de6fc33, (int) 0xd9e4fdd2, (int) 0xcf3d48cb, (int) 0xb0035252,
+  (int) 0x1c85a8ce, (int) 0xfecaa113, (int) 0x5cf0e3fd, (int) 0xb66bd636,
+  (int) 0xdd54bbea, (int) 0x682585d1, (int) 0xa2895a2e, (int) 0xd33489d6,
+  (int) 0x2145fef2, (int) 0xe1bec110, (int) 0x7f9dad56, (int) 0xc0b1dc69,
+  (int) 0xa52addad, (int) 0x5b3f59d5, (int) 0x9ca1b267, (int) 0x2665cea5,
+  (int) 0x6172256d, (int) 0xfee39ed2, (int) 0x6a0f91ff, (int) 0xcee78396,
+  (int) 0xb265988d, (int) 0xf1972585, (int)  0xa57ebee, (int) 0xe62b9ff6,
+  (int) 0x673c8986, (int) 0x7ce7d2d8, (int) 0xa4ba4dff, (int) 0x37bd9a12,
+  (int) 0xfc261389, (int) 0x70ef1468, (int) 0x1ee8ce7c, (int) 0x716a25dc,
+  (int) 0x4454758b, (int) 0x8a8fba16, (int) 0x172597ad, (int) 0xbb30ec21,
+  (int) 0x3b90dde1, (int) 0x9747d5dc, (int) 0xbe140c4b, (int)  0x167b62a,
+  (int) 0x2acf03f2, (int) 0x86ebc899, (int) 0xed65560b, (int) 0x521079ab,
+  (int) 0x6e3d9912, (int) 0xee931057, (int) 0x77fd0d51, (int) 0x4901f0ec,
+  (int) 0xc2e4a51c, (int) 0xe82b8788, (int)  0x2476265, (int) 0x709eaf68,
+  (int) 0xe5ce2416};
+
+
+local int munge_const[] = {
+ 1579325736,   154605730,  2055183392,  1148521612,   494907341,
+  418748585,  1640181323,   583760400,   -54362599,   442981666,
+ -312982658,    27231582,  1529492756,  1205213860, -1962965285,
+  923756815, -1014188549, -1565541715, -1206938557,  1717481475,
+ 1496433424,  -735617802,  1345282939, -1881354244, -1606827320,
+ 1643558129,  1180983642,   330144676,   501068918,  -175519215,
+ 2115076475,  1515433695,   219402494, -1925992736, -1213864246,
+ 1169395130,  1899457123,    44578854, -1920991715, -1971321148,
+  873595319, -1603648999,   598154211,   229176167,  2103084522,
+-2030217316,  1878061094, -2004308555,  -986387168,   146132206,
+  476174802, -1813062979,  -956034496, -1941828400,  -890968885,
+ -199674425,   304915956, -1287679661,  1115177860,   479342223,
+-1362311168, -1585949487,    89035250,    50172021,  -589083951,
+ 1108012973,  1747229533,  2028348062, -1088662824, -2047027474,
+  322113791, -1966830429, -1888069517,  -988543966,  1266474651,
+-1070907754,  1153166174, -1514278163,  1184232337, -1871487669,
+ -770868268,  2135971519,  1452485291,  2033907243,   -30054111,
+ 1491130031, -1551915598,   889527709, -1515365511,  -417578172,
+ 1893380209, -1288446846,  1387500268,  -391076543,  -934504356,
+ 1209700874,   626415641,  -121561685,   225499947,  -116935755,
+ -385032313,  -678528750,    91257425,   819983029,  -643319513,
+-1025330748,  1040840558,  1407314002,  1135564277, -2060539408,
+  647924821,  -763379346,  1562381723,   394411775,  1797870428,
+-1463265013,  -170451885,  -228275702,  -366423236, -1451441225,
+ 1167128177,  -523459073,   639445189,  -312735070,   -93913754,
+ -200049632, -1929041652,   661850821, -1431278089, -1000215612,
+  823361991,    40061972,  1382109801,  1892413029, -1861172746,
+   82529575,   544100015,   440123439,  -712248455,  2101808142,
+-2056258944,  1946503952,   278389792,   319390707,    53499191,
+ -645371964, -1856165192,   203173391,  -465600592,   689582680,
+-2091515706, -1377995745,  1281522558, -2102592720, -1073468178,
+ 1324528699,  1484517421, -1563484937, -2064024386,  -318197924,
+-2017201293,  -317945827,  1020190598,   750656653, -1552149646,
+-1750692392,  -320485163,   577533459,  1944046516,   980597533,
+-1335731358,  2004168726,  1598718097, -1842299965,  1076727065,
+ 1031183844, -2025595622,   710330957,   850915474,  1154838062,
+ 1998368962, -1813849930,  -872462658,  -220095317, -2136922730,
+-1253132071,   227998933,  1625133396,   292374563,  1056804068,
+  533935115,  1234183967,   -11248321,  1196963436,   247108509,
+ 1010688656,   620466223, -1189978276, -1894674148,   674746451,
+-1621495137, -1728786039,  1618429117,   186157212,   370166861,
+  504195447,    46268623,  1986068868,   822466085, -1123128440,
+-1144608896,   816951187, -1624534242, -1992724071,  -788506396,
+  931193928, -2030159481,   870254141,  2135364626,    73983957,
+-1992265146, -1600572614,   535648471,  -708564893,  2034261741,
+  927069547,   743504266,  1564523130,  1466086112,  -891037342,
+ 1182252850, -1006575423,   577779251,  -618150722,  1568213554,
+-1678144185,  1453876266,  -945617183, -1129596274,  -161315368,
+  511247314,  1378293315,  1541140511,   949698091,  -891817162,
+ -198418509,   760048555,  1668719658, -1133285580, -1062992737,
+-1354762792,   102298393,  -628337817,  2029738098,  -847694489,
+-1240654646,  -160406214, -1919643260,  -945937445,  -427725627,
+-1327173779,   695149160,  1026633939,  2026196594,  1257420124,
+ 1479448152,  1197053047, -1142709772,   664727902,  -599537008,
+  685465256, -1034089655,   825631819, -1666029363,   982449917,
+ -840385484,   342026388, -1287077956,   752023426,   -43762451,
+  973059642, -1648919006,   894419580};
+
+
+local int munge_linear_1[] = {
+         79,          53,          59,          52,          42,
+         27,         285,         190,         231,         220,
+         39,         140,         259,         169,          52,
+        184,          88,         204,         139,         189,
+         68,         153,         190,          24,         264,
+        109,          12,         261,          75,         157,
+        264,         174,          41,          13,          55,
+        123,          94,         284,         281,         228,
+        192,          70,         258,         255,         116,
+        253,         151,         118,          17,         158,
+         16,         204,         163,         124,         227,
+        284,         104,          76,          88,         215,
+        289,         170,         142,         111,         104,
+        285,          83,         168,         186,         178,
+         35,          27,         148,         151,         112,
+         76,         238,          54,           9,         222,
+        245,          96,          37,         184,          39,
+         75,          61,         194,           4,           7,
+         46,         150,         279,          64,         222,
+        103,          62,         240,         197,         125,
+        127,          43,         267,          30,         227,
+         96,          67,         173,         165,         175,
+        134,          33,         227,         108,         188,
+        169,         133,         116,          32,          81,
+        185,         271,          49,          57,         100,
+        217,         210,         248,         181,         178,
+        214,         162,         198,         249,         123,
+        211,         198,         176,         136,         279,
+         79,          45,         239,         214,         187,
+        187,         266,         192,         273,           6,
+        178,         279,          36,          33,         168,
+        151,          56,         155,          91,          38,
+        115,         188,         200,         276,         257,
+         46,         235,          72,         260,         288,
+        288,          26,          53,         283,         119,
+        259,         134,          59,         125,         181,
+        234,          50,         174,         254,          96,
+        229,         248,          98,          44,         216,
+         50,         107,           5,         237,         134,
+        187,          33,          91,         138,          94,
+         19,           2,         291,         247,         273,
+         18,          66,         275,         258,          18,
+        196,         177,         216,         269,         204,
+        145,          52,         131,         173,         236,
+        121,          59,         243,         157,          30,
+        144,         251,          75,         243,          32,
+         77,          75,          49,         158,         213,
+        197,         180,         204,         113,          57,
+        136,         155,         118,         256,         193,
+        157,         268,         183,           1,         262,
+         25,          53,         101,           8,         199,
+        163,         266,         291,         153,         123,
+        135,          77,         283,         230,         163,
+        114,         185,         141,         222,          81,
+         39,           2,          15,          54,         186,
+         56,         184,         267,         275,          33,
+        176,          67,         114};
+
+
+local int munge_linear_2[] = {
+        154,          82,         277,         220,          57,
+         72,          22,         120,         225,          60,
+        177,         272,          51,          72,          81,
+        150,         230,         266,         253,         258,
+        203,         289,         250,         283,          19,
+         23,         205,          74,         206,         184,
+        182,          12,         169,          34,         118,
+        172,         235,          31,         145,         205,
+        253,         184,         219,          28,         189,
+         28,           5,         190,         214,          57,
+         94,          75,         113,         144,         272,
+         82,         237,          92,         278,          50,
+        257,          79,           8,         195,          30,
+        139,         103,         154,         214,         222,
+        127,          76,         208,         227,         191,
+         95,         278,         154,         141,         161,
+        140,         120,         153,          65,          46,
+        137,         135,          44,         212,         184,
+         63,          14,         118,          47,         123,
+         23,         186,          48,          92,          76,
+        177,         225,         219,         288,         253,
+         62,         273,          73,         110,         118,
+         76,         285,          14,         217,         163,
+         19,         285,         291,          11,         240,
+        173,         202,         258,         155,           3,
+        291,          97,         258,         215,         189,
+        227,         250,         213,         200,         142,
+        220,          38,          26,         164,          99,
+        140,          17,         190,           6,         128,
+        133,         254,          52,          56,         169,
+        218,         287,           5,          83,          32,
+        198,         136,         105,          10,         157,
+        121,         147,          10,         105,         231,
+        257,         187,         219,         121,           2,
+         51,          57,         216,         132,          46,
+        272,         128,         256,           5,         119,
+        290,         133,         136,         260,         185,
+         96,          21,          60,         218,          35,
+        287,          32,         276,          44,          97,
+        111,         203,          12,         237,         114,
+         10,         145,          82,         169,          68,
+        175,         151,         207,         128,          95,
+         36,         289,         239,         155,         271,
+        132,         174,          13,          78,          54,
+         38,          99,          80,          51,         226,
+         73,         256,         250,         112,         202,
+        247,           5,         133,         176,         160,
+        265,         115,         291,          21,          73,
+        255,         129,          67,         199,          24,
+        116,         103,          26,          90,         102,
+         11,         208,          81,         228,          48,
+        103,         168,          62,         251,         234,
+        144,         184,         216,         102,          40,
+        101,         197,         198,           4,         256,
+         20,          90,           1,         195,          74,
+        105,         247,         151,          39,          43,
+        255,         195,           4};
+
+
+local int munge_quad_1[] = {
+         59,          47,         105,         157,         110,
+        274,         103,         193,         289,         152,
+        218,          26,         257,         268,         268,
+         25,         182,          56,         142,         209,
+        284,         124,          90,          91,         151,
+        253,          84,          68,         201,         160,
+        206,         289,         106,         125,          65,
+        246,          93,         159,         265,         199,
+        217,         263,         158,           2,         241,
+        186,          15,          80,         143,         277,
+        218,         144,         257,          90,         117,
+        124,         265,         188,         264,         218,
+         94,          44,         263,         180,         112,
+        244,         287,         283,         123,          48,
+        186,         161,         200,          62,          84,
+        102,         171,         261,         210,          87,
+        158,         221,         100,         121,         143,
+        150,         145,          26,         289,         236,
+        264,         276,          26,         286,         268,
+         99,         279,          44,         256,         211,
+        210,         236,         143,         253,         138,
+        239,          78,         167,         286,          95,
+        111,         110,          61,         259,           6,
+        174,           3,          91,         235,         273,
+        150,         169,          32,         233,         265,
+        109,         114,         231,         266,         229,
+        153,         127,         200,         124,         242,
+         12,         158,           8,          44,          70,
+         77,         256,          77,          54,          37,
+        244,         200,         190,         107,          86,
+         28,         106,         161,         160,          99,
+        187,         176,         167,         164,          87,
+         85,         233,         249,         169,         280,
+        114,         280,         154,         150,         276,
+          6,          36,         246,         271,          18,
+         87,         286,         132,          47,          96,
+        198,         209,         134,          41,         236,
+        231,         181,         284,          37,         269,
+         69,         223,         255,         162,         128,
+         47,         270,         230,         215,         176,
+        135,         283,         153,          99,         168,
+        153,         104,          53,         198,          99,
+        115,         208,          15,         108,         100,
+         17,         247,          68,         163,          13,
+         55,         198,           3,         147,          31,
+          9,         193,          19,         171,         145,
+         71,         149,          38,         131,          25,
+        276,          38,         243,         194,         110,
+        285,          43,           4,         192,         267,
+        189,         190,         171,         228,         106,
+          7,         200,         244,         212,          81,
+         57,         263,           7,         164,         286,
+        100,         138,          14,         117,         222,
+         94,          48,         232,          69,         260,
+         46,          83,         121,          25,          83,
+        132,         239,          38,         201,         139,
+         50,         281,         199};
+
+
+local int munge_quad_2[] = {
+        289,         255,         225,         186,          51,
+        117,         120,         285,         215,         248,
+        181,         224,         222,          17,         158,
+        275,         115,         276,         203,         144,
+        167,         292,         191,          98,         186,
+        120,           2,         223,         271,          75,
+         49,         270,         157,          87,         177,
+        164,         216,         274,         132,         230,
+         96,          22,         263,         138,         104,
+        176,         158,         159,         162,         235,
+        130,         186,         150,         292,          31,
+         79,         122,         124,           2,           1,
+        279,          52,         272,         286,          53,
+        250,         242,         241,         190,         205,
+        260,         144,         235,           5,         286,
+        209,         225,         224,          65,          51,
+         42,         222,         224,          27,         189,
+         74,         173,          33,         174,         167,
+        144,         187,          38,         128,         152,
+        100,          29,         285,          73,          81,
+        235,          31,           9,         254,          51,
+         25,          77,         193,         222,          69,
+        165,         220,          95,         175,          85,
+         79,          54,         157,         251,         175,
+        224,          71,         191,         247,          22,
+        119,         129,         232,           5,         128,
+        243,          29,         235,         220,          66,
+        158,         164,         123,         191,         154,
+        161,         205,         171,         258,         194,
+         19,          25,         271,          13,         225,
+        238,         218,         113,          16,         268,
+        163,         206,          76,          69,         134,
+        196,         220,          58,         101,         172,
+         95,         216,         242,           2,         233,
+        235,          94,          39,         261,          85,
+         67,         264,         104,         251,         184,
+        118,         170,         171,         129,          47,
+        207,          90,         160,         110,         138,
+        210,          80,         202,         196,         225,
+        198,          57,         173,         191,          28,
+        163,         107,          84,          85,          33,
+         10,         282,         226,          30,         290,
+        288,         205,          70,         201,         121,
+        161,         143,         220,         129,         101,
+        223,          42,         208,         153,         286,
+        258,         153,         174,          82,         259,
+        243,          35,           2,         152,          74,
+        126,          88,         193,          20,         138,
+        141,         167,          54,         167,         186,
+        222,         223,         166,         292,         190,
+        194,         126,         134,         280,           6,
+          1,         256,         132,          67,          29,
+         26,          39,         146,         275,          94,
+        179,          45,         122,         186,         162,
+         35,         146,          41,         123,         245,
+        210,         276,          67,         239,         189,
+        175,         283,         109};
+
+
+local int hash_int(int i)
+{
+  char *pi;
+  int count,ret;
+
+  ret = 777777;
+
+  pi = (char *)(&i);
+
+  for(count=0;count<(int)sizeof(int);++count)
+  {
+    ret ^= wn_random_int_table[2000 + pi[count]];
+  }
+
+  return(ret);
+}
+
+
+void wn_rand_print_state(void)
+{
+  int i;
+
+  printf("{");
+
+  for(i=0;  i < BUFFER_SIZE;  ++i)
+  {
+    printf("(int) 0x%8lx%s", state[i], i % 4 != 3 ? ", " : ",\n");
+  }
+
+  printf("}\n");
+}
+
+
+void wn_seed_random_number_generator(int seed)
+{
+  int i;
+
+  wn_assert(WN_RANDOM_INT_TABLE_SIZE >= BUFFER_SIZE);
+
+  wn_memcpy(state, wn_random_int_table + WN_RANDOM_INT_TABLE_SIZE -
+  /**/				BUFFER_SIZE, BUFFER_SIZE * sizeof(int));
+
+  for (i = 0;  i < BUFFER_SIZE;  ++i)
+  {
+    state[i] ^= hash_int(i + seed);
+  }
+
+  pointer = WINDOW_SIZE;
+  munge_pointer = 0;
+  number_of_saved_bits = 0;
+
+  for(i = 0;  i < 2*BUFFER_SIZE;  ++i)
+  {
+    (void)wn_random_int();
+  }
+}
+
+
+/*     buffer of random ints that have been calculated in a batch, to be
+** read out one by one by wn_random_int */
+int wn_random_ints_buf[16];
+
+/*     number of random ints remaining in buf.  lo_random_ints_count-1 is next
+** random int */
+int wn_random_ints_count = 0;
+
+
+int wn_random_ints_fill_buf()
+{
+  int ret;
+  int *in_p, *out_p;
+
+# define LO_MUNGE()					\
+  /* start out with a constant */				\
+  ret =      munge_const   [munge_pointer]  ^			\
+								\
+  /* linear taps */						\
+  /**/  in_p[munge_linear_1[munge_pointer]]  ^			\
+  /**/  in_p[munge_linear_2[munge_pointer]]  ^			\
+								\
+  /* quad tap */						\
+  /**/   (in_p[munge_quad_1[munge_pointer]]  &			\
+  /**/    in_p[munge_quad_2[munge_pointer]]);
+
+
+# define LO_INC_MUNGE_POINTER()					\
+  ++munge_pointer;						\
+  if(munge_pointer >= NUM_MUNGE_FUNCS)				\
+  {								\
+    munge_pointer = 0;						\
+								\
+    ret ^= wn_random_int_table[					\
+    /**/	((in_p[ 97] >> 14) ^ (in_p[123] >> 15)  ^	\
+    /**/	 (in_p[125] >> 26) ^ (in_p[220] >> 21)  ^	\
+    /**/	 (in_p[238]))  &  ((1<<10) - 1)];		\
+  }
+
+
+# define LO_DEC_STATE_POINTER_16()				\
+  pointer -= 16;							\
+  if (pointer < 0)						\
+  {								\
+    int *next_dest, *next_src;					\
+								\
+    pointer += 16;						\
+								\
+    if (0 == pointer)						\
+    {								\
+      next_dest = &(state[BUFFER_SIZE - WINDOW_SIZE]);		\
+    }								\
+    else							\
+    {								\
+      next_dest = &(state[BUFFER_SIZE + pointer - 2*WINDOW_SIZE]);	\
+    }								\
+    next_src  = &(state[pointer]);				\
+								\
+    wn_memcpy(next_dest, next_src, WINDOW_SIZE * sizeof(int));	\
+								\
+    pointer = next_dest - state;				\
+    wn_assert(pointer  <=  BUFFER_SIZE - WINDOW_SIZE);		\
+  }
+
+
+  out_p = &(state[pointer]);
+  in_p  = out_p + (16 + 256 + 16);
+  out_p += 15;
+
+
+  LO_MUNGE();		/* set ret based on in_p and munge_pointer */
+  *(out_p--) ^= wn_random_ints_buf[15] = ret;
+  -- in_p;
+
+  LO_MUNGE();		/* set ret based on in_p and munge_pointer */
+  *(out_p--) ^= wn_random_ints_buf[14] = ret;
+  -- in_p;
+
+  LO_MUNGE();		/* set ret based on in_p and munge_pointer */
+  *(out_p--) ^= wn_random_ints_buf[13] = ret;
+  -- in_p;
+
+  LO_MUNGE();		/* set ret based on in_p and munge_pointer */
+  LO_INC_MUNGE_POINTER();	/* may change ret */
+  *(out_p--) ^= wn_random_ints_buf[12] = ret;
+  -- in_p;
+
+
+  LO_MUNGE();		/* set ret based on in_p and munge_pointer */
+  *(out_p--) ^= wn_random_ints_buf[11] = ret;
+  -- in_p;
+
+  LO_MUNGE();		/* set ret based on in_p and munge_pointer */
+  *(out_p--) ^= wn_random_ints_buf[10] = ret;
+  -- in_p;
+
+  LO_MUNGE();		/* set ret based on in_p and munge_pointer */
+  *(out_p--) ^= wn_random_ints_buf[9] = ret;
+  -- in_p;
+
+  LO_MUNGE();		/* set ret based on in_p and munge_pointer */
+  LO_INC_MUNGE_POINTER();	/* may change ret */
+  *(out_p--) ^= wn_random_ints_buf[8] = ret;
+  -- in_p;
+
+
+  LO_MUNGE();		/* set ret based on in_p and munge_pointer */
+  *(out_p--) ^= wn_random_ints_buf[7] = ret;
+  -- in_p;
+
+  LO_MUNGE();		/* set ret based on in_p and munge_pointer */
+  *(out_p--) ^= wn_random_ints_buf[6] = ret;
+  -- in_p;
+
+  LO_MUNGE();		/* set ret based on in_p and munge_pointer */
+  *(out_p--) ^= wn_random_ints_buf[5] = ret;
+  -- in_p;
+
+  LO_MUNGE();		/* set ret based on in_p and munge_pointer */
+  LO_INC_MUNGE_POINTER();	/* may change ret */
+  *(out_p--) ^= wn_random_ints_buf[4] = ret;
+  -- in_p;
+
+
+  LO_MUNGE();		/* set ret based on in_p and munge_pointer */
+  *(out_p--) ^= wn_random_ints_buf[3] = ret;
+  -- in_p;
+
+  LO_MUNGE();		/* set ret based on in_p and munge_pointer */
+  *(out_p--) ^= wn_random_ints_buf[2] = ret;
+  -- in_p;
+
+  LO_MUNGE();		/* set ret based on in_p and munge_pointer */
+  *(out_p--) ^= wn_random_ints_buf[1] = ret;
+  -- in_p;
+
+  LO_MUNGE();		/* set ret based on in_p and munge_pointer */
+  LO_INC_MUNGE_POINTER();	/* may change ret */
+  *(out_p) ^= wn_random_ints_buf[0] = ret;
+
+  wn_random_ints_count = 16;
+
+  LO_DEC_STATE_POINTER_16();
+
+  return wn_random_ints_buf[-- wn_random_ints_count];
+}
+
+
+/* subroutine version of the macro wn_random_int() */
+int wn_random_int_func(void)
+{
+  return wn_random_int();
+}
+
+
+int wn_random_n_bits(int n)
+{
+  int ret;
+
+  if(n <= number_of_saved_bits)
+  {
+    ret = saved_bits&((1<<n)-1);
+    saved_bits >>= n;
+    number_of_saved_bits -= n;
+
+    return(ret);
+  }
+  else /* n > number_of_saved_bits */
+  {
+    int bit_deficit;
+
+    if (n >= 32)
+    {
+      wn_assert(n == 32);
+      return wn_random_int();
+    }
+    bit_deficit = n - number_of_saved_bits;
+
+    ret = saved_bits&((1<<number_of_saved_bits)-1);
+    ret <<= bit_deficit;
+
+    saved_bits = wn_random_int();
+    ret |= ( saved_bits&((1<<bit_deficit)-1) );
+    saved_bits >>= bit_deficit;
+    number_of_saved_bits = 32 - bit_deficit;
+
+    return(ret);
+  }
+}
+
+/* this version is faster if n>10 */
+int wn_random_n_bits_alt(int n)
+{
+  if (n >= 32)
+  {
+    wn_assert(n == 32);
+    return wn_random_int();
+  }
+  else
+  {
+    return wn_random_int() & ((1u << n) - 1u);
+  }
+}
+
+
+int wn_random_bit(void)
+{
+  int ret;
+
+  if(number_of_saved_bits < 1)
+  {
+    saved_bits = wn_random_int();
+    number_of_saved_bits = 32;
+  }
+
+  ret = (int)(saved_bits&1);
+  saved_bits >>= 1;
+  --number_of_saved_bits;
+
+  return(ret);
+}
+
+
+void wnrnd_check(void)
+{
+  int i, max;
+
+  max = 0;
+  for (i = 0;  i < NUM_MUNGE_FUNCS;  ++i)
+  {
+    max = wn_max(max, munge_linear_1[i]);
+    max = wn_max(max, munge_linear_2[i]);
+    max = wn_max(max, munge_quad_1[i]);
+    max = wn_max(max, munge_quad_2[i]);
+
+    wn_assert(max < MAX_IN_P_INDEX);
+  }
+
+  printf("wnrnd_check: max in_p offset == %d\n", max);
+} /* wnrnd_check */

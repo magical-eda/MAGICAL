@@ -1,0 +1,4 @@
+#/bin/csh -f
+#tar xvf /dev/rst8 .
+wncrypt < /dev/rst8 | uncompress | dd | tar xvf - .
+# uncompress < /dev/rst8 | tar xvf - .

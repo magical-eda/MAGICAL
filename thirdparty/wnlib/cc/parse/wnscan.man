@@ -1,0 +1,56 @@
+NAME
+     wnscan -- scan cstream for patterns
+
+SYNOPSIS
+     #include "wncstr.h"
+
+     bool wn_scan_for_eos(stream)
+     wn_cstream stream;
+
+     bool wn_scan_for_char(stream,c)
+     wn_cstream stream;
+     char c;
+
+     bool wn_scan_for_char_type(stream,char_type)
+     wn_cstream stream;
+     char char_type[256];
+
+     bool wn_scan_for_not_char_type(stream,char_type)
+     wn_cstream stream;
+     char char_type[256];
+
+     bool wn_scan_for_literal(stream,literal)
+     wn_cstream stream;
+     char literal[];
+
+DESCRIPTION
+     These routines scan "stream" for the indicated pattern.  They
+     return TRUE and set the current mark to the beginning of the
+     pattern if successful.  Otherwise, they return FALSE and leave
+     current mark unaltered.
+
+     "wn_scan_for_char_type" scans for a character c which satisfies
+     char_type[c] == TRUE.  "wn_scan_for_char_type" returns FALSE if
+     such a char cannot be found.
+
+     "wn_scan_for_not_char_type" scans for a character c which satisfies
+     char_type[c] == FALSE.  End of stream is considered to be a match,
+     so "wn_scan_for_not_char_type" always succeeds.  
+
+BUGS
+     More scan routines are needed.
+
+     Need routines to scan between 2 marks rather than between a mark
+     and end of stream.
+
+     Need routines to scan backward.
+
+     What about scan for regular expressions?
+
+SEE ALSO
+     wncstr, wnptok, wnary
+
+AUTHOR
+     Will Naylor
+
+

@@ -1,0 +1,61 @@
+NAME
+     wnloop -- package for writing iterators
+
+SYNOPSIS
+     extern bool wn_loopinit_just_called;
+
+     wn_loopinit();
+
+DESCRIPTION
+     This package provides a procedure for writing generalized iterators.
+     These iterators work in for loops.  Use "wn_loopinit()" in
+     the first part of the for loop; use your iterator in the second part;
+     the third part is blank.
+
+     Write an iterator using this template:
+
+       bool my_loop(my_object,pmy_dummy)
+       my_type my_object;
+       my_dummy_type *pmy_dummy;
+       {
+         extern bool wn_loopinit_just_called;
+
+         if(wn_loopinit_just_called)
+         {
+           *pmy_dummy = first_dummy(my_object);  /* set up first dummy */
+
+           wn_loopinit_just_called = FALSE;
+         }
+         else
+         {
+           (*pmy_dummy) = next_dummy(my_object,*pmy_dummy);
+         }
+
+         return(*pmy_dummy != NULL);
+       }        
+
+     Use your iterator as follows:
+
+       {
+         my_type my_dummy;
+
+         for(wn_loopinit();my_loop(my_object,&my_dummy);)
+         {
+           ...
+         }
+       }
+
+     Also, consider using already existing iterators to write new 
+     iterators.
+
+EXAMPLES
+
+BUGS
+
+SEE ALSO
+     wnset, wnsll
+
+AUTHOR
+     Will Naylor
+
+

@@ -1,0 +1,106 @@
+NAME
+     wnstr -- string operations
+
+SYNOPSIS
+     wn_strncpy(out,in,n)  
+     char out[],in[];
+     int n;
+
+     wn_strcpy(out,in)
+     char out[],in[];
+
+     wn_stracpy(&out,in)
+     char out[],in[];
+
+     wn_strncat(out,in,n) 
+     char out[],in[];
+     int n;
+
+     wn_strcat(out,in)
+     char out[],in[];
+
+     wn_stracat(&out,s1,s2)
+     char out[],s1[],s2[];
+
+     wn_stracat3(&out,s1,s2,s3)
+     char out[],s1[],s2[],s3[];
+
+     wn_stracat4(&out,s1,s2,s3,s4)
+     char out[],s1[],s2[],s3[],s4[];
+
+     wn_stracat5(&out,s1,s2,s3,s4,s5)
+     char out[],s1[],s2[],s3[],s4[],s5[];
+
+     wn_stracat6(&out,s1,s2,s3,s4,s5,s6)
+     char out[],s1[],s2[],s3[],s4[],s5[],s6[];
+
+     int wn_strcmp(s1,s2)
+     char s1[],s2[];
+
+     int wn_numstrcmp(s1,s2)
+     char s1[],s2[];
+
+     int wn_strncmp(s1,s2,n)
+     char s1[],s2[];
+     int n;
+
+     bool wn_streq(s1,s2)
+     char s1[],s2[];
+
+     bool wn_streqnc(s1,s2)
+     char s1[],s2[];
+
+     bool wn_char_in_string(c,s)
+     char c,s[];
+
+DESCRIPTION
+     These routines operate on null-terminated character strings.  They
+     do not check for overflow of any receiving string.
+
+     "wn_strcpy" is the same as "strcpy", except that it returns no
+     value; it copies "in" to "out".
+
+     "wn_strncpy" is NOT the same as "strncpy"; it copies strlen(in) 
+     or "n" chars, whichever is less, and then null terminates.  The
+     target can become as long as n+1 chars, including the null-termination.
+
+     "wn_stracpy" allocates (from the current memory group) strlen(in)+1
+     chars of memory for "out", and then copies "in" to it.
+
+     "wn_strcat" is the same as "strcat", except that it returns no
+     value; it appends a copy of "in" to "out".
+
+     "wn_strncat" is NOT the same as "strncat"; it appends chars from
+     "in" while "out" has strlen < "n", and then null terminates.  The
+     target can become as long as n+1 chars, including the null-termination.
+
+     "wn_stracat" allocates (from the current memory group) 
+     strlen(s1)+strlen(s2)+1 chars of memory for "out", then
+     puts the concatonation of s1 and s2 in this memory.
+     "wn_stracat3" concatonates 3 strings in the same manner, etc.
+
+     "wn_strcmp" is the same as "strcmp".
+
+     "wn_numstrcmp" compares strings "s1" that "s2" so that the intuitively
+     correct notion of numerical order is respected.  Thus, the
+     string "var9" is < "var10", according to "wn_numstrcmp".
+     Similarly, "var99" < "var100", "x99y" < "x200y", etc.
+
+     "wn_streq" returns TRUE iff "s1" is same string as "s2".
+     "wn_streq" is substantially faster than "wn_strcmp".
+
+     "wn_streqnc" is the same as "wn_streq" except that ignores
+     case (that is, capitalization) of both strings.
+
+     "wn_char_in_string" returns TRUE iff the character "c" is 
+     contained in the null-terminated string "s".
+
+BUGS
+
+SEE ALSO
+     wnblk
+
+AUTHOR
+     Will Naylor
+
+

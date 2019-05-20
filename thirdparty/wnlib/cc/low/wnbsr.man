@@ -1,0 +1,125 @@
+NAME
+     wnbsr -- binary search
+
+SYNOPSIS
+     #include "wnbsr.h"
+
+     wn_binary_search_int(&code,&result,low,high,pfind_direction)
+     int code;
+     int result,low,high;
+     int (*pfind_direction)(/*num*/);
+
+DESCRIPTION
+     Do a binary search.  Useful for searching sorted arrays, solving
+     equations, etc.
+
+     "wn_binary_search_int" does a binary search over the integer range 
+     [low,high], including both endpoints.  The routine 
+     (*pfind_direction)(num) is called with arguments "num" taken
+     from this range.  (*pfind_direction)(num) returns a number
+     <, ==, or > to 0, according to whether "num" is too large, exactly right,
+     or too small (don't get this reversed!).  "wn_binary_search_int"
+     gives one of the following results:
+
+       1)  An exact match is found.  In this case, the results are:
+
+             code == WN_EXACT_MATCH
+             result = <the exact matching integer>
+
+       2)  No exact match is found, but the range contains sought after value.
+           In this case, the results are:
+
+             code = WN_NO_EXACT_MATCH
+             result = <closest integer LESS THAN the sought after value>
+
+           If you want the closest integer GREATER THAN the sought after
+           value, add 1 to "result".
+
+       3)  The value sought is not in the range searched.  In this case,
+           the results are:
+
+             code = WN_OUT_OF_RANGE
+             result = <"low" or "high", which ever is closer to the
+                       sought after value> 
+
+     For an inferior implementation of the same idea, see bsearch(3).
+
+EXAMPLES
+     Consider the following (rather trivial) code:
+
+       #include "wnlib.h"
+       #include "wnbsr.h"
+
+       local float search_number;
+
+       main()
+       {
+         int find_direction();
+         int code,result;
+  
+         printf("enter number:");
+         scanf("%f",&search_number);
+  
+         wn_binary_search_int(&code,&result,-100,100,(find_direction));
+  
+         switch(code)
+         {
+           case(WN_EXACT_MATCH):
+           {
+             printf("code = WN_EXACT_MATCH,result=%d\n",result);
+           } break;
+           case(WN_NO_EXACT_MATCH):
+           {
+             printf("code = WN_NO_EXACT_MATCH,result=%d\n",result);
+           } break;
+           case(WN_OUT_OF_RANGE):
+           {
+             printf("code = WN_OUT_OF_RANGE,result=%d\n",result);
+           } break;
+           default:
+             wn_crash();
+         }        
+       }
+  
+       local int find_direction(num)
+       int num;
+       {
+         extern int wn_doublecmp();
+  
+         return(wn_doublecmp((double)search_number,(double)num));
+       }
+
+     This gives the following results:
+
+       If you enter #,        then it prints #
+
+               0              WN_EXACT_MATCH,0
+               6              WN_EXACT_MATCH,6
+               6.5            WN_NO_EXACT_MATCH,6
+            -100              WN_EXACT_MATCH,-100
+            -101              WN_OUT_OF_RANGE,-100
+             100              WN_EXACT_MATCH,100
+             101              WN_OUT_OF_RANGE,100
+           -2000              WN_OUT_OF_RANGE,-100
+  
+RESOURCES
+     "wn_binary_search_int" runs with
+
+       WORST and AVERAGE CASE:
+
+         time = log(high-low)
+         stack memory = 1
+         dynamic memory = 0
+
+DIAGNOSTICS
+     If "low" > "high", "wn_binary_search_int" crashes.
+  
+BUGS
+
+SEE ALSO
+     bsearch(3)
+
+AUTHOR
+     Will Naylor
+
+

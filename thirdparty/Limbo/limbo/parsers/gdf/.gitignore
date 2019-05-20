@@ -1,0 +1,8 @@
+test/test_bison
+bison/GdfParser.cc
+bison/GdfParser.h
+bison/GdfScanner.cc
+*.hh
+test/valgrind*.txt
+test/valgrind*.log
+*.dSYM

@@ -1,0 +1,27 @@
+NAME
+     wncons -- various constants
+
+SYNOPSIS
+     #include "wncons.h"
+
+
+     #define WN_IHUGE (1000000000)
+
+     #define WN_FHUGE (1.0e30)
+     #define WN_FTINY (1.0/WN_FHUGE)
+
+     #define WN_PI    (3.141592653589793238462643)
+
+     #define WN_E     (2.718281828459045235360287)
+
+
+DESCRIPTION
+
+BUGS
+
+SEE ALSO
+
+AUTHOR
+     Will Naylor
+
+

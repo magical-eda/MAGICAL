@@ -1,0 +1,3065 @@
+# 
+# ******************************************************************************
+# *                                                                            *
+# *                   Copyright (C) 2004-2014, Nangate Inc.                    *
+# *                           All rights reserved.                             *
+# *                                                                            *
+# * Nangate and the Nangate logo are trademarks of Nangate Inc.                *
+# *                                                                            *
+# * All trademarks, logos, software marks, and trade names (collectively the   *
+# * "Marks") in this program are proprietary to Nangate or other respective    *
+# * owners that have granted Nangate the right and license to use such Marks.  *
+# * You are not permitted to use the Marks without the prior written consent   *
+# * of Nangate or such third party that may own the Marks.                     *
+# *                                                                            *
+# * This file has been provided pursuant to a License Agreement containing     *
+# * restrictions on its use. This file contains valuable trade secrets and     *
+# * proprietary information of Nangate Inc., and is protected by U.S. and      *
+# * international laws and/or treaties.                                        *
+# *                                                                            *
+# * The copyright notice(s) in this file does not indicate actual or intended  *
+# * publication of this file.                                                  *
+# *                                                                            *
+# *       NGLibraryCreator, Development_version_64 - build 201405300513        *
+# *                                                                            *
+# ******************************************************************************
+# 
+# 
+# Running on us19.nangate.us for user Lucio Rech (lre).
+# Local time is now Tue, 3 Jun 2014, 13:07:07.
+# Main process id is 12480.
+
+VERSION 5.6 ;
+BUSBITCHARS "[]" ;
+DIVIDERCHAR "/" ;
+
+MACRO AND2_X1
+  CLASS core ;
+  FOREIGN AND2_X1 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.384 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.178 0.256 0.206 0.6959 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.127 0.078 0.525 ;
+    END
+  END A2
+  PIN Z
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.306 0.114 0.334 0.64 ;
+    END
+  END Z
+  
+  
+END AND2_X1
+
+MACRO AND2_X2
+  CLASS core ;
+  FOREIGN AND2_X2 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.448 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.178 0.256 0.206 0.512 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.045 0.248 0.083 0.52 ;
+    END
+  END A2
+  PIN Z
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.302 0.064 0.306 0.13 ;
+        RECT 0.302 0.638 0.306 0.704 ;
+        RECT 0.306 0.064 0.334 0.13 ;
+        RECT 0.306 0.13 0.334 0.638 ;
+        RECT 0.306 0.638 0.334 0.704 ;
+    END
+  END Z
+  
+  
+END AND2_X2
+
+MACRO AND3_X1
+  CLASS core ;
+  FOREIGN AND3_X1 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.512 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.306 0.192 0.334 0.576 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.1729 0.192 0.211 0.576 ;
+    END
+  END A2
+  PIN A3
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.048 0.192 0.08 0.576 ;
+    END
+  END A3
+  PIN Z
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.434 0.114 0.462 0.654 ;
+    END
+  END Z
+  
+  
+END AND3_X1
+
+MACRO AND3_X2
+  CLASS core ;
+  FOREIGN AND3_X2 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.512 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.178 0.32 0.206 0.513 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.045 0.256 0.083 0.512 ;
+    END
+  END A2
+  PIN A3
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.242 0.302 0.27 0.537 ;
+    END
+  END A3
+  PIN Z
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.366 0.064 0.37 0.157 ;
+        RECT 0.366 0.638 0.37 0.704 ;
+        RECT 0.37 0.064 0.398 0.157 ;
+        RECT 0.37 0.157 0.398 0.638 ;
+        RECT 0.37 0.638 0.398 0.704 ;
+    END
+  END Z
+  
+  
+END AND3_X2
+
+MACRO AND4_X1
+  CLASS core ;
+  FOREIGN AND4_X1 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.576 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.37 0.192 0.398 0.576 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.24 0.192 0.272 0.576 ;
+    END
+  END A2
+  PIN A3
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.192 0.1419 0.512 ;
+    END
+  END A3
+  PIN A4
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.192 0.078 0.576 ;
+    END
+  END A4
+  PIN Z
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.498 0.114 0.526 0.654 ;
+    END
+  END Z
+  
+  
+END AND4_X1
+
+MACRO AND4_X2
+  CLASS core ;
+  FOREIGN AND4_X2 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.64 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.37 0.241 0.398 0.576 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.242 0.192 0.27 0.577 ;
+    END
+  END A2
+  PIN A3
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.192 0.1419 0.577 ;
+    END
+  END A3
+  PIN A4
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.192 0.078 0.577 ;
+    END
+  END A4
+  PIN Z
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.498 0.096 0.526 0.64 ;
+    END
+  END Z
+  
+  
+END AND4_X2
+
+MACRO ANTENNA
+  CLASS core ;
+  FOREIGN ANTENNA 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.192 BY 0.768 ;
+END ANTENNA
+
+MACRO AOI21_X1
+  CLASS core ;
+  FOREIGN AOI21_X1 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.384 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.178 0.192 0.206 0.512 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.134 0.078 0.512 ;
+    END
+  END A2
+  PIN B
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.306 0.192 0.334 0.512 ;
+    END
+  END B
+  PIN ZN
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.1 0.1419 0.132 ;
+        RECT 0.114 0.132 0.1419 0.536 ;
+        RECT 0.1419 0.1 0.306 0.132 ;
+    END
+  END ZN
+  
+  
+END AOI21_X1
+
+MACRO AOI21_X2
+  CLASS core ;
+  FOREIGN AOI21_X2 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.576 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.37 0.302 0.398 0.448 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.242 0.23 0.27 0.258 ;
+        RECT 0.242 0.258 0.27 0.448 ;
+        RECT 0.242 0.448 0.27 0.512 ;
+        RECT 0.27 0.23 0.493 0.258 ;
+        RECT 0.493 0.23 0.531 0.258 ;
+        RECT 0.493 0.258 0.531 0.448 ;
+    END
+  END A2
+  PIN B
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.256 0.1419 0.448 ;
+    END
+  END B
+  PIN ZN
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.077 0.166 0.178 0.194 ;
+        RECT 0.178 0.166 0.206 0.194 ;
+        RECT 0.178 0.194 0.206 0.489 ;
+        RECT 0.178 0.489 0.206 0.5709 ;
+        RECT 0.178 0.5709 0.206 0.599 ;
+        RECT 0.206 0.166 0.43 0.194 ;
+        RECT 0.206 0.5709 0.43 0.599 ;
+        RECT 0.43 0.5709 0.434 0.599 ;
+        RECT 0.434 0.489 0.462 0.5709 ;
+        RECT 0.434 0.5709 0.462 0.599 ;
+    END
+  END ZN
+  
+  
+END AOI21_X2
+
+MACRO AOI22_X1
+  CLASS core ;
+  FOREIGN AOI22_X1 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.448 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.242 0.192 0.27 0.512 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.37 0.192 0.398 0.485 ;
+    END
+  END A2
+  PIN B1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.198 0.1419 0.576 ;
+    END
+  END B1
+  PIN B2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.192 0.078 0.576 ;
+    END
+  END B2
+  PIN ZN
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.1409 0.1019 0.306 0.13 ;
+        RECT 0.306 0.1019 0.334 0.13 ;
+        RECT 0.306 0.13 0.334 0.582 ;
+    END
+  END ZN
+  
+  
+END AOI22_X1
+
+MACRO AOI22_X2
+  CLASS core ;
+  FOREIGN AOI22_X2 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.768 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.434 0.274 0.462 0.302 ;
+        RECT 0.434 0.302 0.462 0.489 ;
+        RECT 0.434 0.489 0.462 0.512 ;
+        RECT 0.462 0.274 0.654 0.302 ;
+        RECT 0.654 0.274 0.6899 0.302 ;
+        RECT 0.6899 0.274 0.718 0.302 ;
+        RECT 0.6899 0.302 0.718 0.489 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.562 0.37 0.59 0.512 ;
+    END
+  END A2
+  PIN B1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.306 0.306 0.334 0.526 ;
+    END
+  END B1
+  PIN B2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.242 0.078 0.512 ;
+    END
+  END B2
+  PIN ZN
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.242 0.2 0.27 0.228 ;
+        RECT 0.242 0.228 0.27 0.229 ;
+        RECT 0.242 0.229 0.27 0.32 ;
+        RECT 0.27 0.2 0.362 0.228 ;
+        RECT 0.362 0.2 0.37 0.228 ;
+        RECT 0.37 0.2 0.398 0.228 ;
+        RECT 0.37 0.228 0.398 0.229 ;
+        RECT 0.37 0.229 0.398 0.32 ;
+        RECT 0.37 0.32 0.398 0.463 ;
+        RECT 0.37 0.463 0.398 0.5679 ;
+        RECT 0.37 0.5679 0.398 0.602 ;
+        RECT 0.398 0.2 0.626 0.228 ;
+        RECT 0.398 0.228 0.626 0.229 ;
+        RECT 0.398 0.5679 0.626 0.602 ;
+        RECT 0.626 0.2 0.654 0.228 ;
+        RECT 0.626 0.228 0.654 0.229 ;
+        RECT 0.626 0.463 0.654 0.5679 ;
+        RECT 0.626 0.5679 0.654 0.602 ;
+        RECT 0.654 0.2 0.6899 0.228 ;
+        RECT 0.654 0.228 0.6899 0.229 ;
+        RECT 0.6899 0.096 0.718 0.2 ;
+        RECT 0.6899 0.2 0.718 0.228 ;
+        RECT 0.6899 0.228 0.718 0.229 ;
+    END
+  END ZN
+  
+  
+END AOI22_X2
+
+MACRO BUF_X1
+  CLASS core ;
+  FOREIGN BUF_X1 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.32 BY 0.768 ;
+  PIN I
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.192 0.078 0.576 ;
+    END
+  END I
+  PIN Z
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.24 0.114 0.272 0.704 ;
+    END
+  END Z
+  
+  
+END BUF_X1
+
+MACRO BUF_X2
+  CLASS core ;
+  FOREIGN BUF_X2 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.32 BY 0.768 ;
+  PIN I
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.267 0.078 0.512 ;
+    END
+  END I
+  PIN Z
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.1739 0.603 0.177 0.704 ;
+        RECT 0.177 0.072 0.178 0.132 ;
+        RECT 0.177 0.603 0.178 0.704 ;
+        RECT 0.178 0.072 0.206 0.132 ;
+        RECT 0.178 0.132 0.206 0.603 ;
+        RECT 0.178 0.603 0.206 0.704 ;
+    END
+  END Z
+  
+  
+END BUF_X2
+
+MACRO BUF_X4
+  CLASS core ;
+  FOREIGN BUF_X4 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.512 BY 0.768 ;
+  PIN I
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.178 0.242 0.206 0.526 ;
+    END
+  END I
+  PIN Z
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.145 0.1019 0.21 0.13 ;
+        RECT 0.21 0.1019 0.27 0.13 ;
+        RECT 0.21 0.638 0.27 0.666 ;
+        RECT 0.27 0.1019 0.368 0.13 ;
+        RECT 0.27 0.638 0.368 0.666 ;
+        RECT 0.368 0.1019 0.4 0.13 ;
+        RECT 0.368 0.13 0.4 0.638 ;
+        RECT 0.368 0.638 0.4 0.666 ;
+    END
+  END Z
+  
+  
+END BUF_X4
+
+MACRO BUF_X8
+  CLASS core ;
+  FOREIGN BUF_X8 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.896 BY 0.768 ;
+  PIN I
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.256 0.078 0.366 ;
+        RECT 0.05 0.366 0.078 0.398 ;
+        RECT 0.05 0.398 0.078 0.512 ;
+        RECT 0.078 0.366 0.298 0.398 ;
+    END
+  END I
+  PIN Z
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.338 0.1019 0.7 0.13 ;
+        RECT 0.338 0.638 0.7 0.666 ;
+        RECT 0.7 0.1019 0.754 0.13 ;
+        RECT 0.7 0.638 0.754 0.666 ;
+        RECT 0.754 0.1019 0.782 0.13 ;
+        RECT 0.754 0.13 0.782 0.638 ;
+        RECT 0.754 0.638 0.782 0.666 ;
+    END
+  END Z
+  
+  
+END BUF_X8
+
+MACRO BUF_X12
+  CLASS core ;
+  FOREIGN BUF_X12 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 1.28 BY 0.768 ;
+  PIN I
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.048 0.236 0.08 0.366 ;
+        RECT 0.048 0.366 0.08 0.398 ;
+        RECT 0.048 0.398 0.08 0.515 ;
+        RECT 0.08 0.366 0.426 0.398 ;
+    END
+  END I
+  PIN Z
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.466 0.1019 1.07 0.13 ;
+        RECT 0.466 0.638 1.07 0.666 ;
+        RECT 1.07 0.1019 1.1359 0.13 ;
+        RECT 1.07 0.638 1.1359 0.666 ;
+        RECT 1.1359 0.1019 1.168 0.13 ;
+        RECT 1.1359 0.13 1.168 0.638 ;
+        RECT 1.1359 0.638 1.168 0.666 ;
+    END
+  END Z
+  
+  
+END BUF_X12
+
+MACRO BUF_X16
+  CLASS core ;
+  FOREIGN BUF_X16 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 1.664 BY 0.768 ;
+  PIN I
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.232 0.078 0.355 ;
+        RECT 0.05 0.355 0.078 0.413 ;
+        RECT 0.05 0.413 0.078 0.512 ;
+        RECT 0.078 0.355 0.554 0.413 ;
+    END
+  END I
+  PIN Z
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.594 0.1019 1.454 0.13 ;
+        RECT 0.594 0.632 1.454 0.66 ;
+        RECT 1.454 0.1019 1.52 0.13 ;
+        RECT 1.454 0.632 1.52 0.66 ;
+        RECT 1.52 0.1019 1.552 0.13 ;
+        RECT 1.52 0.13 1.552 0.632 ;
+        RECT 1.52 0.632 1.552 0.66 ;
+    END
+  END Z
+  
+  
+END BUF_X16
+
+MACRO CLKBUF_X1
+  CLASS core ;
+  FOREIGN CLKBUF_X1 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.32 BY 0.768 ;
+  PIN I
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.192 0.078 0.576 ;
+    END
+  END I
+  PIN Z
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.24 0.114 0.272 0.704 ;
+    END
+  END Z
+  
+  
+END CLKBUF_X1
+
+MACRO CLKBUF_X2
+  CLASS core ;
+  FOREIGN CLKBUF_X2 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.32 BY 0.768 ;
+  PIN I
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.296 0.078 0.512 ;
+    END
+  END I
+  PIN Z
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.1739 0.638 0.178 0.704 ;
+        RECT 0.178 0.072 0.206 0.638 ;
+        RECT 0.178 0.638 0.206 0.704 ;
+    END
+  END Z
+  
+  
+END CLKBUF_X2
+
+MACRO CLKBUF_X4
+  CLASS core ;
+  FOREIGN CLKBUF_X4 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.512 BY 0.768 ;
+  PIN I
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.242 0.1419 0.526 ;
+    END
+  END I
+  PIN Z
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.145 0.1019 0.205 0.13 ;
+        RECT 0.205 0.1019 0.206 0.13 ;
+        RECT 0.205 0.638 0.206 0.666 ;
+        RECT 0.206 0.1019 0.368 0.13 ;
+        RECT 0.206 0.638 0.368 0.666 ;
+        RECT 0.368 0.1019 0.4 0.13 ;
+        RECT 0.368 0.13 0.4 0.638 ;
+        RECT 0.368 0.638 0.4 0.666 ;
+    END
+  END Z
+  
+  
+END CLKBUF_X4
+
+MACRO CLKBUF_X8
+  CLASS core ;
+  FOREIGN CLKBUF_X8 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.896 BY 0.768 ;
+  PIN I
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.256 0.078 0.328 ;
+        RECT 0.05 0.328 0.078 0.356 ;
+        RECT 0.05 0.356 0.078 0.512 ;
+        RECT 0.078 0.256 0.079 0.328 ;
+        RECT 0.078 0.328 0.079 0.356 ;
+        RECT 0.079 0.328 0.318 0.356 ;
+    END
+  END I
+  PIN Z
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.338 0.1019 0.718 0.13 ;
+        RECT 0.338 0.638 0.718 0.666 ;
+        RECT 0.718 0.1019 0.754 0.13 ;
+        RECT 0.718 0.638 0.754 0.666 ;
+        RECT 0.754 0.1019 0.782 0.13 ;
+        RECT 0.754 0.13 0.782 0.638 ;
+        RECT 0.754 0.638 0.782 0.666 ;
+    END
+  END Z
+  
+  
+END CLKBUF_X8
+
+MACRO CLKBUF_X12
+  CLASS core ;
+  FOREIGN CLKBUF_X12 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 1.28 BY 0.768 ;
+  PIN I
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.045 0.238 0.083 0.336 ;
+        RECT 0.045 0.336 0.083 0.368 ;
+        RECT 0.045 0.368 0.083 0.53 ;
+        RECT 0.083 0.336 0.426 0.368 ;
+    END
+  END I
+  PIN Z
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.466 0.1019 0.998 0.13 ;
+        RECT 0.466 0.638 0.998 0.666 ;
+        RECT 0.998 0.1019 1.1359 0.13 ;
+        RECT 0.998 0.638 1.1359 0.666 ;
+        RECT 1.1359 0.1019 1.168 0.13 ;
+        RECT 1.1359 0.13 1.168 0.638 ;
+        RECT 1.1359 0.638 1.168 0.666 ;
+    END
+  END Z
+  
+  
+END CLKBUF_X12
+
+MACRO CLKBUF_X16
+  CLASS core ;
+  FOREIGN CLKBUF_X16 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 1.664 BY 0.768 ;
+  PIN I
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.222 0.078 0.326 ;
+        RECT 0.05 0.326 0.078 0.358 ;
+        RECT 0.05 0.358 0.078 0.526 ;
+        RECT 0.078 0.326 0.554 0.358 ;
+    END
+  END I
+  PIN Z
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.594 0.0869 1.454 0.145 ;
+        RECT 0.594 0.623 1.454 0.681 ;
+        RECT 1.454 0.0869 1.52 0.145 ;
+        RECT 1.454 0.623 1.52 0.681 ;
+        RECT 1.52 0.0869 1.552 0.145 ;
+        RECT 1.52 0.145 1.552 0.623 ;
+        RECT 1.52 0.623 1.552 0.681 ;
+    END
+  END Z
+  
+  
+END CLKBUF_X16
+
+MACRO CLKGATETST_X1
+  CLASS core ;
+  FOREIGN CLKGATETST_X1 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 1.088 BY 0.768 ;
+  PIN CLK
+    DIRECTION INPUT ;
+    USE clock ;
+    PORT
+      LAYER M1 ;
+        RECT 0.6899 0.238 0.718 0.512 ;
+    END
+  END CLK
+  PIN E
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.256 0.1419 0.672 ;
+    END
+  END E
+  PIN TE
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.32 0.078 0.672 ;
+    END
+  END TE
+  PIN Q
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 1.01 0.096 1.038 0.654 ;
+    END
+  END Q
+  
+  
+END CLKGATETST_X1
+
+MACRO DFFRNQ_X1
+  CLASS core ;
+  FOREIGN DFFRNQ_X1 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 1.664 BY 0.768 ;
+  PIN D
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.242 0.242 0.27 0.526 ;
+    END
+  END D
+  PIN RN
+    DIRECTION INPUT ;
+    PORT
+      LAYER MINT1 ;
+        RECT 0.704 0.274 1.1339 0.302 ;
+        RECT 1.1339 0.274 1.326 0.302 ;
+    END
+  END RN
+  PIN CLK
+    DIRECTION INPUT ;
+    USE clock ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.256 0.078 0.512 ;
+    END
+  END CLK
+  PIN Q
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 1.584 0.064 1.616 0.704 ;
+    END
+  END Q
+  
+  
+END DFFRNQ_X1
+
+MACRO DFFSNQ_X1
+  CLASS core ;
+  FOREIGN DFFSNQ_X1 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 1.664 BY 0.768 ;
+  PIN D
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.242 0.242 0.27 0.526 ;
+    END
+  END D
+  PIN SN
+    DIRECTION INPUT ;
+    PORT
+      LAYER MINT1 ;
+        RECT 0.722 0.274 1.1339 0.302 ;
+        RECT 1.1339 0.274 1.326 0.302 ;
+    END
+  END SN
+  PIN CLK
+    DIRECTION INPUT ;
+    USE clock ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.256 0.078 0.512 ;
+    END
+  END CLK
+  PIN Q
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 1.584 0.064 1.616 0.704 ;
+    END
+  END Q
+  
+  
+END DFFSNQ_X1
+
+MACRO FA_X1
+  CLASS core ;
+  FOREIGN FA_X1 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 1.536 BY 0.768 ;
+  PIN A
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.656 0.402 0.684 0.526 ;
+        RECT 1.038 0.274 1.074 0.526 ;
+    END
+  END A
+  PIN B
+    DIRECTION INPUT ;
+    PORT
+      LAYER MINT1 ;
+        RECT 0.274 0.274 0.789 0.302 ;
+    END
+  END B
+  PIN CI
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.178 0.194 0.206 0.59 ;
+        RECT 0.58 0.194 0.608 0.366 ;
+        RECT 1.202 0.178 1.23 0.366 ;
+    END
+  END CI
+  PIN CO
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 1.458 0.114 1.486 0.654 ;
+    END
+  END CO
+  PIN S
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.8179 0.207 0.846 0.64 ;
+    END
+  END S
+  
+  
+END FA_X1
+
+MACRO FILLTIE
+  CLASS core ;
+  FOREIGN FILLTIE 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.578 BY 0.768 ;
+  
+END FILLTIE
+
+MACRO FILL_X1
+  CLASS core ;
+  FOREIGN FILL_X1 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.128 BY 0.768 ;
+  
+END FILL_X1
+
+MACRO FILL_X2
+  CLASS core ;
+  FOREIGN FILL_X2 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.192 BY 0.768 ;
+  
+END FILL_X2
+
+MACRO FILL_X4
+  CLASS core ;
+  FOREIGN FILL_X4 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.32 BY 0.768 ;
+  
+END FILL_X4
+
+MACRO FILL_X8
+  CLASS core ;
+  FOREIGN FILL_X8 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.576 BY 0.768 ;
+  
+END FILL_X8
+
+MACRO FILL_X16
+  CLASS core ;
+  FOREIGN FILL_X16 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 1.088 BY 0.768 ;
+  
+END FILL_X16
+
+MACRO HA_X1
+  CLASS core ;
+  FOREIGN HA_X1 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.832 BY 0.768 ;
+  PIN A
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.242 0.274 0.27 0.556 ;
+        RECT 0.242 0.556 0.27 0.584 ;
+        RECT 0.27 0.556 0.434 0.584 ;
+        RECT 0.434 0.274 0.462 0.556 ;
+        RECT 0.434 0.556 0.462 0.584 ;
+    END
+  END A
+  PIN B
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.306 0.256 0.334 0.512 ;
+    END
+  END B
+  PIN CO
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.082 0.078 0.638 ;
+    END
+  END CO
+  PIN S
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.754 0.18 0.782 0.638 ;
+    END
+  END S
+  
+  
+END HA_X1
+
+MACRO INV_X1
+  CLASS core ;
+  FOREIGN INV_X1 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.192 BY 0.768 ;
+  PIN I
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.192 0.078 0.576 ;
+    END
+  END I
+  PIN ZN
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.114 0.1419 0.64 ;
+    END
+  END ZN
+  
+END INV_X1
+
+MACRO INV_X2
+  CLASS core ;
+  FOREIGN INV_X2 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.256 BY 0.768 ;
+  PIN I
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.192 0.078 0.576 ;
+    END
+  END I
+  PIN ZN
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.13 0.1419 0.576 ;
+    END
+  END ZN
+  
+END INV_X2
+
+MACRO INV_X4
+  CLASS core ;
+  FOREIGN INV_X4 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.384 BY 0.768 ;
+  PIN I
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.048 0.256 0.08 0.368 ;
+        RECT 0.048 0.368 0.08 0.396 ;
+        RECT 0.048 0.396 0.08 0.512 ;
+        RECT 0.08 0.368 0.238 0.396 ;
+    END
+  END I
+  PIN ZN
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.041 0.1419 0.059 0.2 ;
+        RECT 0.059 0.1419 0.306 0.2 ;
+        RECT 0.059 0.5679 0.306 0.626 ;
+        RECT 0.306 0.1419 0.334 0.2 ;
+        RECT 0.306 0.2 0.334 0.5679 ;
+        RECT 0.306 0.5679 0.334 0.626 ;
+    END
+  END ZN
+  
+END INV_X4
+
+MACRO INV_X8
+  CLASS core ;
+  FOREIGN INV_X8 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.64 BY 0.768 ;
+  PIN I
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.194 0.1419 0.396 ;
+        RECT 0.114 0.396 0.1419 0.455 ;
+        RECT 0.114 0.455 0.1419 0.576 ;
+        RECT 0.1419 0.396 0.462 0.455 ;
+    END
+  END I
+  PIN ZN
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.041 0.631 0.054 0.659 ;
+        RECT 0.054 0.11 0.557 0.138 ;
+        RECT 0.054 0.631 0.557 0.659 ;
+        RECT 0.557 0.11 0.595 0.138 ;
+        RECT 0.557 0.138 0.595 0.631 ;
+        RECT 0.557 0.631 0.595 0.659 ;
+    END
+  END ZN
+  
+END INV_X8
+
+MACRO INV_X12
+  CLASS core ;
+  FOREIGN INV_X12 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.896 BY 0.768 ;
+  PIN I
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.192 0.1419 0.368 ;
+        RECT 0.114 0.368 0.1419 0.396 ;
+        RECT 0.114 0.396 0.1419 0.576 ;
+        RECT 0.1419 0.368 0.686 0.396 ;
+    END
+  END I
+  PIN ZN
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.054 0.1019 0.8129 0.13 ;
+        RECT 0.054 0.636 0.8129 0.668 ;
+        RECT 0.8129 0.1019 0.851 0.13 ;
+        RECT 0.8129 0.13 0.851 0.636 ;
+        RECT 0.8129 0.636 0.851 0.668 ;
+    END
+  END ZN
+  
+END INV_X12
+
+MACRO INV_X16
+  CLASS core ;
+  FOREIGN INV_X16 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 1.152 BY 0.768 ;
+  PIN I
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.256 0.078 0.37 ;
+        RECT 0.05 0.37 0.078 0.398 ;
+        RECT 0.05 0.398 0.078 0.5629 ;
+        RECT 0.078 0.37 0.942 0.398 ;
+    END
+  END I
+  PIN ZN 
+	DIRECTION OUTPUT ; 
+	PORT 
+		LAYER M1 ; 
+		RECT 0.054 0.1 1.07 0.132 ; 
+		RECT 1.038 0.132 1.07 0.681 ; 
+		RECT 0.054 0.622 1.038 0.681 ; 
+	END 
+  END ZN 
+  
+  
+END INV_X16
+
+MACRO LHQ_X1
+  CLASS core ;
+  FOREIGN LHQ_X1 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.896 BY 0.768 ;
+  PIN D
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.242 0.16 0.27 0.512 ;
+    END
+  END D
+  PIN E
+    DIRECTION INPUT ;
+    USE clock ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.256 0.078 0.512 ;
+    END
+  END E
+  PIN Q
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.8179 0.13 0.846 0.638 ;
+    END
+  END Q
+  
+  
+END LHQ_X1
+
+MACRO MUX2_X1
+  CLASS core ;
+  FOREIGN MUX2_X1 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.832 BY 0.768 ;
+  PIN I0
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.562 0.242 0.59 0.526 ;
+    END
+  END I0
+  PIN I1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.256 0.1419 0.448 ;
+    END
+  END I1
+  PIN S
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.027 0.242 0.055 0.658 ;
+        RECT 0.027 0.658 0.055 0.686 ;
+        RECT 0.055 0.658 0.222 0.686 ;
+    END
+  END S
+  PIN Z
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.6899 0.192 0.718 0.638 ;
+    END
+  END Z
+  
+  
+END MUX2_X1
+
+MACRO NAND2_X1
+  CLASS core ;
+  FOREIGN NAND2_X1 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.256 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.178 0.256 0.206 0.574 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.256 0.078 0.574 ;
+    END
+  END A2
+  PIN ZN
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.133 0.1419 0.192 ;
+        RECT 0.114 0.192 0.1419 0.638 ;
+        RECT 0.1419 0.133 0.176 0.192 ;
+        RECT 0.176 0.064 0.208 0.133 ;
+        RECT 0.176 0.133 0.208 0.192 ;
+    END
+  END ZN
+  
+END NAND2_X1
+
+MACRO NAND2_X2
+  CLASS core ;
+  FOREIGN NAND2_X2 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.384 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.178 0.225 0.206 0.553 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.274 0.078 0.676 ;
+        RECT 0.05 0.676 0.078 0.704 ;
+        RECT 0.078 0.676 0.306 0.704 ;
+        RECT 0.306 0.274 0.334 0.676 ;
+        RECT 0.306 0.676 0.334 0.704 ;
+    END
+  END A2
+  PIN ZN
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.123 0.1419 0.181 ;
+        RECT 0.114 0.181 0.1419 0.424 ;
+        RECT 0.114 0.424 0.1419 0.597 ;
+        RECT 0.114 0.597 0.1419 0.64 ;
+        RECT 0.1419 0.123 0.242 0.181 ;
+        RECT 0.1419 0.597 0.242 0.64 ;
+        RECT 0.242 0.123 0.27 0.181 ;
+        RECT 0.242 0.424 0.27 0.597 ;
+        RECT 0.242 0.597 0.27 0.64 ;
+    END
+  END ZN
+  
+END NAND2_X2
+
+MACRO NAND3_X1
+  CLASS core ;
+  FOREIGN NAND3_X1 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.384 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.242 0.32 0.27 0.448 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.178 0.255 0.206 0.512 ;
+    END
+  END A2
+  PIN A3
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.215 0.078 0.574 ;
+    END
+  END A3
+  PIN ZN
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.082 0.1419 0.11 ;
+        RECT 0.114 0.11 0.1419 0.256 ;
+        RECT 0.114 0.256 0.1419 0.512 ;
+        RECT 0.114 0.512 0.1419 0.676 ;
+        RECT 0.114 0.676 0.1419 0.704 ;
+        RECT 0.1419 0.082 0.242 0.11 ;
+        RECT 0.1419 0.676 0.242 0.704 ;
+        RECT 0.242 0.064 0.304 0.082 ;
+        RECT 0.242 0.082 0.304 0.11 ;
+        RECT 0.242 0.676 0.304 0.704 ;
+        RECT 0.304 0.064 0.306 0.082 ;
+        RECT 0.304 0.082 0.306 0.11 ;
+        RECT 0.304 0.11 0.306 0.256 ;
+        RECT 0.304 0.676 0.306 0.704 ;
+        RECT 0.306 0.064 0.334 0.082 ;
+        RECT 0.306 0.082 0.334 0.11 ;
+        RECT 0.306 0.11 0.334 0.256 ;
+        RECT 0.306 0.512 0.334 0.676 ;
+        RECT 0.306 0.676 0.334 0.704 ;
+        RECT 0.334 0.064 0.336 0.082 ;
+        RECT 0.334 0.082 0.336 0.11 ;
+        RECT 0.334 0.11 0.336 0.256 ;
+    END
+  END ZN
+  
+END NAND3_X1
+
+MACRO NAND3_X2
+  CLASS core ;
+  FOREIGN NAND3_X2 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.576 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.498 0.32 0.526 0.512 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.301 0.249 0.339 0.512 ;
+    END
+  END A2
+  PIN A3
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.256 0.1419 0.512 ;
+    END
+  END A3
+  PIN ZN
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.027 0.5679 0.366 0.626 ;
+        RECT 0.366 0.5679 0.434 0.626 ;
+        RECT 0.434 0.186 0.462 0.5679 ;
+        RECT 0.434 0.5679 0.462 0.626 ;
+        RECT 0.462 0.5679 0.494 0.626 ;
+    END
+  END ZN
+  
+  
+END NAND3_X2
+
+MACRO NAND4_X1
+  CLASS core ;
+  FOREIGN NAND4_X1 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.448 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.37 0.256 0.398 0.574 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.242 0.242 0.27 0.512 ;
+    END
+  END A2
+  PIN A3
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.178 0.194 0.206 0.448 ;
+    END
+  END A3
+  PIN A4
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.194 0.078 0.574 ;
+    END
+  END A4
+  PIN ZN
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.512 0.1419 0.645 ;
+        RECT 0.114 0.645 0.1419 0.704 ;
+        RECT 0.1419 0.645 0.306 0.704 ;
+        RECT 0.306 0.164 0.334 0.192 ;
+        RECT 0.306 0.192 0.334 0.512 ;
+        RECT 0.306 0.512 0.334 0.645 ;
+        RECT 0.306 0.645 0.334 0.704 ;
+        RECT 0.334 0.164 0.365 0.192 ;
+        RECT 0.365 0.064 0.403 0.164 ;
+        RECT 0.365 0.164 0.403 0.192 ;
+    END
+  END ZN
+  
+END NAND4_X1
+
+MACRO NAND4_X2
+  CLASS core ;
+  FOREIGN NAND4_X2 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.704 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.558 0.358 0.594 0.512 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.37 0.34 0.398 0.526 ;
+    END
+  END A2
+  PIN A3
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.178 0.242 0.206 0.512 ;
+    END
+  END A3
+  PIN A4
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.257 0.078 0.512 ;
+    END
+  END A4
+  PIN ZN
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.112 0.555 0.144 0.576 ;
+        RECT 0.112 0.576 0.144 0.638 ;
+        RECT 0.112 0.638 0.144 0.666 ;
+        RECT 0.144 0.638 0.434 0.666 ;
+        RECT 0.434 0.294 0.462 0.322 ;
+        RECT 0.434 0.322 0.462 0.548 ;
+        RECT 0.434 0.548 0.462 0.555 ;
+        RECT 0.434 0.555 0.462 0.576 ;
+        RECT 0.434 0.638 0.462 0.666 ;
+        RECT 0.462 0.294 0.562 0.322 ;
+        RECT 0.462 0.548 0.562 0.555 ;
+        RECT 0.462 0.555 0.562 0.576 ;
+        RECT 0.462 0.638 0.562 0.666 ;
+        RECT 0.562 0.294 0.59 0.322 ;
+        RECT 0.562 0.548 0.59 0.555 ;
+        RECT 0.562 0.555 0.59 0.576 ;
+        RECT 0.562 0.576 0.59 0.638 ;
+        RECT 0.562 0.638 0.59 0.666 ;
+        RECT 0.59 0.294 0.654 0.322 ;
+    END
+  END ZN
+  
+  
+END NAND4_X2
+
+MACRO NOR2_X1
+  CLASS core ;
+  FOREIGN NOR2_X1 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.256 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.178 0.194 0.206 0.512 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.194 0.078 0.512 ;
+    END
+  END A2
+  PIN ZN
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.13 0.1419 0.576 ;
+        RECT 0.114 0.576 0.1419 0.635 ;
+        RECT 0.1419 0.576 0.176 0.635 ;
+        RECT 0.176 0.576 0.208 0.635 ;
+        RECT 0.176 0.635 0.208 0.704 ;
+    END
+  END ZN
+  
+END NOR2_X1
+
+MACRO NOR2_X2
+  CLASS core ;
+  FOREIGN NOR2_X2 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.384 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.178 0.215 0.206 0.512 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.064 0.078 0.092 ;
+        RECT 0.05 0.092 0.078 0.494 ;
+        RECT 0.078 0.064 0.306 0.092 ;
+        RECT 0.306 0.064 0.334 0.092 ;
+        RECT 0.306 0.092 0.334 0.494 ;
+    END
+  END A2
+  PIN ZN
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.128 0.1419 0.156 ;
+        RECT 0.114 0.156 0.1419 0.3439 ;
+        RECT 0.114 0.3439 0.1419 0.556 ;
+        RECT 0.114 0.556 0.1419 0.584 ;
+        RECT 0.1419 0.128 0.176 0.156 ;
+        RECT 0.1419 0.556 0.176 0.584 ;
+        RECT 0.176 0.128 0.208 0.156 ;
+        RECT 0.176 0.556 0.208 0.584 ;
+        RECT 0.176 0.584 0.208 0.64 ;
+        RECT 0.208 0.128 0.242 0.156 ;
+        RECT 0.242 0.128 0.27 0.156 ;
+        RECT 0.242 0.156 0.27 0.3439 ;
+    END
+  END ZN
+  
+END NOR2_X2
+
+MACRO NOR3_X1
+  CLASS core ;
+  FOREIGN NOR3_X1 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.384 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.242 0.32 0.27 0.448 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.178 0.194 0.206 0.553 ;
+    END
+  END A2
+  PIN A3
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.194 0.078 0.553 ;
+    END
+  END A3
+  PIN ZN
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.064 0.1419 0.092 ;
+        RECT 0.114 0.092 0.1419 0.256 ;
+        RECT 0.114 0.256 0.1419 0.512 ;
+        RECT 0.114 0.512 0.1419 0.614 ;
+        RECT 0.114 0.614 0.1419 0.642 ;
+        RECT 0.1419 0.064 0.303 0.092 ;
+        RECT 0.1419 0.614 0.303 0.642 ;
+        RECT 0.303 0.064 0.304 0.092 ;
+        RECT 0.303 0.092 0.304 0.256 ;
+        RECT 0.303 0.614 0.304 0.642 ;
+        RECT 0.304 0.064 0.336 0.092 ;
+        RECT 0.304 0.092 0.336 0.256 ;
+        RECT 0.304 0.512 0.336 0.614 ;
+        RECT 0.304 0.614 0.336 0.642 ;
+        RECT 0.304 0.642 0.336 0.704 ;
+        RECT 0.336 0.064 0.337 0.092 ;
+        RECT 0.336 0.092 0.337 0.256 ;
+    END
+  END ZN
+  
+END NOR3_X1
+
+MACRO NOR3_X2
+  CLASS core ;
+  FOREIGN NOR3_X2 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.576 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.498 0.256 0.526 0.448 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.306 0.256 0.334 0.513 ;
+    END
+  END A2
+  PIN A3
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.256 0.078 0.519 ;
+    END
+  END A3
+  PIN ZN
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.0859 0.154 0.434 0.212 ;
+        RECT 0.434 0.154 0.462 0.212 ;
+        RECT 0.434 0.212 0.462 0.576 ;
+        RECT 0.462 0.154 0.49 0.212 ;
+    END
+  END ZN
+  
+  
+END NOR3_X2
+
+MACRO NOR4_X1
+  CLASS core ;
+  FOREIGN NOR4_X1 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.448 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.37 0.194 0.398 0.512 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.242 0.194 0.27 0.512 ;
+    END
+  END A2
+  PIN A3
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.178 0.256 0.206 0.574 ;
+    END
+  END A3
+  PIN A4
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.194 0.078 0.574 ;
+    END
+  END A4
+  PIN ZN
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.064 0.1419 0.1019 ;
+        RECT 0.114 0.1019 0.1419 0.215 ;
+        RECT 0.1419 0.064 0.306 0.1019 ;
+        RECT 0.306 0.064 0.334 0.1019 ;
+        RECT 0.306 0.1019 0.334 0.215 ;
+        RECT 0.306 0.215 0.334 0.576 ;
+        RECT 0.306 0.576 0.334 0.604 ;
+        RECT 0.334 0.576 0.365 0.604 ;
+        RECT 0.365 0.576 0.403 0.604 ;
+        RECT 0.365 0.604 0.403 0.704 ;
+    END
+  END ZN
+  
+END NOR4_X1
+
+MACRO NOR4_X2
+  CLASS core ;
+  FOREIGN NOR4_X2 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.704 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.558 0.256 0.594 0.406 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.37 0.242 0.398 0.438 ;
+    END
+  END A2
+  PIN A3
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.242 0.242 0.27 0.526 ;
+    END
+  END A3
+  PIN A4
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.178 0.256 0.206 0.516 ;
+    END
+  END A4
+  PIN ZN
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.112 0.1019 0.144 0.13 ;
+        RECT 0.112 0.13 0.144 0.192 ;
+        RECT 0.112 0.192 0.144 0.213 ;
+        RECT 0.144 0.1019 0.434 0.13 ;
+        RECT 0.434 0.1019 0.462 0.13 ;
+        RECT 0.434 0.192 0.462 0.213 ;
+        RECT 0.434 0.213 0.462 0.22 ;
+        RECT 0.434 0.22 0.462 0.442 ;
+        RECT 0.434 0.442 0.462 0.47 ;
+        RECT 0.462 0.1019 0.562 0.13 ;
+        RECT 0.462 0.192 0.562 0.213 ;
+        RECT 0.462 0.213 0.562 0.22 ;
+        RECT 0.462 0.442 0.562 0.47 ;
+        RECT 0.562 0.1019 0.59 0.13 ;
+        RECT 0.562 0.13 0.59 0.192 ;
+        RECT 0.562 0.192 0.59 0.213 ;
+        RECT 0.562 0.213 0.59 0.22 ;
+        RECT 0.562 0.442 0.59 0.47 ;
+        RECT 0.59 0.442 0.663 0.47 ;
+    END
+  END ZN
+  
+  
+END NOR4_X2
+
+MACRO OAI21_X1
+  CLASS core ;
+  FOREIGN OAI21_X1 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.384 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.178 0.256 0.206 0.576 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.256 0.078 0.634 ;
+    END
+  END A2
+  PIN B
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.306 0.256 0.334 0.576 ;
+    END
+  END B
+  PIN ZN
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.256 0.1419 0.636 ;
+        RECT 0.114 0.636 0.1419 0.668 ;
+        RECT 0.1419 0.636 0.298 0.668 ;
+    END
+  END ZN
+  
+  
+END OAI21_X1
+
+MACRO OAI21_X2
+  CLASS core ;
+  FOREIGN OAI21_X2 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.576 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.365 0.32 0.403 0.448 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.242 0.242 0.27 0.2829 ;
+        RECT 0.242 0.2829 0.27 0.502 ;
+        RECT 0.242 0.502 0.27 0.53 ;
+        RECT 0.27 0.502 0.498 0.53 ;
+        RECT 0.498 0.2829 0.526 0.502 ;
+        RECT 0.498 0.502 0.526 0.53 ;
+    END
+  END A2
+  PIN B
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.256 0.1419 0.525 ;
+    END
+  END B
+  PIN ZN
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.029 0.5699 0.178 0.602 ;
+        RECT 0.178 0.166 0.206 0.194 ;
+        RECT 0.178 0.194 0.206 0.278 ;
+        RECT 0.178 0.278 0.206 0.5699 ;
+        RECT 0.178 0.5699 0.206 0.602 ;
+        RECT 0.206 0.166 0.426 0.194 ;
+        RECT 0.206 0.5699 0.426 0.602 ;
+        RECT 0.426 0.166 0.434 0.194 ;
+        RECT 0.434 0.166 0.462 0.194 ;
+        RECT 0.434 0.194 0.462 0.278 ;
+    END
+  END ZN
+  
+  
+END OAI21_X2
+
+MACRO OAI22_X1
+  CLASS core ;
+  FOREIGN OAI22_X1 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.448 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.242 0.199 0.27 0.576 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.37 0.279 0.398 0.576 ;
+    END
+  END A2
+  PIN B1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.178 0.192 0.206 0.512 ;
+    END
+  END B1
+  PIN B2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.048 0.192 0.08 0.576 ;
+    END
+  END B2
+  PIN ZN
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.1409 0.638 0.306 0.666 ;
+        RECT 0.306 0.182 0.334 0.638 ;
+        RECT 0.306 0.638 0.334 0.666 ;
+    END
+  END ZN
+  
+  
+END OAI22_X1
+
+MACRO OAI22_X2
+  CLASS core ;
+  FOREIGN OAI22_X2 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.768 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.434 0.256 0.462 0.279 ;
+        RECT 0.434 0.279 0.462 0.466 ;
+        RECT 0.434 0.466 0.462 0.494 ;
+        RECT 0.462 0.466 0.6899 0.494 ;
+        RECT 0.6899 0.279 0.718 0.466 ;
+        RECT 0.6899 0.466 0.718 0.494 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.562 0.256 0.59 0.398 ;
+    END
+  END A2
+  PIN B1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.306 0.242 0.334 0.486 ;
+    END
+  END B1
+  PIN B2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.242 0.1419 0.512 ;
+    END
+  END B2
+  PIN ZN
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.242 0.386 0.27 0.53 ;
+        RECT 0.242 0.53 0.27 0.558 ;
+        RECT 0.27 0.53 0.37 0.558 ;
+        RECT 0.37 0.169 0.398 0.197 ;
+        RECT 0.37 0.197 0.398 0.278 ;
+        RECT 0.37 0.278 0.398 0.386 ;
+        RECT 0.37 0.386 0.398 0.53 ;
+        RECT 0.37 0.53 0.398 0.558 ;
+        RECT 0.398 0.169 0.626 0.197 ;
+        RECT 0.398 0.53 0.626 0.558 ;
+        RECT 0.626 0.169 0.654 0.197 ;
+        RECT 0.626 0.197 0.654 0.278 ;
+        RECT 0.626 0.53 0.654 0.558 ;
+        RECT 0.654 0.53 0.6899 0.558 ;
+        RECT 0.6899 0.53 0.718 0.558 ;
+        RECT 0.6899 0.558 0.718 0.672 ;
+    END
+  END ZN
+  
+  
+END OAI22_X2
+
+MACRO OR2_X1
+  CLASS core ;
+  FOREIGN OR2_X1 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.384 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.178 0.096 0.206 0.512 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.243 0.078 0.641 ;
+    END
+  END A2
+  PIN Z
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.306 0.114 0.334 0.64 ;
+    END
+  END Z
+  
+  
+END OR2_X1
+
+MACRO OR2_X2
+  CLASS core ;
+  FOREIGN OR2_X2 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.448 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.242 0.1419 0.512 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.256 0.078 0.512 ;
+    END
+  END A2
+  PIN Z
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.302 0.064 0.306 0.135 ;
+        RECT 0.302 0.638 0.306 0.704 ;
+        RECT 0.306 0.064 0.334 0.135 ;
+        RECT 0.306 0.135 0.334 0.638 ;
+        RECT 0.306 0.638 0.334 0.704 ;
+    END
+  END Z
+  
+  
+END OR2_X2
+
+MACRO OR3_X1
+  CLASS core ;
+  FOREIGN OR3_X1 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.512 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.306 0.192 0.334 0.576 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.176 0.192 0.208 0.576 ;
+    END
+  END A2
+  PIN A3
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.045 0.192 0.083 0.576 ;
+    END
+  END A3
+  PIN Z
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.434 0.114 0.462 0.654 ;
+    END
+  END Z
+  
+  
+END OR3_X1
+
+MACRO OR3_X2
+  CLASS core ;
+  FOREIGN OR3_X2 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.512 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.255 0.1419 0.448 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.256 0.078 0.526 ;
+    END
+  END A2
+  PIN A3
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.242 0.231 0.27 0.448 ;
+    END
+  END A3
+  PIN Z
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.366 0.064 0.37 0.13 ;
+        RECT 0.366 0.636 0.37 0.704 ;
+        RECT 0.37 0.064 0.398 0.13 ;
+        RECT 0.37 0.13 0.398 0.636 ;
+        RECT 0.37 0.636 0.398 0.704 ;
+    END
+  END Z
+  
+  
+END OR3_X2
+
+MACRO OR4_X1
+  CLASS core ;
+  FOREIGN OR4_X1 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.576 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.37 0.192 0.398 0.576 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.24 0.192 0.272 0.576 ;
+    END
+  END A2
+  PIN A3
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.198 0.1419 0.576 ;
+    END
+  END A3
+  PIN A4
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.192 0.078 0.576 ;
+    END
+  END A4
+  PIN Z
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.498 0.114 0.526 0.64 ;
+    END
+  END Z
+  
+  
+END OR4_X1
+
+MACRO OR4_X2
+  CLASS core ;
+  FOREIGN OR4_X2 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.64 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.306 0.192 0.334 0.53 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.242 0.213 0.27 0.576 ;
+    END
+  END A2
+  PIN A3
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.213 0.1419 0.576 ;
+    END
+  END A3
+  PIN A4
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.191 0.078 0.576 ;
+    END
+  END A4
+  PIN Z
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.496 0.128 0.528 0.704 ;
+    END
+  END Z
+  
+  
+END OR4_X2
+
+MACRO SDFFRNQ_X1
+  CLASS core ;
+  FOREIGN SDFFRNQ_X1 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 1.92 BY 0.768 ;
+  PIN D
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.498 0.363 0.515 0.528 ;
+        RECT 0.515 0.363 0.526 0.528 ;
+    END
+  END D
+  PIN RN
+    DIRECTION INPUT ;
+    PORT
+      LAYER MINT1 ;
+        RECT 0.965 0.338 1.454 0.366 ;
+        RECT 1.454 0.338 1.592 0.366 ;
+    END
+  END RN
+  PIN SE
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.306 0.372 0.334 0.5719 ;
+        RECT 0.306 0.5719 0.334 0.6 ;
+        RECT 0.334 0.5719 0.515 0.6 ;
+        RECT 0.515 0.5719 0.562 0.6 ;
+        RECT 0.562 0.314 0.59 0.372 ;
+        RECT 0.562 0.372 0.59 0.5719 ;
+        RECT 0.562 0.5719 0.59 0.6 ;
+    END
+  END SE
+  PIN SI
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.37 0.363 0.398 0.512 ;
+    END
+  END SI
+  PIN CLK
+    DIRECTION INPUT ;
+    USE clock ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.276 0.078 0.534 ;
+    END
+  END CLK
+  PIN Q
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 1.84 0.064 1.872 0.704 ;
+    END
+  END Q
+  
+  
+END SDFFRNQ_X1
+
+MACRO SDFFSNQ_X1
+  CLASS core ;
+  FOREIGN SDFFSNQ_X1 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 1.92 BY 0.768 ;
+  PIN D
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.498 0.384 0.51 0.528 ;
+        RECT 0.51 0.384 0.526 0.528 ;
+    END
+  END D
+  PIN SE
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.306 0.372 0.334 0.5719 ;
+        RECT 0.306 0.5719 0.334 0.6 ;
+        RECT 0.334 0.5719 0.51 0.6 ;
+        RECT 0.51 0.5719 0.562 0.6 ;
+        RECT 0.562 0.314 0.59 0.372 ;
+        RECT 0.562 0.372 0.59 0.5719 ;
+        RECT 0.562 0.5719 0.59 0.6 ;
+    END
+  END SE
+  PIN SI
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.37 0.363 0.398 0.512 ;
+    END
+  END SI
+  PIN SN
+    DIRECTION INPUT ;
+    PORT
+      LAYER MINT1 ;
+        RECT 0.958 0.338 1.454 0.366 ;
+        RECT 1.454 0.338 1.586 0.366 ;
+    END
+  END SN
+  PIN CLK
+    DIRECTION INPUT ;
+    USE clock ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.272 0.078 0.512 ;
+    END
+  END CLK
+  PIN Q
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 1.84 0.064 1.872 0.704 ;
+    END
+  END Q
+  
+  
+END SDFFSNQ_X1
+
+MACRO TBUF_X1
+  CLASS core ;
+  FOREIGN TBUF_X1 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.704 BY 0.768 ;
+  PIN EN
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.384 0.1419 0.492 ;
+        RECT 0.114 0.492 0.1419 0.52 ;
+        RECT 0.1419 0.492 0.206 0.52 ;
+        RECT 0.206 0.492 0.242 0.52 ;
+        RECT 0.242 0.306 0.27 0.384 ;
+        RECT 0.242 0.384 0.27 0.492 ;
+        RECT 0.242 0.492 0.27 0.52 ;
+    END
+  END EN
+  PIN I
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.434 0.37 0.462 0.576 ;
+    END
+  END I
+  PIN Z
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.624 0.064 0.656 0.704 ;
+    END
+  END Z
+  
+  
+END TBUF_X1
+
+MACRO TBUF_X2
+  CLASS core ;
+  FOREIGN TBUF_X2 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.768 BY 0.768 ;
+  PIN EN
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.384 0.1419 0.504 ;
+        RECT 0.114 0.504 0.1419 0.532 ;
+        RECT 0.1419 0.504 0.206 0.532 ;
+        RECT 0.206 0.504 0.242 0.532 ;
+        RECT 0.242 0.306 0.27 0.384 ;
+        RECT 0.242 0.384 0.27 0.504 ;
+        RECT 0.242 0.504 0.27 0.532 ;
+    END
+  END EN
+  PIN I
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.434 0.382 0.462 0.576 ;
+    END
+  END I
+  PIN Z
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.624 0.07 0.656 0.6959 ;
+    END
+  END Z
+  
+  
+END TBUF_X2
+
+MACRO TBUF_X4
+  CLASS core ;
+  FOREIGN TBUF_X4 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.96 BY 0.768 ;
+  PIN EN
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.384 0.1419 0.484 ;
+        RECT 0.114 0.484 0.1419 0.512 ;
+        RECT 0.1419 0.484 0.206 0.512 ;
+        RECT 0.206 0.484 0.242 0.512 ;
+        RECT 0.242 0.306 0.27 0.384 ;
+        RECT 0.242 0.384 0.27 0.484 ;
+        RECT 0.242 0.484 0.27 0.512 ;
+    END
+  END EN
+  PIN I
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.434 0.3459 0.462 0.594 ;
+    END
+  END I
+  PIN Z
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.6879 0.064 0.72 0.224 ;
+        RECT 0.6879 0.224 0.72 0.256 ;
+        RECT 0.6879 0.512 0.72 0.54 ;
+        RECT 0.6879 0.54 0.72 0.5709 ;
+        RECT 0.6879 0.5709 0.72 0.704 ;
+        RECT 0.72 0.224 0.8129 0.256 ;
+        RECT 0.72 0.512 0.8129 0.54 ;
+        RECT 0.8129 0.064 0.8139 0.224 ;
+        RECT 0.8129 0.224 0.8139 0.256 ;
+        RECT 0.8129 0.512 0.8139 0.54 ;
+        RECT 0.8139 0.064 0.8159 0.224 ;
+        RECT 0.8139 0.224 0.8159 0.256 ;
+        RECT 0.8139 0.512 0.8159 0.54 ;
+        RECT 0.8159 0.064 0.838 0.224 ;
+        RECT 0.8159 0.224 0.838 0.256 ;
+        RECT 0.8159 0.512 0.838 0.54 ;
+        RECT 0.8159 0.54 0.838 0.5709 ;
+        RECT 0.8159 0.5709 0.838 0.704 ;
+        RECT 0.838 0.064 0.848 0.224 ;
+        RECT 0.838 0.224 0.848 0.256 ;
+        RECT 0.838 0.512 0.848 0.54 ;
+        RECT 0.838 0.54 0.848 0.5709 ;
+        RECT 0.838 0.5709 0.848 0.704 ;
+        RECT 0.848 0.064 0.851 0.224 ;
+        RECT 0.848 0.224 0.851 0.256 ;
+        RECT 0.848 0.512 0.851 0.54 ;
+        RECT 0.848 0.54 0.851 0.5709 ;
+        RECT 0.851 0.224 0.882 0.256 ;
+        RECT 0.851 0.512 0.882 0.54 ;
+        RECT 0.851 0.54 0.882 0.5709 ;
+        RECT 0.882 0.224 0.91 0.256 ;
+        RECT 0.882 0.256 0.91 0.512 ;
+        RECT 0.882 0.512 0.91 0.54 ;
+        RECT 0.882 0.54 0.91 0.5709 ;
+    END
+  END Z
+  
+  
+END TBUF_X4
+
+MACRO TBUF_X8
+  CLASS core ;
+  FOREIGN TBUF_X8 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 1.344 BY 0.768 ;
+  PIN EN
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.384 0.1419 0.484 ;
+        RECT 0.114 0.484 0.1419 0.512 ;
+        RECT 0.1419 0.484 0.222 0.512 ;
+        RECT 0.222 0.484 0.306 0.512 ;
+        RECT 0.306 0.32 0.334 0.384 ;
+        RECT 0.306 0.384 0.334 0.484 ;
+        RECT 0.306 0.484 0.334 0.512 ;
+    END
+  END EN
+  PIN I
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.498 0.3459 0.526 0.402 ;
+        RECT 0.498 0.402 0.526 0.434 ;
+        RECT 0.498 0.434 0.526 0.576 ;
+        RECT 0.526 0.402 0.622 0.434 ;
+    END
+  END I
+  PIN Z
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.8159 0.064 0.848 0.133 ;
+        RECT 0.8159 0.133 0.848 0.16 ;
+        RECT 0.8159 0.16 0.848 0.192 ;
+        RECT 0.8159 0.519 0.848 0.577 ;
+        RECT 0.8159 0.577 0.848 0.578 ;
+        RECT 0.8159 0.578 0.848 0.704 ;
+        RECT 0.848 0.16 1.183 0.192 ;
+        RECT 0.848 0.519 1.183 0.577 ;
+        RECT 1.183 0.16 1.198 0.192 ;
+        RECT 1.183 0.519 1.198 0.577 ;
+        RECT 1.198 0.16 1.2 0.192 ;
+        RECT 1.198 0.519 1.2 0.577 ;
+        RECT 1.2 0.064 1.232 0.133 ;
+        RECT 1.2 0.133 1.232 0.16 ;
+        RECT 1.2 0.16 1.232 0.192 ;
+        RECT 1.2 0.519 1.232 0.577 ;
+        RECT 1.2 0.577 1.232 0.578 ;
+        RECT 1.2 0.578 1.232 0.704 ;
+        RECT 1.232 0.133 1.266 0.16 ;
+        RECT 1.232 0.16 1.266 0.192 ;
+        RECT 1.232 0.519 1.266 0.577 ;
+        RECT 1.232 0.577 1.266 0.578 ;
+        RECT 1.266 0.133 1.294 0.16 ;
+        RECT 1.266 0.16 1.294 0.192 ;
+        RECT 1.266 0.192 1.294 0.519 ;
+        RECT 1.266 0.519 1.294 0.577 ;
+        RECT 1.266 0.577 1.294 0.578 ;
+    END
+  END Z
+  
+  
+END TBUF_X8
+
+MACRO TBUF_X12
+  CLASS core ;
+  FOREIGN TBUF_X12 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 1.728 BY 0.768 ;
+  PIN EN
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.384 0.1419 0.51 ;
+        RECT 0.114 0.51 0.1419 0.538 ;
+        RECT 0.1419 0.51 0.206 0.538 ;
+        RECT 0.206 0.51 0.242 0.538 ;
+        RECT 0.242 0.306 0.27 0.384 ;
+        RECT 0.242 0.384 0.27 0.51 ;
+        RECT 0.242 0.51 0.27 0.538 ;
+    END
+  END EN
+  PIN I
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.434 0.402 0.498 0.448 ;
+        RECT 0.498 0.3459 0.526 0.402 ;
+        RECT 0.498 0.402 0.526 0.448 ;
+        RECT 0.526 0.402 0.626 0.448 ;
+        RECT 0.626 0.402 0.654 0.448 ;
+        RECT 0.626 0.448 0.654 0.576 ;
+        RECT 0.654 0.402 0.71 0.448 ;
+    END
+  END I
+  
+  
+END TBUF_X12
+
+MACRO TBUF_X16
+  CLASS core ;
+  FOREIGN TBUF_X16 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 2.112 BY 0.768 ;
+  PIN EN
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.114 0.39 0.1419 0.486 ;
+        RECT 0.114 0.486 0.1419 0.514 ;
+        RECT 0.1419 0.486 0.1739 0.514 ;
+        RECT 0.1739 0.486 0.24 0.514 ;
+        RECT 0.24 0.32 0.272 0.39 ;
+        RECT 0.24 0.39 0.272 0.486 ;
+        RECT 0.24 0.486 0.272 0.514 ;
+    END
+  END EN
+  PIN I
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.462 0.402 0.562 0.448 ;
+        RECT 0.562 0.3459 0.59 0.402 ;
+        RECT 0.562 0.402 0.59 0.448 ;
+        RECT 0.59 0.402 0.6899 0.448 ;
+        RECT 0.6899 0.402 0.718 0.448 ;
+        RECT 0.6899 0.448 0.718 0.576 ;
+        RECT 0.718 0.402 0.902 0.448 ;
+    END
+  END I
+  PIN Z
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 1.072 0.064 1.104 0.1419 ;
+        RECT 1.072 0.1419 1.104 0.2 ;
+        RECT 1.072 0.52 1.104 0.576 ;
+        RECT 1.072 0.576 1.104 0.704 ;
+        RECT 1.104 0.1419 1.968 0.2 ;
+        RECT 1.104 0.52 1.968 0.576 ;
+        RECT 1.968 0.064 1.98 0.1419 ;
+        RECT 1.968 0.1419 1.98 0.2 ;
+        RECT 1.968 0.52 1.98 0.576 ;
+        RECT 1.968 0.576 1.98 0.704 ;
+        RECT 1.98 0.064 1.998 0.1419 ;
+        RECT 1.98 0.1419 1.998 0.2 ;
+        RECT 1.98 0.52 1.998 0.576 ;
+        RECT 1.98 0.576 1.998 0.704 ;
+        RECT 1.998 0.064 2 0.1419 ;
+        RECT 1.998 0.1419 2 0.2 ;
+        RECT 1.998 0.52 2 0.576 ;
+        RECT 1.998 0.576 2 0.704 ;
+        RECT 2 0.1419 2.0339 0.2 ;
+        RECT 2 0.52 2.0339 0.576 ;
+        RECT 2.0339 0.1419 2.062 0.2 ;
+        RECT 2.0339 0.2 2.062 0.52 ;
+        RECT 2.0339 0.52 2.062 0.576 ;
+    END
+  END Z
+  
+  
+END TBUF_X16
+
+MACRO TIEH
+  CLASS core ;
+  FOREIGN TIEH 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.192 BY 0.768 ;
+  PIN Z
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.109 0.473 0.1419 0.704 ;
+        RECT 0.1419 0.473 0.147 0.704 ;
+    END
+  END Z
+  
+  
+END TIEH
+
+MACRO TIEL
+  CLASS core ;
+  FOREIGN TIEL 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.192 BY 0.768 ;
+  PIN Z
+    DIRECTION INOUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.109 0.064 0.147 0.266 ;
+    END
+  END Z
+  
+  
+END TIEL
+
+MACRO XNOR2_X1
+  CLASS core ;
+  FOREIGN XNOR2_X1 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.576 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.178 0.252 0.21 0.28 ;
+        RECT 0.178 0.28 0.21 0.428 ;
+        RECT 0.21 0.252 0.37 0.28 ;
+        RECT 0.37 0.252 0.398 0.28 ;
+        RECT 0.37 0.28 0.398 0.428 ;
+        RECT 0.37 0.428 0.398 0.448 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.242 0.078 0.32 ;
+        RECT 0.05 0.32 0.078 0.676 ;
+        RECT 0.05 0.676 0.078 0.704 ;
+        RECT 0.078 0.676 0.274 0.704 ;
+        RECT 0.274 0.676 0.498 0.704 ;
+        RECT 0.498 0.32 0.526 0.676 ;
+        RECT 0.498 0.676 0.526 0.704 ;
+    END
+  END A2
+  PIN ZN
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.278 0.546 0.302 0.547 ;
+        RECT 0.278 0.547 0.302 0.601 ;
+        RECT 0.278 0.601 0.302 0.602 ;
+        RECT 0.302 0.166 0.334 0.194 ;
+        RECT 0.302 0.546 0.334 0.547 ;
+        RECT 0.302 0.547 0.334 0.601 ;
+        RECT 0.302 0.601 0.334 0.602 ;
+        RECT 0.334 0.166 0.434 0.194 ;
+        RECT 0.334 0.547 0.434 0.601 ;
+        RECT 0.434 0.166 0.462 0.194 ;
+        RECT 0.434 0.248 0.462 0.276 ;
+        RECT 0.434 0.276 0.462 0.546 ;
+        RECT 0.434 0.546 0.462 0.547 ;
+        RECT 0.434 0.547 0.462 0.601 ;
+        RECT 0.462 0.166 0.493 0.194 ;
+        RECT 0.462 0.248 0.493 0.276 ;
+        RECT 0.493 0.166 0.531 0.194 ;
+        RECT 0.493 0.194 0.531 0.248 ;
+        RECT 0.493 0.248 0.531 0.276 ;
+    END
+  END ZN
+  
+  
+END XNOR2_X1
+
+MACRO XOR2_X1
+  CLASS core ;
+  FOREIGN XOR2_X1 0.0 0.0 ;
+  ORIGIN 0 0 ;
+  SYMMETRY X Y ;
+  SITE NanGate_15nm_OCL ;
+  SIZE 0.576 BY 0.768 ;
+  PIN A1
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.178 0.3439 0.21 0.486 ;
+        RECT 0.178 0.486 0.21 0.514 ;
+        RECT 0.21 0.486 0.274 0.514 ;
+        RECT 0.274 0.486 0.37 0.514 ;
+        RECT 0.37 0.32 0.398 0.3439 ;
+        RECT 0.37 0.3439 0.398 0.486 ;
+        RECT 0.37 0.486 0.398 0.514 ;
+    END
+  END A1
+  PIN A2
+    DIRECTION INPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.05 0.064 0.078 0.092 ;
+        RECT 0.05 0.092 0.078 0.448 ;
+        RECT 0.05 0.448 0.078 0.526 ;
+        RECT 0.078 0.064 0.498 0.092 ;
+        RECT 0.498 0.064 0.526 0.092 ;
+        RECT 0.498 0.092 0.526 0.448 ;
+    END
+  END A2
+  PIN Z
+    DIRECTION OUTPUT ;
+    PORT
+      LAYER M1 ;
+        RECT 0.275 0.163 0.315 0.164 ;
+        RECT 0.275 0.164 0.315 0.222 ;
+        RECT 0.315 0.163 0.334 0.164 ;
+        RECT 0.315 0.164 0.334 0.222 ;
+        RECT 0.315 0.574 0.334 0.602 ;
+        RECT 0.334 0.164 0.434 0.222 ;
+        RECT 0.334 0.574 0.434 0.602 ;
+        RECT 0.434 0.164 0.462 0.222 ;
+        RECT 0.434 0.222 0.462 0.492 ;
+        RECT 0.434 0.492 0.462 0.52 ;
+        RECT 0.434 0.574 0.462 0.602 ;
+        RECT 0.462 0.492 0.496 0.52 ;
+        RECT 0.462 0.574 0.496 0.602 ;
+        RECT 0.496 0.492 0.528 0.52 ;
+        RECT 0.496 0.52 0.528 0.574 ;
+        RECT 0.496 0.574 0.528 0.602 ;
+    END
+  END Z
+  
+  
+END XOR2_X1
+
+MACRO BLK_TYPE1
+  CLASS BLOCK ;
+	SIZE 48 BY 268.8 ;
+	ORIGIN 0 0 ;
+	SITE NanGate_15nm_OCL ;
+END BLK_TYPE1
+
+MACRO BLK_TYPE2
+  CLASS BLOCK ;
+	SIZE 24 BY 268.8 ;
+	ORIGIN 0 0 ;
+	SITE NanGate_15nm_OCL ;
+END BLK_TYPE2
+
+MACRO BLK_TYPE3
+  CLASS BLOCK ;
+	SIZE 48 BY 76.8 ;
+	ORIGIN 0 0 ;
+	SITE NanGate_15nm_OCL ;
+END BLK_TYPE3
+
+END LIBRARY
+#
+# End of file
+#

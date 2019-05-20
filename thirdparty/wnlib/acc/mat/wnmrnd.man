@@ -1,0 +1,22 @@
+NAME
+     wnmrnd -- random matrix generator
+
+SYNOPSIS
+     #include "wnmat.h"
+
+     wn_random_mat(double **mat,int len_i,int len_j)
+
+DESCRIPTION
+     Generate random matrix.  Each element chosen according to
+     standard normal distribution, with mean=0, sdev=1.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+
+AUTHOR
+     Will Naylor
+
+

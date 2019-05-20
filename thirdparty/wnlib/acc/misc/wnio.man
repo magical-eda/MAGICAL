@@ -1,0 +1,110 @@
+NAME
+    wnio -- io utilities
+
+SYNOPSIS
+    #include "wnio.h"
+
+    /* unix-style system routines */
+
+    void wn_abort();
+    wn_file wn_fopen(char file_name[],char type[]);
+    int wn_fclose(wn_file f);
+    int wn_fgets(char *s,int n,wn_file stream);
+    int wn_fputs(char *s,wn_file stream);
+    int wn_getchar(void);
+    int wn_getc(wn_file stream);
+    int wn_ungetc(int c,wn_file stream);
+    int wn_putc(char c,wn_file stream);
+    bool wn_feof(wn_file f);
+    int wn_fflush(wn_file stream);
+    wn_file wn_popen(char command[],char type[]); /* not available on windows*/
+    int wn_pclose(wn_file f);			  /* not available on windows*/
+    int wn_open(char *path,int flags,int mode);
+    int wn_close(int d);
+    int wn_write(int d,char *buf,int nbytes);
+    int wn_read(int d,char *buf,int nbytes);
+    size_t wn_fread(void  *ptr,  size_t size, size_t nmemb,
+    /**/					FILE *stream);
+    size_t wn_fwrite(const void *ptr, size_t size, size_t  nmemb,
+    /**/					FILE *stream);
+
+    /* unix-style command routines */
+
+    int wn_rm(char path[]);
+    void wn_rmf(char *path);
+    int wn_mkdir(char dir_name[]);
+    int wn_rmdir(char dir_name[]);	/* not available on vms */
+    int wn_cd(char dir_name[]);
+    void wn_pushd(char dir_name[]);
+    void wn_popd(void);
+    int wn_pwd(char dir_name[]);
+    int wn_mv(char from[], to[]);
+    int wn_cp(char from[], char to[]);
+
+    /* other routines */
+
+    bool wn_file_exists(char path[]);
+    bool wn_is_directory(char path[]);
+
+DESCRIPTION
+    This package is intended to make code written on top of it
+    independent of the os, whether unix style or vms.
+
+    for all the routines listed under /* unix-style system routines */
+    above, the name of the routine is wn_<x> where <x> is the
+    name of some unix system routine.  Pretty much all of these routines
+    do nothing but call the unix system routine, look at the result,
+    do some error reporting if something went wrong, otherwise return
+    exactly as the unix system routine would have.  Thus, it is
+    safe to use them wherever you normally use the unix system
+    routine without having to examine their code.
+	2 routines that are different from the equivalent unix system
+    routine are wn_fgets(), which instead of returning a char* returns
+    an int, true if input was gotten, 0 on EOF, and wn_mkdir(), which
+    takes 1 arg instead of 2.
+	Users on non-unix style platforms should note that all these
+    routines are "unix-bigoted" - that is, if there is one behavior of
+    the <x> routine on unix and another on another platform, the wn_<x>
+    routine will have the unix behavior everywhere.
+	This is significant with wn_open().  On windows and sometimes
+    on Cygwin, open() will default to opening files in text mode (there
+    is no such thing as text mode on unix) at least some of the time.
+    This is incompatible with unix, so on windows, wn_open() does not
+    default to doing this, and just opens the file as binary like it
+    does on unix.  If a windows caller WANTS the file opened in text
+    mode, he can pass O_TEXT in to the flags (note that the OS only
+    defines the flag O_TEXT on windows and Cygwin, the concept of
+    text mode does not exist on unix).
+
+	If you include wnio.h, the identifiers for the unix-style
+    routines will all be #defined to illegal values to make sure you
+    are consistently using the wn_<x> routines.  This feature defaults
+    to on, but can be disabled by setting the WNIO_DONT_GUARD_WNIO
+    identifier.
+
+    There are also a number of unix-style command routines wn_<y>
+    where <y> is some unix shell command.  wn_pwd() and
+    wn_pushd() have a file name length limited by the buffer size
+    WN_MAX_FILE_NAME_PATH_LEN defined in wnio.h.  It's big.  Declare
+    your buffers using this constant.
+    There is wn_mv(from, to), which mv a single file as unix mv
+    does.  If $to exists and is a directory, $from will be moved to
+    $to/$from.  There is wn_cp(from, to), which cp's a single file
+    as unix cp would.  It copies into directories, if $to is a directory,
+    the copy is to $to/$from.  Note these commands do NOT understand
+    wildcard arguments.
+
+DIAGNOSTICS
+    unix-style wn_<x> routines, if they return, return the value returned
+    by the <x> routine that they called.
+
+    wn_rm(), wn_mkdir(), wn_rmdir(), wn_cd(),  wn_mv(), wn_cp()
+    all return 0 on success, nonzero otherwise.  All issue a 1 line
+    complaint before exiting on failure.
+
+    wn_pwd() is returning a return value that does not make much sense and
+    might be changed - its return value should be ignored.
+
+AUTHOR
+    code: Will Naylor & Bill Chapman
+    man page: Bill Chapman

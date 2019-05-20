@@ -1,0 +1,345 @@
+/**********************************************************************
+
+wn_seed_random_number_generator(seed)
+
+int wn_random_int()
+
+int wn_random_n_bits(n)
+
+int wn_random_bit()
+
+**********************************************************************/
+/****************************************************************************
+
+COPYRIGHT NOTICE:
+
+  The source code in this file is provided free of charge
+  to the author's consulting clients.  It is in the
+  public domain and therefore may be used by anybody for
+  any purpose.
+
+AUTHOR:
+
+  Will Naylor -- original
+  Bill Chapman -- 3/3/2004 -- sped up wn_random_int()
+  Will Naylor -- 18/3/2004 -- rewrite to make cryptographically strong
+
+****************************************************************************/
+
+#include <stdio.h>
+
+#include "wnlib.h"
+#include "wnasrt.h"
+#include "wnmax.h"
+#include "wnmemb.h"
+#include "wnrtab.h"
+#include "wnrnd.h"
+
+
+#define NUM_FEEDBACK_MUNGE_FUNCS  283  /* prime number */
+#define NUM_OUT_MUNGE_FUNCS       (17*WN_RANDOM_WIDTH)  /* == 289 */
+#define WINDOW_SIZE               587  /* size of state machine */
+#define STATE_BUFFER_SIZE         (8009/*prime*/ + WINDOW_SIZE)
+
+
+/* 
+  random ints are stored in a buffer, and calculated
+  in batches of size WN_RANDOM_WIDTH, and taken
+  from buffer on each call to wn_random_int()
+*/
+int wn_random_ints_buf[WN_RANDOM_WIDTH] =
+{  /* initialization for seed = 0 */
+(int)0x8d38fab3, (int)0x750963dc, (int)0x0f56453e, (int)0x18d975a4,
+(int)0x9d87c979, (int)0x40eb6440, (int)0x28fe1fb4, (int)0xe3e289a1,
+(int)0xbb8384b4, (int)0x12e8db62, (int)0x452f2b27, (int)0x005a7ded,
+(int)0xe5c48747, (int)0x5872270b, (int)0x4a884409, (int)0x3a12000b,
+(int)0xfa63a631 
+};
+int wn_random_ints_count = 0;     /* number of random ints in buffer */
+
+local int saved_bits;
+local int number_of_saved_bits;
+
+
+local int bit_plane_counter = 9;  /* initialize for seed = 0 */
+
+local int state_buffer[STATE_BUFFER_SIZE] =   
+{
+  #include "wnrds.h"  /* state for seed 0 */
+};
+local int *state_pointer = state_buffer + 3313; /* initialize for seed = 0 */
+local int *state_buffer_top = state_buffer + STATE_BUFFER_SIZE;
+
+struct munge_func_struct
+{
+  int constant;      
+  int lin_tap1,lin_tap2;    /* linear taps */
+  int quad_tap1,quad_tap2;  /* quadratic taps */
+};
+
+local struct munge_func_struct 
+feedback_munge_array[NUM_FEEDBACK_MUNGE_FUNCS] = 
+{
+  #include "wnrdf.h"  /* feedback taps and constants */
+};
+local struct munge_func_struct *feedback_munge_pointer = 
+                        feedback_munge_array + 282; /* init for seed = 0 */
+local struct munge_func_struct *feedback_munge_array_top = 
+	  feedback_munge_array + NUM_FEEDBACK_MUNGE_FUNCS;  
+
+local struct munge_func_struct 
+out_munge_array[NUM_OUT_MUNGE_FUNCS] = 
+{
+  #include "wnrdo.h"  /* out taps and coefs */
+};
+local struct munge_func_struct *out_munge_pointer = 
+                             out_munge_array + 51;  /* init for seed = 0 */
+local struct munge_func_struct *out_munge_array_top = 
+	  out_munge_array + NUM_OUT_MUNGE_FUNCS;  
+
+
+void wn_rand_print_state(void)
+{
+  int i;
+
+  printf("int wn_random_ints_buf[WN_RANDOM_WIDTH] =\n");
+  printf("{\n");
+  for(i=0;  i < WN_RANDOM_WIDTH;  ++i)
+  {
+    printf("(int)0x%0.8lx%s", 
+	   wn_random_ints_buf[i], i % 4 != 3 ? ", " : ",\n");
+  }
+  printf("}\n");
+  printf("wn_random_ints_count = %d;\n",wn_random_ints_count);
+  printf("\n");
+
+  printf("local int bit_plane_counter = %d;\n",bit_plane_counter);
+  printf("\n");
+  printf("local int *state_pointer = state_buffer + %d;\n",
+	 state_pointer - state_buffer);
+  printf("\n");
+  printf("local struct munge_func_struct *feedback_munge_pointer = \n");
+  printf("                             feedback_munge_array + %d\n",
+	 feedback_munge_pointer - feedback_munge_array);
+  printf("\n");
+  printf("local struct munge_func_struct *out_munge_pointer = \n");
+  printf("                             out_munge_array + %d\n",
+	 out_munge_pointer - out_munge_array);
+  printf("\n");
+
+  printf("local int state_buffer[STATE_BUFFER_SIZE] =\n");
+  printf("{\n");
+  for(i=0;  i < STATE_BUFFER_SIZE;  ++i)
+  {
+    printf("(int)0x%0.8lx%s", state_buffer[i], i % 4 != 3 ? ", " : ",\n");
+  }
+  printf("}\n");
+}
+
+
+void wn_seed_random_number_generator(int seed)
+{
+  int i;
+
+  for(i=0;i<STATE_BUFFER_SIZE;++i)
+  {
+    state_buffer[i] = seed ^ i;
+  }
+
+  wn_random_ints_count = 0;  
+  bit_plane_counter = 0;
+  state_pointer = state_buffer;
+  feedback_munge_pointer = feedback_munge_array;
+  out_munge_pointer = out_munge_array;
+
+  /*
+  printf("state 1:\n");
+  wn_rand_print_state();
+  */
+
+  for(i = 0;  i < 2*sizeof(int)*WN_RANDOM_WIDTH*STATE_BUFFER_SIZE;  ++i)
+  {
+    (void)wn_random_int();
+  }
+}
+
+
+/*
+#define mix_up_bit_planes() \
+*/
+void mix_up_bit_planes() \
+{ \
+  state_pointer[-1] ^= wn_random_int_table[ \
+       (state_pointer[0] >> (bit_plane_counter*8)) & ((1<<8)-1)]; \
+  \
+  ++bit_plane_counter; \
+  if(bit_plane_counter >= sizeof(int)) \
+  { \
+    bit_plane_counter = 0; \
+  } \
+}
+
+
+/*
+void decrement_state_pointer() \
+*/
+#define decrement_state_pointer() \
+{ \
+  if(state_pointer == state_buffer) \
+  { \
+    state_pointer = state_buffer_top-1 - WINDOW_SIZE; \
+    wn_memcpy((ptr)state_pointer,(ptr)state_buffer, \
+              WINDOW_SIZE*sizeof(int)); \
+    \
+    mix_up_bit_planes(); \
+  } \
+  \
+  --state_pointer; \
+  \
+}
+
+/*
+void increment_feedback_munge_pointer() \
+*/
+#define increment_feedback_munge_pointer() \
+{ \
+  ++feedback_munge_pointer; \
+  \
+  if(feedback_munge_pointer == feedback_munge_array_top) \
+  { \
+    feedback_munge_pointer = feedback_munge_array; \
+  } \
+}
+
+
+/*
+void increment_out_munge_pointer() \
+*/
+#define increment_out_munge_pointer() \
+{ \
+  out_munge_pointer += WN_RANDOM_WIDTH; \
+  \
+  if(out_munge_pointer == out_munge_array_top) \
+  { \
+    out_munge_pointer = out_munge_array; \
+  } \
+}
+
+
+#define munge(p,m) \
+( \
+  (m)->constant ^ p[(m)->lin_tap1] ^ p[(m)->lin_tap2] ^ \
+  ( p[(m)->quad_tap1] & p[(m)->quad_tap2] ) \
+)
+
+
+int wn_random_ints_fill_buf()
+{
+  int feedback;
+
+  /* compute output bits */
+  wn_random_ints_buf[0]  = munge(state_pointer,out_munge_pointer + 0);
+  wn_random_ints_buf[1]  = munge(state_pointer,out_munge_pointer + 1);
+  wn_random_ints_buf[2]  = munge(state_pointer,out_munge_pointer + 2);
+  wn_random_ints_buf[3]  = munge(state_pointer,out_munge_pointer + 3);
+  wn_random_ints_buf[4]  = munge(state_pointer,out_munge_pointer + 4);
+  wn_random_ints_buf[5]  = munge(state_pointer,out_munge_pointer + 5);
+  wn_random_ints_buf[6]  = munge(state_pointer,out_munge_pointer + 6);
+  wn_random_ints_buf[7]  = munge(state_pointer,out_munge_pointer + 7);
+  wn_random_ints_buf[8]  = munge(state_pointer,out_munge_pointer + 8);
+  wn_random_ints_buf[9]  = munge(state_pointer,out_munge_pointer + 9);
+  wn_random_ints_buf[10] = munge(state_pointer,out_munge_pointer + 10);
+  wn_random_ints_buf[11] = munge(state_pointer,out_munge_pointer + 11);
+  wn_random_ints_buf[12] = munge(state_pointer,out_munge_pointer + 12);
+  wn_random_ints_buf[13] = munge(state_pointer,out_munge_pointer + 13);
+  wn_random_ints_buf[14] = munge(state_pointer,out_munge_pointer + 14);
+  wn_random_ints_buf[15] = munge(state_pointer,out_munge_pointer + 15);
+  wn_random_ints_buf[16] = munge(state_pointer,out_munge_pointer + 16);
+  wn_random_ints_count = WN_RANDOM_WIDTH;  /* wn_random_ints_buf is full */
+  increment_out_munge_pointer();
+
+  /* compute feedback bits */
+  feedback  = munge(state_pointer,feedback_munge_pointer);
+  increment_feedback_munge_pointer();
+
+  /* stuff feedback bits back into shift register */
+  decrement_state_pointer();
+  (*state_pointer) ^= feedback;
+
+  return(wn_random_ints_buf[--wn_random_ints_count]);
+}
+
+
+/* subroutine version of the macro wn_random_int() */
+int wn_random_int_func(void)
+{
+  return(wn_random_int());
+}
+
+
+int wn_random_n_bits(int n)
+{
+  int ret;
+
+  if(n <= number_of_saved_bits)
+  {
+    ret = saved_bits&((1<<n)-1);
+    saved_bits >>= n;
+    number_of_saved_bits -= n;
+
+    return(ret);
+  }
+  else /* n > number_of_saved_bits */
+  {
+    int bit_deficit;
+
+    if (n >= 32)
+    {
+      wn_assert(n == 32);
+      return wn_random_int();
+    }
+    bit_deficit = n - number_of_saved_bits;
+
+    ret = saved_bits&((1<<number_of_saved_bits)-1);
+    ret <<= bit_deficit;
+
+    saved_bits = wn_random_int();
+    ret |= ( saved_bits&((1<<bit_deficit)-1) );
+    saved_bits >>= bit_deficit;
+    number_of_saved_bits = 32 - bit_deficit;
+
+    return(ret);
+  }
+}
+
+/* this version is faster if n>10 */
+int wn_random_n_bits_alt(int n)
+{
+  if (n >= 32)
+  {
+    wn_assert(n == 32);
+    return wn_random_int();
+  }
+  else
+  {
+    return wn_random_int() & ((1u << n) - 1u);
+  }
+}
+
+
+int wn_random_bit(void)
+{
+  int ret;
+
+  if(number_of_saved_bits < 1)
+  {
+    saved_bits = wn_random_int();
+    number_of_saved_bits = 32;
+  }
+
+  ret = (int)(saved_bits&1);
+  saved_bits >>= 1;
+  --number_of_saved_bits;
+
+  return(ret);
+}

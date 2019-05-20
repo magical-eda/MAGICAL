@@ -1,0 +1,94 @@
+NAME
+     wnblk -- block operations
+
+SYNOPSIS
+     wn_blkzero(blk,len)
+     ptr blk;
+     int len;
+
+     wn_blkfill(blk,len,c)
+     ptr blk;
+     int len;
+     char c;
+
+     wn_blkcpy(out,in,len)
+     ptr out,in;
+     int len;
+
+     wn_blkacpy(&out,in,len)
+     ptr out,in;
+     int len;
+
+     wn_blkcat(out,b1,l1,b2,l2)
+     ptr out,b1,b2;
+     int l1,l2;
+
+     wn_blkacat(&out,b1,l1,b2,l2)
+     ptr out,b1,b2;
+     int l1,l2;
+
+     int wn_blkcmp(b1,l1,b2,l2)
+     ptr b1,b2;
+     int l1,l2;
+
+     bool wn_blkeq(b1,l1,b2,l2)
+     ptr b1,b2;
+     int l1,l2;
+
+     wn_blkshift(out,in,len)
+     ptr out,in;
+     int len;
+
+     bool wn_char_in_block(c,b,l)
+     char c;
+     ptr b;
+     int l;
+
+DESCRIPTION
+     These routines operate on blocks of memory, the lengths of which are
+     specified by length arguments.  These blocks will typically be
+     structures or arrays, pointers to which must be cast to the
+     "ptr" type to be kosher.  The length argument is typically 
+     from "wn_sizeof".
+
+     "wn_blkzero" fills block "blk" with zeros.  "blk" has
+     length "len".
+
+     "wn_blkfill" fills block "blk" with the char in "c".  "blk" has
+     length "len".
+
+     "wn_blkcpy" copies "len" bytes from "in" to "out".  Can be used
+     as a portable structure or array copy.
+
+     "wn_blkacpy" allocates (from the current memory group) "len"
+     bytes of memory for "out", and then copies "in" to it.
+
+     "wn_blkcat" concatonates "b1" (which has length "l1") to
+     "b2" (which has length "l2").  The result appears in
+     "out".
+
+     "wn_blkacat" allocates (from the current memory group) 
+     l1+l2 bytes of memory for "out", then
+     puts the concatonation of "b1" and "b2" in this memory.
+
+     "wn_blkcmp" compares "b1" and "b2" and returns an integer
+     >, <, or == to 0, according as "b1" is lexicographically >,
+     <, or == to "b2".
+
+     "wn_blkeq" returns TRUE iff "b1" is same as "b2".
+
+     "wn_blkshift" shifts a block of memory at "in" of size "len" up or
+     down in memory to location "out".  "in" and "out" may overlap.
+
+     "wn_char_in_block" returns TRUE iff the character "c" is 
+     contained in the block "b", which has length "l".
+
+BUGS
+
+SEE ALSO
+     wnary, wnstr
+
+AUTHOR
+     Will Naylor
+
+

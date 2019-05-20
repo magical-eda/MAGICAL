@@ -1,0 +1,54 @@
+>> load control1.mat
+>> whos
+  Name      Size                   Bytes  Class
+
+  At      125x21                    8488  double array (sparse)
+  K         1x1                      140  struct array
+  ans       2x1                       16  double array
+  b        21x1                      168  double array
+  c       125x1                       80  double array (sparse)
+
+Grand total is 732 elements using 8892 bytes
+
+>> pars.objtol=1.0e-9;
+>> [x,y,z,info]=csdp(At,b,c,K,pars);
+Transposing A to match b 
+Number of constraints: 21 
+Number of SDP blocks: 2 
+Number of LP vars: 0 
+Iter:  0 Ap: 0.00e+00 Pobj:  3.6037961e+02 Ad: 0.00e+00 Dobj:  0.0000000e+00 
+Iter:  1 Ap: 9.56e-01 Pobj:  3.7527534e+02 Ad: 9.60e-01 Dobj:  6.4836002e+04 
+Iter:  2 Ap: 8.55e-01 Pobj:  4.0344779e+02 Ad: 9.67e-01 Dobj:  6.9001508e+04 
+Iter:  3 Ap: 8.77e-01 Pobj:  1.4924982e+02 Ad: 1.00e+00 Dobj:  6.0425319e+04 
+Iter:  4 Ap: 7.14e-01 Pobj:  8.2819409e+01 Ad: 1.00e+00 Dobj:  1.2926534e+04 
+Iter:  5 Ap: 8.23e-01 Pobj:  4.7411689e+01 Ad: 1.00e+00 Dobj:  4.9040115e+03 
+Iter:  6 Ap: 7.97e-01 Pobj:  2.6300213e+01 Ad: 1.00e+00 Dobj:  1.4672743e+03 
+Iter:  7 Ap: 7.12e-01 Pobj:  1.5215577e+01 Ad: 1.00e+00 Dobj:  4.0561826e+02 
+Iter:  8 Ap: 8.73e-01 Pobj:  7.5119220e+00 Ad: 1.00e+00 Dobj:  1.7418715e+02 
+Iter:  9 Ap: 9.87e-01 Pobj:  5.3076526e+00 Ad: 1.00e+00 Dobj:  5.2097318e+01 
+Iter: 10 Ap: 1.00e+00 Pobj:  7.8594697e+00 Ad: 1.00e+00 Dobj:  2.2172447e+01 
+Iter: 11 Ap: 7.62e-01 Pobj:  1.5871010e+01 Ad: 1.00e+00 Dobj:  1.9629658e+01 
+Iter: 12 Ap: 9.21e-01 Pobj:  1.7549388e+01 Ad: 9.68e-01 Dobj:  1.7931413e+01 
+Iter: 13 Ap: 9.70e-01 Pobj:  1.7769861e+01 Ad: 9.72e-01 Dobj:  1.7792992e+01 
+Iter: 14 Ap: 8.87e-01 Pobj:  1.7782917e+01 Ad: 9.70e-01 Dobj:  1.7785344e+01 
+Iter: 15 Ap: 9.27e-01 Pobj:  1.7784457e+01 Ad: 9.85e-01 Dobj:  1.7784731e+01 
+Iter: 16 Ap: 9.35e-01 Pobj:  1.7784609e+01 Ad: 9.35e-01 Dobj:  1.7784640e+01 
+Iter: 17 Ap: 1.00e+00 Pobj:  1.7784624e+01 Ad: 1.00e+00 Dobj:  1.7784628e+01 
+Iter: 18 Ap: 1.00e+00 Pobj:  1.7784627e+01 Ad: 1.00e+00 Dobj:  1.7784627e+01 
+Iter: 19 Ap: 9.54e-01 Pobj:  1.7784627e+01 Ad: 9.59e-01 Dobj:  1.7784627e+01 
+Success: SDP solved
+Primal objective value: 1.7784627e+01 
+Dual objective value: 1.7784627e+01 
+Relative primal infeasibility: 1.34e-09 
+Relative dual infeasibility: 1.53e-11 
+Real Relative Gap: 8.76e-10 
+XZ Relative Gap: 2.16e-10 
+DIMACS error measures: 1.34e-09 0.00e+00 2.47e-11 0.00e+00 8.76e-10 2.16e-10
+0.020u 0.000s 0:00.07 28.5%	0+0k 0+0io 218pf+0w
+>> info
+
+info =
+
+     0
+
+>> quit

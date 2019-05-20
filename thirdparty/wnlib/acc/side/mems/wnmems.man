@@ -1,0 +1,53 @@
+NAME
+     wnmems -- segmented memory allocation for debugging
+
+SYNOPSIS
+     Supports exactly the same interface as wnmem.man
+
+DESCRIPTION
+     The normal wn memory allocator, wnmem, allocates memory in large
+     blocks, then doles out smaller segments within those blocks.  This
+     has advantages, but one disadvantage is that it undermines a lot
+     of the checking done by debugging tools such as purify or valgrind.
+
+     wnmems supports the same interface as wnmem, including group free,
+     except that you get a separate segment for every malloc, with no
+     padding of any kind on either end.  This gives you the full benefits
+     of purify or valgrind's checking.
+
+     wnmems has to be specially linked into your application.  If your
+     normal link is
+
+	$(CC) $(MYOBJS) wnlib/acc/text.a -o myprog
+
+     then, to get wnmems, you have to link with
+
+	$(CC) $(MYOBJS) wnlib/acc/side/mems/wnmems.o wnlib/acc/text.a -o myprog.mems
+
+     This will prevent the normal memory allocator from being pulled out
+     of text.a, and wnmems.o will substitute for it.  You then run purify or
+     valgrind on myprog.mems.
+
+DIAGNOSTICS
+
+BUGS
+     wnmems calls chash & misc/wnbvec to implement its group freeing
+     capabilities.  chash & bitvec have been specially written so that if
+     linked with wnmems, they will not call wn_alloc & wn_free (to prevent
+     infinite recursion) but will just call malloc and free directly.
+ 
+     This means that if you use chash and / or bitvec and are relying
+     on group freeing to free these structures, it will work normally, but
+     when you link with wnmems and run purify / valgrind, the chash / bitvect
+     datastructures will show up as leaked memory.
+
+     You can ignore these messages, because the group freeing WILL work
+     when you're not using wnmems, or if you really want to make the messages
+     go away, you can call the routines to explicitly free the chash tables
+     and bitvects.
+
+SEE ALSO
+     wnmem
+
+AUTHOR
+     Bill Chapman

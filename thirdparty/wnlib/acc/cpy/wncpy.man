@@ -1,0 +1,36 @@
+NAME
+     wncpy -- routines to copy
+
+SYNOPSIS
+     #include "wncpy.h"
+
+     wn_stracpy(&out,in)
+     char out[],in[];
+
+     void wn_ptrcpy(&out,in)
+     ptr out,in;
+
+     void wn_intcpy(&out,in)
+     int out,in;
+
+     void wn_pdoublecpy(&out,in)
+     double *out,*in;
+
+     void wn_memcpy(ptr out,ptr in,int size)
+
+     void wn_memacpy(ptr *pout,ptr in,int size)
+
+DESCRIPTION
+     These routines are designed to assist in building sorted 
+     trees (see wnbtr) and hash tables (see wnhtab).  
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wncmp, wnbtr, wnbtrl, wnhtab
+
+AUTHOR
+     Will Naylor
+

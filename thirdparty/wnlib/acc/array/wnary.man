@@ -1,0 +1,79 @@
+NAME
+     wnary -- dynamic array manager macros with integer bookkeeping 
+
+SYNOPSIS
+     #include "wnary.h"
+
+     wn_arrayins(array,usedsize,memsize,e,type)
+     type array[];
+     int usedsize;
+     int memsize;
+     type e;
+
+     wn_arrayins_into_group(array,usedsize,memsize,e,group,type)
+     type array[];
+     int usedsize;
+     int memsize;
+     type e;
+     wn_memgp group;
+
+     wn_arraydelindex(array,usedsize,index)
+     type array[];
+     int usedsize;
+     int index;
+
+     wn_for_all_array_entries(array,usedsize,e,type)
+     type array[];
+     int usedsize;
+     type e;
+     {
+     } 
+     wn_end_for_all_array_entries
+
+     wn_for_all_array_pentries(array,usedsize,pe,type)
+     type array[];
+     int usedsize;
+     type *pe;
+     {
+     } 
+     wn_end_for_all_array_entries
+
+     wn_2arrayins(array1,array2,usedsize,memsize,e1,e2,type1,type2)
+     type1 array1[];
+     type2 array2[];
+     int usedsize;
+     int memsize;
+     type1 e1;
+     type2 e2;
+
+     wn_2arrayins_into_group(array1,array2,usedsize,memsize,e1,e2,
+                             group,type1,type2)
+     type1 array1[];
+     type2 array2[];
+     int usedsize;
+     int memsize;
+     type1 e1;
+     type2 e2;
+     wn_memgp group;
+
+     wn_2arraydelindex(array1,array2,usedsize,index)
+     type1 array1[];
+     type2 array2[];
+     int usedsize;
+     int index;
+
+DESCRIPTION
+     This package helps manage dynamic arrays.  The package
+     is designed to be super-fast, but has no bounds checking.
+     wnaryp is faster, but a bit harder to use.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnaryp, wnaryl, wnsll
+
+AUTHOR
+     Will Naylor
+

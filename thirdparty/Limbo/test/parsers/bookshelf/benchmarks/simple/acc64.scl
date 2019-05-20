@@ -1,0 +1,22 @@
+UCLA scl 1.0
+
+NumRows : 2
+
+CoreRow Horizontal
+	Coordinate    :   0
+	Height        :   2880
+	Sitewidth     :    1
+	Sitespacing   :    1
+	Siteorient    :    1
+	Sitesymmetry  :    1
+	SubrowOrigin  :    0	NumSites  :  288000
+End
+CoreRow Horizontal
+	Coordinate    :   2880
+	Height        :   2880
+	Sitewidth     :    1
+	Sitespacing   :    1
+	Siteorient    :    1
+	Sitesymmetry  :    1
+	SubrowOrigin  :    0	NumSites  :  288000
+End

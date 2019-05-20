@@ -1,0 +1,38 @@
+NAME
+     wngs -- Gramm-Schmidt orthogonalization
+
+SYNOPSIS
+     #include "wnmat.h"
+
+     void wn_gramm_schmidt(&code,mat,len_i,len_j)
+     int code;
+     double **mat;        /* mat[i][j] */
+     int len_i,len_j;
+
+DESCRIPTION
+     "wn_gramm_schmidt" performs an in-place run on "mat".  mat[i] are
+     vectors which span the space; sweep is from i=0 to i=len_i-1.
+
+RESOURCES
+     Gramm-Schmidt requires
+
+       WORST and AVERAGE CASE:
+
+         time = len_i^2*len_j
+         stack memory = 1
+         dynamic memory = 0
+
+     where the matrix to be processed is a len_i*len_j matrix.
+
+DIAGNOSTICS
+     code == WN_SUCCESS  for success.
+     code == WN_SINGULAR  for singular matrix.
+  
+BUGS
+
+SEE ALSO
+
+AUTHOR
+     Will Naylor
+
+

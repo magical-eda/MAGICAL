@@ -1,0 +1,8 @@
+obj
+test_spirit
+test_adapt
+test_bison
+bisontest.lef
+valgrind*.txt
+*.log
+cells.lef

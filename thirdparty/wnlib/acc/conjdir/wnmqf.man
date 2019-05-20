@@ -1,0 +1,69 @@
+NAME
+     wnmqf -- minimize quadratic form
+
+SYNOPSIS
+     #include "wnmqf.h"
+
+     void wn_minimize_quad_form(&code,&ob,&alpha,p,x,g,A,num_iterations)
+     int code;
+     double ob;    
+     double alpha;  /* recommend line search len of final iteration */
+     double p[];    /* search direction (negative of search direction) */
+     double x[];    /* current best solution */
+     double g[];
+     wn_ffln_type A;
+     int num_iterations;
+
+
+DESCRIPTION
+     This package attempts to minimize the quadratic form
+
+       minimize f(x) = (1/2)*x^t*A*x + g*x
+       whose gradient is
+           grad(x) = A*x + g
+
+     using the linear conjugate-gradient algorithm. 
+     The matrix "A" is represented in a "wn_ffln_type" sparse
+     feed-forward linear network (see wnffln).
+     This package is useful for minimizing continuous, differentiable 
+     functions of many
+     variables using Newton's method when the Hessian matrix is sparse
+     but contains no special structure.
+
+     The routine applies "num_iterations" of conjugate-gradient
+     iterations to find "x" which minimizes the residual of
+     the system.  Starting "x" is assumed to be 0; starting "ob"
+     is assumed to be 0.  "g" is replaced with residual at the
+     final iteration of the algorithm.  "p" is filled with the
+     final search direction of the algorithm.  "alpha" gets the
+     final search length of the algorithm.
+
+     If a search direction is found to have negative curvature, 
+     the routine terminates immediately, leaving in "x" the
+     best minimizer found before the negative curvature was
+     encountered; and leaving in "p" the search direction 
+     with the negative curvature.  "alpha" is set to
+     the length along search direction to get to max
+     along the negative-curvature search direction.
+
+
+RESOURCES
+     wn_minimize_quad_form runs with
+     
+       AVERAGE CASE and WORST CASE:
+
+         time = <total number of coefficients in A>*num_iterations
+         stack memory = 1
+         dynamic memory = 1
+
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnffln, wnconj
+
+AUTHOR
+     Will Naylor
+

@@ -1,0 +1,48 @@
+NAME
+     wncplx -- complex numbers
+
+SYNOPSIS
+     #include "wncplx.h"
+
+
+     typedef struct wn_cplx_struct *wn_cplx;
+     struct wn_cplx_struct
+     {
+       double real,imag;
+     };
+
+
+     void wn_cplx_make(wn_cplx *pnumber);
+     void wn_cplx_copy(wn_cplx out,wn_cplx in);
+
+     void wn_cplx_enter(wn_cplx c);
+     void wn_cplx_print(wn_cplx c);
+
+     void wn_cplx_add(wn_cplx result,wn_cplx c1,wn_cplx c2);
+     void wn_cplx_subtract(wn_cplx result,wn_cplx c1,wn_cplx c2);
+     void wn_cplx_multiply(wn_cplx result,wn_cplx c1,wn_cplx c2);
+     void wn_cplx_divide(wn_cplx result,wn_cplx c1,wn_cplx c2);
+     void wn_cplx_reciprical(wn_cplx result,wn_cplx c);
+
+     double wn_cplx_norm_squared(wn_cplx c);
+     double wn_cplx_norm(wn_cplx c);
+
+     void wn_cplx_to_polar(double *pr,double *ptheta,wn_cplx c);
+     void wn_polar_to_cplx(wn_cplx c,double r,double theta);
+
+
+DESCRIPTION
+     Routines for complex numbers.
+
+RESOURCES
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+
+AUTHOR
+     Will Naylor
+
+

@@ -1,0 +1,26 @@
+NAME
+	wnmake1
+
+SYNOPSYS
+	wnmake1 <main program source file> <other source files>
+
+wnmake1 is useful when writing small programs that will use wnlib,
+saving you the trouble of making a makefile.
+
+Say you have a main program a1.c, and you want to build it
+along with c files b4.c and b5.c, and you want them all built including
+the wnlib include directory in the include path, and you want them
+all linked together with wnlib.  Just say
+
+	wnmake1 a1.c b4.c b5.c
+
+and all 3 c files will be compiled and linked with $WNLIB/acc/text.a.
+The resulting program will be named "a1".
+
+    Note this uses make, and rebuilds only as needed.  Suppose, for
+example, a1.c and b4.c have already been compiled and b5.c has not,
+then only b5.c will be recompiled.
+
+    Note for this script to work, you need to define the environment
+variable $WNLIB as the root of your wnlib file tree (that's how it finds
+the include directory and the wnlib text.a file).

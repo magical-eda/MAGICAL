@@ -1,0 +1,790 @@
+/********************************************************************
+
+********************************************************************/
+#include <stdio.h>
+#include <math.h>
+
+#include "wnlib.h"
+#include "wnasrt.h"
+#include "wnmem.h"
+#include "wnabs.h"
+#include "wnswap.h"
+#include "wnrndd.h"
+
+#include "wnvect.h"
+#include "wnmat.h"
+
+#include "wncnjdn2.h"
+
+
+
+#define MAX_EXPAND   (20.0)
+#define MIN_CONTRACT (1.0/10.0)
+
+#define GOLDEN_RATIO          1.618034
+#define GOLDEN_SECTION        0.3819660
+
+
+#define WN_CDN_DBG_NONE        0
+#define WN_CDN_DBG_PASSES      1
+#define WN_CDN_DBG_LINESEARCH  2
+#define WN_CDN_DBG_ALL         3
+
+local int wn_cdn_debug = WN_CDN_DBG_NONE;
+
+
+
+void wn_cdn_compute_func_call_vect
+(
+  wn_cdn_context_type c,
+  double *search_direction,
+  double x
+)
+{
+  wn_copy_vect(c->func_call_vect,c->current_vect,c->num_vars);
+  wn_add_scaled_vect(c->func_call_vect,search_direction,x,c->num_vars);
+}
+
+
+local void default_line_eval
+(
+  wn_cdn_context_type c,
+  double f[],double x[],int n,
+  double *search_direction
+)
+{
+  int i;
+
+  for(i=0;i<n;++i)
+  {
+    wn_cdn_compute_func_call_vect(c,search_direction,x[i]);
+
+    f[i] = 
+	(*(c->pfunction))(c->func_call_vect,c->num_func_calls + i);
+  }
+}
+
+
+local void reset_search_direction
+(
+  wn_cdn_context_type c,
+  search_direction_type search_direction
+)
+{
+  if(search_direction->dir_vect != NULL)
+  {
+    wn_zero_vect(search_direction->dir_vect,c->num_vars);
+  }
+
+  search_direction->x_min = -WN_FHUGE;
+  search_direction->x_max = WN_FHUGE;
+
+  search_direction->x0 = 0.0;  
+  search_direction->curvature = 0.0; 
+  search_direction->x_width = 0.0;  
+
+  search_direction->num_linesearches = 0;  
+}
+
+
+local void make_search_direction
+(
+  wn_cdn_context_type c,
+  search_direction_type *psearch_direction,
+  bool is_coord_direction,
+  int coord
+)
+{
+  *psearch_direction = (search_direction_type)wn_zalloc(
+                           sizeof(struct search_direction_type_struct));
+
+  (*psearch_direction)->is_coord_direction = is_coord_direction;
+  if(is_coord_direction)
+  {
+    (*psearch_direction)->coord = coord;
+    (*psearch_direction)->dir_vect = NULL;
+  }
+  else
+  {
+    (*psearch_direction)->coord = -1;
+    wn_make_vect(&((*psearch_direction)->dir_vect),c->num_vars);
+  }
+
+  reset_search_direction(c,*psearch_direction);
+}
+
+
+void wn_cdn_make_context
+(
+  wn_cdn_context_type *pc,
+  double (*pfunction)(double vect[],int sequence_number),
+  int num_vars
+)
+{
+  int i;
+
+  *pc = (wn_cdn_context_type)wn_zalloc(
+               sizeof(struct wn_cdn_context_type_struct));
+
+  (*pc)->num_vars = num_vars;
+  (*pc)->pfunction = pfunction;
+  (*pc)->pline_eval = &default_line_eval;
+
+  (*pc)->num_search_directions = 0;
+  (*pc)->max_num_search_directions = (*pc)->num_vars;
+  (*pc)->coord_search_direction_array = 
+      (search_direction_type *)wn_zalloc(
+           num_vars*sizeof(search_direction_type));
+  for(i=0;i<num_vars;++i)
+  {
+    make_search_direction((*pc),&(((*pc)->coord_search_direction_array)[i]),
+                          TRUE,i);
+  }
+  (*pc)->search_direction_array = 
+      (search_direction_type *)wn_zalloc(
+           ((*pc)->max_num_search_directions)*sizeof(search_direction_type));
+  for(i=0;i<((*pc)->max_num_search_directions);++i)
+  {
+    ((*pc)->search_direction_array)[i] = NULL;
+  }
+
+  wn_make_vect(&((*pc)->current_vect),num_vars);
+  wn_make_vect(&((*pc)->func_call_vect),num_vars);
+  wn_make_vect(&((*pc)->old_vect),num_vars);
+  wn_make_vect(&((*pc)->coord_direction),num_vars);
+
+  (*pc)->ob = WN_FHUGE;
+  (*pc)->code = WN_CDN_NOT_STARTED;
+
+  (*pc)->num_func_calls = 0;
+  (*pc)->max_num_func_calls = 0;
+
+  (*pc)->force_optimize_stop_flag = FALSE;
+
+  (*pc)->current_group = wn_curgp();
+}
+
+
+void wn_cdn_free_context(wn_cdn_context_type c)
+{
+  int i;
+
+  wn_gppush(c->current_group);
+
+  for(i=0;i<c->num_vars;++i)
+  {
+    free_search_direction((c->coord_search_direction_array)[i],
+                          TRUE);
+  }
+  for(i=0;i<c->num_search_directions;++i)
+  {
+    free_search_direction((c->search_direction_array)[i]);
+  }
+
+  wn_free(c->current_vect);
+  wn_free(c->func_call_vect);
+  wn_free(c->old_vect);
+  wn_free(c->coord_direction);
+
+  wn_gppop();
+}
+
+
+void wn_cdn_set_solution
+(
+  wn_cdn_context_type c,
+  double vect[]
+)
+{
+  wn_copy_vect(c->current_vect,vect,c->num_vars);
+}
+
+
+void wn_cdn_get_solution
+(
+  wn_cdn_context_type c,
+  double *pcode,
+  double *pob,
+  double vect[]
+)
+{
+  *pcode = c->code;
+  *pob = c->ob;
+  wn_copy_vect(vect,c->current_vect,c->num_vars);
+}
+
+
+void wn_cdn_set_line_eval
+(
+  wn_cdn_context_type c,
+  void (*pline_eval)(wn_cdn_context_type c,
+                     double f[],double x[],int n,
+                     double *search_direction)
+)
+{
+  c->pline_eval = pline_eval;
+}
+
+
+void wn_cdn_set_coord_x_min
+(
+  wn_cdn_context_type c,
+  int coord,
+  double x_min
+)
+{
+  wn_assert(coord >= 0);
+  wn_assert(coord < c->num_vars);
+
+  (c->coord_search_direction_array)[coord]->x_min = x_min;
+}
+
+
+void wn_cdn_set_coord_x_max
+(
+  wn_cdn_context_type c,
+  int coord,
+  double x_max
+)
+{
+  wn_assert(coord >= 0);
+  wn_assert(coord < c->num_vars);
+
+  (c->coord_search_direction_array)[coord]->x_max = x_max;
+}
+
+
+void wn_cdn_set_coord_x0
+(
+  wn_cdn_context_type c,
+  int coord,
+  double x0
+)
+{
+  wn_assert(coord >= 0);
+  wn_assert(coord < c->num_vars);
+
+  (c->coord_search_direction_array)[coord]->x0 = x0;
+}
+
+
+void wn_cdn_force_stop(wn_cdn_context_type c)
+{
+  c->force_optimize_stop_flag = TRUE;
+}
+
+
+local void fit_parabola_2pa(int *pcode,double *px0,double *pb,
+			    double a,
+			    double x1,double y1,
+			    double x2,double y2)
+{
+  double b,c;
+
+  if(a <= 0.0)
+  {
+    *pcode = WN_SINGULAR;
+    return;
+  }
+
+  wn_fit_traditional_parabola_2pa(pcode,&b,&c,a,x1,y1,x2,y2);
+
+  if(*pcode != WN_SUCCESS)
+  {
+    return;
+  }
+
+  wn_convert_parabola_traditional_to_centered(pcode,px0,pb,a,b,c);
+}
+
+
+#if 0
+local double line_function
+(
+  wn_cdn_context_type c,
+  double *search_direction,
+  double x
+)
+{
+  double ret;
+
+  wn_copy_vect(c->func_call_vect,c->current_vect,c->num_vars);
+  wn_add_scaled_vect(c->func_call_vect,search_direction,x,c->num_vars);
+
+  if(wn_cdn_debug >= WN_CONJ_DIR_DBG_ALL)
+  {
+    printf("function call %d at value\n",num_func_calls);
+    wn_print_vect(c->func_call_vect,c->num_vars);
+  }
+
+  ++(c->num_func_calls);
+
+  ret = wn_clip_f((*(c->pfunction))(save_vect,c->num_func_calls));
+
+  if(wn_cdn_debug >= WN_CONJ_DIR_DBG_ALL)
+  {
+    printf("function value is %lg\n",ret);
+    fflush(stdout);
+  }
+
+  return(ret);
+}
+#endif
+
+
+local void line_eval
+(
+  wn_cdn_context_type c,
+  double f[],double x[],int n,
+  double *search_direction
+)
+{
+  int i;
+
+  (*(c->pline_eval))(c,f,x,n,search_direction);
+
+  for(i=0;i<n;++i)
+  {
+    f[i] = wn_clip_f(f[i]);
+
+    if(wn_cdn_debug >= WN_CDN_DBG_ALL)
+    {
+      wn_cdn_compute_func_call_vect(c,search_direction,x[i]);
+
+      printf("function call %d at value\n",c->num_func_calls + i);
+      wn_print_vect(c->func_call_vect,c->num_vars);
+      printf("function at x = %lg value is %lg\n",x[i],f[i]);
+      fflush(stdout);
+    }
+  }
+
+  c->num_func_calls += n;
+}
+
+
+static wn_cdn_context_type save_c,
+static double *save_search_direction;
+
+
+local double line_function(double x)
+{
+  double xa[1],fa[1];
+
+  xa[0] = x;
+
+  line_eval(save_c,fa,xa,1,save_search_direction);
+
+  return(fa[1]);
+}
+
+
+/*
+local void line_minimize
+(
+  double vect[],
+  double direction[],
+  double *pval_min,
+  double *psave_x0,
+  double *psave_a,
+  double (*pfunction)(double vect[])
+)
+*/
+local void line_minimize
+(
+  wn_cdn_context_type c,
+  search_direction_type search_direction
+)
+{
+  double ax,bx,cx,x0,fa,fb,fc,fx0;
+  double a,b;
+  double old_x0,old_a;
+  bool code;
+
+  if(wn_cdn_debug >= WN_CONJ_DIR_DBG_LINESEARCH)
+  {
+    printf("start line minimize.\n");
+  }
+
+  wn_copy_vect(buffer_vect,vect,num_vars);
+  save_vect = vect;
+  save_direction = direction;
+  save_pfunction = pfunction;
+
+  old_x0 = *psave_x0;
+  old_a = *psave_a;
+
+  bx = 0.0;
+  fb = *pval_min;
+
+  if(old_x0 == 0.0)
+  {
+    old_x0 = 1.0;
+  }
+
+  ax = old_x0*wn_random_double_between(0.9,1.1);
+  fa = line_function(ax);
+
+  if(!(old_a > 0.0))
+  {
+    goto simple_parabola_fit;
+  }
+
+  /* the curvature along a search direction is constant for a 
+     quadratic function, therefore, try to use the curvature
+     from the last search */
+  fit_parabola_2pa(&code,&x0,&b,old_a,ax,fa,bx,fb);
+  if((code != WN_SUCCESS)||
+     (!(wn_abs(x0)<MAX_EXPAND*wn_abs(old_x0))&&(*psave_x0 != 0.0)))
+  {
+    goto simple_parabola_fit;
+  }   
+
+  cx = x0;
+  fc = line_function(cx);
+
+  wn_fit_parabola_3p(&code,&a,&x0,&b,ax,fa,bx,fb,cx,fc);
+
+  if((code != WN_SUCCESS)||(!(a > 0.0))||
+     (!(wn_abs(x0)<MAX_EXPAND*wn_abs(old_x0))&&(*psave_x0 != 0.0)))
+  {
+    goto full_linesearch;
+  }   
+
+  if(!(b < fb))
+  {
+    goto full_linesearch;
+  }
+  if((!(fc < fb))||(!(fc < fa)))
+  {
+    /* evaluate one more point */
+    goto evaluate_x0;
+  }
+
+  /* is it economical to evaluate one more point? */
+  if((fb-b) <= 1.5*(fb-fc))
+  { 
+    /* do not evaluate one more point */
+    wn_swap(fb,fc,double);
+    wn_swap(bx,cx,double);
+    goto finish;
+  }
+  else
+  {
+    /* evaluate one more point */
+    goto evaluate_x0;
+  }
+
+simple_parabola_fit:
+  if(fa < fb)
+  {
+    cx = 2.0*ax*wn_random_double_between(0.8,1.2);
+  }
+  else
+  {
+    cx = -1.0*ax*wn_random_double_between(0.8,1.2);
+  }
+
+  fc = line_function(cx);
+
+  wn_fit_parabola_3p(&code,&a,&x0,&b,ax,fa,bx,fb,cx,fc);
+
+  if((code != WN_SUCCESS)||(!(a > 0.0))||
+     (!(wn_abs(x0)<MAX_EXPAND*wn_abs(old_x0))&&(*psave_x0 != 0.0)))
+  {
+    goto full_linesearch;
+  }   
+
+evaluate_x0:
+  fx0 = line_function(x0);
+
+  if(!(fx0 <= fb))
+  {
+    goto full_linesearch;
+  }
+
+  fb = fx0;
+  bx = x0;
+
+  if(!(fa <= fc))
+  {
+    wn_swap(fa,fc,double);
+    wn_swap(ax,cx,double);
+  }
+  if(!(fb <= fa))
+  {
+    wn_swap(fb,fa,double);
+    wn_swap(bx,ax,double);
+  }
+
+  goto finish;
+
+full_linesearch: ;
+
+  /*
+  printf("now.\n");
+  */
+  do
+  {
+    if(ax == bx)
+    {
+      if(wn_random_bit())
+      {
+        ax += wn_random_double_between(-1.0,1.0);
+        fa = line_function(ax);
+      }
+      else
+      {
+        bx += wn_random_double_between(-1.0,1.0);
+        fb = line_function(bx);
+      }
+    }
+    if(ax == cx)
+    {
+      if(wn_random_bit())
+      {
+        ax += wn_random_double_between(-1.0,1.0);
+        fa = line_function(ax);
+      }
+      else
+      {
+        cx += wn_random_double_between(-1.0,1.0);
+        fc = line_function(cx);
+      }
+    }
+    if(bx == cx)
+    {
+      if(wn_random_bit())
+      {
+        bx += wn_random_double_between(-1.0,1.0);
+        fb = line_function(bx);
+      }
+      else
+      {
+        cx += wn_random_double_between(-1.0,1.0);
+        fc = line_function(cx);
+      }
+    }
+  } while((ax == bx)||(ax == cx)||(bx == cx));
+  wn_minimize_1d_raw(&code,&fa,&fb,&fc,&ax,&bx,&cx,fb,&line_function,1,20);
+  /*
+  printf("l = %lf\n",bx);
+  */
+
+finish: ;
+
+  /*
+  if(show_linesearch)
+  {
+    printf("ax=%lg,bx=%lg,cx=%lg,old_x0=%lg\n",ax,bx,cx,old_x0);
+  }
+  */
+
+  wn_copy_vect(vect,buffer_vect,num_vars);
+
+  /* compute *psave_x0 */
+  if(wn_abs(bx) < MIN_CONTRACT*wn_abs(old_x0))
+  {
+    if(bx < 0.0)
+    {
+      *psave_x0 = -MIN_CONTRACT*wn_abs(old_x0);
+    }
+    else
+    {
+      *psave_x0 = MIN_CONTRACT*wn_abs(old_x0);
+    }
+  }
+  else
+  {
+    *psave_x0 = bx;
+  }
+
+  /* compute *psave_a */
+  wn_fit_parabola_3p(&code,&a,&x0,&b,ax,fa,bx,fb,cx,fc);
+
+  if((code != WN_SUCCESS)||(!(a > 0.0)))
+  {
+    *psave_a = 0.0;
+  }   
+  else
+  {
+    *psave_a = a;
+  }
+
+  if(*pval_min == fb)
+  {
+    if(wn_cdn_debug >= WN_CONJ_DIR_DBG_LINESEARCH)
+    {
+      printf("finish line minimize.\n");
+      fflush(stdout);
+    }
+    return;  /* do not move if no improvement */
+  }
+
+  wn_add_scaled_vect(vect,direction,bx,num_vars);
+
+  *pval_min = fb;
+
+  if(wn_cdn_debug >= WN_CONJ_DIR_DBG_LINESEARCH)
+  {
+    printf("finish line minimize.\n");
+    fflush(stdout);
+  }
+}
+
+
+void wn_cdn_optimize
+(
+  wn_cdn_context_type c,
+  int num_func_calls
+)
+{
+  int i,j,iteration;
+  double *old_vect,*coord_direction;
+  search_direction_type new_search_direction;
+  double old_ob;
+
+  wn_gppush(c->current_group);
+
+  c->force_optimize_stop_flag = FALSE;
+
+  if(num_func_calls >= WN_IHUGE)
+  {
+    c->max_num_func_calls = WN_IHUGE;
+  }
+  else
+  {
+    c->max_num_func_calls = c->num_func_calls + num_func_calls;
+  }
+
+  if(c->code == WN_CDN_NOT_STARTED)
+  {
+    c->code = WN_SUBOPTIMAL;
+    c->ob = wn_clip_f((*(c->pfunction))(c->current_vect,c->num_func_calls));
+    ++(c->num_func_calls);
+  }
+
+  for(iteration=0;;++iteration)
+  {
+    if(wn_cdn_debug >= WN_CDN_DBG_PASSES)
+    {
+      printf("iteration = %d ********************************\n",iteration);
+      printf("ob = %lg\n",c->ob);
+      fflush(stdout);
+    }
+    /*
+    (void)getchar();
+    */
+
+    old_ob = c->ob;
+    wn_copy_vect(c->old_vect,c->current_vect,
+                 c->num_vars);
+
+    /* minimize along acceleration search directions */
+    if(wn_cdn_debug >= WN_CDN_DBG_LINESEARCH)
+    {
+      printf("start acceleration line minimizations ------------------\n");
+    }
+    for(i=0;i<c->num_search_directions;++i)
+    {
+      if(wn_cdn_debug >= WN_CDN_DBG_LINESEARCH)
+      {
+        printf("acceleration line search %d\n",i);
+      }
+
+      line_minimize(c,(c->search_direction_array)[i]);
+
+      if(
+	  (
+            (c->max_num_func_calls < WN_IHUGE)
+              &&
+            (c->num_func_calls > c->max_num_func_calls)
+          )
+	    ||
+          c->force_optimize_stop_flag
+	)
+      {
+        c->code = WN_SUBOPTIMAL;
+	goto finish;
+      }
+    }
+
+    /* minimize along coordinate directions */
+    if(wn_cdn_debug >= WN_CDN_DBG_LINESEARCH) 
+    {
+      printf("start coordinate line minimizations ------------------\n");
+    }
+    for(i=0;i<c->num_vars;++i)
+    {
+      if(wn_cdn_debug >= WN_CDN_DBG_LINESEARCH)
+      {
+        printf("coord line search %d\n",i);
+      }
+
+      line_minimize(c,(c->coord_search_direction_array)[i]);
+
+      if(
+	  (
+            (c->max_num_func_calls < WN_IHUGE)
+              &&
+            (c->num_func_calls > c->max_num_func_calls)
+          )
+	    ||
+          c->force_optimize_stop_flag
+	)
+      {
+        c->code = WN_SUBOPTIMAL;
+	goto finish;
+      }
+    }
+
+    if(c->ob >= old_ob)
+    {
+      wn_assert(c->ob == old_ob);
+
+      c->code = WN_SUCCESS;
+      break;
+    }
+
+    /* compute new acceleration search direction */
+    if(c->num_search_directions < c->max_num_search_directions)
+    {
+      make_search_direction(c,&new_search_direction,FALSE,-1);
+      for(i=c->num_search_directions;i>0;--i)
+      {
+        (c->search_direction_array)[i] = 
+            (c->search_direction_array)[i-1];
+      }
+      (c->search_direction_array)[0] = new_search_direction;
+
+      ++(c->num_search_directions);
+    }
+    else
+    {
+      new_search_direction = 
+        (c->search_direction_array)[(c->max_num_search_directions) - 1];
+      reset_search_direction(c,new_search_direction);
+      for(i=c->max_num_search_directions-1;i>0;--i)
+      {
+        (c->search_direction_array)[i] = 
+            (c->search_direction_array)[i-1];
+      }
+      (c->search_direction_array)[0] = new_search_direction;
+    }
+
+    new_search_direction->x0 = 1.0;
+
+    for(j=0;j<c->num_vars;++j)
+    {
+      (new_search_direction->dir_vect)[j] = 
+	  (c->current_vect)[j] - (c->old_vect)[j];
+    }
+  }
+
+finish: ;
+
+  c->force_optimize_stop_flag = FALSE;
+
+  wn_gppop();
+}
+
+

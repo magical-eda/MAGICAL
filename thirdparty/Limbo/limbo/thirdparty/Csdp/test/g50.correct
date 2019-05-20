@@ -1,0 +1,25 @@
+Graph is of size 50 103 
+Iter:  0 Ap: 0.00e+00 Pobj:  1.0355339e+04 Ad: 0.00e+00 Dobj:  0.0000000e+00 
+Iter:  1 Ap: 9.31e-01 Pobj:  4.0673058e+03 Ad: 1.00e+00 Dobj:  8.0167820e+01 
+Iter:  2 Ap: 9.21e-01 Pobj:  1.6422689e+02 Ad: 1.00e+00 Dobj:  8.2693150e+01 
+Iter:  3 Ap: 9.37e-01 Pobj:  7.4239118e+00 Ad: 1.00e+00 Dobj:  8.3659491e+01 
+Iter:  4 Ap: 1.00e+00 Pobj:  2.7981497e+00 Ad: 1.00e+00 Dobj:  6.5829729e+01 
+Iter:  5 Ap: 1.00e+00 Pobj:  8.9982564e+00 Ad: 1.00e+00 Dobj:  4.2079241e+01 
+Iter:  6 Ap: 1.00e+00 Pobj:  1.6341142e+01 Ad: 1.00e+00 Dobj:  2.9128013e+01 
+Iter:  7 Ap: 1.00e+00 Pobj:  2.0177508e+01 Ad: 1.00e+00 Dobj:  2.4399455e+01 
+Iter:  8 Ap: 1.00e+00 Pobj:  2.1767179e+01 Ad: 1.00e+00 Dobj:  2.3397824e+01 
+Iter:  9 Ap: 1.00e+00 Pobj:  2.2707691e+01 Ad: 1.00e+00 Dobj:  2.3068698e+01 
+Iter: 10 Ap: 1.00e+00 Pobj:  2.2952986e+01 Ad: 1.00e+00 Dobj:  2.3008482e+01 
+Iter: 11 Ap: 1.00e+00 Pobj:  2.2997432e+01 Ad: 9.99e-01 Dobj:  2.3000437e+01 
+Iter: 12 Ap: 1.00e-00 Pobj:  2.2999888e+01 Ad: 1.00e+00 Dobj:  2.3000011e+01 
+Iter: 13 Ap: 1.00e+00 Pobj:  2.2999995e+01 Ad: 1.00e+00 Dobj:  2.3000000e+01 
+Iter: 14 Ap: 9.55e-01 Pobj:  2.3000000e+01 Ad: 9.60e-01 Dobj:  2.3000000e+01 
+Success: SDP solved
+Primal objective value: 2.3000000e+01 
+Dual objective value: 2.3000000e+01 
+Relative primal infeasibility: 2.78e-16 
+Relative dual infeasibility: 7.34e-09 
+Real Relative Gap: 4.13e-09 
+XZ Relative Gap: 5.26e-09 
+DIMACS error measures: 2.78e-16 0.00e+00 1.87e-07 0.00e+00 4.13e-09 5.26e-09
+The Lovasz Theta Number is 2.3000000e+01 

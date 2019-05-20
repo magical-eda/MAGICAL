@@ -1,0 +1,348 @@
+/****************************************************************************
+
+COPYRIGHT NOTICE:
+
+  The source code in this directory is provided free of
+  charge to anyone who wants it.  It is in the public domain
+  and therefore may be used by anybody for any purpose.  It
+  is provided "AS IS" with no warranty of any kind
+  whatsoever.  For further details see the README files in
+  the wnlib parent directory.
+
+AUTHOR:
+
+  Will Naylor
+
+****************************************************************************/
+#include "wnlib.h"
+#include "wnasrt.h"
+#include "wnmem.h"
+#include "wnary.h"
+
+#include "wnpq.h"
+
+
+
+void wn_mkpqueue(wn_pqueue *pqueue)
+{
+  *pqueue = (wn_pqueue)wn_zalloc(sizeof(struct wn_pqueue_struct));
+  (*pqueue)->num_used = 1;   /* leave first entry NULL */
+  (*pqueue)->num_alloced = 4;
+  /*
+  wn_mkptrarray((ptr **)&((*pqueue)->handle_array),(*pqueue)->num_alloced);
+  */
+  (*pqueue)->handle_array = (wn_pqhandle *)wn_alloc(
+                                ((*pqueue)->num_alloced)*sizeof(wn_pqhandle));
+  ((*pqueue)->handle_array)[1] = NULL;
+
+  (*pqueue)->group = wn_curgp();
+}
+
+
+local wn_pqhandle get_next_handle(wn_pqhandle handle)
+{
+  return((wn_pqhandle)(handle->contents));
+}
+
+
+void wn_freepqueue(wn_pqueue queue)
+{
+  int i;
+  wn_pqhandle handle,next_handle;
+
+  wn_gppush(queue->group);
+
+  for(i=1;i<queue->num_used;++i)
+  {
+    wn_free((ptr)((queue->handle_array)[i]));
+  }
+  wn_free((ptr)(queue->handle_array));
+
+  next_handle = queue->free_handle_list;
+  while(next_handle != NULL)
+  {
+    handle = next_handle;
+    next_handle = get_next_handle(handle);
+    wn_free((ptr)handle);
+  }
+
+  wn_free((ptr)queue);
+
+  wn_gppop();
+}
+
+
+void wn_pqgetmin(wn_pqhandle *phandle,wn_pqueue queue)
+{
+  *phandle = (queue->handle_array)[1];
+}
+
+
+local wn_pqhandle alloc_handle(wn_pqueue queue)
+{
+  wn_pqhandle handle;
+
+  if(queue->free_handle_list == NULL)
+  {
+    wn_gppush(queue->group);
+    handle = (wn_pqhandle)wn_alloc(sizeof(struct wn_pqhandle_struct));
+    wn_gppop();
+  }
+  else
+  {
+    handle = queue->free_handle_list;
+    queue->free_handle_list = (wn_pqhandle)(handle->contents);
+  }
+
+  handle->contents = NULL;
+
+  return(handle);  
+}
+
+
+local void free_handle(wn_pqueue queue,wn_pqhandle handle)
+{
+  handle->contents = (ptr)(queue->free_handle_list);
+  queue->free_handle_list = handle;
+}
+
+
+void wn_emptypqueue(wn_pqueue queue)
+{
+  int i;
+
+  for(i=1;i<queue->num_used;++i)
+  {
+    free_handle(queue,(queue->handle_array)[i]);
+  }
+
+  queue->num_used = 1;
+  (queue->handle_array)[1] = NULL;
+}
+
+
+local void sift_handle_up(wn_pqueue queue,int index)
+{
+  wn_pqhandle *handle_array;
+  wn_pqhandle handle,next_handle;
+  double key;
+  int next_index;
+
+  handle_array = queue->handle_array;
+  handle = handle_array[index];
+  key = handle->key;
+
+  while(index != 1)
+  {
+    next_index = (index>>1);
+    next_handle = handle_array[next_index];
+
+    if(next_handle->key <= key)
+    {
+      break;
+    }
+
+    handle_array[index] = next_handle;
+    next_handle->index = index;
+
+    index = next_index;
+  }
+
+  handle_array[index] = handle;
+  handle->index = index;
+}
+
+
+local void sift_NULL_down(wn_pqueue queue,int index)
+{
+  wn_pqhandle *handle_array;
+  wn_pqhandle *phandle,*pnext0_handle,*pnext1_handle,next0_handle,next1_handle;
+  int next0_index;
+  /*int next1_index;*/
+
+  handle_array = queue->handle_array;
+
+  --(queue->num_used);
+
+  phandle = &(handle_array[index]);
+  next0_index = (index<<1);
+
+  while(next0_index < queue->num_used)
+  {
+    /*
+    next1_index = next0_index+1;
+
+    next0_handle = handle_array[next0_index];
+    next1_handle = handle_array[next1_index];
+    */
+
+    pnext0_handle = &(handle_array[next0_index]);
+    pnext1_handle = pnext0_handle+1;
+
+    next0_handle = *pnext0_handle;
+    next1_handle = *pnext1_handle;
+
+    if(next0_handle->key < next1_handle->key)
+    {
+      /*
+      handle_array[index] = next0_handle;
+      */
+      *phandle = next0_handle;
+      next0_handle->index = index;
+      index = next0_index;
+      phandle = pnext0_handle;
+    }
+    else
+    {
+      /*
+      handle_array[index] = next1_handle;
+      */
+      *phandle = next1_handle;
+      next1_handle->index = index;
+      /*
+      index = next1_index;
+      */
+      index = next0_index+1;
+      phandle = pnext1_handle;
+    }
+
+    next0_index = (index<<1);
+  }
+
+  if(next0_index == queue->num_used)  
+  {
+    next0_handle = handle_array[next0_index];
+    handle_array[index] = next0_handle;
+    next0_handle->index = index;
+    index = next0_index;
+  }
+
+  if(index < queue->num_used)
+  {
+    handle_array[index] = handle_array[queue->num_used];
+    handle_array[index]->index = index;
+
+    sift_handle_up(queue,index);
+  }
+
+  handle_array[queue->num_used] = NULL;
+}
+
+
+local void sift_handle_down(wn_pqueue queue,int index)
+{
+  wn_pqhandle *handle_array;
+  wn_pqhandle handle,next0_handle,next1_handle;
+  double key;
+  int next0_index,next1_index;
+
+  handle_array = queue->handle_array;
+  handle = handle_array[index];
+  key = handle->key;
+
+  for(;;)
+  {
+    next0_index = (index<<1);
+    next1_index = next0_index+1;
+
+    if(next1_index < queue->num_used)
+    {
+      next0_handle = handle_array[next0_index];
+      next1_handle = handle_array[next1_index];
+
+      if(next0_handle->key < next1_handle->key)
+      {
+	if(key <= next0_handle->key)
+	{
+	  break;
+	}
+        handle_array[index] = next0_handle;
+        next0_handle->index = index;
+        index = next0_index;
+      }
+      else
+      {
+	if(key <= next1_handle->key)
+	{
+	  break;
+	}
+        handle_array[index] = next1_handle;
+        next1_handle->index = index;
+        index = next1_index;
+      }
+    }
+    else /* next1_index >= queue->num_used */
+    {
+      if(next0_index < queue->num_used)
+      {
+        next0_handle = handle_array[next0_index];
+	if(key <= next0_handle->key)
+	{
+	  break;
+	}
+        handle_array[index] = next0_handle;
+        next0_handle->index = index;
+        index = next0_index;
+      }
+
+      break;
+    }
+  }
+
+  handle_array[index] = handle;
+  handle->index = index;
+}
+
+
+void wn_pqins(wn_pqhandle *phandle,wn_pqueue queue,double key)
+{
+  *phandle = alloc_handle(queue);
+
+  (*phandle)->key = key;
+  (*phandle)->index = queue->num_used;
+
+  /*
+  wn_ptrarrayins_into_group(
+		 (ptr **)(&(queue->handle_array)),
+		 &(queue->num_used),&(queue->num_alloced),
+		 (ptr)(*phandle),
+		 queue->group);
+  */
+  wn_arrayins_into_group(queue->handle_array,
+                         queue->num_used,queue->num_alloced,
+                         *phandle,
+                         queue->group,
+                         wn_pqhandle);
+
+  sift_handle_up(queue,(*phandle)->index);
+}
+
+
+void wn_pqdel(wn_pqhandle handle,wn_pqueue queue)
+{
+  sift_NULL_down(queue,handle->index);
+
+  free_handle(queue,handle);
+}
+
+
+void wn_pqmove(wn_pqhandle handle,wn_pqueue queue,double new_key)
+{
+  if(new_key < handle->key)
+  {
+    handle->key = new_key;
+    sift_handle_up(queue,handle->index);
+  }
+  else if(new_key > handle->key)
+  {
+    handle->key = new_key;
+    sift_handle_down(queue,handle->index);
+  }
+}
+
+
+int wn_pqcount(wn_pqueue queue)
+{
+  return(queue->num_used - 1);
+}
+

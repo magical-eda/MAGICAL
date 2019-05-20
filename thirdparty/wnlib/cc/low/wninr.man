@@ -1,0 +1,34 @@
+NAME
+     wninr -- determine if number is in range
+
+SYNOPSIS
+     #include "wninr.h"
+
+     bool wn_inrange(x1,c2,x3,c4,x5)
+
+DESCRIPTION
+     "wn_inrange" is a macro which determines if "x3" is in the range 
+     specified by "x1" and "x5".  Comparisons "c2" and "c4" are used.
+     "x1", "x3", and "x5" may be of any type for which the C "<" operator
+     is defined.
+
+EXAMPLES
+     if(wn_inrange(0.0,<=,x,<,5.0))
+     {
+        ...
+     }
+
+     if(wn_inrange(0,>,x,>,-5))
+     {
+       ...
+     }
+
+BUGS
+
+SEE ALSO
+     wnmax
+
+AUTHOR
+     Will Naylor
+
+

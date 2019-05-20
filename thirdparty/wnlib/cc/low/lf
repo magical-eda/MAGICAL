@@ -1,0 +1,3 @@
+#/bin/csh -f
+
+lint -h  $1 |& tee errors.txt

@@ -1,0 +1,51 @@
+NAME
+     wnminv -- matrix inversion
+
+SYNOPSIS
+     #include "wnmat.h"
+
+     wn_invert_mat(&code,mat,len_i)
+     int code;
+     double **mat;
+     int len_i;
+
+     wn_polish_inverse_mat(&code,mat_inverse,mat,len_i,iterations)
+     int code;
+     double **mat_inverse,**mat;
+     int len_i,iterations;
+
+     wn_solve_system(&code,solution,rhs,mat_inverse,mat,len,iterations)
+     int code;
+     double *solution,*rhs;
+     double **mat_inverse,**mat;
+     int len,iterations;
+
+DESCRIPTION
+     "wn_invert_mat" performs an in-place invert of "mat".
+
+RESOURCES
+     Inverting a matrix requires 
+
+       WORST and AVERAGE CASE:
+
+         time = len_i^3
+         stack memory = 1
+         dynamic memory = len_i
+
+     where the matrix to be inverted is a len_i*len_i matrix.
+
+DIAGNOSTICS
+     code == WN_SUCCESS  for successful inversion.
+     code == WN_SINGULAR  for singular matrix.
+  
+BUGS
+     Cannot handle complex numbers, making these useless for many
+       engineering applications.
+
+SEE ALSO
+     wnmmlt
+
+AUTHOR
+     Will Naylor
+
+

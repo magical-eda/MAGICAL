@@ -1,0 +1,40 @@
+/****************************************************************************
+
+COPYRIGHT NOTICE:
+
+  The source code in this file is provided free of charge
+  to the author's consulting clients.  It is in the
+  public domain and therefore may be used by anybody for
+  any purpose.
+
+AUTHOR:
+
+  Will Naylor
+
+****************************************************************************/
+
+#include <math.h>
+
+#include "wnlib.h"
+
+#include "wnrndd.h"
+
+
+/**********************************************************************
+
+  Consult any probability textbook for an explanation of this 
+  very well-known algorithm.
+
+**********************************************************************/
+double wn_normal_distribution(void)
+{
+  double x,r,theta;
+
+  r = sqrt(-2.0*log(wn_flat_distribution()));
+  theta = M_PI*wn_flat_distribution();
+
+  x = r*cos(theta);
+
+  return(x);
+}
+

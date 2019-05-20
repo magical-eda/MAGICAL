@@ -1,0 +1,37 @@
+#!/bin/csh 
+
+if ( ! $?wnlib ) then
+  setenv wnlib $WNLIB
+endif
+
+if ( "$1" == "-k" ) then
+  pushd $wnlib/doc/man >& /dev/null
+
+  foreach manpage (`egrep -l "$2" *.man | sort`)
+    egrep " -- " $manpage  
+  end
+
+  popd >& /dev/null
+else
+  if (! $?EDITOR) set EDITOR = vi
+
+  if (($EDITOR == emacs || $EDITOR == xemacs) && $?EMACS) then
+    #   we're already in emacs.  user can cut and paste it to load the
+    # buffer
+    pushd $wnlib/doc/man >& /dev/null
+
+    foreach manpage (`egrep -l "$1" *.man | sort`)
+      echo $wnlib/doc/man/$manpage
+    end
+
+    popd >& /dev/null
+  else
+    if( -e $wnlib/doc/man/$1.man) then
+      #   we're not already it emacs, (editor might be other than emacs)
+      # start up the editor
+      $EDITOR -R $wnlib/doc/man/$1.man
+    else
+      echo "no man page for <$1>"
+    endif
+  endif
+endif

@@ -1,0 +1,125 @@
+#include <stdio.h>
+#include <math.h>
+
+#include "wnlib.h"
+#include "wnasrt.h"
+#include "wnswap.h"
+
+#include "wnconj.h"
+
+
+
+/********************************************************************
+Fit parabola to 3 points (x,y).  Parabola is of the form
+
+  y = a*(x-x0)^2 + b
+
+Return a, x0, b.
+********************************************************************/
+void wn_fit_parabola_3p
+(
+  int *pcode,
+  double *pa,double *px0,double *pb,
+  double x1,double y1,
+  double x2,double y2,
+  double x3,double y3
+)
+{
+  double x12,x23,dy12,dy23,ddy,diff;
+
+  /* sort the x's */
+  if(!(x1 < x3))
+  {
+    wn_swap(x1,x3,double);
+    wn_swap(y1,y3,double);
+  }
+  if(x2 < x1)
+  {
+    wn_swap(x1,x2,double);
+    wn_swap(y1,y2,double);
+  }
+  else if(x3 < x2) 
+  {
+    wn_swap(x2,x3,double);
+    wn_swap(y2,y3,double);
+  }
+
+  if((x1 == x2)||(x2 == x3)||(x1 == x3))
+  {
+    *pcode = WN_SINGULAR;
+    return;
+  }
+
+  x12 = 0.5*(x1+x2);
+  x23 = 0.5*(x2+x3);
+
+  dy12 = (y2-y1)/(x2-x1);
+  dy23 = (y3-y2)/(x3-x2);
+
+  ddy = dy23-dy12;
+  *pa = 0.5*ddy/(x23-x12);
+
+  if(ddy == 0.0)
+  {
+    *px0 = 0.0;
+    *pb = y2;
+  }
+  else
+  {
+    *px0 = (dy23*x12-dy12*x23)/ddy;
+
+    diff = x2-(*px0);
+    *pb = y2-(*pa)*diff*diff;
+  }
+
+  *pcode = WN_SUCCESS;
+}
+
+
+/********************************************************************
+Fit parabola to 2 points (x,y) and a derivative at one point.  
+Parabola is of the form
+
+  y = a(x-x0)^2 + b
+
+Return a, x0, b.
+********************************************************************/
+void wn_fit_parabola_2pd
+(
+  int *pcode,
+  double *pa,double *px0,double *pb,
+  double x1,double y1,double dy1,
+  double x2,double y2
+)
+{
+  double x12,dy12,ddy,diff;
+
+  if(x1 == x2)
+  {
+    *pcode = WN_SINGULAR;
+    return;
+  }
+
+  x12 = 0.5*(x1+x2);
+
+  dy12 = (y2-y1)/(x2-x1);
+
+  ddy = dy12-dy1;
+  *pa = 0.5*ddy/(x12-x1);
+
+  if(ddy == 0.0)
+  {
+    *px0 = 0.0;
+    *pb = y1;
+  }
+  else
+  {
+    *px0 = (dy12*x1-dy1*x12)/ddy;
+
+    diff = x1-(*px0);
+    *pb = y1-(*pa)*diff*diff;
+  }
+
+  *pcode = WN_SUCCESS;
+}
+

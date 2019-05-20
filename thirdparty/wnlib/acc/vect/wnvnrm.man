@@ -1,0 +1,32 @@
+NAME
+     wnvnrm -- fast vector norm
+
+SYNOPSIS
+     #include "wnvect.h"
+
+     double wn_norm2_vect(double *vect,int len)
+
+     double wn_norm_vect(double *vect,int len)
+
+     void wn_unit_vect(double vect,int len)
+
+     double wn_dist2_vect(double v1[],double v2[],int len)
+
+     double wn_dist_vect(double v1[],double v2[],int len)
+
+DESCRIPTION
+     Vector norm and squared norm, coded to be especially fast.
+     Find unit vector.
+     Vector distance and distance squared.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnvadd, wndot
+
+AUTHOR
+     Will Naylor
+
+

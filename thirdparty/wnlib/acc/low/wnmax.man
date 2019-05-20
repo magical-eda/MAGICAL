@@ -1,0 +1,26 @@
+NAME
+     wnmax -- min and max functions
+
+SYNOPSIS
+     #include "wnmax.h"
+
+     wn_min(x1,x2)
+
+     wn_max(x1,x2)
+
+DESCRIPTION
+     "wn_min" is a macro which returns the min of "x1" and "x2".
+     "x1" and "x2" may be of any type for which the C "<" operator
+     is defined.
+
+     "wn_max" returns the max of "x1" and "x2".
+
+BUGS
+
+SEE ALSO
+     wnabs, wninr, wnint
+
+AUTHOR
+     Will Naylor
+
+

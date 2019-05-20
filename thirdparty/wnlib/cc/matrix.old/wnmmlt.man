@@ -1,0 +1,89 @@
+NAME
+     wnmmlt -- vector/matrix multiplication
+
+SYNOPSIS
+     #include "wnmat.h"
+
+
+     wn_multiply_into_vector_scalar(vect,scalar)
+     wn_vector vect;
+     double scalar;
+
+     wn_multiply_into_raw_vector_scalar(raw_vect,scalar,len_i)
+     double *raw_vect;
+     double scalar;
+     int len_i;
+
+
+     wn_multiply_into_matrix_scalar(mat,scalar)
+     wn_matrix mat;
+     double scalar;
+
+     wn_multiply_into_raw_matrix_scalar(raw_mat,scalar,len_i,len_j)
+     double **raw_mat;
+     double scalar;
+     int len_i,len_j;
+
+
+     wn_multiply_into_vector_vector(to_vect,vect)
+     wn_vector to_vect,vect;
+
+     wn_multiply_into_raw_vector_raw_vector(to_raw_vect,raw_vect,len_i)
+     double *to_raw_vect,*raw_vect;
+     int len_i;
+
+
+     wn_vector_dot_vector(&result,vect1,vect2)
+     double result;
+     wn_vector vect1,vect2;
+
+     wn_raw_vector_dot_raw_vector(&result,raw_vect1,raw_vect2,len_i)
+     double result;
+     double *raw_vect1,*raw_vect2;
+     int len_i;
+
+
+     wn_matrix_multiply_vector(&result_vect,mat,vect)
+     wn_vector result_vect;
+     wn_matrix mat;
+     wn_vector vect;
+
+     wn_raw_matrix_multiply_raw_vector(result_raw_vect,raw_mat,raw_vect,
+                                       len_i,len_j)
+     double *result_raw_vect;
+     double **raw_mat;
+     double *raw_vect;
+     int len_i,len_j;
+
+
+     wn_matrix_multiply_matrix(&result_mat,mat1,mat2)
+     wn_matrix result_mat,mat1,mat2;
+
+     wn_raw_matrix_multiply_raw_matrix(result_raw_mat,raw_mat1,raw_mat2,
+                                       len_i,len_j,len_k)
+     double **result_raw_mat,**rat_mat1,**raw_mat2;
+     int len_i,len_j,len_k;
+
+DESCRIPTION
+     Vector/matrix multiplication routines.
+
+RESOURCES
+     Matrix times matrix requires
+
+       WORST and AVERAGE CASE:
+
+         time = len_i * len_j * len_k
+         stack memory = 1
+         dynamic memory = len_j
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnminv, wnmnrm, wnmtrn
+
+AUTHOR
+     Will Naylor
+
+

@@ -1,0 +1,132 @@
+NAME
+     wnset -- set manager
+
+SYNOPSIS
+     #include "wnlib.h"
+
+     wn_mkset(&set)
+     wn_set set;
+
+     wn_freeset(set)
+     wn_set set;
+
+     wn_setins(set,e)
+     wn_set set;
+     ptr e;
+
+     wn_setdel(set,e)
+     wn_set set;
+     ptr e;
+
+     bool wn_setget(&e,set,ppredicate)
+     ptr e;
+     wn_set set;
+     bool (*ppredicate)(/* e */);
+
+     bool wn_setgetany(&e,set)
+     ptr e;
+     wn_set set;
+
+     wn_setcpy(&out,in)
+     wn_set out,in;
+
+     wn_setcat(out,in)
+     wn_set out,in;
+
+     wn_setdel_set(out,in)
+     wn_set out,in;
+
+     wn_setfilter(&out,in,ppredicate)
+     wn_set out,in;
+     bool (*ppredicate)(/* e */);
+
+     wn_set_to_sll(&l,s)
+     wn_sll l;
+     wn_set s;
+
+     wn_sll_to_set(&s,l)
+     wn_set s;
+     wn_sll l;
+
+     bool wn_setempty(set)
+     wn_set set;
+
+     int wn_setcount(set)
+     wn_set set;
+
+     bool wn_setloop(set,&dummy)
+     wn_set set;
+     ptr dummy;
+
+DESCRIPTION
+     This package defines a set type called "wn_set", which is 
+     implemented using singly linked lists (wnsll).  Routines 
+     and macros operate on sets and entries of sets.  If sets
+     are large and search speed is important, use "wnhtab" instead.
+     Sets do not preserve order; if order is important, use "wnsll"
+     instead.
+
+     "wn_mkset" allocates a "wn_set" from the current memory group.
+     All memory allocations and frees triggered by other set calls
+     will use the same memory group as "wn_mkset".
+
+     "wn_freeset" frees "set" into the memory group it was allocated
+     from. 
+
+     "wn_setins" inserts "e" into set "set".
+
+     "wn_setdel" deletes "e" from set "set".  
+
+     "wn_setget" places an entry of "set" satisfying "ppredicate"
+     into "e".  If none is found "wn_setget" returns FALSE, otherwise
+     it returns TRUE.
+
+     "wn_setgetany" places an entry of "set" into "e".  If "set" is 
+     empty "wn_setgetany" returns FALSE, otherwise it returns TRUE.
+
+     "wn_setcpy" places a memory-allocated copy of "in" into "out".
+     The memory is allocated from the current memory group.
+
+     "wn_setcat" inserts all of the entries of "in" into "out".
+     No memory is allocated; "in" is corrupted by the operation.
+
+     "wn_setdel_set" deletes all of the entries of "in" from "out".
+
+     "wn_setfilter" allocates a set "out" (from the current memory group)
+     and inserts into "out" all entries of "in" satisfying "ppredicate".
+
+     "wn_set_to_sll" places in "l" a list which contains the entries of
+     "s" in arbitrary order.  No memory is allocated, therefore, "s" and
+     "l" share memory after this call. 
+
+     "wn_sll_to_set" places in "s" a set which contains the entries of
+     "l".  "s" and "l" share memory after this call.    
+
+     "wn_setempty" returns TRUE iff "set" is empty.
+
+     "wn_setcount" returns the number of entries in "set".
+
+     "wn_setloop" is an iterator for wn_set.
+     The code fragment
+
+       wn_set set;
+
+       for(wn_loopinit();wn_setloop(set,&dummy);)
+       {
+         <statements>
+       }
+
+     loops over all entries in the set "set", each time setting
+     "dummy" to a new set entry.  No order is guaranteed.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnsll, wnhtab
+
+AUTHOR
+     Will Naylor
+
+

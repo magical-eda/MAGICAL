@@ -1,0 +1,21 @@
+NAME
+     wnvcpy -- vector copy
+
+SYNOPSIS
+     #include "wnvect.h"
+
+     wn_copy_vect(double *to_vect,double *from_vect,int len)
+
+DESCRIPTION
+     Vector copy.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+
+AUTHOR
+     Will Naylor
+
+

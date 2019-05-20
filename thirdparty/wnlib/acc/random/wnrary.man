@@ -1,0 +1,22 @@
+NAME
+     wnrary -- randomize pointer array order
+
+SYNOPSIS
+     #include "wnrary.h"
+
+     wn_randomize_ptrarray_order(array,size)
+     ptr array[];
+     int size;
+
+DESCRIPTION
+     randomize the order of a pointer array using wnrnd.
+
+BUGS
+
+SEE ALSO
+     wnrnd, wnsort, wnprm
+
+AUTHOR
+     Will Naylor
+
+

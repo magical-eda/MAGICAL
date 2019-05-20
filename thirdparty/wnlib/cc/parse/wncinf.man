@@ -1,0 +1,59 @@
+NAME
+     wncinf -- information about cstream
+
+SYNOPSIS
+     #include "wncstr.h"
+
+     char *wn_cstream_filename(stream)
+     wn_cstream stream;
+
+     wn_set_cstream_filename(stream,name)
+     wn_cstream stream;
+     char name[];
+
+     int wn_column_of_mark(stream,mark)
+     wn_cstream stream;
+     int mark;
+
+     int wn_column_of_current_mark(stream)
+     wn_cstream stream;
+
+     int wn_linenum_of_mark(stream,mark)
+     wn_cstream stream;
+     int mark;
+
+     int wn_linenum_of_current_mark(stream)
+     wn_cstream stream;
+
+DESCRIPTION
+     These routines set and get various information about the cstream
+     "stream".  This information can be used to make helpful error
+     messages if a parse fails.
+
+     "wn_cstream_filename" returns the filename for "stream" previously
+     set by "wn_set_cstream_filename".  The default is NULL.
+
+     "wn_column_of_mark" returns the number of chars between the closest
+     previous linefeed and "mark".  A linefeed is assumed to exist at
+     beginning of stream (mark = -1).
+
+     "wn_column_of_current_mark" returns the number of chars between the 
+     closest previous linefeed and the current mark.  A linefeed is 
+     assumed to exist at beginning of stream (mark = -1).
+
+     "wn_linenum_of_mark" returns the number of linefeeds between "mark"
+     and beginning of stream.  Line numbers start at 1.
+
+     "wn_linenum_of_current_mark" returns the number of linefeeds 
+     between the current mark and beginning of stream.  Line numbers
+     start at 1.
+
+BUGS
+
+SEE ALSO
+     wncstr
+
+AUTHOR
+     Will Naylor
+
+

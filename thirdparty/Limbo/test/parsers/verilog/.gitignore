@@ -1,0 +1,3 @@
+obj
+test_bison
+valgrind*.log

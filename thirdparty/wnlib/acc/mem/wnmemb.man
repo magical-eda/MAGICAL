@@ -1,0 +1,41 @@
+NAME
+     wnmemb -- operate on memory blocks
+
+SYNOPSIS
+     #include "wnmemb.h"
+
+     void wn_memcpy(ptr out,ptr in,int n)
+
+     void wn_memset(ptr out,char c,int n)
+
+     void wn_memzero(ptr out,int n)
+
+     int wn_memcmp(ptr m1,ptr m2,int len)
+
+     bool wn_memeq(ptr m1,ptr m2,int len)
+
+DESCRIPTION
+     Portable routines to operate on memory blocks.
+
+     "wn_memcpy" copies "n" bytes of data from memory pointed to by "in" to
+     memory pointed to by "out".
+
+     "wn_memset" sets "n" bytes pointed to by "out" to the value in "c".
+
+     "wn_memzero" sets "n" bytes pointed to by "out" to 0.
+
+     "wn_memcmp" compares blocks of memory of length "len".
+
+     "wn_memeq" returns TRUE if "len" bytes pointed to by "m1" and "m2" are
+     equal; FALSE otherwise.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+
+AUTHOR
+     Will Naylor
+
+

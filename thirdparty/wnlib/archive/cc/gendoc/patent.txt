@@ -1,0 +1,492 @@
+Description of the Preferred Embodiment and Other Embodiments
+
+In the present invention, the value
+assigned to each dither matrix element is determined using a general
+optimization procedure, where the entries of the dither matrix are the
+variables for the optimization procedure, and the objective function to
+be optimized is a metric which approximately measures the quality of the
+images which are produced by the dither matrix.  The quality of the
+optimization method and the objective function determine the
+quality of the final dither matrix.  It is also important
+that the optimization procedure not take too much computer time to
+finish; tricks to speed up the process are disclosed below, following
+a discussion of optimization algorithms and objective functions.
+Other considerations will be disclosed following the discussion of
+efficiency.
+
+The prefered embodiment uses an optimization procedure called 
+"simulated annealing" to optimize the dither matrix.  
+Other optimization algorithms are possible and do work, such as
+continuous descent algorithms (like steepest descent and conjugate
+gradient), and successive approximation by a linear programming model.
+A hybrid approach using simulated annealing to produce an initial
+dither matrix and successive approximation by a linear programming model
+to polish the dither matrix is also effective.
+
+An objective function is a number which measures the "goodness" of 
+a system.  In our case, the objective function should measure the 
+likely quality of dithered images produced using the dither matrix.  
+Another important consideration in the choice of objective function
+is that it not take too much computer time to compute.  The prefered
+embodiment uses an objective function which tries to prevent "bunching"
+by maximizing the distance between pixels which both have the same
+color; that is, both are ON or both are OFF.  Another
+approach is to try to minimize the difference between the 
+low-pass filtered original image and the low-pass filtered dithered
+image.  This approach has been used successfully in [reference] to directly 
+halftone an image; it can also be used to produce a dither matrix.
+
+
+Spreading the Dots
+
+The prefered embodiment uses an objective function which measures the
+bunching of pixels of the same color in the dithered image.  It is
+likely that nearby pixels of the original image have the same or similar
+intensities; hence it is a reasonable approximation to assume that
+the original image has exactly the same intensity everywhere.  For
+a given intensity in the original image, minimizing a function of the form
+
+leads to a smoothly dithered pattern for that intensity.  
+Here f() is a function which decreases monotonically with distance, 
+and dist() is a measure of the distance between points p1 and p2.
+ 
+The prefered measure of distance dist() is the euclidean distance
+between the points, but because the dither matrix is repeated across
+the image, dist() is measured modulo the size of the dither matrix.
+Hence, if
+
+then, for a nXm dither matrix, the prefered distance measure is
+
+where the mod function extends to negative numbers to satisfy
+
+The prefered alpha is alpha == 1.
+
+Equation 3 gives the objective function for a single original image
+intensity; to get an objective function which properly trades off
+image quality for all intensities, we must create an objective function
+which sums the quantity shown in equation 3 for all possible intensities.
+
+Wintensity are weights which assign relative importance to image quality
+at each intensity.  The prefered values for Wintensity are
+
+for all intensities.  
+
+Because the eye's response is logarithmic, it is reasonable to assign
+larger weights to smaller intensities.  The eye's sensitivity to
+noise is proportional to the slope of the response curve at a given
+intensity; hence the following is another reasonable assignment
+of weights
+
+The 0 intensity case does not matter because it is all black, regardless
+of the dither matrix values.
+
+The above considerations lead us to the final prefered objective function,
+which is 
+
+ (eq 8.5)
+
+ 
+Minimizing Noise in a Low-Pass Filtered Dithered Image
+------------------------------------------------------
+
+Another approach for creating an objective function
+is to try to minimize the difference between the 
+low-pass filtered original image and the low-pass filtered dithered
+image.  This approach has been used successfully in [reference] to directly 
+halftone an image; it can also be used to produce a dither matrix.
+
+The reason this works is that the human eye blurs all that it sees;
+that is, it spatially low-pass filters all images.  The reason dithering
+or any other form of halftoning works is that the blurred dithered
+image is very similar to the blurred original image.
+In the objective function here described, we attempt to model the
+blurring of the human eye explicitly and directly minimize the difference
+between the blurred original image and the blurred dithered image.
+
+The prefered distance metric is the sum-of-squares metric; this leads
+to the following equation for the objective function for dithering a 
+single, specific image
+
+ (eq 9)
+
+As with the "dot spreading" objective function, we begin by assuming
+that all pixels of the original image have the same intensity.  
+Low-pass filtering has the effect of smoothing out bumps in an image; 
+therefore, low-pass filtering a flat image leaves it unchanged.  
+Various intensities have various probability of occurence in real images, and
+various importance; therefore, perhaps we assign different weights 
+to different intensities.
+These considerations allow us to rewrite equation 9 thus
+
+ (eq 10)
+
+
+We compute low_pass_filtered_dithered_image in the standard way, by
+applying a convolution low-pass filter to the dithered image for each
+intensity.
+
+The low-pass filtering algorithm is the standard convolution algorithm
+
+ (eq 11)
+
+W[sx][sy] are the weights of the low-pass filter.
+
+The dithered image is computed in the standard way, by dithering an
+image with a constant intensity, which is the chosen intensity.
+ 
+The resulting data, called "low_pass_filtered_dithered_image" is stored
+in an array in computer memory during the computation.
+
+
+Simulated Annealing
+-------------------
+
+The prefered embodiment uses an optimization procedure called 
+"simulated annealing" to optimize the dither matrix.  Simulated
+annealing is prefered because it is partially immune to local optima,
+because it is fast, easy to program, and suitable for very large problems.
+It also tends to produce very disordered solutions, which is desireable
+because this avoids the appearance of regular patterns in the dithered
+image.  The eye is very good at picking up on regular patterns.
+
+<Peter's discussion of simulated annealing>
+
+To use simulated annealing to optimize a dither matrix, we need to
+specify a method of applying a random change (mutation) to a given
+dither matrix.  The prefered random mutation method is to choose 2
+(x,y) coordinates of the dither matrix using an unbiased random number
+generator.  The entries of the dither matrix at these 2 places are swapped.
+Whether this swap is accepted as the new solution, or rejected and therefore
+undone, is determined by the simulated annealing criteria described above.
+
+Theoretical considerations indicate that the anneal should begin
+at a temperature of infinity.  In the prefered embodiment, this is
+achieved by randomly scrambling the dither matrix; that is, by 
+performing the above mentioned random swap a very large number of times and 
+accepting all swaps without evaluating the objective function.
+
+
+Efficiency in Computation of the Dither Matrix
+----------------------------------------------
+
+The computer time required to create a medium or large sized dither
+matrix using the algorithm of the prefered embodiment as has so far
+been described in excessive.  This section describes ways to make
+the required computer time for the prefered embodiment much more managible.
+
+For an nXm dither matrix, the number of entries in the dither matrix is
+
+ (eq 20)
+
+Equation 8.5 requires that for each objective function evaluation, 
+we spend computer time which grows as
+
+ (eq 21)
+
+For simulated annealing to work, every dither matrix entry must be swapped
+many times; therefore, we require #entries evaluations per epoch of the
+simulated anneal run; typically several hundred epochs are required
+for a simulated anneal run to complete.  Therefore, the time to
+create a dither matrix by the algorithm of the prefered embodiment
+as described so far is
+
+ (eq 22)
+
+This is completely unacceptable, as a simple example shows.  For a
+60x60 matrix for a 256 intensity level input image, annealed for
+500 epochs, the number of iterations of the inner loop is
+ 
+ (eq 23)
+
+A fast computer today can do about 10^9 iterations per hour,
+so such a computer would take centuries to complete the task.
+
+We now disclose improvements to make computation of a prefered 
+embodiment dither matrix run faster.
+
+Equation 8.5 can be rearranged as
+
+ (eq 24)
+
+where D(p) is the dither matrix value at point p.  This removes
+the summation over intensities, resulting in a dramatic speedup.
+This rearrangement is possible because the number of intensity levels
+for which to dither matrix locations p1 and p2 have the same color
+after dithering is 
+
+ (eq 25)
+
+The term involving #intensities is constant; it does not depend on
+the dither matrix.  Adding a constant to the objective function
+does not change the solution resulting from the optimization, therefore
+we drop this term from equation 24, yielding
+
+ (eq 26)
+
+Further dramatic speedup is possible.
+Simulated annealing requires computation of the CHANGE in the objective 
+function due to the swapping of 2 dither matrix entries, not 
+computation of the objective function itself.  Most of the terms
+for pairs of points in equation 26 are left unchanged when 2 dither matrix
+entries are swapped.  Only pairs involving 1 of the 2 points involved
+in the swap change.
+
+The contribution to equation 26 of a dither matrix entry Dc being
+located at point pc is given by
+
+ (eq 27)
+
+The change in the objective function given in equation 26 due to
+swapping the dither matrix entries located at points p1 and p2
+is given by
+
+ (eq 28)
+
+where dither matrix value D1 starts at point p1 and moves to point p2,
+and dither matrix value D2 starts at point p2 and moves to point p1.
+
+Computation of equation 28 requires examination of every point of the dither
+matrix 4 times, rather than examination of every pair of points of the dither
+matrix.  This results in further dramatic speedup.
+
+Equations 27 and 28 are used in the prefered embodiment for creation of
+small and medium sized dither matrixes.
+
+The logic leading to equation 27 and equation 28 can also be applied to
+the more general equation 7, leading to the more general formulation for
+equation 27 given by
+
+ (eq 29)
+
+The speedup for equation 7 given by equation 29 and equation 28 
+is similar to that given for equation 8.5 by equation 27 and equation 28.
+
+The time taken to create a dither matrix using equation 28 is
+
+ (eq 30)
+
+This compares favorably with equation 22, and is practical for small to
+medium sized dither matrixes.  For large dither matrixes, further
+speedup is necessary to make the method practical.  This can be
+achieved by a simple approximation.
+
+The computation involved in equation 27 involves a large number of
+points that contribute very little to the final result because they
+are a large distance away from pc.  We can save time by neglecting the
+contribution of these points, and only using points which are within a
+small distance of pc.  This imposes a circular window about pc; call
+the radius of this window "window_radius".  The approximation thus
+suggested for equation 27 is
+
+ (eq 31)
+
+Using equation 31 has been found to give inferior dither matrixes because
+of the discontinuity introduced at dist == window_radius.  This
+discontinuity is remedied by using instead the following
+
+ (eq 32)
+
+which is used in the prefered embodiment for creation of large dither 
+matrixes.
+
+Similar logic applied to equation 29 leads to
+
+ (eq 33)
+
+The time to compute dither matrixes using equation 28 and equation 32 or
+equation 33 is
+
+ (eq 34)
+
+This has been found to be practical even for creating of very large dither
+matrixes.  Reasonable values for window_radius have been found to be
+between 7 and 12.
+
+
+
+Size of the Dither Matrix and Number of Levels
+----------------------------------------------
+
+The discussion so far has been vague about the size of the dither matrix
+and the number of levels allowed.  This section will clarify the issues
+involved and describe several reasonable embodiments.
+Any reasonable embodiment is a compromise between several conflicting
+desires:
+
+  1)  A bigger dither matrix generally looks better
+
+  2)  A smaller dither matrix uses less hardware to implement and
+      takes less computer time to generate the dither matrix.
+
+  3)  A square dither matrix is simpler to work with than a dither
+      matrix where len != width.
+
+  4)  Implementation hardware is generally simpler is if the width and
+      length of the dither matrix are powers of 2. 
+
+  5)  To make the dither matrix give the same average intensity in the
+      dithered image as in the input image, the same number of dither matrix
+      entries should have each level.  If exact equality is impossible,
+      levels should be distributed as evenly as possible.
+
+  6)  The number of dither matrix levels should satisfy
+
+        #dither_matrix_levels = #intensities - 1
+
+      Often, #intensities = 256, so #dither_cell_levels = 255.
+      
+
+The simplest and most straightforward method is to set the number of dither
+matrix levels according to
+
+ (eq 34)      #dither_matrix_levels = #intensities - 1 
+
+where #intensities is the number of intensities in the input.
+In setting the size of the dither matrix, we have 2 choices.
+The simplest is to pick the length and width of the dither matrix 
+so that
+
+ (eq 35)      len*width = K * #dither_matrix_levels
+
+where K is a positive integer.
+Then assign each level to K dither matrix entries.
+For example, if #intensities = 256, then #dither_matrix_levels = 255.
+255 = 15*17.  A possible dither matrix size is len=15, width=17, which gives
+K=1.  A bigger possibility is len=2*15=30, width=2*17=34, K=4.  A still
+bigger possibility is len=4*15=60,width=4*17=68, K=16.  Notice that
+these matrixes are not square, and that they cannot be square because
+of the constraint that each level must be assigned to K dither matrix
+entries.
+
+Another possible way to set the size of the dither matrix 
+is to relax the requirement that each level be assigned to an equal
+number dither matrix entries, and simply try to assign them as
+evenly as possible.  Still use equation 34 to set the number of dither
+matrix levels.  Then assign levels to dither matrix entries so that
+extra or remainder levels are spread as evenly as possible between
+the minimum level and the maximum level.
+
+The prefered embodiment sets the size of the dither matrix according
+to hardware cost considerations, desired matrix size, etc., but independently
+from #dither_matrix_levels and #intensities.  After the dither matrix
+size is chosen, number number of levels in the dither matrix is set 
+according to 
+
+ (eq 36)     #dither_matrix_levels = len*width.  
+
+With this setting, each dither matrix entry is assigned exactly 1 level,
+and the dither matrix is optimized according to the methods discussed
+above.  For the resulting dither matrix to be useable, its entries must
+be rounded so that equation 34 is satisfied.  The prefered rounding
+formula is
+
+  (eq 37)
+
+
+Successive Approximation by a Linear Programming Model
+------------------------------------------------------
+
+This section presents an alternative algorithm to simulated annealing
+for optimizing dither cell quality.  Simulated annealing finds a good
+solution if we let it run long enough, but it gets bogged down 
+(especially at low temperatures) and cannot find the optimal solution.
+The "assignment problem" and the "transportation problem" are very
+similar to the dither matrix optimization problem, and they both
+have fast algorithms which always find the optimal solution.  
+In this section, we approximate the dither matrix optimization problem
+by an assignment problem or transportation problem and use a fast linear
+programming algorithm to find the optimal solution, which hopefully gives a
+near-optimal solution to the dither matrix optimization problem.
+
+The problem of assigning the correct level to the correct position of
+the dither matrix to optimize an image quality objective superficially
+resembles the "assignment problem" of linear programming [reference].  
+Figure 1 shows the cost matrix for a size 4 assignment problem.  Imagine
+that we want to assign 4 men to do 4 jobs, such that the total
+productivity is maximized.  Each man is assigned exactly 1 job; each
+job is assigned exactly 1 man.  The matrix shown gives how well each
+man does each job; we want to maximize the sum of matrix entries 
+used for the assignment.  
+
+For an nXn matrix, this problem has n! possible solutions; it takes
+computer time O(n!) to brute-force search the optimal solution.  The 
+"simplex algorithm" from linear programming provides a much faster 
+and more practical method, which takes something like O(n^3) time
+to find the optimal solution.
+
+The general statement of the assignment problem is 
+
+ (eq 38)
+
+Cij are the cost matrix entries; Xij are variables which indicate
+which column is assigned to which row.  Xij always are 0 or 1
+in the optimal solution.  Xij = 1 indications that row "i" is assigned
+to column "j".  The assignment problem is usually stated as a minimization
+problem; of course, the minimization and maximization problems are
+equivalent and one can be transformed to the other by negating the
+objective function.
+
+The assignment problem model is appropriate for approximating the
+dither matrix optimization problem where 1 level is to be assigned
+to 1 point of the dither matrix.  If 1 level is to be assigned to
+more than 1 point, the transportation problem model [reference]
+is appropriate.  The version of the transportation problem
+which is appropriate to the dither matrix optimization problem
+is 
+
+ (eq 39)
+
+Here "i" labels levels to be assigned; "j" labels dither matrix
+points which need to have levels assigned; Ki is the number of
+levels to be assigned.
+
+Cij is the incremental cost of assigning level "i" to dither matrix
+point "j"; its value is obtained from ob_dp(Dc,pc) from equation 27,
+equation 29, equation 32, or equation 33, whichever is appropriate.
+
+The formulation of equation 39 is NOT an exact formulation of the
+dither matrix optimization problem.  Why not?  Because the transportation
+and assignment problems assume that the cost matrix Cij is CONSTANT;
+that is, that Cij does not change when Xij changes.  This assumption
+is violated by the dither matrix optimization problem; changing
+a dither matrix entry at a dither matrix point which is near 
+another dither matrix point does change the incremental cost of
+assigning entries to that point.  But it might not change it too much.
+
+There are two ways to cope with this interaction between dither matrix 
+points.
+
+The first method is to allow only a subset of dither matrix points
+to participate in the transportation problem optimization; that subset
+is chosen so that there is no interaction between dither matrix points.
+This is easily accomplished if equation 32 or equation 33 is used
+to compute Cij; simply choose the dither matrix points to be at
+least window_radius distant from other dither matrix points participating
+in the optimization.  The participating set is built up incrementally;
+dither matrix points are chosen by a random number generator, and
+points which are at least window_radius away from points already in
+the set are added to the set.  Levels to be assigned are the levels
+currently assigned to the dither matrix points, before the start of 
+the transportation problem optimization.  The above process always
+improves the solution; it is repeated until no more improvements are
+found or until the improvements are too small to justify the computer
+time spent.
+
+The second method allows many or all of the dither matrix points
+to participate in the transportation optimization, but takes steps
+to minimize the error introduced by ignoring the interaction between
+dither matrix points.  If the sum in equation 32 and equation 33 contains
+only a few points which have changed, it is likely that Cij still closely
+approximates it.  Therefore, the transportation optimization 
+should be terminated
+after 1 or a few iterations which improve the objective function of
+the transportation problem, so that the approximation is still a good
+one.  Then the solution generated by the transportation problem
+optimization is checked by re-computing its objective function and
+verifying that it has actually improved.  This process is repeated
+until no further improvements are found or until the improvements 
+are too small to justify the computer time spent.
+
+The above optimization methods can be used alone, but they are
+best used as a polishing phase after a simulated anneal run.
+

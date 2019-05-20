@@ -1,0 +1,4 @@
+This directory contains the PDF output and LaTeX source for the CSDP
+User's Guide, together with some figures used in the guide.  There
+should be no need to run pdflatex on the source since the .pdf file is
+already available.

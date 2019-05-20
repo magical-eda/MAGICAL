@@ -1,0 +1,65 @@
+#
+#	Mar  30  2014
+#	user: mckima
+#
+
+VERSION 5.7 ;
+DIVIDERCHAR "/" ;
+BUSBITCHARS "[]" ;
+DESIGN simple ;
+UNITS DISTANCE MICRONS 1000 ;
+
+DIEAREA ( 0 0 ) ( 8000 8000 ) ;
+
+ROW core_SITE_ROW_0 core 0 0 N DO 40 BY 1 STEP 200 0 ;
+ROW core_SITE_ROW_1 core 0 2000 N DO 40 BY 1 STEP 200 0 ;
+ROW core_SITE_ROW_2 core 0 4000 N DO 40 BY 1 STEP 200 0 ;
+ROW core_SITE_ROW_3 core 0 6000 N DO 40 BY 1 STEP 200 0 ;
+
+COMPONENTS 5 ;
+   - u1 NAND2_X1
+      + COVER ( 2000 6000 ) N ;
+   - f1 DFF_X1
+      + PLACED ( 400 0 ) N ;
+   - u2 INV_X1
+      + UNPLACED ( 4000 2000 ) N ;
+   - u3 INV_X1
+      + PLACED ( 7000 4000 ) N ;
+   - u4[0] NOR2_X1
+      + FIXED ( 2000 2000 ) N ;
+   - u5\(0\) NOR2_X1
+      + PLACED ( 2000 2000 ) N ;
+END COMPONENTS
+
+PINS 4 ;
+   - out + NET out
+      + DIRECTION OUTPUT
+      + FIXED ( 8000 6000 ) N
+			+ LAYER metal3 ( 0 0 ) ( 100 100 ) ;
+   - inp1 + NET inp1
+      + DIRECTION INPUT
+      + FIXED ( 2000 8000 ) N
+			+ LAYER metal3 ( 0 0 ) ( 100 100 ) ;
+   - inp2 + NET inp2
+      + DIRECTION INPUT
+      + FIXED ( 4000 8000 ) N
+			+ LAYER metal3 ( 0 0 ) ( 100 100 ) ;
+   - iccad_clk + NET iccad_clk
+      + DIRECTION INPUT
+      + FIXED ( 0 2000 ) N
+			+ LAYER metal3 ( 0 0 ) ( 100 100 ) ;
+END PINS
+
+NETS 8 ;
+   - n1 ( u1 ZN )  ( u4 A1 )  ;
+   - n2 ( u4 ZN )  ( f1 D )  ;
+   - n3 ( f1 Q )  ( u2 A )  ( u4 A2 )  ; 
+   - n4 ( u2 ZN )  ( u3 A  ) ; 
+   - out ( u3 ZN )  ( PIN out ) ;
+   - inp1 ( PIN inp1 )  ( u1 A1 ) ; 
+	 - inp2 ( PIN inp2 )  ( u1 A2 ) ;
+   - iccad_clk ( PIN iccad_clk )  ( f1 CK ) ;
+END NETS
+
+END DESIGN
+

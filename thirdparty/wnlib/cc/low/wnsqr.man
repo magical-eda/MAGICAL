@@ -1,0 +1,23 @@
+NAME
+     wnsqr -- find square, cube
+
+SYNOPSIS
+     #include "wnsqr.h"
+
+     wn_square(x)
+
+     wn_cube(x)
+
+DESCRIPTION
+     "wn_square" is a macro which returns the square of "x".
+
+     "wn_cube" is a macro which returns the cube of "x".
+
+BUGS
+
+SEE ALSO
+
+AUTHOR
+     Will Naylor
+
+

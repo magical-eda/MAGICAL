@@ -1,0 +1,31 @@
+NAME
+     wnskll -- create skip list for common kinds of keys
+
+SYNOPSIS
+     #include "wnskpl.h"
+
+     void wn_mkstrsklist(wn_sklist &sklist, double threshold)
+
+     void wn_mkintsklist(wn_sklist &sklist, double threshold)
+
+     void wn_mkdoublesklist(wn_sklist &sklist, double threshold)
+
+DESCRIPTION
+     "wn_mkstrsklist" allocates a skip list indexed by null-terminated char
+     strings (from the current memory group).
+
+     "wn_mkintsklist" allocates a skip list indexed by int keys.
+
+     "wn_mkdoublesklist" allocates a skip list indexed by double keys.
+     A "double" is a long floating-point number.  You should 
+     pass "&number" rather than just "number" as the key.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnskl, wncmp, wncpy
+
+AUTHOR
+     Bill Chapman

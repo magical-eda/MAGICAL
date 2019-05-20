@@ -1,0 +1,37 @@
+NAME
+      excl.pl - program for excluding filenames from a list of filenames
+
+SYNOPSIS
+      excl.pl <list> - <exclude list>
+
+DESCRIPTION
+    the file outputs the strings in <list>, one per line, except
+    for those strings that are in <exclude list>.
+      Note it is OK to have strings in <exclude list> that are
+    not in <list>.
+
+      For example, if you are in the wnlib/acc/low directory and want to
+    see all that c files that don't begin with "wn".  You say
+
+      ls `excl.pl *.c - wn*`
+
+    and the output is
+
+      examples.c  selftest.c	xlateasrt.c
+
+      Another thing you might want to do is look at everything in
+    your directory except objects, archives, and emacs backups (which end with
+    '~').  You say
+
+      ls -F `excl.pl * - *.o *.a *~`
+
+    and you get
+
+    examples*      makefile*      wnabs.h     wncons.h   wnnop.c   wnsqr.man
+    examples.c     manscript.csh* wnabs.man   wnerr.h    wnnop.h   wnswap.h
+    filemerge.out% selftest*      wnasrt.c    wnlib.h    wnnop.man wnswap.man
+    hscript.csh*   selftest.c     wnasrt.h    wnmax.h    wnport.h  xlateasrt*
+    lf*            ve*            wnasrt.man  wnmax.man  wnsqr.h   xlateasrt.c
+
+AUTHOR
+     Bill Chapman

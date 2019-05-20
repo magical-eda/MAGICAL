@@ -1,0 +1,23 @@
+Iter:  0 Ap: 0.00e+00 Pobj:  1.4644661e+04 Ad: 0.00e+00 Dobj:  0.0000000e+00 
+Iter:  1 Ap: 9.31e-01 Pobj:  5.7513865e+03 Ad: 1.00e+00 Dobj:  8.0172003e+01 
+Iter:  2 Ap: 9.21e-01 Pobj:  2.3227402e+02 Ad: 1.00e+00 Dobj:  8.2749235e+01 
+Iter:  3 Ap: 9.30e-01 Pobj:  1.0521019e+01 Ad: 1.00e+00 Dobj:  8.4447722e+01 
+Iter:  4 Ap: 1.00e+00 Pobj:  2.5047625e+00 Ad: 1.00e+00 Dobj:  7.2126480e+01 
+Iter:  5 Ap: 1.00e+00 Pobj:  7.5846337e+00 Ad: 1.00e+00 Dobj:  4.2853659e+01 
+Iter:  6 Ap: 1.00e+00 Pobj:  1.5893126e+01 Ad: 1.00e+00 Dobj:  3.0778169e+01 
+Iter:  7 Ap: 1.00e+00 Pobj:  1.9887401e+01 Ad: 1.00e+00 Dobj:  2.4588662e+01 
+Iter:  8 Ap: 1.00e+00 Pobj:  2.1623330e+01 Ad: 1.00e+00 Dobj:  2.3465172e+01 
+Iter:  9 Ap: 1.00e+00 Pobj:  2.2611983e+01 Ad: 1.00e+00 Dobj:  2.3097049e+01 
+Iter: 10 Ap: 1.00e+00 Pobj:  2.2939498e+01 Ad: 1.00e+00 Dobj:  2.3010908e+01 
+Iter: 11 Ap: 1.00e+00 Pobj:  2.2996259e+01 Ad: 1.00e+00 Dobj:  2.3000637e+01 
+Iter: 12 Ap: 1.00e-00 Pobj:  2.2999835e+01 Ad: 1.00e+00 Dobj:  2.3000020e+01 
+Iter: 13 Ap: 1.00e+00 Pobj:  2.2999993e+01 Ad: 1.00e+00 Dobj:  2.2999999e+01 
+Iter: 14 Ap: 1.00e+00 Pobj:  2.3000000e+01 Ad: 1.00e+00 Dobj:  2.3000000e+01 
+Success: SDP solved
+Primal objective value: 2.3000000e+01 
+Dual objective value: 2.3000000e+01 
+Relative primal infeasibility: 1.50e-18 
+Relative dual infeasibility: 3.93e-09 
+Real Relative Gap: 7.21e-09 
+XZ Relative Gap: 7.82e-09 
+DIMACS error measures: 1.50e-18 0.00e+00 1.00e-07 0.00e+00 7.21e-09 7.82e-09

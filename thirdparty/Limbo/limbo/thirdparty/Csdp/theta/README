@@ -1,0 +1,55 @@
+This directory contains C code for an SDP code to compute the Lovasz
+Theta number of a graph.  This is mainly to demonstrate the use of the
+CSDP callable library.
+
+Usage is 
+ 
+  theta <problem>
+
+where <problem> is the name of a file containing the graph in the 
+following format:
+
+  # of nodes
+  # of edges
+  the edges, one per line, described by the two vertices
+ 
+For example, the complete graph on four nodes looks like this:
+ 
+  4
+  6
+  1 2
+  1 3
+  1 4
+  2 3
+  2 4
+  3 4
+
+A program for converting a graph into an SDP in sparse SDPA format
+is also provided.  Usage is:
+
+graphtoprob <graph> <problem file> <initial solution file>
+
+I've also provided a program for generating random graphs.  Usage
+is 
+
+  rand_graph <filename> <n> <p> [<seed>]
+ 
+where <filename> is the output file, <n> is the number of nodes in the
+graph, <p> is the probability that each edge will be present, and <seed>
+is an optional integer seed for the random number generator.  
+
+I've provided a third program for computing the complement of a 
+graph.  Usage is 
+ 
+  complement <input graph> <output graph>
+
+Please note that there are two commonly used conventions for Theta(G)
+and Theta(complement(G)) In this code, theta(complement(G)) is an
+upper bound on the max-clique of G, not theta(G).
+
+You may also want to adjust the LIBS= and CFLAGS= lines in the Makefile
+to get code optimized for your particular system.  
+
+
+
+

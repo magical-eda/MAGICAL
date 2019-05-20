@@ -1,0 +1,35 @@
+NAME
+     wnmmlt -- vector/matrix multiplication
+
+SYNOPSIS
+     #include "wnmat.h"
+
+     wn_mult_mat_by_vect(double *result_vect,double **mat,double *vect,
+			 int len_i,int len_j)
+
+     wn_mult_mats(double **result_mat,double **mat1,double **mat2,
+		  int len_i,int len_j,int len_k)
+
+DESCRIPTION
+     Vector/matrix multiplication routines.
+
+RESOURCES
+     Matrix times matrix requires
+
+       WORST and AVERAGE CASE:
+
+         time = len_i * len_j * len_k
+         stack memory = 1
+         dynamic memory = len_j
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnminv, wnmtrn
+
+AUTHOR
+     Will Naylor
+
+

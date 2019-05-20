@@ -1,0 +1,32 @@
+NAME
+     wnbtrl -- create sorted tree for common kinds of keys
+
+SYNOPSIS
+     #include "wnbtrl.h"
+
+     void wn_mkstrbtree(wn_btree &tree)
+
+     void wn_mkintbtree(wn_btree &tree)
+
+     void wn_mkdoublebtree(wn_btree &tree)
+
+DESCRIPTION
+     "wn_mkstrbtree" allocates a sorted tree indexed by null-terminated char
+     strings (from the current memory group).
+
+     "wn_mkintbtree" allocates a sorted tree indexed by int keys.
+
+     "wn_mkdoublebtree" allocates a sorted tree indexed by double keys.
+     A "double" is a long floating-point number.  You should 
+     pass "&number" rather than just "number" as the key.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnbtr, wncmp, wncpy
+
+AUTHOR
+     Will Naylor
+

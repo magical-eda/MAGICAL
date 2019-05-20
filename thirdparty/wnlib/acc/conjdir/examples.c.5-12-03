@@ -1,0 +1,119 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+
+#include "wnlib.h"
+#include "wnasrt.h"
+#include "wnmem.h"
+#include "wnvect.h"
+#include "wnrndd.h"
+
+#include "wnconj.h"
+
+
+#define NUM_VARS  2
+
+
+local double delta_vect[2];
+local int grad_count,func_count;
+
+
+/*
+  function = 100(x2-x1^3)^2 + (1-x1)^2
+*/
+local double function(double vect[])
+{
+  double x1,x2;
+  double diff1,diff2;
+  double ob;
+
+  x1 = vect[0];
+  x2 = vect[1];
+
+  diff1 = x2-x1*x1*x1;
+  diff2 = 1.0-x1;
+
+  ob = (100.0*diff1*diff1 + diff2*diff2);
+
+  printf("ob = %lg,func_count = %d\n",ob,func_count);
+  ++func_count;
+
+  /*
+  ob += 0.001*wn_normal_distribution();
+  printf("ob+random = %lg\n",ob);
+  */
+
+  return(ob);
+}
+
+
+local void gradient(double grad[],double vect[])
+{
+  double x1,x2;
+  double diff1,diff2;
+  double ob;
+
+  printf("gradient.  count = %d\n",grad_count);
+  ++grad_count;
+
+  /*
+  wn_numerical_gradient(grad,vect,delta_vect,2,&function);
+  printf("end of numerical gradient.\n");
+  */
+
+  x1 = vect[0];
+  x2 = vect[1];
+
+  diff1 = x2-x1*x1*x1;
+  diff2 = 1.0-x1;
+
+  grad[0] = -600.0*diff1*x1*x1 - 2.0*diff2;
+  grad[1] = 200.0*diff1;
+  /*
+  */
+}
+
+
+local double funcgrad(double grad[],double vect[])
+{
+  gradient(grad,vect);
+  return(function(vect));
+}
+
+
+int main(void)
+{
+  double vect[2];
+  int code;
+  double val_min;
+
+  /*
+  wn_gpmake("no_free");
+  */
+
+  grad_count = func_count = 0;
+
+  vect[0] = -1.2;
+  vect[1] = -1.0;
+
+  delta_vect[0] = 0.1;
+  delta_vect[1] = 0.1;
+
+  wn_conj_direction_method(&code,&val_min,vect,NULL,NUM_VARS,(function),WN_IHUGE);
+  /*
+  wn_conj_funcgrad_method(&code,&val_min,vect,NUM_VARS,
+			  &funcgrad,(bool (*)(double *,double,int))NULL,
+			  1.0,
+			  0,2.0,
+			  WN_IHUGE);
+  wn_conj_gradient_method(&code,&val_min,vect,NUM_VARS,(function),(gradient),WN_IHUGE);
+  wn_conj_direction_method(&code,&val_min,vect,delta_vect,NUM_VARS,(function),200);
+  */
+
+  printf("code = %d\n",code);
+  printf("objective = %lg\n",val_min);
+  val_min = function(vect);
+  printf("actual objective = %lg\n",val_min);
+  wn_print_vect(vect,NUM_VARS);
+  printf("grad_count = %d,func_count = %d\n",grad_count,func_count);
+}

@@ -1,0 +1,40 @@
+NAME
+     wnmmk -- make vector and matrix
+
+SYNOPSIS
+     #include "wnmat.h"
+
+
+     wn_make_vect(&vect,len_i)
+     double *vect;
+     int len_i;
+
+     wn_make_mat(&mat,len_i,len_j)
+     double **mat;
+     int len_i,len_j;
+
+
+     wn_free_vect(vect,len_i)
+     double *vect;
+     int len_i;
+
+     wn_free_mat(mat,len_i,len_j)
+     double **mat;
+     int len_i,len_j;
+
+DESCRIPTION
+     These routines allocate and free memory for the named types (from the
+     current memory group).  The allocate routines initialize
+     the contents to zero.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnmem
+
+AUTHOR
+     Will Naylor
+
+

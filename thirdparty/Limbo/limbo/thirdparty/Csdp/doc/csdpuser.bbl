@@ -1,0 +1,30 @@
+\begin{thebibliography}{1}
+
+\bibitem{BorchersB:CSDCls}
+B.~Borchers.
+\newblock {CSDP}, a {C} library for semidefinite programming.
+\newblock {\em Optimization Methods \& Software}, 11-2(1-4):613 -- 623, 1999.
+
+\bibitem{SDPA}
+K.~Fujisawa, M.~Kojima, K.~Nakata, and M.~Yamashita.
+\newblock {SDPA} (semidefinite programming algorithm) users manual - version
+  6.00.
+\newblock Technical Report B--308, Tokyo Institute of Technology, 1995.
+
+\bibitem{HelmbergC:Anims}
+C.~Helmberg, F.~Rendl, R.~J. Vanderbei, and H.~Wolkowicz.
+\newblock An interior-point method for semidefinite programming.
+\newblock {\em {SIAM} Journal on Optimization}, 6(2):342 -- 361, May 1996.
+
+\bibitem{MittelmannHD:AnibS}
+H.~D. Mittelmann.
+\newblock An independent benchmarking of {SDP} and {SOCP} solvers.
+\newblock {\em Mathematical Programming}, 95(2):407 -- 430, February 2003.
+
+\bibitem{SturmJF:UsiS1M}
+J.~F. Sturm.
+\newblock Using {S}e{D}u{M}i 1.02, a {MATLAB} toolbox for optimization over
+  symmetric cones.
+\newblock {\em Optimization Methods \& Software}, 11-2(1-4):625 -- 653, 1999.
+
+\end{thebibliography}

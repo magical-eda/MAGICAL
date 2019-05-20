@@ -1,0 +1,29 @@
+NAME
+     wnmtrn -- transpose matrix
+
+SYNOPSIS
+     #include "wnmat.h"
+
+     wn_transpose_matrix(&result_mat,mat)
+     wn_matrix result_mat,mat;
+
+     wn_transpose_raw_matrix(result_raw_mat,raw_mat,len_i,len_j)
+     double **result_raw_mat,**raw_mat;
+     int len_i,len_j;
+
+DESCRIPTION
+     Routines to transpose a matrix.
+
+     "len_i" and "len_j" refer to "raw_mat".
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnmmlt
+
+AUTHOR
+     Will Naylor
+
+

@@ -1,0 +1,66 @@
+NAME
+     wntype -- standard types
+
+SYNOPSIS
+     #include "wnlib.h"
+
+
+
+     local <decl>;
+
+
+     bool <vars>;
+
+     TRUE
+     FALSE 
+
+
+     ptr <vars>;
+
+     NULL
+
+
+DESCRIPTION
+     "local", "bool", and "ptr" are standard types for use in general 
+     programming.  To obtain their definitions, #include "wnlib.h".
+
+     Declaring a variable or function "local" makes it visible
+     only within the file in which it is declared.
+
+     "bool" is a standard boolean type.  Variables declared "bool"
+     can take on the value "TRUE" or "FALSE".
+
+     "ptr" is a standard generic pointer type.  A type cast is 
+     necessary to convert to/from other pointer types.
+     It can take on the value "NULL" if it is empty.
+
+     "local" is preferable to the C primitive "static" for declaring
+     variables and functions local to a file because it is more readable.
+
+     "bool" is preferable to the C primitive "int" for declaring boolean
+     variables it is more readable.
+
+     "ptr" is preferable to "caddr_t" or "char *" for declaring generic
+     pointers because it is more readable and because it behaves better
+     under "lint".
+
+EXAMPLES
+     local bool b;
+     ptr p;
+
+     main()
+     {
+       b = TRUE;
+       p = NULL;
+        
+       ...
+     }
+
+BUGS
+
+SEE ALSO
+
+AUTHOR
+     Will Naylor
+
+

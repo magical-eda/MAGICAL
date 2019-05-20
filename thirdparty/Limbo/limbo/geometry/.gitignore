@@ -1,0 +1,4 @@
+test/p2r*.gp
+test/test_p2r
+test/test_blibapi
+test/test_boostpolygonapi

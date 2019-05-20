@@ -1,0 +1,43 @@
+NAME
+     wnhtbl -- make hash tables for common kinds of keys
+
+SYNOPSIS
+     wn_mkhashhtab(&table)
+     wn_htab table;
+
+     wn_mkstrhtab(&table)
+     wn_htab table;
+
+     wn_mkptrhtab(&table)
+     wn_htab table;
+
+     wn_mkinthtab(&table)
+     wn_htab table;
+
+DESCRIPTION
+     "wn_mkhashhtab" allocates a hash table that assumes the key
+     is already hashed (from the current memory group).
+
+     "wn_mkstrhtab" allocates a hash table indexed by null-terminated char
+     strings (from the current memory group).
+
+     "wn_mkptrhtab" allocates a hash table indexed by pointer keys, that
+     is, by the value of the pointer itself (as opposed to what the
+     pointer points to).
+
+     "wn_mkinthtab" allocates a hash table indexed by int keys.
+
+EXAMPLES
+  
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnhtab, wnhash, wncpy
+
+     cc/low/examples.c
+
+AUTHOR
+     Will Naylor
+

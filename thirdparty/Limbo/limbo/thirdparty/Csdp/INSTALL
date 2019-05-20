@@ -1,0 +1,180 @@
+REQUIREMENTS:
+
+The build process for CSDP uses make, so your system must have make
+installed.  The GNU make works quite well, but CSDP has also been
+built with other versions of make.  The make files are very simple.
+
+In order to build CSDP, you will need an ANSI C compiler.  The GNU C
+compiler gcc works quite well, but the code has also been compiled
+with Intel's icc, IBM's xlc, Sun's cc, and many other compilers.
+
+Although CSDP itself is written in C, the BLAS/LAPACK libraries used
+by CSDP were originally written in Fortran.  Combining C and Fortran
+is generally straight forward, but you may have to install a Fortran
+compiler in order to get run time libraries needed by the Fortran code
+in BLAS/LAPACK.  In particular, on Linux systems using gcc you will
+need the g2c C/Fortran compatibility library that comes as part of the
+g77 package.
+
+Use of the CSDP library and the solver and theta functions requires
+the BLAS library and a few routines from the LAPACK library.  Using
+BLAS and LAPACK routines that have been optimized for your computer is
+critical to getting good performance from CSDP, since the code
+typically spends nearly all of its time in these routines.  On the
+same hardware, it's not uncommon to find that optimized BLAS and
+LAPACK routines are an order of magnitude faster than unoptimized BLAS
+and LAPACK routines.
+
+The original authors of BLAS and LAPACK have provided "reference
+implementations" that are freely available but not very well
+optimized.  If your system has BLAS and LAPACK libraries in /usr/lib,
+there's a good chance that these are the reference implementations.  
+Using them is a reasonable way to start, but you may well find that
+you need faster routines to get acceptable performance.  
+
+ATLAS (automatically tuned linear algebra software) is an open source
+implementation of BLAS and part of LAPACK that is sufficient for our
+purposes. ATLAS obtains good performance on a variety of systems by 
+automatically adjusting blocksizes and other parameters to get the
+best performance out of any particular system.  ATLAS is availible at
+
+    http://math-atlas.sourceforge.net/
+
+If possible, use their precompiled, optimized libraries that are 
+availible for several architectures, otherwise build it yourself
+from source.
+
+Most hardware manufacturers have developed optimized BLAS/LAPACK 
+libraries for their systems, such as Apple's veclib for G5 
+systems, Intel's Math Kernel Library (MKL), AMD's Core Mathematical
+Library (ACML), IBM's extended scientific subroutine library (ESSL),
+and Sun's sunperf library.  These typically have restrictive licenses and
+may be expensive to purchase, but can provide very good performance.
+
+In practice, on Intel or AMD Linux systems, we find that ATLAS
+provides very good performance (close to if not better than MKL or
+ACML.)  Thus we recommend ATLAS.  However, to make the build process
+simpler and more flexible, the make files are setup to use whatever
+LAPACK and BLAS libraries are already installed on your system.  If
+you decide to use ATLAS, the make files contain ATLAS specific
+instructions.
+
+CSDP also includes a set of routines for interfacing CSDP to MATLAB
+and Octave.  This interface is entirely optional- CSDP works fine
+without it.  In order to use this interface, you will need MATLAB (6.5
+or later) or Octave (2.9.5 or later.)  Note that earlier versions of
+Octave, particularly 2.0 and 2.1, will not function with this interface
+because Octave didn't support sparse matrices until version 2.9.  The
+README file in the matlab directory contains instructions for installing
+the matlab interface and testing it on a sample problem.
+
+DOWNLOADING CSDP:
+
+The current version of CSDP can be obtained using subversion from
+the COIN-OR web site.  To do this, first install the subversion 
+tools, then issue the command
+
+  svn co https://projects.coin-or.org/svn/Csdp Csdp
+ 
+Or use a GUI to access the repository.  
+
+Source and binaries for older stable versions of CSDP can be
+downloaded from
+ 
+  http://www.nmt.edu/~borchers/csdp.html
+
+INSTALLING CSDP:
+
+The following instructions assume that you're using a Linux system with
+gcc, g77, LAPACK, and BLAS installed.  The make files will have to be
+altered for other systems, but the basic process of building the software
+will be similar.
+
+After you've downloaded the source code, unpack the tar archive if you
+downloaded a .tar archive of CSDP 5.0, and then go into the csdp
+directory (this directory is called "Csdp" in subversion) Issue the
+command
+ 
+> make
+ 
+to build CSDP.  Make will go into the lib, solver, theta, and example
+subdirectories and compile the C code, using values of CFLAGS and LIBS
+supplied in the Makefiles in these directories.
+
+If the build fails, it is important to start by identifying where the
+build failed.  Failures in building the CSDP library are extremely
+rare.  Most reported failures have occured in the solver and theta
+directories.  The most common problem in practice is that one or more
+of the required libraries (blas, lapack, or g2c) is missing.  In that
+case you must install the required library before continuing with the
+installation of CSDP.  If the build fails for some other reason, feel 
+free to contact the author for help- we're interested in learning about
+problems on different systems.  
+
+If for some reason the build fails, it's a good idea to remove all
+of the binaries before modifying the make files and rebuilding.  To do
+this, issue the command
+ 
+> make clean
+ 
+If the build appears to be successful, you can test the code with
+ 
+> make unitTest
+ 
+This will run tests of the stand alone solver csdp and Lovasz theta
+program theta.  Compare the .out files produced by the test with the
+corresponding .correct files.  The actual values will typically vary
+because of small differences in floating point round-off, compiler
+optimizations, and so on.  However, the optimal objective values
+should match to at least six digits, the relative primal and dual
+infeasibilities should be smaller than 1.0e-7, and all DIMACS errors
+should be smaller than 5.0e-7.
+
+If either of the tests fail, please contact the author.
+
+Once you're satisfied with tests, you can become root and issue the
+command
+
+> make install
+
+This will copy csdp, rand_graph, complement, theta, and graphtoprob
+into the /usr/local/bin directory.  If you use the C shell, remember
+to "rehash" so that the shell will know that these programs have been
+added to the /usr/local/bin directory.
+
+The matlab directory contains .m files that provide a matlab interface
+to CSDP solver. To install these .m files they must be added to your
+matlab path.  This requires use of the path(...) command in
+matlab. See '>help path' for instructions on adding a new directory to
+your matlab path (you can put the .m files in any directory you wish,
+then add that directory to your matlab path). 
+
+USING GCC 4:
+
+In gcc 3.x, the C/Fortran compatibility library was linked with -lg2c.  In
+gcc 4.x, you will need to link with -lgfortran instead.  
+ 
+Note that OpenMP support first appears in Red Hat's version of gcc 4.1.1
+and also appears in the general release of gcc 4.2.  There is no OpenMP
+support in earlier versions of gcc!  
+ 
+RUNNING CSDP IN PARALLEL:
+
+Version 6 of CSDP includes support for a parallel version of CSDP on
+multi-processor shared memory systems.  This is done using the OpenMP
+standard for #pragma's that tell the C compiler how to parallelize
+various loops in the code.  On systems that don't support OpenMP,
+these pragma's are simply ignored.  On systems that do support OpenMP,
+it will typically be necessary to modify the CFLAGS and LIBS in the
+Makefiles to build a parallel version of CSDP.  As an example, the 
+following CFLAGS and LIBS have been used to build a parallel version
+of CSDP on a Red Hat Enterprise Linux system using Red Hat's version
+of gcc4.1 with ATLAS. 
+ 
+CFLAGS=CFLAGS=-O3 -march=nocona -m64 -fprefetch-loop-arrays -ftree-vectorize -ftree-vectorizer-verbose=1 -fopenmp  -ansi -Wall -DNOSHORTS -DBIT64 -DUSEOPENMP -I../include
+
+LIBS=LIBS=-static -L../lib -lsdp -llapack -lptf77blas -lptcblas -latlas -lgomp -lrt -lpthread -lgfortran -lm 
+
+
+
+

@@ -1,0 +1,43 @@
+/****************************************************************************
+
+COPYRIGHT NOTICE:
+
+  The source code in this file is provided free of charge
+  to the author's consulting clients.  It is in the
+  public domain and therefore may be used by anybody for
+  any purpose.
+
+AUTHOR:
+
+  Will Naylor
+
+****************************************************************************/
+#ifndef wnrndH
+#define wnrndH
+
+#include "wnlib.h"
+
+EXTERN void wn_seed_random_number_generator(int seed);
+EXTERN void wn_rand_print_state(void);
+
+EXTERN int wn_random_n_bits(int n);
+EXTERN int wn_random_bit(void);
+EXTERN unsigned int wn_random_mod_int(unsigned mod);
+
+/*     buffer of random ints that have been calculated in a batch, to be
+** read out one by one by wn_random_int */
+EXTERN int wn_random_ints_buf[];
+/*     number of random ints remaining in buf.  wn_random_ints_count-1 is next
+** random int */
+EXTERN int wn_random_ints_count;
+EXTERN int wn_random_ints_fill_buf(void);
+#define wn_random_int() (wn_random_ints_count ?			\
+	wn_random_ints_buf[-- wn_random_ints_count] :		\
+					wn_random_ints_fill_buf())
+/* subroutine version of the macro wn_random_int() */
+EXTERN int wn_random_int_func(void);
+
+/* internal use only -- may be removed someday */
+EXTERN void wnrnd_check(void);
+
+#endif

@@ -1,0 +1,504 @@
+
+% =====================================================
+%                    Hardware
+% =====================================================
+%{{{
+% ==== conference
+@string{apccas  = "IEEE Asia Pacific Conference on Circuits and Systems (APCCAS)"}
+@string{arc     = "International Symposium on Applied Reconfigurable Computing (ARC)"}
+@string{arith   = "IEEE Symposium on Computer Arithmetic (ARITH)"}
+@string{asicon  = "International Conference on ASIC (ASICON)"}
+@string{aspdac  = "IEEE/ACM Asia and South Pacific Design Automation Conference (ASPDAC)"}
+@string{async   = "IEEE International Symposium on Asynchronous Circuits and Systems (ASYNC)"}
+@string{ats     = "IEEE Asian Test Symposium (ATS)"}
+@string{cicc    = "IEEE Custom Integrated Circuits Conference (CICC)"}
+@string{cases   = "International Conference on Compilers, Architecture, and Synthesis for Embedded Systems (CASES)"}
+@string{codes   = "International Conference on Hardware/Software Codesign and System Synthesis"}
+@string{dac     = "ACM/IEEE Design Automation Conference (DAC)"}
+@string{date    = "IEEE/ACM Proceedings Design, Automation and Test in Eurpoe (DATE)"}
+@string{dft     = "IEEE International Symposium on Defect and Fault Tolerance in VLSI Systems (DFT)"}
+@string{ectc    = "IEEE Electronic Components and Technology Conference"}
+@string{edtc    = "European Design and Test Conference"}                                                       % 1994 -- 1997
+@string{eurodac = "European Design Automation Conference"}
+@string{ets     = "IEEE European Test Symposium (ETS)"}
+@string{fpga    = "ACM Symposium on FPGAs"}
+@string{fpl     = "IEEE International Conference on Field Programmable Logic and Applications (FPL)"}
+@string{fpt     = "IEEE International Conference on Field-Programmable Technology (FPT)"}
+@string{glsvlsi = "ACM Great Lakes Symposium on VLSI (GLSVLSI)"}
+@string{hpca    = "IEEE International Symposium on High Performance Computer Architecture (HPCA)"}
+@string{ics     = "ACM International Conference on Supercomputing (ICS)"}
+@string{iedm    = "IEEE International Electron Devices Meeting (IEDM)"}
+@string{iccad   = "IEEE/ACM International Conference on Computer-Aided Design (ICCAD)"}
+@string{iccd    = "IEEE International Conference on Computer Design (ICCD)"}
+@string{icicdt  = "IEEE International Conference on IC Design and Technology (ICICDT)"}
+@string{icsict  = "IEEE International Conference on Solid-State and Integrated Circuit Technology (ICSICT)"}
+@string{iitc    = "IEEE International Interconnect Technology Conference (IITC)"}
+@string{isca    = "IEEE/ACM International Symposium on Computer Architecture (ISCA)"}
+@string{iscas   = "IEEE International Symposium on Circuits and Systems (ISCAS)"}
+@string{islped  = "IEEE International Symposium on Low Power Electronics and Design (ISLPED)"}
+@string{ispd    = "ACM International Symposium on Physical Design (ISPD)"}
+@string{isqed   = "IEEE International Symposium on Quality Electronic Design (ISQED)"}
+@string{isscc   = "IEEE International Solid-State Circuits Conference (ISSCC)"}
+@string{isvlsi  = "IEEE Annual Symposium on VLSI (ISVLSI)"}
+@string{irps    = "IEEE International Reliability Physics Symposium (IRPS)"}
+@string{itc     = "IEEE International Test Conference (ITC)"}
+@string{itherm  = "IEEE Intersociety Thermal Conference (ITherm)"}
+@string{iwlas   = "International Workshop on Logic and Architecture Synthesis"}
+@string{iwls    = "IEEE/ACM International Workshop on Logic Synthesis"}
+@string{lats    = "IEEE Latin-American Test Symposium (LATS)"}
+@string{micro   = "IEEE/ACM International Symposium on Microarchitecture (MICRO)"}
+@string{mwscas  = "IEEE International Midwest Symposium on Circuits and Systems (MWSCAS)"}
+@string{nano    = "IEEE Conference on Nanotechnology (NANO)"}
+@string{nanoarch= "IEEE/ACM International Symposium on Nanoscale Architectures (NANOARCH)"}
+@string{nocs    = "IEEE/ACM International Symposium on Networks-on-Chip (NOCS)"}
+@string{patmos  = "IEEE International Workshop on Power And Timing Modeling, Optimization and Simulation (PATMOS)"}
+@string{rc      = "Conference on Reversible Computation (RC)"}
+@string{rtss    = "IEEE Real-Time Systems Symposium (RTSS)"}
+@string{sc      = "ACM/IEEE Supercomputing Conference (SC)"}
+@string{slip    = "ACM Workshop on System Level Interconnect Prediction (SLIP)"}
+@string{socc    = "IEEE International System-on-Chip Conference (SOCC)"}
+@string{spie    = "Proceedings of SPIE"}
+@string{spie-al = "SPIE Advanced Lithography"}
+@string{spie-pt = "SPIE Photomask Technology"}
+@string{vdat    = "International Symposium on VLSI Design and Test (VDAT)"}
+@string{vlsic   = "Symposium on VLSI Circuits (VLSIC)"}
+@string{vlsid   = "International Conference on VLSI Design"}
+@string{vlsidat = "International Symposium on VLSI Design, Automation, and Test (VLSI-DAT)"}
+@string{vlsisoc = "IFIP/IEEE International Conference on Very Large Scale Integration (VLSI-SoC)"}
+@string{vlsit   = "Symposium on VLSI Technology (VLSIT)"}
+@string{vts     = "IEEE VLSI Test Symposium (VTS)"}
+@string{tau     = "ACM International Workshop on on Timing Issues in the Specification and Synthesis of Digital Systems (TAU) "}
+@string{tdic    = "IEEE International 3D Systems Integration Conference (3DIC)"}
+% ==== journal
+@string{cal     = "IEEE Computer Architecture Letters (CAL)"}                                                 % IF:0.677
+@string{edl     = "IEEE Electron Device Letters (EDL)"}                                                       % IF:2.754
+@string{esl     = "IEEE Embedded Systems Letters (ESL)"}                                                      % IF:--
+@string{ieice   = "IEICE Transactions on Fundamentals of Electronics, Communications and Computer Sciences"}  % IF:0.24
+@string{ietcds  = "IET Circuits, Devices \& Systems"}                                                         % IF:0.91  (IET)
+@string{ietcdt  = "IET Computers \& Digital Techniques"}                                                      % IF:0.356 (IET)
+@string{ietel   = "Electronics Letters"}                                                                      % IF:1.06  (IET)
+@string{ijcta   = "International Journal of Circuit Theory and Applications"}                                 % IF:1.21  (Wiley)
+@string{jcee    = "Computers \& Electrical Engineering"}                                                      % IF:0.81  (Elsevier)
+@string{jcsc    = "Journal of Circuits, Systems and Computers"}                                               % IF:0.47  (Wiley)
+@string{jcst    = "Journal of Computer Science and Technology"}                                               % IF:0.64  (CAS)
+@string{jetc    = "ACM Journal on Emerging Technologies in Computing Systems (JETC)"}                         % IF:0.76
+@string{jetcas  = "IEEE Journal on Emerging and Selected Topics in Circuits and Systems (JETCAS)"}            % IF:--
+@string{jm3     = "Journal of Micro/Nanolithography, MEMS, and MOEMS (JM3)"}                                  % IF:1.20
+@string{jmee    = "Microelectronic Engineering"}                                                              % IF:1.33  (Elsevier)
+@string{jmicpro = "Microprocessors and Microsystems"}                                                         % IF:0.43  (Elsevier)
+@string{joet    = "Journal of Electronic Testing"}                                                            % IF:0.42  (Elsevier)
+@string{jolpe   = "Journal of Low Power Electronics"}                                                         % IF:0.485
+@string{jsa     = "Journal of Systems Architecture"}                                                          % IF:0.683 (Elsevier)
+@string{jssc    = "IEEE Journal Solid-State Circuits"}                                                        % IF:3.16
+@string{jvlsi   = "Integration, the VLSI Journal"}                                                            % IF:0.52  (Elsevier)
+@string{jvlsid  = "VLSI Design"}                                                                              % IF:--
+@string{mc      = "Computer"}                                                                                 % IF:1.443
+@string{mcas    = "IEEE Circuits and Systems Magazine"}                                                       % IF:1.70
+@string{mdat    = "IEEE Design \& Test"}                                                                      % IF:1.14
+@string{mdtc    = "IEEE Design \& Test of Computers"}                                                         % IF:1.62
+@string{mejo    = "Microelectronics Journal"}                                                                 % IF:0.92  (Elsevier)
+@string{mm      = "IEEE Micro"}                                                                               % IF:1.091
+@string{mspec   = "IEEE Spectrum"}                                                                            % IF:0.827
+@string{rts     = "Real-Time Systems"}                                                                        % IF:1.00  (Springer)
+@string{taco    = "ACM Transactions on Architecture and Code Optimization (TACO)"}                            % IF:0.503
+@string{tap     = "IEEE Transactions on Advanced Packaging"}                                                  % (-- 2010)
+@string{tcad    = "IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems (TCAD)"}     % IF:1.20
+@string{tcas    = "IEEE Transactions on Circuits and Systems I"}                                              % IF:2.30
+@string{tcasii  = "IEEE Transactions on Circuits and Systems II: Express Briefs"}                             % IF:1.18
+@string{tcpmt   = "IEEE Transactions on Components, Packaging and Manufacturing Technology (TCPMT)"}          % IF:1.23
+@string{tecs    = "ACM Transactions on Embedded Computing (TECS)"}                                            % IF:1.09
+@string{tie     = "IEEE Transactions on Industrial Electronics (TIE)"}                                        % IF:6.498
+@string{tns     = "IEEE Transactions on Nuclear Science (TNS)"}                                               % IF:1.45
+@string{toc     = "IEEE Transactions on Computers"}                                                           % IF:1.47
+@string{todaes  = "ACM Transactions on Design Automation of Electronic Systems (TODAES)"}                     % IF:0.68
+@string{tor     = "IEEE Transactions on Reliability"}                                                         % IF:1.93
+@string{trets   = "ACM Transactions on Reconfigurable Technology and Systems (TRETS)"}                        % IF:0.615
+@string{tsm     = "IEEE Transactions on Semiconductor Manufacturing (TSM)"}                                   % IF:0.97
+@string{tvlsi   = "IEEE Transactions on Very Large Scale Integration Systems (TVLSI)"}                        % IF:1.14
+%}}}
+
+
+% ====================================================
+%                Machine Learning
+% ====================================================
+% ==== conference
+@string{aaai     = "AAAI Conference on Artificial Intelligence"}
+@string{aamas    = "International Conference on Autonomous Agents and Multi-Agent Systems (AAMAS)"}
+@string{acl      = "Annual Meeting of the Association for Computational Linguistics (ACL)"}
+@string{aistats  = "International Conference on Artificial Intelligence and Statistics (AISTATS)"}
+@string{aiide    = "AAAI Conference on Artificial Intelligence and Interactive Digital Entertainment (AIIDE)"}
+@string{alt      = "International Conference on Algorithmic Learning Theory (ALT)"}
+@string{cg       = "International Conference on Computers and Games (CG)"}
+@string{colt     = "Conference on Learning Theory"}
+@string{compstat = "International Conference on Computational Statistics (COMPSTAT)"}
+@string{ecml     = "European Conference on Machine Learning"}
+@string{icann    = "International Conference on Artificial Neural Networks (ICANN)"}
+@string{icml     = "International Conference on Machine Learning (ICML)"}
+@string{icpr     = "IEEE International Conference on Pattern Recognition (ICPR)"}
+@string{ijcai    = "International Joint Conference on Artificial Intelligence (IJCAI)"}
+@string{ijcnn    = "International Joint Conference on Neural Networks (IJCNN)"}
+@string{isaim    = "International Symposium on Artificial Intelligence and Mathematics (ISAIM)"}
+@string{nips     = "Conference on Neural Information Processing Systems (NIPS)"}
+@string{uai      = "Conference on Uncertainty in Artificial Intelligence (UAI)"}
+% ==== journal
+@string{amai     = "Annals of Mathematics and Artificial Intelligence"}                          % IF:0.691 (Springer)
+@string{artint   = "Artificial Intelligence"}                                                    % IF:2.70  (Elsevier)
+@string{dmkd     = "Data Mining and Knowledge Discovery"}                                        % IF:1.74  (Springer)
+@string{ftml     = "Foundations and Trends in Machine Learning"}                                 % IF:--
+@string{ftopt    = "Foundations and Trends in Optimization"}                                     % IF:--
+@string{ijprai   = "International Journal of Pattern Recognition and Artificial Intelligence"}   % IF:0.66
+@string{jai      = "Artificial Intelligence"}                                                    % IF:1.96  (Elsevier)
+@string{jair     = "Journal of Artificial Intelligence Research"}                                % IF:1.69
+@string{jeswa    = "Journal of Expert Systems with Applications"}                                % IF:1.96  (Elsevier)
+@string{jmlr     = "Journal of Machine Learning Research"}                                       % IF:3.40
+@string{jneucom  = "Neurocomputing"}                                                             % IF:2.083 (Elsevier)
+@string{jneunet  = "Neural Networks"}                                                            % IF:2.708 (Elsevier)
+@string{jpr      = "Pattern Recognition"}                                                        % IF:2.58  (Elsevier)
+@string{jprl     = "Pattern Recognition Letters"}                                                % IF:1.06  (Elsevier)
+@string{kais     = "Knowledge and Information Systems"}                                          % IF:1.702 (Springer)
+@string{mci      = "IEEE Computational Intelligence Magazine"}                                   % IF:2.571
+@string{ml       = "Machine Learning"}                                                           % IF:1.68  (Springer)
+@string{neco     = "Neural computation"}                                                         % IF:1.69  (MIT)
+@string{tciaig   = "IEEE Transactions on Computational Intelligence and AI in Games (TCIAIG)"}   % IF:1.00
+@string{tist     = "ACM Transactions on Intelligent Systems and Technology"}                     % IF:9.39
+@string{tnnls    = "IEEE Transactions on Neural Networks and Learning Systems"}                  % IF:4.291
+@string{wdmkd    = "Wiley Interdisciplinary Reviews: Data Mining and Knowledge Discovery"}       % IF:1.594 (Wiley)
+
+
+% ====================================================
+%                 Database
+% ====================================================
+% ==== conference
+@string{cikm    = "ACM International Conference on Information and Knowledge Management (CIKM)"}
+@string{icde    = "IEEE International Conference on Data Engineering (ICDE)"}
+@string{icdm    = "IEEE International Conference on Data Mining (ICDM)"}
+@string{kdd     = "ACM International Conference on Knowledge Discovery and Data Mining (KDD)"}
+@string{pakdd   = "Pacific-Asia Conference on Knowledge Discovery and Data Mining (PAKDD)"}
+@string{sdm     = "SIAM International Conference on Data Mining (SDM)"}
+@string{sigmod  = "ACM Conference on Management of Data (SIGMOD)"}
+@string{vldb    = "International Conference on Very Large Databases (VLDB)"}
+% ==== journal
+@string{jis     = "Information Systems"}                                                         % IF:1.832 (Elsevier)
+
+
+% ====================================================
+%                    Security 
+% ====================================================
+% ==== conference
+@string{ccs       = "ACM Conference on Computer and Communications Security (CCS)"}
+@string{ches      = "Workshop on Cryptographic Hardware and Embedded Systems (CHES)"}
+@string{eurocrypt = "EUROCRYPT"}
+@string{host      = "IEEE International Workshop on Hardware-Oriented Security and Trust (HOST)"}
+@string{hotsec    = "USENIX Summit on Hot Topics in Security (HotSec)"}
+@string{leet      = "USENIX Workshop on Large-Scale Exploits and Emergent Threats (LEET)"}
+@string{ndss      = "Network and Distributed System Security Symposium (NDSS)"}
+@string{security  = "USENIX Security Symposium"}
+@string{sp        = "IEEE Symposium on Security and Privacy (SP)"}
+@string{trusted   = "International Workshop on Trustworthy Embedded Devices (TrustED)"}
+@string{wifs      = "IEEE International Workshop on Information Forensics and Security (WIFS)"}
+% ==== journal
+@string{msap      = "IEEE Security \& Privacy"}                                                  % IF:0.902
+@string{jcen      = "Journal of Cryptographic Engineering"}                                      % IF:--
+@string{jcryptol  = "Journal of Cryptology"}                                                     % IF:1.021
+@string{tifs      = "IEEE Transactions on Information Forensics and Security"}                   % IF:2.06
+
+
+% ====================================================
+%                    CPS
+% ====================================================
+% ==== conference
+@string{asilomar  = "Asilomar Conference on Signals, Systems, and Computers"}
+@string{buildsys  = "ACM Conference on Embedded Systems for Energy-Efficient Buildings (BuildSys)"}
+@string{cris      = "IEEE International Conference on Critical Infrastructure (CRIS)"}
+@string{icc       = "IEEE International Conference on Communications (ICC)"}
+@string{iccps     = "ACM/IEEE International Conference on Cyber-Physical Systems (ICCPS)"}
+@string{ichi      = "IEEE International Conference on Healthcare Informatics (ICHI)"}
+@string{icsmc     = "IEEE International Conference on Systems, Man, and Cybernetics (ICSMC)"}
+@string{indin     = "IEEE International Conference on Industrial Informatics (INDIN)"}
+@string{isgt      = "IEEE PES Innovative Smart Grid Technologies (ISGT)"}
+@string{pes-gm    = "IEEE PES General Meeting (PESGM)"}
+@string{rtns      = "International Conference on Real-Time Networks and Systems (RTNS)"}
+@string{smartgrid = "IEEE International Conference on Smart Grid Communications (SmartGridComm)"}
+@string{sustkdd   = "KDD Workshop on Data Mining Applications in Sustainability (SustKDD)"}
+% ==== journal
+@string{isj       = "IEEE Systems Journal (ISJ)"}                                                % IF:2.114
+@string{jiot      = "IEEE Internet of Things Journal"}                                           % IF:--
+@string{jbuildenv = "Building and Environment"}                                                  % IF:3.341 (Elsevier)
+@string{jenbuild  = "Energy and Buildings"}                                                      % IF:2.884 (Elsevier)
+@string{jpmc      = "Pervasive and Mobile Computing"}                                            % IF:2.07  (Elsevier)
+@string{jenergy   = "Energy"}                                                                    % IF:4.292 (Elsevier)
+@string{jepsr     = "Electric Power Systems Research"}                                           % IF:1.749 (Elsevier)
+@string{jrser     = "Renewable \& Sustainable Energy Reviews"}                                   % IF:5.51  (Elsevier)
+@string{jsuscom   = "Sustainable Computing: Informatics and Systems"}                            % IF:--
+@string{jsyst     = "IEEE Systems Journal"}                                                      % IF:1.98
+@string{tac       = "IEEE Transactions on Automatic Control (TAC)"}                              % IF:2.77
+@string{tbd       = "IEEE Transactions on Big Data (TBD)"}                                       % IF:--
+@string{tce       = "IEEE Transactions on Consumer Electronics (TCE)"}                           % IF:1.087
+@string{tcyb      = "IEEE Transactions on Cybernetics (TCYB)"}                                   % IF:3.469
+@string{tcss      = "IEEE Transactions on Computational Social Systems (TCSS)"}                  % IF:--
+@string{tetc      = "IEEE Transactions on Emerging Topics in Computing"}                         % IF:--
+@string{tdsc      = "IEEE Transactions on Dependable and Secure Computing (TDSC)"}               % IF:1.13
+@string{tii       = "IEEE Transactions on Industrial Informatics"}                               % IF:8.78
+@string{tits      = "IEEE Transactions on Intelligent Transportation Systems"}                   % IF:2.47
+@string{tmscs     = "IEEE Transactions on Multi-Scale Computing Systems (TMSCS)"}                % IF:--
+@string{tpel      = "IEEE Transactions on Power Electronics"}                                    % IF:6.008
+@string{tpwrs     = "IEEE Transactions on Power Systems"}                                        % IF:3.53
+@string{tsg       = "IEEE Transactions on Smart Grid (TSG)"}                                     % IF:4.33
+@string{tsmc      = "IEEE Transactions on Systems, Man, and Cybernetics: Systems"}               % IF:2.16
+@string{tsmcb     = "IEEE Transactions on Systems, Man, and Cybernetics, Part B: Cybernetics"}   % IF:3.23
+@string{tsmcc     = "IEEE Transactions on Systems, Man, and Cybernetics, Part C"}                % IF:2.171
+@string{tste      = "IEEE Transactions on Sustainable Energy (TSTE)"}                            % IF:3.656
+@string{tsusc     = "IEEE Transactions on Sustainable Computing (TSUSC)"}                        % IF:--
+@string{tvt       = "IEEE Transactions on Vehicular Technology (TVT)"}                           % IF:1.978
+
+
+% ====================================================
+%              Parallel Computing 
+% ====================================================
+% ==== conference
+@string{ipdps   = "International Parallel \& Distributed Processing Symposium (IPDPS)"}
+@string{pact    = "International Conference on Parallel Architectures \& Compilation Techniques (PACT)"}
+% ==== journal
+@string{jpdc    = "Journal of Parallel and Distributed Computing"}                              % IF:1.01
+@string{tpds    = "IEEE Transactions on Parallel and Distributed Systems (TPDS)"}               % IF:2.17
+
+
+% ====================================================
+%            Image/Signal Processing
+% ====================================================
+% ==== conference
+@string{acmmm    = "ACM International Multimedia Conference (MM)"}
+@string{cvpr     = "IEEE Conference on Computer Vision and Pattern Recognition (CVPR)"}
+@string{eccv     = "European Conference on Computer Vision (ECCV)"}
+@string{icassp   = "IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)"}
+@string{iccv     = "IEEE International Conference on Computer Vision (ICCV)"}
+@string{icip     = "International Conference on Image Processing (ICIP)"}
+@string{siggraph = "ACM SIGGRAPH"}
+% ==== journals
+@string{ftsp     = "Foundations and Trends in Signal Processing"}                               % --
+@string{ietip    = "IET Image Processing"}                                                      % IF:0.895 (IET)
+@string{ijcv     = "International Journal of Computer Vision"}                                  % IF:3.53  (Springer)
+@string{jcviu    = "Computer Vision and Image Understanding"}                                   % IF:1.540 (Elsevier)
+@string{jsps     = "Journal of Signal Processing Systems"}                                      % IF:0.508 (Springer)
+@string{jstsp    = "IEEE Journal of Selected Topics in Signal Processing"}                      % IF:2.569
+@string{siims    = "SIAM Journal on Imaging Sciences (SIIMS)"}                                  % IF:2.27
+@string{spl      = "IEEE Signal Processing Letters"}                                            % IF:1.674
+@string{msp      = "IEEE Signal Processing Magazine"}                                           % IF:3.368
+@string{tcsvt    = "IEEE Transactions on Circuits and Systems for Video Technology (TCSVT)"}    % IF:2.61
+@string{tip      = "IEEE Transactions on Image Processing"}                                     % IF:3.11
+@string{tlsy     = "Telecommunication Systems"}                                                 % IF:1.16  (Springer)
+@string{tog      = "ACM Transactions on Graphics (TOG)"}                                        % IF:3.72
+@string{tpami    = "IEEE Transactions on Pattern Analysis and Machine Intelligence"}            % IF:4.79
+@string{tsp      = "IEEE Transactions on Signal Processing"}                                    % IF:2.813
+
+
+% ====================================================
+%                  Networking
+% ====================================================
+% ==== conference
+@string{ancs     = "ACM/IEEE Symposium on Architectures for Networking and Communications Systems (ANCS)"}
+@string{dsn      = "IEEE/IFIP International Conference on Dependable Systems and Networks (DSN)"}
+@string{globecom = "IEEE Global Telecommunications Conference (GLOBECOM)"}
+@string{imc      = "ACM Internet Measurement Conference (IMC)"}
+@string{infocom  = "IEEE Conference on Computer Communications (INFOCOM)"}
+@string{mobicom  = "ACM International Conference on Mobile Computing and Networking (MobiCom)"}
+% ==== journal
+@string{comst    = "IEEE Communications Surveys \& Tutorials"}                                 % IF:9.22
+@string{jsac     = "IEEE Journal on Selected Areas in Communications"}                         % IF:3.672
+@string{lcomm    = "IEEE Communications Letters"}                                              % IF:1.291
+@string{mic      = "IEEE Internet Computing"}                                                  % IF:1.713
+@string{mcom     = "IEEE Communications Magazine"}                                             % IF:4.46
+@string{tnet     = "IEEE/ACM Transactions on Networking"}                                      % IF:1.98
+@string{tos      = "ACM Transactions on Storage"}                                              % IF:0.533
+@string{twc      = "IEEE Transactions on Wireless Communications"}                             % IF:2.496
+
+
+% ====================================================
+%                 Other Engineering 
+% ====================================================
+@string{access   = "IEEE Access"}                                                              % IF:1.249
+
+
+% ====================================================
+%                 Statistics 
+% ====================================================
+@string{aoas    = "The Annals of Applied Statistics"}                                          % IF:1.746 (IMS)
+@string{aos     = "Annals of Statistics"}                                                      % IF:2.30  (IMS)
+@string{asmbi   = "Applied Stochastic Models in Business and Industry"}                        % IF:0.725 (Wiley)
+@string{ba      = "Bayesian Analysis"}                                                         % IF:2.576
+@string{jasa    = "Journal of the American Statistical Association"}                           % IF:3.00  (Taylor Francis)
+@string{jcgs    = "Journal of Computational and Graphical Statistics"}                         % IF:1.812 (Taylor Francis)
+@string{jrssb   = "Journal of the Royal Statistical Society: Series B"}                        % IF:3.515 (Wiley)
+@string{jss     = "Journal of Statistical Software"}                                           % IF:4.91
+@string{mcap    = "Methodology and Computing in Applied Probability"}                          % IF:0.913 (Springer)
+@string{ss      = "Statistics Surveys"}                                                        % IF:2.14  (IMS)
+@string{statsin = "Statistica Sinica"}                                                         % IF:1.16
+@string{stco    = "Statistics and Computing"}                                                  % IF:1.74  (Springer)
+@string{sts     = "Statistical Science"}                                                       % IF:3.52  (IMS)
+
+
+% ====================================================
+%                 Algorithm
+% ====================================================
+%{{{
+% ==== conference
+@string{acc      = "American Control Conference (ACC)"}
+@string{allerton = "Allerton Conference on Communication, Control, and Computing"}
+@string{cocoon   = "International Computing and Combinatorics Conference (COCOON)"}
+@string{cp       = "International Conference on Principles and Practice of Constraint Programming (CP)"}
+@string{esa      = "European Symposia on Algorithms (ESA)"}
+@string{focs     = "IEEE Symposium on Foundations of Computer Science (FOCS)"}
+@string{gd       = "International Symposium on Graph Drawing (GD)"}
+@string{icalp    = "International Colloquium on Automata, Languages, and Programming (ICALP)"}
+@string{icm      = "International Congress of Mathematicians (ICM)"}
+@string{ipco     = "Conference on Integer Programming and Combinatorial Optimization (IPCO)"}
+@string{isaac    = "International Symposium on Algorithms and Computation (ISAAC)"}
+@string{isco     = "International Symposium on Combinatorial Optimization (ISCO)"}
+@string{mfcs     = "International Symposium on Mathematical Foundations of Computer Science (MFCS)"}
+@string{sea      = "International Symposium on Experimental Algorithms (SEA)"}
+@string{socg     = "International Symposium on Computational Geometry (SOCG)"}
+@string{stoc     = "ACM Symposium on Theory of computing (STOC)"}
+@string{wads     = "Algorithms and Data Structures Symposium (WADS)"}
+@string{wea      = "International Workshop on Experimental Algorithms (WEA)"}
+@string{wg       = "International Workshop on Graph-Theoretic Concepts in Computer Science (WG)"}
+% ==== ACM Algorithm Journals
+@string{cacm     = "Communications of the ACM"}                                                 % IF:2.51
+@string{csur     = "ACM Computing Surveys"}                                                     % IF:3.54
+@string{jacm     = "Journal of the ACM"}                                                        % IF:2.35
+@string{jea      = "Journal of Experimental Algorithmics (JEA)"}                                % IF:--
+@string{talg     = "ACM Transactions on Algorithms (TALG)"}                                     % IF:0.54
+@string{toct     = "ACM Transactions on Computation Theory (TOCT)"}                             % IF:--
+% ==== Elsevier Algorithm Journals
+@string{ejor     = "European Journal of Operational Research"}                                  % IF:2.64
+@string{jalg     = "Journal of Algorithms"}                                                     % IF:0.5
+@string{jamc     = "Applied Mathematics and Computation"}                                       % IF:1.60
+@string{jasoc    = "Applied Soft Computing"}                                                    % IF:2.67
+@string{jcce     = "Computers \& Chemical Engineering"}                                         % IF:2.784
+@string{jcmame   = "Computer Methods in Applied Mechanics and Engineering"}                     % IF:3.467
+@string{jcomgeo  = "Computational Geometry"}                                                    % IF:0.57
+@string{jcph     = "Journal of Computational Physics"}                                          % IF:2.556
+@string{jcss     = "Journal of Computer and System Sciences"}                                   % IF:1.09
+@string{jcma     = "Computers \& Mathematics with Applications"}                                % IF:1.99
+@string{jda      = "Journal of Discrete Algorithms"}                                            % IF:--
+@string{jdam     = "Discrete Applied Mathematics"}                                              % IF:1.36
+@string{jdisc    = "Discrete Mathematics"}                                                      % IF:0.56
+@string{jdisopt  = "Discrete Optimization"}                                                     % IF:0.62
+@string{jic      = "Information and Computation"}                                               % IF:0.60
+@string{jipl     = "Information Processing Letters"}                                            % IF:0.47
+@string{jlaa     = "Linear Algebra and its Applications"}                                       % IF:0.98
+@string{jorl     = "Operations Research Letters"}                                               % IF:1.19
+@string{jtcs     = "Theoretical Computer Science"}                                              % IF:0.51
+@string{jmcm     = "Mathematical and Computer Modelling"}                                       % IF:2.02
+@string{mtcs     = "Trends in Cognitive Sciences"}                                              % IF:17.850
+% ==== IEEE Algorithm Journals
+@string{mcga     = "IEEE Computer Graphics and Applications"}                                   % IF:0.911
+@string{pieee    = "Proceedings of the IEEE"}                                                   % IF:5.46
+@string{surv     = "IEEE Communications Surveys \& Tutorials"}                                  % IF:9.22
+@string{tevc     = "IEEE Transactions on Evolutionary Computation"}                             % IF:5.54
+@string{tit      = "IEEE Transactions on Information Theory (TIT)"}                             % IF:2.65
+@string{tnn      = "IEEE Transactions on Neural Networks (TNN)"}                                % IF:2.63
+@string{tsc      = "IEEE Transactions on Services Computing (TSC)"}                             % IF:3.049
+% ==== INFORMS Algorithm Journals
+@string{ijoc     = "INFORMS Journal on Computing"}                                              % IF:1.07
+@string{inte     = "Interfaces"}                                                                % IF:0.44
+@string{mnsc     = "Management Science"}                                                        % IF:1.73
+@string{mor      = "Mathematics of Operations Research"}                                        % IF:0.92
+@string{opre     = "Operations Research"}                                                       % IF:1.50
+@string{trsc     = "Transportation Science"}                                                    % IF:2.29
+% ==== SIAM Algorithm Journals
+@string{juq      = "SIAM/ASA Journal on Uncertainty Quantification (JUQ)"}                      % IF:--
+@string{siap     = "SIAM Journal on Applied Mathematics (SIAP)"}                                % IF:1.58
+@string{sicomp   = "SIAM Journal on Computing (SICOMP)"}                                        % IF:0.80
+@string{siadm    = "SIAM Journal on Algebraic Discrete Methods"}                                % IF:0.66
+@string{sidma    = "SIAM Journal on Discrete Mathematics (SIDMA)"}                              % IF:0.67
+@string{simax    = "SIAM Journal on Matrix Analysis and Applications (SIMAX)"}                  % IF:1.80
+@string{siopt    = "SIAM Journal on Optimization (SIOPT)"}                                      % IF:2.08
+@string{sirev    = "SIAM Review (SIREV)"}                                                       % IF:5.95
+@string{sisc     = "SIAM Journal on Scientific Computing (SISC)"}                               % IF:1.854
+% ==== Springer Algorithm Journals
+@string{algo     = "Algorithmica"}                                                              % IF:0.56
+@string{aor      = "Annals of Operations Research"}                                             % IF:1.03
+@string{cms      = "Computational Management Science"}                                          % IF:--
+@string{coa      = "Computational Optimization and Applications"}                               % IF:0.97
+@string{comb     = "Combinatorica"}                                                             % IF:0.63
+@string{cons     = "Constraints"}                                                               % IF:1.15
+@string{dcg      = "Discrete \& Computational Geometry"}                                        % IF:0.60
+@string{fcm      = "Foundations of Computational Mathematics"}                                  % IF:2.389
+@string{j4or     = "4OR"}                                                                       % IF:0.91
+@string{jco      = "Journal of Combinatorial Optimization"}                                     % IF:1.04
+@string{jcor     = "Computers \& Operations Research"}                                          % IF:1.71
+@string{jctb     = "Journal of Combinatorial Theory, Series B"}                                 % IF:1.92
+@string{jgeo     = "Journal of Geometry"}                                                       % IF:--
+@string{jgo      = "Journal of Global Optimization"}                                            % IF:1.35
+@string{jheu     = "Journal of Heuristics"}                                                     % IF:1.13
+@string{jos      = "The Journal of Supercomputing"}                                             % IF:0.84
+@string{jota     = "Journal of Optimization Theory and Applications"}                           % IF:1.40
+@string{jssac    = "Journal of Systems Science and Complexity"}                                 % IF:0.37
+@string{mmor     = "Mathematical Methods of Operations Research"}                               % IF:0.54
+@string{mpc      = "Mathematical Programming Computation"}                                      % IF:--
+@string{mtpr     = "Mathematical Programming"}                                                  % IF:1.98
+@string{mtprb    = "Mathematical Programming Series B"}                                         % IF:1.98
+@string{numt     = "Numerische Mathematik"}                                                     % IF:1.55
+@string{optl     = "Optimization Letters"}                                                      % IF:0.99
+@string{open     = "Optimization and Engineering"}                                              % IF:0.95
+@string{soco     = "Soft Computing"}                                                            % IF:1.630
+@string{test     = "Test"}                                                                      % IF:1.01
+@string{tmin     = "The Mathematical Intelligencer"}                                            % IF:0.295
+% ==== Wiley Algorithm Journals
+@string{aichej   = "AIChE Journal"}                                                             % IF:2.748
+@string{ijcs     = "International Journal of Communication Systems"}                            % IF:1.10
+@string{ijnme    = "International Journal for Numerical Methods in Engineering"}                % IF:2.055
+@string{itor     = "International Transactions in Operational Research"}                        % IF:0.48
+@string{net      = "Networks"}                                                                  % IF:0.97
+% ==== Other Algorithm Journals
+@string{arxiv    = "arXiv preprint"}                                                            % IF:--
+@string{actanum  = "Acta Numerica"}                                                             % IF:9.00
+@string{fm       = "Fundamenta Mathematicae"}                                                   % IF:0.53
+@string{gopt     = "Optimization"}                                                              % IF:0.936 (Taylor Francis)
+@string{ibmjrd   = "{IBM} Journal of Research and Development"}                                 % IF:0.50
+@string{ijdsn    = "International Journal of Distributed Sensor Networks"}                      % IF:0.727
+@string{jpa      = "Journal of Physics A: Mathematical and Theoretical"}                        % IF:2.65
+@string{jgaa     = "Journal of Graph Algorithms and Applications"}                              % IF:1.44
+@string{jocg     = "Journal of Computational Geometry"}                                         % IF:--
+@string{jors     = "Journal of the Operational Research Society"}                               % IF:0.91
+@string{oms      = "Optimization Methods and Software"}                                         % IF:1.27  (Taylor Francis)
+@string{pjo      = "Pacific Journal of Optimization"}                                           % IF:--
+%}}}
+
+
+% ====================================================
+%              Science Journals
+% ====================================================
+@string{advmat   = "Advanced Materials"}                                                       % IF:15.4   (Wiley)
+@string{appop    = "Applied Optics"}                                                           % IF:1.784  (OSA)
+@string{cogs     = "Cognitive Science"}                                                        % IF:2.706  (Wiley)
+@string{ipiop    = "Inverse Problems"}                                                         % IF:1.323  (IOP)
+@string{jap      = "Journal of Applied Physics (JAP)"}                                         % IF:2.18   (AIP)
+@string{jes      = "Journal of The Electrochemical Society"}                                   % IF:2.89
+@string{jhmt     = "Heat and Mass Transfer"}                                                   % IF:0.94   (Springer)
+@string{jht      = "Journal of Heat Transfer"}                                                 % IF:1.686  (ASME)
+@string{jjap     = "Japanese Journal of Applied Physics"}                                      % IF:1.127  (IOP)
+@string{joiop    = "Journal of Optics"}                                                        % IF:2.11   (IOP)
+@string{josaa    = "Journal of the Optical Society of America A"}                              % IF:1.457  (OSA)
+@string{jmicrel  = "Microelectronics Reliability"}                                             % IF:1.21   (Elsevier)
+@string{jpcmiop  = "Journal of Physics: Condensed Matter"}                                     % IF:2.22   (IOP)
+@string{jvstb    = "Journal of Vacuum Science \& Technology B"}                                % IF:1.35
+@string{loc      = "Lab on a Chip"}                                                            % IF:6.115
+@string{nanoiop  = "Nanotechnology"}                                                           % IF:3.67   (IOP)
+@string{nanores  = "Nano Research"}                                                            % IF:6.96   (Springer)
+@string{ncomm    = "Nature Communications"}                                                    % IF:11.47
+@string{njpiop   = "New Journal of Physics"}                                                   % IF:3.570  (IOP)
+@string{nnano    = "Nature Nanotechnology"}                                                    % IF:34.1
+@string{nphoton  = "Nature Photonics"}                                                         % IF:32.386
+@string{opex     = "Optics Express"}                                                           % IF:3.488  (OSA)
+@string{pra      = "Physical Review A"}                                                        % IF:2.808
+@string{qip      = "Quantum Information Processing"}                                           % IF:1.923  (Springer)
+@string{science  = "Science"}                                                                  % IF:33.61
+@string{scis     = "Science China Information Sciences"}                                       % IF:0.85   (Springer)
+@string{scts     = "Science China Technological Sciences"}                                     % IF:1.19   (Springer)
+@string{srep     = "Scientific Reports"}                                                       % IF:5.578  (Nature)
+@string{tdmr     = "IEEE Transactions on Device and Materials Reliability (TDMR)"}             % IF:1.54
+@string{ted      = "IEEE Transactions on Electron Devices (TED)"}                              % IF:2.35
+@string{tmag     = "IEEE Transactions on Magnetics (TMAG)"}                                    % IF:1.386
+@string{tnano    = "IEEE Transactions on Nanotechnology (TNANO)"}                              % IF:1.61
+

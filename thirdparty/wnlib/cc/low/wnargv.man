@@ -1,0 +1,50 @@
+NAME
+     wnargv -- parse string into UNIX-style arguments
+
+SYNOPSIS
+     wn_parse_into_args(&argc,&argv,string)
+     int argc;
+     char *argv[];
+     char string[];
+
+     wn_argscpy(&out_argv,argc,in_argv)
+     char *out_argv[],*in_argv[];
+     int argc;
+
+     wn_freeargs(argc,argv)
+     int argc;
+     char *argv[];
+
+DESCRIPTION
+     These routines create and operate on UNIX-style argc-argv arguments.
+
+     "wn_parse_into_args" parses "string" into UNIX-style argc-argv 
+     arguments.  "argc" is the number of arguments parsed, called the
+     argument count.  "argv" is an array of argument strings, of
+     length argc+1.  argv[argc] is always set to NULL.  Normally,
+     argv[0] is interpreted as a command, while argv[1], argv[2], ...
+     are interpreted as the command's arguments.
+
+     Caution: "argv" is allocated from static memory, which is 
+     re-used on each call to "wn_parse_into_args".  Thus, a
+     call to "wn_parse_into_args" destroys the "argv" produced by
+     previous calls.  Use "wn_argscpy" to prevent this.
+
+     "wn_argscpy" places copy of "in_argv" into "out_argv".  "out_argv"
+     is assumed to have "argc" arguments.  New memory for "out_argv"
+     is allocated from the current memory group.
+
+     "wn_freeargs" frees an "argv" from "wn_argscpy" (into the current
+     memory group).
+
+EXAMPLES
+
+BUGS
+
+SEE ALSO
+     wnargp
+
+AUTHOR
+     Will Naylor
+
+

@@ -1,0 +1,25 @@
+NAME
+     wnvmk -- make vector
+
+SYNOPSIS
+     #include "wnvect.h"
+
+     wn_make_vect(double &(vect[]),int len)
+
+     wn_free_vect(double vect[],int len)
+
+DESCRIPTION
+     These routines allocate and free memory for vectors.
+     The allocate routine initializes the contents to zero.
+
+DIAGNOSTICS
+  
+BUGS
+
+SEE ALSO
+     wnmem
+
+AUTHOR
+     Will Naylor
+
+

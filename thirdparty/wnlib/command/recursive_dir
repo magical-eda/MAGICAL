@@ -1,0 +1,19 @@
+#/bin/csh -f
+
+set nonomatch
+
+set command = "$1"
+
+echo "@@@@@ "`pwd`
+$command
+
+foreach file (*)
+  if ( ( $file != "") && ( $file != "*" ) ) then
+  if ( -d $file ) then
+    pushd $file >& /dev/null
+      recursive_dir "$command"
+    popd >& /dev/null
+  endif
+  endif
+end
+
