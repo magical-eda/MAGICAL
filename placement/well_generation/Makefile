@@ -32,7 +32,6 @@ install:
 	cp python/combine_results.py $(WELL_GENERATION_INSTALL_DIR)/python/.
 	cp python/legalize.py $(WELL_GENERATION_INSTALL_DIR)/python/.
 	cp python/parser_v2.py $(WELL_GENERATION_INSTALL_DIR)/python/.
-	cp -r pix2pix-tensorflow $(WELL_GENERATION_INSTALL_DIR)/pix2pix-tensorflow
 
 .PHONY: clean 
 clean: 

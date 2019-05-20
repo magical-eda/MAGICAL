@@ -20,7 +20,7 @@ wnlib:
 
 sparsehash:
 	@echo ">> make sparsehash"
-	cd sparsehash; ./configure --prefix=$(PROJECT_ROOT_DIR)/thirdparty/sparsehash_build; make; make install; git checkout .; cd ..
+	cd sparsehash; ./configure --prefix=$(PROJECT_ROOT_DIR)/thirdparty/sparsehash_build; make; make install; cd ..
 
 .PHONY: clean 
 clean: 
