@@ -41,6 +41,7 @@ git submodule update
 To build, run make in the root directory. 
 ```
 make 
+make install
 ```
 GCC 4.8 or later is preferred. 
 Export CC and CXX environment variables for custom gcc and g++ path, respectively. 
@@ -52,23 +53,20 @@ make clean
 
 # How to Run
 
-Require a set of input technology files and a design.  
+A toy example of technology input file is under execution/inputs
+
+Benchmark circuit examples are under execution/results
+
+All technology related parameters including benchmark circuit sizing are samples and not related to any real proprietary PDK information.
+
+Benchmark circuits currently includes:
+1 Comparator
+3 OTA
+
+To run the example benchmark circuits
 ```
-source test/run.sh circuit techfile simple_techfile spacing_rule width_area_rule enclosure_rule well_contact_GDSII lef_file
+cd execution
+source run.sh
 ```
 
-circuit: a directory to a folder CIRCUIT_NAME containing CIRCUIT_NAME.sp Spectre netlist. 
-
-techfile: technology file from PDK. 
-
-simple_techfile: simplified technology file. 
-
-spacing_rule: spacing rule file. 
-
-width_area_rule: minimum width and area rule file. 
-
-enclosure_rule: enclosure rule file. 
-
-well_contact_GDSII: a GDSII file defining WELL contacts. 
-
-lef_file: LEF file. 
+The output layout gdsii files are under execution/results/circuit_example/circuit_example.route.gds
