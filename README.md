@@ -17,7 +17,7 @@ This project is currently still under active development.
     - Integrated as a thirdparty package
 
 - ~~[Gurobi 8.0.1](http://www.gurobi.com/)~~
-    -~~ Replaced with LPSolve~~
+    - ~~ Replaced with LPSolve~~
 
 - [LPSolve 5.5](http://lpsolve.sourceforge.net/5.5/)
     - Integrated as a thirdparty package 
@@ -114,7 +114,7 @@ M10
 M5 M7
 
 ```
-Note: Currently the placement engine strictly follow the constraints. Please be careful that the given constraints could be satisfied. Infeasible constraint inputs would cause placement to crash.
+Note: Currently the placement engine strictly follow the constraints. Please be careful that the given constraints could be satisfied. Infeasible constraint inputs would cause MAGICAL to crash.
 
 ## Net symmetry constraints
 
