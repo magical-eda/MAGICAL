@@ -124,7 +124,10 @@ Similar to device symmetry constraints, we consider symmetry net pairs and self-
 
 **Self-symmetry net**: A single net that is reflection symmetric with itself respect to a symmetry axis.
 
-<img src="images/sym_net.png" align="left" width="240">
+<p align="center">
+<img src="images/sym_net.png" width="240" alt>
+<em>Symmetry Net Pair</em>
+</p>
 
 Each line in the .symnet file indicate a symmetry net pair or a self-symmetry net constraint. Invalid net symmetry constraints would automatically be waived by the routing engine. Below is the example of OTA_1.symnet:
 ```
