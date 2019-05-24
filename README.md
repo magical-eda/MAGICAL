@@ -118,7 +118,15 @@ Note: Currently the placement engine strictly follow the constraints. Please be 
 
 ## Net symmetry constraints
 
-Similar to device symmetry constraints, we consider symmetry net pairs and self-symmetry net constraints. Each line indicate a symmetry net pair or a self-symmetry net constraint. Invalid net symmetry constraints would automatically be waived by the routing engine. Below is the example of OTA_1.symnet:
+Similar to device symmetry constraints, we consider symmetry net pairs and self-symmetry net constraints. 
+
+**Symmetry net pair**: Two nets that are reflection symmetric with respect to a symmetry axis (usually vertical). For a valid constraint, the corresponding pins of the two nets must be reflective symmetric with a axix.
+
+**Self-symmetry net**: A single net that is reflection symmetric with itself respect to a symmetry axis.
+
+![Symmetry Net Pair](images/sym_net.png)
+
+Each line in the .symnet file indicate a symmetry net pair or a self-symmetry net constraint. Invalid net symmetry constraints would automatically be waived by the routing engine. Below is the example of OTA_1.symnet:
 ```
 intm intp
 INP INM
