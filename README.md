@@ -1,6 +1,7 @@
 # MAGICAL #
 
 MAGICAL: Machine Generated Analog IC Layout
+
 This project is currently still under active development.
 
 # Dependency #
@@ -78,10 +79,10 @@ The automatic symmetry constraint generation is currently embedded into the flow
 A sample device and net symmetry constraint is given for OTA_1. These files should also be the output for the current automatic symmetry constraint generation flow.
 
 Sample symmetry device constraint file:
-/execution/results/OTA_1/OTA_1.sym
+execution/results/OTA_1/OTA_1.sym
 
 Sample symmetry net constraint file:
-/execution/results/OTA_1/OTA_1.symnet
+execution/results/OTA_1/OTA_1.symnet
 
 ## Device symmetry constraints
 
