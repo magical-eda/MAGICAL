@@ -14,10 +14,10 @@ This project is currently still under active development.
     - Need to install and visible for linking
 
 - [Limbo](https://github.com/limbo018/Limbo)
-    - Integrated as a git submodule
+    - Integrated as a thirdparty package
 
-- [Gurobi 8.0.1](http://www.gurobi.com/)
-    - Replaced with LPSolve
+- ~~[Gurobi 8.0.1](http://www.gurobi.com/)~~
+    -~~ Replaced with LPSolve~~
 
 - [LPSolve 5.5](http://lpsolve.sourceforge.net/5.5/)
     - Integrated as a thirdparty package 
