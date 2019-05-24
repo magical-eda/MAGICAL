@@ -16,5 +16,5 @@ M10 (CROSSN CLK VDD VDD) pfet_lvt l=40n w=2u nf=2
 M12 (CROSSP CLK VDD VDD) pfet_lvt l=40n w=2u nf=2 
 M14 (CROSSN CROSSP VDD VDD) pfet_lvt l=40n w=4u nf=4 
 M13 (CROSSP CROSSN VDD VDD) pfet_lvt l=40n w=4u nf=4 
-ends COMPARATOR_PRE_AMP_2018_Modify_test_flow
+ends Comparator
 

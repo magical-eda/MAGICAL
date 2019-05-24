@@ -20,4 +20,4 @@ M13 (on1 CMFB AVSS AVSS) nfet_lvt l=200n w=2u m=1 nf=2
 M30 (net044 net044 AVSS AVSS) nfet_lvt l=200n w=1u m=1 nf=2 
 C4 (ON VCMO AVSS) cap nr=24 lr=4u w=100n s=100n stm=2 spm=6 ftip=200n 
 C5 (OP VCMO AVSS) cap nr=24 lr=4u w=100n s=100n stm=2 spm=6 ftip=200n 
-ends TEST_OTA_FF_2s_v3_nodummy_schematic
+ends OTA_3
