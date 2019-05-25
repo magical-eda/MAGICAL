@@ -13,6 +13,16 @@ This project is currently still under active development.
 - [Boost](https://www.boost.org)
     - Need to install and visible for linking
 
+- [Flex](https://github.com/westes/flex)
+    - Need to install, required by Limbo package
+
+- [Zlib](https://www.zlib.net)
+    - Required by Limbo package
+
+- [Cairo](https://cairographics.org)
+    - GNU/Linux distributions available (apt-get, yum, zypper etc...)
+    - Requited by routing engine for visualizations
+
 - [Limbo](https://github.com/limbo018/Limbo)
     - Integrated as a thirdparty package
 

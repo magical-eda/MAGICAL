@@ -145,7 +145,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -fno-inline ")
 #set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -frename-registers -fprofile-use -fprofile-correction") 
 set(CMAKE_CXX_FLAGS_PROFILE "-Ofast -pg -Winline")
-set(CMAKE_EXE_LINKER_FLAGS "-pthread -static-libgcc -static-libstdc++ -static")
+set(CMAKE_EXE_LINKER_FLAGS "-pthread -static-libgcc -static-libstdc++")
 
 
 add_executable(${PROJECT_NAME} ${SOURCES})
