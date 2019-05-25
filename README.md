@@ -21,7 +21,7 @@ This project is currently still under active development.
 
 - [Cairo](https://cairographics.org)
     - GNU/Linux distributions available (apt-get, yum, zypper etc...)
-    - Requited by routing engine for visualizations
+    - Required by routing engine for visualizations
 
 - [Limbo](https://github.com/limbo018/Limbo)
     - Integrated as a thirdparty package
