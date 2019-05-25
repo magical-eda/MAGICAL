@@ -1,0 +1,69 @@
+Platform		Compiler				passed
+
+Linux 32 bit C:
+Red Hat Linux 2.4.7	gcc 3.2.2				20040827
+Red Hat Linux 2.4.7	cc 2.96					20040827
+
+Linux 32 bit C++
+Red Hat Linux 2.4.7	g++ 3.2.2				20040827
+
+Linux Itanium 64 bit C:
+Red Hat	version ?	gcc 3.2.2				20040827
+Red Hat version ?	cc 2.96					20040827
+
+Linux Itanium 64 bit C++:
+Red Hat version ?	g++ 2.96				20040827
+
+Linux Opteron 64 bit C:
+Red Hat Linux 2.4.21-4.Elsmp	/usr/bin/gcc 3.2.3		20040827
+Red Hat Linux 2.4.21-4.Elsmp	cc 3.2.3			20040827
+
+Linux Opteron 64 bit C++:
+Red Hat Linux 2.4.21-4.Elsmp	/usr/bin/g++ 3.2.3		20040827
+
+Sun 32 bit C:
+Solaris 5.8		gcc 2.95.2				20040827
+Solaris 5.8		cc = Forte Developer 7 C 5.4 2002/03/09	20040827
+Solaris 5.8		acc =	SC4.0 18 Oct 1995 C 4.0		20040827
+Solaris 5.8		/depot/SUNWspro/bin/cc =		20040827
+/**/				SC4.0 18 Oct 1995 C 4.0
+
+Sun 32 bit C++:
+Solaris 5.8		g++ 2.95.2				20040827
+Solaris 5.8		CC = Forte Developer 7 C++ 5.4 Patch 111715-02 2002/09/18
+/**/								20040827
+		
+Sun 64 bit C:
+Solaris 5.8		cc = Forte Developer 7 C 5.4 2002/03/09	20040827
+			checked with purify 2003.06.00		20040826
+
+Sun 64 bit C++:
+Solaris 5.8		CC = Forte Developer 7 C++ 5.4 Patch 111715-02 2002/09/18
+/**/								20040827
+
+Pedantic Compiles: ansi stds 89, 94, & 99, compiled with '-pedantic-errors'
+Red Hat Linux 2.4.7	gcc 3.2.2 -std=c89			20040827
+Red Hat Linux 2.4.7	gcc 3.2.2 -std=iso9899:199409		20040827
+Red Hat Linux 2.4.7	gcc 3.2.2 -std=c99			20040827
+Red Hat Linux 2.4.7	gcc 3.2.2				20040827
+Red Hat Linux 2.4.7	g++ 3.2.2				20040827
+
+Windows ME		Microsoft Visual C++ 4.0		20040827
+Windows XP		Microsoft Visual C++ 6.0		20040914
+
+Cygwin			gcc 3.3.1				20040829
+Cygwin			g++ 3.3.1				20040829
+(Note cygwin gcc won't compile with -pedantic-errors because the includes
+include an anonymous struct).
+
+HP 32 bit C:
+HPUX B.11.00 U		/opt/ansic/bin/cc			20040901
+
+HP 32 bit C++:
+HPUX B.11.00 U		/opt/aCC/bin/aCC			20040901
+
+HP 64 bit C:
+HPUX B.11.00 U		/opt/ansic/bin/cc			20040901
+
+HP 64 bit C++:
+HPUX B.11.00 U		/opt/aCC/bin/aCC			20040901

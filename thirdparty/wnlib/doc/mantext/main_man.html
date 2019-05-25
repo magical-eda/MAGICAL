@@ -1,0 +1,285 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>wnlib documentation</title>
+</head>
+<body vlink="#551a8b" alink="#0000ee" link="#0000ee"
+ style="background-color: rgb(255, 255, 255); color: rgb(0, 0, 0);">
+<div style="text-align: center;"><big><big><b>main_man -- Documentation
+Pages For Wnlib</b></big></big><br>
+</div>
+<big><br>
+</big>
+<div style="text-align: center;"><big><small>(Note this
+document exists
+in two forms, .html and .txt.&nbsp; The .html is preferred as it has
+links to all the other documentation.&nbsp; You may want to adjust the
+font size smaller).</small></big><br>
+</div>
+<small><small><a name="memory">
+<big><big><big><b><br>
+Memory Allocation</b></big><br>
+</big></big>
+</a></small></small>
+<blockquote><small><small><a name="memory"></a></small></small><a
+ href="wnmem.txt">wnmem</a>&nbsp;&nbsp;
+-- group (or pool) oriented memory allocation<br>
+  <small><small> </small></small>
+  <div style="margin-left: 40px;"><a
+ href="wnmemd.txt">wnmemd</a>&nbsp;&nbsp;
+-- debugging aids for
+group
+oriented memory allocation<br>
+  <a href="wnmems.txt">wnmems</a>&nbsp;&nbsp; -- special version of
+memory allocation for use with purify-like tools (unix only)<br>
+  </div>
+  <small> </small></blockquote>
+<small><small><a name="datastruct">
+<big><big><big><b>Data Structures</b> (also called 'containers')</big><br>
+</big></big>
+</a></small></small>
+<blockquote><small><small><a name="datastruct"></a></small></small><a
+ href="wnsll.txt">wnsll</a>
+&nbsp; &nbsp;-- linked list package<br>
+  <br>
+  <a href="wnbtr.txt">wnbtr</a>
+&nbsp; &nbsp;-- height-balanced
+binary tree package<br>
+  <small><small> </small></small>
+  <div style="margin-left: 40px;"><a href="wnbtrl.txt">wnbtrl</a>&nbsp;&nbsp;&nbsp;
+-- declare btrees if type str, int, and double<br>
+  </div>
+  <small> <small> </small></small> <br>
+  <a href="wnskl.txt">wnskl</a> &nbsp; &nbsp;-- skip list (sort of
+halfway between a linked
+list and a binary tree)<br>
+  <br>
+  <a href="wnpq.txt">wnpq</a>&nbsp;
+&nbsp; -- priority queue
+with type "double" keys<br>
+  <br>
+  <a href="wnbvec.txt">wnbvec</a>&nbsp;
+&nbsp; -- bit vector, packed array of bits with boolean operations<br>
+  <br>
+  <a href="wnchtb.txt">wnchtb</a>&nbsp;
+&nbsp; -- hash table (closed, array based)<br>
+  <small><small> </small></small>
+  <div style="margin-left: 40px;"><a href="wnchtl.txt"> wnchtl</a>&nbsp;&nbsp;
+-- make closed hash tables of types generic, str, ptr, and int<br>
+  </div>
+  <small> <small> </small><small> </small></small>
+  <div style="margin-left: 40px;"><a href="wnhash.txt">wnhash</a>&nbsp;&nbsp;
+-- hash functions for common keys for wnchtb and wnhtab<br>
+  </div>
+  <small> <small> </small></small> <a href="wnhtab.txt">wnhtab</a>&nbsp;
+&nbsp; -- hash table (incremental, binary tree based)<br>
+  <small><small> </small></small>
+  <div style="margin-left: 40px;"><a href="wnhtbl.txt">wnhtbl</a>&nbsp;&nbsp;
+-- make incremental hash tables of types generic, str, ptr, and int<br>
+  </div>
+  <small> <small> </small></small> <br>
+  <a href="wnddtr.txt">wnddtr</a>&nbsp;
+&nbsp; -- binary tree over an n-dimensional coordinate space,
+determines proximity of objects<br>
+  <small><small> </small></small>
+  <div style="margin-left: 40px;"><a href="wnddtl.txt">wnddtl&nbsp;&nbsp;
+  </a>-- make ddtr's of type int and double<br>
+  </div>
+  <small> </small></blockquote>
+<small><small><a name="random">
+<big><big><big><b>Random Numbers</b></big><br>
+</big></big>
+</a></small></small>
+<blockquote><small><small><a name="random"></a></small></small><a
+ href="wnrnd.txt">wnrnd</a>
+&nbsp; &nbsp;-- random numbers, much higher quality than rand()<br>
+  <a href="wnrndd.txt">wnrndd</a>&nbsp;&nbsp; -- more random numbers,
+including various floating distributions<br>
+  <a href="wnrndt.txt">wnrndt</a>&nbsp;&nbsp;&nbsp; -- 'true' random
+numbers (not available on Windows)<br>
+</blockquote>
+<a name="sort">
+<big><b>Sorting</b></big><br>
+</a>
+<blockquote><a href="wnsort.txt">wnsort</a>
+&nbsp; &nbsp;-- merge sort and quick sort, quick sort higher quality
+than unix qsort<br>
+  <a href="wnrsrt.txt">wnrsrt</a>
+&nbsp; &nbsp;-- radix sort (faster on large problems)<br>
+  <small><small> </small></small>
+  <div style="margin-left: 40px;"><a href="wnrsrl.txt">wnrsrl</a>&nbsp;&nbsp;
+-- utlilities needed for radix sort<br>
+  </div>
+  <small> <small> </small></small> <a href="wnmed.txt">wnmed</a><span>&nbsp;
+&nbsp; -- find median or any percentile of list</span><br>
+</blockquote>
+<big><b>Command Line Argument Parser</b></big><br>
+<blockquote><a href="wnargp.txt">wnargp</a>&nbsp;&nbsp;
+-- command line argument parser<br>
+  <small><small> </small></small>
+  <div style="margin-left: 40px;"><a
+ href="wnargv.txt">wnargv</a>&nbsp;&nbsp;
+-- parse command line from string<br>
+  </div>
+  <small> </small></blockquote>
+<small><small><a name="matrix">
+<big><big><big><b>Matrices</b></big>
+</big></big></a></small></small>
+<blockquote><small><small><a name="matrix"></a></small></small><a
+ href="wnmmk.txt">wnmmk</a>&nbsp;
+&nbsp; -- make &amp;
+free matrices<br>
+  <a href="wnmcpy.txt">wnmcpy</a>&nbsp;
+&nbsp; -- matrix copy<br>
+  <a href="wnmgen.txt">wnmgen</a>&nbsp;
+&nbsp; -- generate matrices with special values<br>
+  <a href="wnminv.txt">wnminv</a>&nbsp;
+&nbsp; -- matrix inversion<br>
+  <a href="wnmio.txt">wnmio</a>&nbsp;
+&nbsp; -- matrix input and output<br>
+  <a href="wnmrnd.txt">wnmrnd</a>&nbsp;
+&nbsp; -- random matrix
+generator<br>
+  <a href="wnmtrn.txt">wnmtrn</a>&nbsp;
+&nbsp; -- transpose matrix<br>
+  <a href="wnsplx.txt">wnsplx</a> &nbsp;
+&nbsp;-- simplex method<br>
+  <a href="wngs.txt">wngs</a>&nbsp;
+&nbsp; -- Gramm-Schmidt orthogonalization of a matrix<br>
+  <a href="wnmmlt.txt">wnmmlt</a>&nbsp;
+&nbsp; -- matrix / vector
+multiplication </blockquote>
+<small><small><a name="vector">
+<big><big><big><b>Vectors</b></big><br>
+</big></big>
+</a></small></small>
+<blockquote><small><small><a name="vector"></a></small></small><a
+ href="wnvmk.txt">wnvmk</a>
+&nbsp; &nbsp;-- vector make and free<br>
+  <a href="wndot.txt">wndot</a>&nbsp;
+&nbsp; -- vector dot product<br>
+  <a href="wnvadd.txt">wnvadd</a>
+&nbsp; &nbsp;-- vector addition<br>
+  <a href="wnvcpy.txt">wnvcpy</a>
+&nbsp; &nbsp;-- vector copy<br>
+  <a href="wnvgen.txt">wnvgen</a>&nbsp;
+&nbsp; -- zero out vector<br>
+  <a href="wnvio.txt">wnvio</a>
+&nbsp; &nbsp;-- vector i/o<br>
+  <a href="wnvmlt.txt">wnvmlt</a>
+&nbsp; &nbsp;-- vector multiply<br>
+  <a href="wnvnrm.txt">wnvnrm</a>
+&nbsp; &nbsp;-- vector norm<br>
+  <a href="wnvrnd.txt">wnvrnd</a>
+&nbsp; &nbsp;-- random vector generator<br>
+</blockquote>
+<small><small><a name="sparse">
+<big><big><big><b>Sparse Matrices</b></big><br>
+</big></big>
+</a></small></small>
+<blockquote><small><small><a name="sparse"></a></small></small><a
+ href="wnspmk.txt">wnspmk</a>
+&nbsp; &nbsp;-- make, initialize &amp; free sparse matrices<br>
+  <a href="wnspio.txt">wnspio</a>
+&nbsp; &nbsp;-- print sparse
+matrix<br>
+  <a href="wnspmat.txt">wnspmat</a>
+&nbsp; &nbsp;-- sparse matrix datastructures and operations<br>
+  <a href="wncp.txt">wncp</a>&nbsp;
+&nbsp; -- solve for critical path in sparse matrix<a href="wnflow.txt"><br>
+wnflow</a>&nbsp; &nbsp; -- min-cost max-flow problem solution<a
+ href="wntrn.txt"><br>
+wntrn</a> &nbsp; &nbsp;-- transportation problem<a href="wnlp.txt"><br>
+wnlp</a>&nbsp; &nbsp; -- longest path solution on a sparse matrix<br>
+  <a href="wnsp.txt">wnsp</a> &nbsp;
+&nbsp;-- shortest path solution on a sparse matrix<br>
+  <a href="wnmst.txt">wnmst</a>&nbsp;
+&nbsp; -- minimum spanning tree on a matrix<br>
+</blockquote>
+<small><a name="parse">
+<big><big><b>Parsing Utilities</b></big><br>
+</big>
+</a></small>
+<blockquote><small><a name="parse"><big> </big></a></small><a
+ href="wncstr.txt">wncstr</a>&nbsp;
+&nbsp; -- cstream overview<br>
+  <a href="wncstl.txt">wncstl</a>&nbsp;
+&nbsp; -- cstream: parsing utilities<br>
+  <a href="wncinf.txt">wncinf</a><br>
+  <a href="wnptok.txt">wnptok</a><br>
+  <a href="wnscan.txt">wnscan</a><br>
+  <br>
+  <a href="wnwtok.txt">wnwtok</a>
+&nbsp; &nbsp;-- write stuff<br>
+  <a href="wnwtokp.txt">wnwtokp</a>
+&nbsp; &nbsp;-- write stuff
+pretty<br>
+</blockquote>
+<big><b>Small Utilities</b></big><br>
+<blockquote><a href="wnabs.txt">wnabs</a>
+-- abs, min, max, sign, and nop macros and functions<br>
+  <a href="wnmax.txt">wnmax</a><br>
+  <a href="wnnop.txt">wnnop</a><br>
+  <a href="wnsqr.txt">wnsqr</a>
+&nbsp; &nbsp;-- find square &amp; cube<br>
+  <a href="wnswap.txt">wnswap</a>
+&nbsp; &nbsp;-- swap 2 variables<br>
+  <a href="wncase.txt">wncase</a>&nbsp;
+&nbsp; -- upper / lower
+case utilities<br>
+  <br>
+  <a href="wncmp.txt">wncmp</a>&nbsp;
+&nbsp; -- small comparison and copy utilities<br>
+  <a href="wncpy.txt">wncpy</a><br>
+  <a href="wneq.txt">wneq</a><br>
+  <br>
+  <a href="wnstr.txt">wnstr</a>
+&nbsp; &nbsp;-- string operations<br>
+  <br>
+  <a href="wnasrt.txt">wnasrt</a>&nbsp;
+&nbsp; -- assertions package<br>
+  <br>
+  <a href="wncplx.txt">wncplx</a>&nbsp;
+&nbsp; -- complex numbers<br>
+  <br>
+  <a href="wnmemb.txt">wnmemb</a>&nbsp;-- byte by byte operations on
+blocks of memory<br>
+</blockquote>
+<big><b>Other</b></big><br>
+<blockquote><a href="wnprm.txt"> wnprm</a><span>&nbsp;
+&nbsp; -- permutation package</span><br>
+  <br>
+  <a href="wnanl.txt">wnanl</a><span>&nbsp;
+&nbsp; -- general simulated annealing package</span><br>
+  <br>
+  <a href="wnconj.txt">wnconj</a><span>&nbsp;
+&nbsp; -- conjugate direction method</span><br>
+  <a href="wnnlp.txt">wnnlp</a><span>&nbsp;
+&nbsp; -- constrained non-linear optimization package</span><br>
+  <br>
+  <a href="wnfft.txt">wnfft</a><span>&nbsp;
+&nbsp; -- discrete fourier transform</span><br>
+  <br>
+  <a href="wnio.txt">wnio</a><span>&nbsp;&nbsp; -- layer on top of
+system
+calls, also calls that mimic popular unix commands</span><br>
+</blockquote>
+<big><b>Programs &amp; Scripts</b></big><br>
+<blockquote><big> <small><a href="unx2doss.txt"> unx2doss</a><span>&nbsp;
+&nbsp; -- converts unix-style text files to dos-style</span><br>
+  <a href="excl.txt"> excl.pl</a><span>&nbsp;
+&nbsp; -- exclude file names from a list</span> on command line<br>
+  <a href="mean.txt"> mean</a><span>&nbsp;
+&nbsp; -- give statistics (mean, stddev, etc) on a set of real numbers</span><br>
+  <a href="wnmake1.txt"> wnmake1</a><span>&nbsp;
+&nbsp; -- quickly make small programs using wnlib without having to
+build a makefile (unix only)<br>
+  <br>
+  <span style="text-decoration: underline;">html2text.bash</span>&nbsp;
+-- convert a .html file on the command line to an equivalent .txt
+file.&nbsp; Gracefully handle case where Linux html2text is not
+implemented.&nbsp; (unix only, no doc page).<br>
+  </span></small> <br>
+  </big></blockquote>
+</body>
+</html>
