@@ -107,10 +107,15 @@ set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -frename-registers -fprofile-use -fprofile-c
 set(CMAKE_CXX_FLAGS_PROFILE "-Ofast -pg -Winline")
 set(CMAKE_EXE_LINKER_FLAGS "-pthread -static-libgcc -static-libstdc++ -static")
 
+include_directories (
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittest
+)
+
 file(GLOB SOURCES src/db/*.h        src/db/*.cpp
                   src/util/*.h      src/util/*.cpp 
                   src/parser/*.h    src/parser/*.cpp
-                  *.cpp
+                  src/global/*.h
                   )
 
 file(GLOB PROJECT_SOURCES src/main/*.cpp ${SOURCES})
