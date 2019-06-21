@@ -37,6 +37,20 @@ constexpr LocType LOC_TYPE_MIN      = INT32_MIN;
 
 // Enums
 
+/// @class MAGICAL_FLOW::OriType
+/// @brief Orientation type. DEFAULT: N. lefdefref/DEFSyntax.html#SpecifyingOrientation
+enum class OriType
+{
+    N = 0,
+    S = 1,
+    W = 2,
+    E = 3,
+    FN = 4,
+    FS = 5,
+    FW = 6,
+    FE = 7
+};
+
 PROJECT_NAMESPACE_END
 
 #endif // MAGICAL_FLOW_TYPE_H_

@@ -82,6 +82,8 @@ else()
 endif()
 unset(GTEST_DIR CACHE)
 
+# Python
+find_package(PythonLibs REQUIRED)
 
 #Print out the used build type
 IF(CMAKE_BUILD_TYPE MATCHES Debug)
@@ -98,18 +100,29 @@ ELSE()
     set(CMAKE_BUILD_TYPE Release)
 ENDIF()
 #set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
-set(CMAKE_CXX_FLAGS "-std=c++14 -Wall -march=native -fopenmp ")
-#set(CMAKE_CXX_FLAGS "-std=c++11 -Wall -march=native -fopenmp -fext-numeric-literals")
+set(CMAKE_CXX_FLAGS "-std=c++14 -Wall -fopenmp")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -fno-inline ")
 #set(CMAKE_CXX_FLAGS_RELEASE "-O3 -fno-inline") 
 #set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -frename-registers -fprofile-use -fprofile-correction") 
 set(CMAKE_CXX_FLAGS_PROFILE "-Ofast -pg -Winline")
-set(CMAKE_EXE_LINKER_FLAGS "-pthread -static-libgcc -static-libstdc++ -static")
+#set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
+set(CMAKE_EXE_LINKER_FLAGS "-pthread")
 
 include_directories (
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/unittest
+    ${GTEST_ROOT_DIR}/googletest/include
+    ${PYBIND11_ROOT_DIR}/include
+    ${PYTHON_INCLUDE_DIRS}
+)
+
+file (GLOB GTEST_MAIN_LIB ${GTEST_ROOT_DIR}/lib/libgtest_main.a)
+file (GLOB GTEST_LIB ${GTEST_ROOT_DIR}/lib/libgtest.a)
+
+link_libraries (
+    ${GTEST_MAIN_LIB}
+    ${PYTHON_LIBRARIES}
 )
 
 file(GLOB SOURCES src/db/*.h        src/db/*.cpp
@@ -121,8 +134,10 @@ file(GLOB SOURCES src/db/*.h        src/db/*.cpp
 file(GLOB PROJECT_SOURCES src/main/*.cpp ${SOURCES})
 file(GLOB UNITTEST_SOURCES 
     unittest/main/*.cpp
+    unittest/db/*.cpp
     ${SOURCES})
 
+#set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS "-static")
 
 # Add modules to pybind
 pybind11_add_module(${PROJECT_NAME} ${SOURCES})
@@ -130,4 +145,5 @@ pybind11_add_module(${PROJECT_NAME} ${SOURCES})
 #Unit Tests using GoogleTest
 enable_testing()
 add_executable(unittest ${UNITTEST_SOURCES})
+target_link_libraries(unittest ${GTEST_LIB} )
 add_test(NAME unittest COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/unittest ${CMAKE_CURRENT_SOURCE_DIR}/unittest)

@@ -43,9 +43,27 @@ class CktNode
         /// @brief set the graph index of the subgraph this node representing
         /// @param the subgraph index
         void setSubgraphIdx(IndexType subgraphIdx) { _graphIdx = subgraphIdx; }
+        /// @brief set if this node has been physical implemented
+        /// @param if this node has been physical implemented
+        void setIsImpl(bool isImpl)  {_implPhy = isImpl; }
         /*------------------------------*/ 
         /* Attributes                   */
         /*------------------------------*/ 
+        /// @brief get the coordinate offset of this node
+        /// @return the offset of this node
+        const XY<LocType> & offset() const { return _offset; }
+        /// @brief get the coordinate offset of this node
+        /// @return the offset of this node
+        XY<LocType> & offset() { return _offset; }
+        /// @brief get the orientation of this node
+        /// @return the orientation of this node
+        const OriType & orient() const { return _orient; }
+        /// @brief get the orientation of this node
+        /// @return the orientation of this node
+        OriType & orient() { return _orient; }
+        /// @brief get whether this node has been physically implemented
+        /// @return if this node has been physically implemented
+        bool isImpl() const { return _implPhy; }
         /*------------------------------*/ 
         /* Graph Properties             */
         /*------------------------------*/ 
@@ -55,6 +73,9 @@ class CktNode
     private:
         IndexType _graphIdx = INDEX_TYPE_MAX; ///< The index of the sub graph this node corresponding to. If INDEX_TYPE_MAX, then this is a leaf node
         std::vector<IndexType> _pinIdxArray; ///< The pins this node containing
+        XY<LocType> _offset; ///< The offset of the location
+        OriType _orient; ///< The orientation of this node
+        bool _implPhy = false; ///< Whether this node has been implemented physically
 };
 
 /// @class MAGICAL_FLOW::Net
