@@ -31,6 +31,12 @@ class MosProp
         /// @brief set the width for the MOSFET
         /// @param the width of the transistor. unit: e-12
         void setWidth(IntType width) { _width = width; }
+        /// @brief whether _length is set
+        /// @return whether _length is set
+        bool lengthValid() const { return _length != -1; }
+        /// @brief whether _width is set
+        /// @return whether _width is set
+        bool widthValid() const { return _width != -1; }
     protected:
         IntType _length = -1; ///< l. unit: e-12
         IntType _width = -1; ///< w. unit: e-12
