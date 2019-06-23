@@ -132,6 +132,7 @@ file(GLOB SOURCES src/db/*.h        src/db/*.cpp
                   )
 
 file(GLOB PROJECT_SOURCES src/main/*.cpp ${SOURCES})
+file(GLOB PY_API_SOURCES src/api/*.cpp ${SOURCES})
 file(GLOB UNITTEST_SOURCES 
     unittest/main/*.cpp
     unittest/db/*.cpp
@@ -140,7 +141,7 @@ file(GLOB UNITTEST_SOURCES
 #set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS "-static")
 
 # Add modules to pybind
-pybind11_add_module(${PROJECT_NAME} ${SOURCES})
+pybind11_add_module(${PROJECT_NAME} ${PY_API_SOURCES})
 
 #Unit Tests using GoogleTest
 enable_testing()

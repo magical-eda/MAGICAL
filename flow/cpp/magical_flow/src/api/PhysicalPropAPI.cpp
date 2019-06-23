@@ -1,16 +1,16 @@
 /**
- * @file PhysicalPropAPI.h
+ * @file PhysicalPropAPI.cpp
  * @brief The Python interface for the classes defined in PhysicalProp
  * @author Keren Zhu
  * @date 06/21/2019
  */
 
 #include <pybind11/pybind11.h>
-#include "PhysicalProp.h"
+#include "db/PhysicalProp.h"
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(magicalFlow, m)
+void initPhysicalPropAPI(py::module &m)
 {
     py::class_<PROJECT_NAMESPACE::MosProp>(m , "MosProp")
         .def(py::init<>())

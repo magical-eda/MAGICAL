@@ -57,13 +57,13 @@ class CMakeBuild(build_ext):
         subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
 
 setup(
-    name='magical_flow',
+    name='magicalFlow',
     version='0.0.1',
     author='Keren Zhu',
     author_email='keren.zhu@utexas.edu',
     description='The flow and database for Magical',
     long_description='',
-    ext_modules=[CMakeExtension('magical_flow')],
+    ext_modules=[CMakeExtension('magicalFlow')],
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
 )

@@ -27,10 +27,10 @@ class CktNode
         IndexType subgraphIdx() const { return _graphIdx; }
         /// @brief get the array of pin indices this node has (at the current level of graph)
         /// @return the array of pin indices
-        const std::vector<IndexType> & pinIdxArray() const { return _pinIdxArray; }
+        std::vector<IndexType> & pinIdxArray() { return _pinIdxArray; }
         /// @brief get the array of pin indices this node has (at the current level of graph)
         /// @return the array of pin indices
-        std::vector<IndexType> & pinIdxArray() { return _pinIdxArray; }
+        //const std::vector<IndexType> & pinIdxArray() const { return _pinIdxArray; }
         /// @brief get the number of pins this CktNode contains
         /// @return the number of pins this CktNode contains
         IndexType numPins() const { return _pinIdxArray.size(); }
