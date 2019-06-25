@@ -6,14 +6,22 @@
  */
 
 #include <pybind11/pybind11.h>
+#include <pybind11/stl_bind.h>
+#include "global/global.h"
 
 namespace py = pybind11;
 
+void initUtilAPI(py::module &);
+void initGlobalAPI(py::module &);
 void initPhysicalPropAPI(py::module &);
 void initGraphComponentsAPI(py::module &);
 
+PYBIND11_MAKE_OPAQUE(std::vector<PROJECT_NAMESPACE::IndexType>);
+
 PYBIND11_MODULE(magicalFlow, m)
 {
+    initUtilAPI(m);
+    initGlobalAPI(m);
     initPhysicalPropAPI(m);
     initGraphComponentsAPI(m);
 }

@@ -1,0 +1,32 @@
+/**
+ * @file GlobalAPI.cpp
+ * @brief The Python interface for the classes defined in global.h
+ * @author Keren Zhu
+ * @date 06/24/2019
+ */
+
+#include <pybind11/pybind11.h>
+#include "global/global.h"
+
+namespace py = pybind11;
+
+void initGlobalAPI(py::module &m)
+{
+    // See https://stackoverflow.com/questions/47893832/pybind11-global-level-enum
+    py::enum_<PROJECT_NAMESPACE::OriType>(m, "OriType")
+        .value("OriTypeN", PROJECT_NAMESPACE::OriType::N)
+        .value("OriTypeS", PROJECT_NAMESPACE::OriType::S)
+        .value("OriTypeW", PROJECT_NAMESPACE::OriType::W)
+        .value("OriTypeE", PROJECT_NAMESPACE::OriType::E)
+        .value("OriTypeFN", PROJECT_NAMESPACE::OriType::FN)
+        .value("OriTypeFS", PROJECT_NAMESPACE::OriType::FS)
+        .value("OriTypeFW", PROJECT_NAMESPACE::OriType::FW)
+        .value("OriTypeFE", PROJECT_NAMESPACE::OriType::FE)
+        .export_values();
+    
+    m.def("orientConv", &PROJECT_NAMESPACE::MfUtil::orientConv, "convert coordinates under different offset and orientation",
+            py::arg_v("coord", PROJECT_NAMESPACE::XY<PROJECT_NAMESPACE::LocType>(0,0), "XYLoc(0, 0)"), 
+            py::arg_v("orient", PROJECT_NAMESPACE::OriType::N, "OriType::N"), 
+            py::arg_v("offset", PROJECT_NAMESPACE::XY<PROJECT_NAMESPACE::LocType>(0, 0), "XYLoc(0, 0)"), 
+            py::arg_v("bbox", PROJECT_NAMESPACE::Box<PROJECT_NAMESPACE::LocType>(0,0,0,0)), "BoxLoc(0, 0)");
+}

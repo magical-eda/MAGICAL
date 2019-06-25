@@ -30,7 +30,7 @@ class CktNode
         std::vector<IndexType> & pinIdxArray() { return _pinIdxArray; }
         /// @brief get the array of pin indices this node has (at the current level of graph)
         /// @return the array of pin indices
-        //const std::vector<IndexType> & pinIdxArray() const { return _pinIdxArray; }
+        const std::vector<IndexType> & pinIdxArray() const { return _pinIdxArray; }
         /// @brief get the number of pins this CktNode contains
         /// @return the number of pins this CktNode contains
         IndexType numPins() const { return _pinIdxArray.size(); }
@@ -51,19 +51,25 @@ class CktNode
         /*------------------------------*/ 
         /// @brief get the coordinate offset of this node
         /// @return the offset of this node
-        const XY<LocType> & offset() const { return _offset; }
+        //const XY<LocType> & offset() const { return _offset; }
         /// @brief get the coordinate offset of this node
         /// @return the offset of this node
         XY<LocType> & offset() { return _offset; }
         /// @brief get the orientation of this node
         /// @return the orientation of this node
-        const OriType & orient() const { return _orient; }
+        //const OriType & orient() const { return _orient; }
         /// @brief get the orientation of this node
         /// @return the orientation of this node
         OriType & orient() { return _orient; }
         /// @brief get whether this node has been physically implemented
         /// @return if this node has been physically implemented
         bool isImpl() const { return _implPhy; }
+        /*------------------------------*/ 
+        /* Vector operation             */
+        /*------------------------------*/ 
+        /// @brief append a pinIdx to the pinIdxArray
+        /// @param a pinIdx
+        void appendPinIdx(IndexType pinIdx) { _pinIdxArray.emplace_back(pinIdx); }
         /*------------------------------*/ 
         /* Graph Properties             */
         /*------------------------------*/ 
