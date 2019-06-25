@@ -61,6 +61,9 @@ class CktNode
         /// @brief get the orientation of this node
         /// @return the orientation of this node
         OriType & orient() { return _orient; }
+        /// @brief set the orientation of this node
+        /// @param the orientation of this node
+        void setOrient(OriType ori) { _orient = ori; }
         /// @brief get whether this node has been physically implemented
         /// @return if this node has been physically implemented
         bool isImpl() const { return _implPhy; }
@@ -79,8 +82,8 @@ class CktNode
     private:
         IndexType _graphIdx = INDEX_TYPE_MAX; ///< The index of the sub graph this node corresponding to. If INDEX_TYPE_MAX, then this is a leaf node
         std::vector<IndexType> _pinIdxArray; ///< The pins this node containing
-        XY<LocType> _offset; ///< The offset of the location
-        OriType _orient; ///< The orientation of this node
+        XY<LocType> _offset = XY<LocType>(0, 0); ///< The offset of the location
+        OriType _orient = OriType::N; ///< The orientation of this node
         bool _implPhy = false; ///< Whether this node has been implemented physically
 };
 
@@ -96,9 +99,6 @@ class Net
         /*------------------------------*/ 
         /// @brief get the array of pin indices that the net connecting
         /// @return the array of pin indices that the net connecting
-        const std::vector<IndexType> & pinIdxArray() const { return _pinIdxArray; }
-        /// @brief get the array of pin indices that the net connecting
-        /// @return the array of pin indices that the net connecting
         std::vector<IndexType> & pinIdxArray() { return _pinIdxArray; }
         /// @brief get the number of pins this net is connecting
         /// @return the number of pins this net is connecting
@@ -109,6 +109,12 @@ class Net
         /*------------------------------*/ 
         /* Attributes                   */
         /*------------------------------*/ 
+        /*------------------------------*/ 
+        /* Vector operation             */
+        /*------------------------------*/ 
+        /// @brief append a pinIdx to the pinIdxArray
+        /// @param a pinIdx
+        void appendPinIdx(IndexType pinIdx) { _pinIdxArray.emplace_back(pinIdx); }
     private:
         std::vector<IndexType> _pinIdxArray; ///< The indices of pins this nets connecting to
 };
@@ -151,6 +157,12 @@ class Pin
         /// @brief set the internal pin index
         /// @param set the internal pin index this pin corresponding to in the node it belonging to
         void setIntPinIdx(IndexType intPinIdx) { _intPinIdx = intPinIdx; }
+        /*------------------------------*/ 
+        /* Vector operation             */
+        /*------------------------------*/ 
+        /// @brief append a netIdx to the netIdxArray
+        /// @param a pinIdx
+        void appendNetIdx(IndexType netIdx) { _netIdxArray.emplace_back(netIdx); }
     private:
         IndexType _nodeIdx = INDEX_TYPE_MAX; ///< The node index of the pin
         IndexType _intPinIdx = INDEX_TYPE_MAX; ///< The corresponding internal pin index in the internal node
