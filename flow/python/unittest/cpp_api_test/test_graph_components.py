@@ -8,8 +8,9 @@ import unittest, magicalFlow
 
 class TestCktNode(unittest.TestCase):
     def runTest(self):
-        cktNode = magicalFlow.CktNode()
-
+        node = magicalFlow.CktNode()
+        self.node_test(node)
+    def node_test(self, cktNode):
         self.assertTrue(cktNode.isLeaf())
         cktNode.graphIdx = 1
         self.assertEqual(cktNode.graphIdx, 1)

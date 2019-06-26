@@ -15,6 +15,7 @@ void initUtilAPI(py::module &);
 void initGlobalAPI(py::module &);
 void initPhysicalPropAPI(py::module &);
 void initGraphComponentsAPI(py::module &);
+void initCktGraphAPI(py::module &);
 
 PYBIND11_MAKE_OPAQUE(std::vector<PROJECT_NAMESPACE::IndexType>);
 
@@ -24,4 +25,5 @@ PYBIND11_MODULE(magicalFlow, m)
     initGlobalAPI(m);
     initPhysicalPropAPI(m);
     initGraphComponentsAPI(m);
+    initCktGraphAPI(m);
 }

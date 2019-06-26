@@ -35,7 +35,7 @@ class CktGraph
         /// @brief get a circuit node of this graph
         /// @param the index of node
         /// @return the circuit node
-        const CktNode &                                             node(IndexType nodeIdx) const                       { return _nodeArray.at(nodeIdx); }
+        //const CktNode &                                             node(IndexType nodeIdx) const                       { return _nodeArray.at(nodeIdx); }
         /// @brief get a circuit node of this graph
         /// @param the index of node
         /// @return the circuit node
@@ -52,7 +52,7 @@ class CktGraph
         /// @brief get a pin of this graph
         /// @param the index of the pin of this graph
         /// @return the pin object
-        const Pin &                                                 pin(IndexType pinIdx) const                         { return _pinArray.at(pinIdx); }
+        //const Pin &                                                 pin(IndexType pinIdx) const                         { return _pinArray.at(pinIdx); }
         /// @brief get a pin of this graph
         /// @param the index of the pin of this graph
         /// @return the pin object
@@ -69,11 +69,23 @@ class CktGraph
         /// @brief get a net of this graph
         /// @param the index of net in this graph
         /// @return a net
-        const Net &                                                 net(IndexType netIdx) const                         { return _netArray.at(netIdx); }
+        //const Net &                                                 net(IndexType netIdx) const                         { return _netArray.at(netIdx); }
         /// @brief get a net of this graph
         /// @param the index of net in this graph
         /// @return a net
         Net &                                                       net(IndexType netIdx)                               { return _netArray.at(netIdx); }
+        /*------------------------------*/ 
+        /* Vector operation             */
+        /*------------------------------*/ 
+        /// @brief allocate a new node
+        /// @return the index of the new node
+        IndexType allocateNode() { _nodeArray.emplace_back(CktNode()); return _nodeArray.size() - 1;}
+        /// @brief allocate a new pin
+        /// @return the index of a new pin
+        IndexType allocatePin() { _pinArray.emplace_back(Pin()); return _pinArray.size() - 1; }
+        /// @brief allocate a new net
+        /// @return the index of a new net
+        IndexType allocateNet() { _netArray.emplace_back(Net()); return _netArray.size() - 1; }
     private:
         std::vector<CktNode> _nodeArray; ///< The circuit nodes of this graph
         std::vector<Pin> _pinArray; ///< The pins of the circuit
