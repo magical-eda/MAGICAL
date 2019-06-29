@@ -22,6 +22,7 @@ void initGraphComponentsAPI(py::module &m)
         .def_property("isImpl", &PROJECT_NAMESPACE::CktNode::isImpl, &PROJECT_NAMESPACE::CktNode::setIsImpl)
         .def("isLeaf", &PROJECT_NAMESPACE::CktNode::isLeaf)
         .def("offset", &PROJECT_NAMESPACE::CktNode::offset, py::return_value_policy::reference)
+        .def_property("implType", &PROJECT_NAMESPACE::CktNode::implType, &PROJECT_NAMESPACE::CktNode::setImplType)
         .def("setOrient", &PROJECT_NAMESPACE::CktNode::setOrient)
         .def("orient", &PROJECT_NAMESPACE::CktNode::orient, py::return_value_policy::reference);
 

@@ -51,6 +51,18 @@ enum class OriType
     FE = 7
 };
 
+/// @class MAGICAL_FLOW::ImplType
+/// @brief the implementation type of each circuit node
+enum class ImplType
+{
+    UNSET,
+    PCELL_Nch,
+    PCELL_Pch,
+    PCELL_Nch25ud18mac,
+    PCELL_RppolywoM,
+    PCELL_Cfmom
+};
+
 PROJECT_NAMESPACE_END
 
 #endif // MAGICAL_FLOW_TYPE_H_

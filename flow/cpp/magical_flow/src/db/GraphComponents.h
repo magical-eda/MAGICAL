@@ -67,6 +67,12 @@ class CktNode
         /// @brief get whether this node has been physically implemented
         /// @return if this node has been physically implemented
         bool isImpl() const { return _implPhy; }
+        /// @brief get the implementation type
+        /// @return the implementation type of this node
+        ImplType implType() const { return _implType; }
+        /// @brief set the implementation type
+        /// @param the implementation type of this node
+        void setImplType(ImplType impl) { _implType = impl; }
         /*------------------------------*/ 
         /* Vector operation             */
         /*------------------------------*/ 
@@ -85,6 +91,7 @@ class CktNode
         XY<LocType> _offset = XY<LocType>(0, 0); ///< The offset of the location
         OriType _orient = OriType::N; ///< The orientation of this node
         bool _implPhy = false; ///< Whether this node has been implemented physically
+        ImplType _implType = ImplType::UNSET; ///< what is the implementation type of the node 
 };
 
 /// @class MAGICAL_FLOW::Net

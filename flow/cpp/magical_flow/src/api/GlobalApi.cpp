@@ -1,7 +1,7 @@
 /**
  * @file GlobalAPI.cpp
  * @brief The Python interface for the classes defined in global.h
- * @author Keren Zhu
+ *mom @author Keren Zhu
  * @date 06/24/2019
  */
 
@@ -22,6 +22,15 @@ void initGlobalAPI(py::module &m)
         .value("OriTypeFS", PROJECT_NAMESPACE::OriType::FS)
         .value("OriTypeFW", PROJECT_NAMESPACE::OriType::FW)
         .value("OriTypeFE", PROJECT_NAMESPACE::OriType::FE)
+        .export_values();
+
+    py::enum_<PROJECT_NAMESPACE::ImplType>(m, "ImplType")
+        .value("ImplTypeUNSET", PROJECT_NAMESPACE::ImplType::UNSET)
+        .value("ImplTypePCELL_Pch", PROJECT_NAMESPACE::ImplType::PCELL_Pch)
+        .value("ImplTypePCELL_Nch", PROJECT_NAMESPACE::ImplType::PCELL_Nch)
+        .value("ImplTypePCELL_Nch25ud18mac", PROJECT_NAMESPACE::ImplType::PCELL_Nch25ud18mac)
+        .value("ImplTypePCELL_RppolywoM", PROJECT_NAMESPACE::ImplType::PCELL_RppolywoM)
+        .value("ImplTypePCELL_Cfmom", PROJECT_NAMESPACE::ImplType::PCELL_Cfmom)
         .export_values();
     
     m.def("orientConv", &PROJECT_NAMESPACE::MfUtil::orientConv, "convert coordinates under different offset and orientation",

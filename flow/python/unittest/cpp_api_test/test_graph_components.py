@@ -36,6 +36,11 @@ class TestCktNode(unittest.TestCase):
         cktNode.setOrient(magicalFlow.OriTypeE)
         self.assertEqual(cktNode.orient(), magicalFlow.OriTypeE)
 
+        self.assertEqual(cktNode.implType, magicalFlow.ImplTypeUNSET)
+        cktNode.implType = magicalFlow.ImplTypePCELL_Pch
+        self.assertEqual(cktNode.implType, magicalFlow.ImplTypePCELL_Pch)
+
+
 class TestNet(unittest.TestCase):
     def runTest(self):
         net = magicalFlow.Net()
