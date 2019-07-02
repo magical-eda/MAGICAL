@@ -1,8 +1,8 @@
-"""
-@brief test the API for DesignDB
-@author Keren Zhu
-@date 06/27/2019
-"""
+##
+# @brief test the API for DesignDB
+# @author Keren Zhu
+# @date 06/27/2019
+#
 
 import unittest, magicalFlow
 

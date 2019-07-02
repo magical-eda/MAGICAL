@@ -1,8 +1,8 @@
-"""
-@brief Test the graph component API
-@author Keren Zhu
-@date 06/24/2019
-"""
+##
+# @brief Test the graph component API
+# @author Keren Zhu
+# @date 06/24/2019
+#
 
 import unittest, magicalFlow
 
@@ -40,6 +40,12 @@ class TestCktNode(unittest.TestCase):
         cktNode.implType = magicalFlow.ImplTypePCELL_Pch
         self.assertEqual(cktNode.implType, magicalFlow.ImplTypePCELL_Pch)
 
+        cktNode.refName = "ref"
+        self.assertEqual(cktNode.refName, "ref")
+
+        cktNode.name = "somename"
+        self.assertEqual(cktNode.name, "somename")
+
 
 class TestNet(unittest.TestCase):
     def runTest(self):
@@ -50,6 +56,9 @@ class TestNet(unittest.TestCase):
         self.assertEqual(net.numPins(), 1)
         self.assertEqual(net.pinIdx(0), 2)
 
+        net.name = "netname"
+        self.assertEqual(net.name, "netname")
+
 class TestPin(unittest.TestCase):
     def runTest(self):
         pin = magicalFlow.Pin()
@@ -58,14 +67,14 @@ class TestPin(unittest.TestCase):
         pin.nodeIdx = 1
         self.assertEqual(pin.nodeIdx, 1)
 
-        self.assertNotEqual(pin.intPinIdx, 2)
-        pin.intPinIdx = 2
-        self.assertEqual(pin.intPinIdx, 2)
+        self.assertNotEqual(pin.intNetIdx, 2)
+        pin.intNetIdx = 2
+        self.assertEqual(pin.intNetIdx, 2)
 
-        self.assertEqual(pin.numNets(), 0)
-        pin.appendNetIdx(3)
-        self.assertEqual(pin.numNets(), 1)
-        self.assertEqual(pin.netIdx(0), 3)
+        self.assertFalse(pin.isConnected())
+        pin.netIdx = 3
+        self.assertEqual(pin.netIdx, 3)
+        self.assertTrue(pin.isConnected())
 
 if __name__ == '__main__':
     unittest.main()

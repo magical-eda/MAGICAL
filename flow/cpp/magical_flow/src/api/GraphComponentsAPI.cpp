@@ -23,6 +23,8 @@ void initGraphComponentsAPI(py::module &m)
         .def("isLeaf", &PROJECT_NAMESPACE::CktNode::isLeaf)
         .def("offset", &PROJECT_NAMESPACE::CktNode::offset, py::return_value_policy::reference)
         .def_property("implType", &PROJECT_NAMESPACE::CktNode::implType, &PROJECT_NAMESPACE::CktNode::setImplType)
+        .def_property("refName", &PROJECT_NAMESPACE::CktNode::refName, &PROJECT_NAMESPACE::CktNode::setRefName)
+        .def_property("name", &PROJECT_NAMESPACE::CktNode::name, &PROJECT_NAMESPACE::CktNode::setName)
         .def("setOrient", &PROJECT_NAMESPACE::CktNode::setOrient)
         .def("orient", &PROJECT_NAMESPACE::CktNode::orient, py::return_value_policy::reference);
 
@@ -30,13 +32,13 @@ void initGraphComponentsAPI(py::module &m)
         .def(py::init<>())
         .def("appendPinIdx", &PROJECT_NAMESPACE::Net::appendPinIdx)
         .def("numPins", &PROJECT_NAMESPACE::Net::numPins)
+        .def_property("name", &PROJECT_NAMESPACE::Net::name, &PROJECT_NAMESPACE::Net::setName)
         .def("pinIdx", &PROJECT_NAMESPACE::Net::pinIdx);
 
     py::class_<PROJECT_NAMESPACE::Pin>(m, "Pin")
         .def(py::init())
         .def_property("nodeIdx", &::PROJECT_NAMESPACE::Pin::nodeIdx, &PROJECT_NAMESPACE::Pin::setNodeIdx)
-        .def_property("intPinIdx", &PROJECT_NAMESPACE::Pin::intPinIdx, &PROJECT_NAMESPACE::Pin::setIntPinIdx)
-        .def("numNets", &PROJECT_NAMESPACE::Pin::numNets)
-        .def("netIdx", &PROJECT_NAMESPACE::Pin::netIdx)
-        .def("appendNetIdx", &PROJECT_NAMESPACE::Pin::appendNetIdx);
+        .def_property("intNetIdx", &PROJECT_NAMESPACE::Pin::intNetIdx, &PROJECT_NAMESPACE::Pin::setIntNetIdx)
+        .def_property("netIdx", &PROJECT_NAMESPACE::Pin::netIdx, &PROJECT_NAMESPACE::Pin::setNetIdx)
+        .def("isConnected", &PROJECT_NAMESPACE::Pin::isConnected);
 }

@@ -15,15 +15,48 @@ import magicalFlow
 
 class TestNetlistParser(unittest.TestCase):
     def setUp(self):
-        self.spectre_netlists = glob.glob("../test_data/spectre_netlists/*.sp")
+        self.spectre_comparator = os.path.dirname(os.path.abspath(__file__)) + "/../test_data/spectre_netlists/Comparator.sp"
     def runTest(self):
-        self.spectre_parser_test()
-    def spectre_parser_test(self):
+        self.spectre_parser_comparator_test()
+    def spectre_parser_comparator_test(self):
         db = magicalFlow.DesignDB()
         nlp = pyDB.Netlist_parser(db)
-        for spec in self.spectre_netlists:
-            nlp.parse_spectre(spec)
+        nlp.parse_spectre(self.spectre_comparator)
+        self.assertEqual(db.numCkts(), 18)
+        db.findRootCkt()
+        for ckt_idx in range(db.numCkts()):
+            ckt = db.subCkt(ckt_idx)
+            print("Ckt ", ckt.name)
+            print("# of nodes ", ckt.numNodes())
+        self.assertEqual(db.rootCktIdx(), 0)
+        for node_idx in range(len(topckt.numNodes())):
+            node = topckt.node(node_idx)
         return True
+    def check_cmos_net(ckt_idx, mos_node_idx, db, first, second, third, fourth):
+        """
+        @brief check the cmos is connected to the correct nets
+        """
+        ckt = db.subCkt(ckt_idx)
+
+        pin1_idx = ckt.node(mos_node_idx).pinIdx(0)
+        net1_idx = ckt.pin(pin1_idx).netIdx
+        net1 = ckt.net(net1_idx)
+        self.assertEqual(net1.name, first)
+
+        pin2_idx = ckt.node(mos_node_idx).pinIdx(1)
+        net2_idx = ckt.pin(pin2_idx).netIdx
+        net2 = ckt.net(net2_idx)
+        self.assertEqual(net2.name, second)
+
+        pin3_idx = ckt.node(mos_node_idx).pinIdx(2)
+        net3_idx = ckt.pin(pin3_idx).netIdx
+        net3 = ckt.net(net3_idx)
+        self.assertEqual(net3.name, third)
+
+        pin4_idx = ckt.node(mos_node_idx).pinIdx(3)
+        net4_idx = ckt.pin(pin4_idx).netIdx
+        net4 = ckt.net(net4_idx)
+        self.assertEqual(net4.name, third)
 
 if __name__ == '__main__':
     unittest.main()

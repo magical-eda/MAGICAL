@@ -23,6 +23,7 @@ void initCktGraphAPI(py::module &m)
         .def("pin", &PROJECT_NAMESPACE::CktGraph::pin, py::return_value_policy::reference)
         .def("allocateNet", &PROJECT_NAMESPACE::CktGraph::allocateNet)
         .def("numNets", &PROJECT_NAMESPACE::CktGraph::numNets)
-        .def("net", &PROJECT_NAMESPACE::CktGraph::net, py::return_value_policy::reference);
+        .def("net", &PROJECT_NAMESPACE::CktGraph::net, py::return_value_policy::reference)
+        .def_property("name", &PROJECT_NAMESPACE::CktGraph::name, &PROJECT_NAMESPACE::CktGraph::setName);
 
 }

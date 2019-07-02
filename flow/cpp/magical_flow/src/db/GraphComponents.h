@@ -37,6 +37,12 @@ class CktNode
         /// @brief get the index n-th pin of this node
         /// @return the index of n-th pin of this node
         IndexType pinIdx(IndexType nth) const { return _pinIdxArray.at(nth); }
+        /// @brief get the reference name
+        /// @return the reference name of the node
+        const std::string & refName() const { return _refName; }
+        /// @brief get the name of the node
+        /// @return the name of node
+        const std::string & name() const { return _name; }
         /*------------------------------*/ 
         /* Setters                      */
         /*------------------------------*/ 
@@ -46,6 +52,12 @@ class CktNode
         /// @brief set if this node has been physical implemented
         /// @param if this node has been physical implemented
         void setIsImpl(bool isImpl)  {_implPhy = isImpl; }
+        /// @brief set the reference name of this node
+        /// @param the reference name of the node
+        void setRefName(const std::string &refName) { _refName = refName; }
+        /// @brief set the name of this node
+        /// @param the name of the node
+        void setName(const std::string &name) { _name = name; }
         /*------------------------------*/ 
         /* Attributes                   */
         /*------------------------------*/ 
@@ -92,6 +104,8 @@ class CktNode
         OriType _orient = OriType::N; ///< The orientation of this node
         bool _implPhy = false; ///< Whether this node has been implemented physically
         ImplType _implType = ImplType::UNSET; ///< what is the implementation type of the node 
+        std::string _refName = ""; ///< The reference name of this node
+        std::string _name = ""; ///< The name of this node
 };
 
 /// @class MAGICAL_FLOW::Net
@@ -113,6 +127,15 @@ class Net
         /// @brief get the n-th pin index of this net
         /// @return the n-th pin index of this net
         IndexType pinIdx(IndexType nth) const { return _pinIdxArray.at(nth); }
+        /// @brief get the name of the net
+        /// @return the name of the net
+        const std::string & name() const { return _name; }
+        /*------------------------------*/ 
+        /* Setters                      */
+        /*------------------------------*/ 
+        /// @brief set the name for the net
+        /// @param the name for the net
+        void setName(const std::string &name) { _name = name; }
         /*------------------------------*/ 
         /* Attributes                   */
         /*------------------------------*/ 
@@ -124,6 +147,7 @@ class Net
         void appendPinIdx(IndexType pinIdx) { _pinIdxArray.emplace_back(pinIdx); }
     private:
         std::vector<IndexType> _pinIdxArray; ///< The indices of pins this nets connecting to
+        std::string _name = ""; ///< The name of this net
 };
 
 /// @class MAGICAL_FLOW::Pin
@@ -139,22 +163,16 @@ class Pin
         /// @brief node index this pin 
         /// @return the node index that this pin belonging to
         IndexType nodeIdx() const { return _nodeIdx; }
-        /// @brief internal pin index of this pin
-        /// @return the internal pin index of the node this pin corresponding to
-        IndexType intPinIdx() const { return _intPinIdx; }
-        /// @brief get the net indices array this pin related to 
-        /// @return an array of the nets that this pin has relation with
-        const std::vector<IndexType> & netIdxArray() const { return _netIdxArray; }
-        /// @brief get the net indices array this pin related to 
-        /// @return an array of the nets that this pin has relation with
-        std::vector<IndexType> & netIdxArray() { return _netIdxArray; }
-        /// @brief get how many nets connected to this pin (at the current level)
-        /// @return the number of nets connected to this pin (at the current level)
-        IndexType numNets() const { return _netIdxArray.size(); }
+        /// @brief internal net index of this pin
+        /// @return the internal net index of the node this pin corresponding to
+        IndexType intNetIdx() const { return _intNetIdx; }
         /// @brief get one net index that connected to this pin
         /// @param the n-th net of this pin
         /// @return the net index
-        IndexType netIdx(IndexType nth) const { return _netIdxArray.at(nth); }
+        IndexType netIdx() const { return _netIdx; }
+        /// @brief whether this pin is connected to a net
+        /// @return whether this pin is connected to a net
+        bool isConnected() const { return _netIdx != INDEX_TYPE_MAX; }
         /*------------------------------*/ 
         /* Setters                      */
         /*------------------------------*/ 
@@ -163,17 +181,14 @@ class Pin
         void setNodeIdx(IndexType nodeIdx) { _nodeIdx = nodeIdx; }
         /// @brief set the internal pin index
         /// @param set the internal pin index this pin corresponding to in the node it belonging to
-        void setIntPinIdx(IndexType intPinIdx) { _intPinIdx = intPinIdx; }
-        /*------------------------------*/ 
-        /* Vector operation             */
-        /*------------------------------*/ 
-        /// @brief append a netIdx to the netIdxArray
-        /// @param a pinIdx
-        void appendNetIdx(IndexType netIdx) { _netIdxArray.emplace_back(netIdx); }
+        void setIntNetIdx(IndexType intNetIdx) { _intNetIdx = intNetIdx; }
+        /// @brief set the net index
+        /// @param the index of the net this pin connecting to
+        void setNetIdx(IndexType netIdx) { _netIdx = netIdx; }
     private:
         IndexType _nodeIdx = INDEX_TYPE_MAX; ///< The node index of the pin
-        IndexType _intPinIdx = INDEX_TYPE_MAX; ///< The corresponding internal pin index in the internal node
-        std::vector<IndexType> _netIdxArray; ///< The nets this pin corresponding to
+        IndexType _intNetIdx = INDEX_TYPE_MAX; ///< The corresponding internal pin index in the internal node
+        IndexType _netIdx = INDEX_TYPE_MAX; ///< The nets this pin corresponding to
 };
 
 PROJECT_NAMESPACE_END

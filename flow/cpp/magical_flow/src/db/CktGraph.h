@@ -74,6 +74,12 @@ class CktGraph
         /// @param the index of net in this graph
         /// @return a net
         Net &                                                       net(IndexType netIdx)                               { return _netArray.at(netIdx); }
+        /// @brief get the name of this circuit graph
+        /// @return the name of this circuit
+        const std::string &                                         name() const                                        { return _name; }
+        /// @brief set the name of this circuit
+        /// @param the name of this circuit
+        void                                                        setName(const std::string &name)                    { _name = name; }
         /*------------------------------*/ 
         /* Vector operation             */
         /*------------------------------*/ 
@@ -90,6 +96,7 @@ class CktGraph
         std::vector<CktNode> _nodeArray; ///< The circuit nodes of this graph
         std::vector<Pin> _pinArray; ///< The pins of the circuit
         std::vector<Net> _netArray; ///< The nets of the circuit
+        std::string _name = ""; ///< The name of this circuit
 };
 
 PROJECT_NAMESPACE_END
