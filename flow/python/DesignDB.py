@@ -350,6 +350,7 @@ class Netlist_parser(object):
                 for inst_pin_idx in range(len(inst.pins)):
                     sub_net_idx = self.inst_pin_maps[subckt_idx][inst_pin_idx] # The net index connect to the pin in the sub circuit of "ckt"
                     self.db.subCkt(ckt_idx).pin(pin_idx).intNetIdx = sub_net_idx # The pin of instance is connected to one net in the sub circuit
+                    self.db.subCkt(ckt_idx).node(node_idx).graphIdx = subckt_idx
                     pin_idx += 1
             else: # leaf
                 subckt_idx = self.db.allocateCkt()
@@ -366,6 +367,7 @@ class Netlist_parser(object):
                     self.db.subCkt(subckt_idx).node(sub_node_idx).refName = inst.reference
                     self.db.subCkt(subckt_idx).node(sub_node_idx).name = inst.name
                     self.db.subCkt(ckt_idx).pin(pin_idx).intNetIdx = sub_net_idx # from ckt to subckt
+                    self.db.subCkt(ckt_idx).node(node_idx).graphIdx = subckt_idx
                     pin_idx += 1
 
     def translate_ckt(self, ckt):

@@ -23,13 +23,18 @@ class TestNetlistParser(unittest.TestCase):
         nlp = pyDB.Netlist_parser(db)
         nlp.parse_spectre(self.spectre_comparator)
         self.assertEqual(db.numCkts(), 18)
-        db.findRootCkt()
         for ckt_idx in range(db.numCkts()):
             ckt = db.subCkt(ckt_idx)
             print("Ckt ", ckt.name)
             print("# of nodes ", ckt.numNodes())
-        self.assertEqual(db.rootCktIdx(), 0)
-        for node_idx in range(len(topckt.numNodes())):
+            for node_idx in range(ckt.numNodes()):
+                node = ckt.node(node_idx)
+                print("Node ", node.name, " subgraph index ", node.graphIdx)
+        db.findRootCkt()
+        topckt = db.subCkt(db.rootCktIdx())
+        print(topckt.name)
+        self.assertEqual(db.rootCktIdx(), 0) # topcircuit is node 0. others are CMOS
+        for node_idx in range(topckt.numNodes()):
             node = topckt.node(node_idx)
         return True
     def check_cmos_net(ckt_idx, mos_node_idx, db, first, second, third, fourth):
