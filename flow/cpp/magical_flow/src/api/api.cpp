@@ -13,6 +13,7 @@ namespace py = pybind11;
 
 void initUtilAPI(py::module &);
 void initGlobalAPI(py::module &);
+void initLayoutAPI(py::module &);
 void initPhysicalPropAPI(py::module &);
 void initGraphComponentsAPI(py::module &);
 void initCktGraphAPI(py::module &);
@@ -24,6 +25,7 @@ PYBIND11_MODULE(magicalFlow, m)
 {
     initUtilAPI(m);
     initGlobalAPI(m);
+    initLayoutAPI(m);
     initPhysicalPropAPI(m);
     initGraphComponentsAPI(m);
     initCktGraphAPI(m);
