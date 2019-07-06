@@ -10,6 +10,7 @@
 
 #include "GraphComponents.h"
 #include "CktGraph.h"
+#include "PhysicalProp.h"
 
 PROJECT_NAMESPACE_BEGIN
 
@@ -55,6 +56,7 @@ class DesignDB
     private:
         std::vector<CktGraph> _ckts; ///< The hierarchical tree of the circuits. Each circuit is represented as a graph.
         IndexType _rootCkt = INDEX_TYPE_MAX; ///< The root node of the hierarchy. Should have only one.
+        PhyPropDB _phyPropDB; ///< Store the property of each specific devices
 };
 
 PROJECT_NAMESPACE_END

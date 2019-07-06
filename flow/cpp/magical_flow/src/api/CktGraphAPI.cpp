@@ -24,6 +24,8 @@ void initCktGraphAPI(py::module &m)
         .def("allocateNet", &PROJECT_NAMESPACE::CktGraph::allocateNet)
         .def("numNets", &PROJECT_NAMESPACE::CktGraph::numNets)
         .def("net", &PROJECT_NAMESPACE::CktGraph::net, py::return_value_policy::reference)
-        .def_property("name", &PROJECT_NAMESPACE::CktGraph::name, &PROJECT_NAMESPACE::CktGraph::setName);
-
+        .def_property("name", &PROJECT_NAMESPACE::CktGraph::name, &PROJECT_NAMESPACE::CktGraph::setName)
+        .def("layout", &PROJECT_NAMESPACE::CktGraph::layout, py::return_value_policy::reference)
+        .def_property("implType", &PROJECT_NAMESPACE::CktGraph::implType, &PROJECT_NAMESPACE::CktGraph::setImplType)
+        .def_property("implIdx", &PROJECT_NAMESPACE::CktGraph::implIdx, &PROJECT_NAMESPACE::CktGraph::setImplIdx);
 }

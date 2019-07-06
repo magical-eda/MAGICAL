@@ -14,6 +14,7 @@ class TestCktGraph(unittest.TestCase):
         self.node_test()
         self.pin_test()
         self.net_test()
+        self.layout_test()
 
         self.assertEqual(self.ckt.name, "")
         self.ckt.name = "test"
@@ -78,6 +79,15 @@ class TestCktGraph(unittest.TestCase):
         self.ckt.net(0).appendPinIdx(2)
         self.assertEqual(self.ckt.net(0).numPins(), 1)
         self.assertEqual(self.ckt.net(0).pinIdx(0), 2)
+
+    def layout_test(self):
+        self.ckt.layout().init(3)
+        layout = self.ckt.layout()
+        idx = layout.insertText(0, "test layout", 15, 42)
+        self.assertEqual(idx, 0)
+        self.assertEqual(self.ckt.layout().text(0, idx).text, "test layout")
+        self.assertEqual(self.ckt.layout().text(0, idx).coord().x, 15)
+        self.assertEqual(self.ckt.layout().text(0, idx).coord().y, 42)
 
 
 

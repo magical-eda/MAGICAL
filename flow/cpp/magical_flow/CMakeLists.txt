@@ -136,6 +136,7 @@ file(GLOB PY_API_SOURCES src/api/*.cpp ${SOURCES})
 file(GLOB UNITTEST_SOURCES 
     unittest/main/*.cpp
     unittest/db/*.cpp
+    unittest/parser/*.cpp
     ${SOURCES})
 
 #set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS "-static")

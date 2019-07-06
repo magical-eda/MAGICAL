@@ -489,6 +489,47 @@ class CfmomProp
         IntType _multi = -1; ///< mutli
         IntType _ftip = -1; ///< ftip. unit: e-12
 };
+
+class PhyPropDB
+{
+    public:
+        /// @brief default constructor
+        explicit PhyPropDB() = default; 
+        /// @brief get a nch property
+        /// @param the index
+        /// @return a nch property
+        NchProp & nch(IndexType idx) { return _nchArray.at(idx); }
+        /// @brief allocate a new nch property
+        /// @return the index of the property
+        IndexType allocateNch() { _nchArray.emplace_back(NchProp()); return _nchArray.size() - 1; }
+        /// @brief get a pch property
+        /// @param the index
+        /// @return a pch property
+        PchProp & pch(IndexType idx) { return _pchArray.at(idx); }
+        /// @brief allocate a new pch property
+        /// @return the index of the pch property
+        IndexType allocatePch() { _pchArray.emplace_back(PchProp());  return _pchArray.size() - 1; }
+        /// @brief get a res rppolywom property
+        /// @param the index
+        /// @return a rppolywom property
+        RppolywoMProp & rppolywom(IndexType idx) { return _rppolywomArray.at(idx); }
+        /// @brief allocate a new res rppolywom property
+        /// @return the index
+        IndexType allocateRppolywom() { _rppolywomArray.emplace_back(RppolywoMProp()); return _rppolywomArray.size() - 1; }
+        /// @brief get a cfmom property
+        /// @param the index
+        /// @return the cfmom property
+        CfmomProp & cfmom(IndexType idx) { return _cfmomArray.at(idx); }
+        /// @brief allocate a new cfmom property
+        /// @return the index
+        IndexType allocateCfmom() { _cfmomArray.emplace_back(CfmomProp()); return _cfmomArray.size() - 1; }
+    private:
+        std::vector<NchProp> _nchArray; ///< for nch
+        std::vector<Nch25ud18macProp> _nch25ud18macArray; ///< for nch25ud18mac
+        std::vector<PchProp> _pchArray; ///< for pch
+        std::vector<RppolywoMProp> _rppolywomArray; ///< for rppolym
+        std::vector<CfmomProp> _cfmomArray; ///< for cfmom
+};
 PROJECT_NAMESPACE_END
 
 #endif //MAGICAL_FLOW_PHYSICAL_PROP_H_

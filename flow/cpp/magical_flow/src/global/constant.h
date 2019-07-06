@@ -12,6 +12,8 @@
 
 PROJECT_NAMESPACE_BEGIN
 
+constexpr IndexType RESERVED_LAYERS_NUMBER = 500; ///< Reverse this number of layers for tech layer ID
+
 PROJECT_NAMESPACE_END
 
 #endif // MAGICAL_FLOW_CONSTANT_H_

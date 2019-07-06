@@ -9,6 +9,7 @@
 #define MAGICAL_FLOW_CKTGRAPH_H_
 
 #include "GraphComponents.h"
+#include "Layout.h"
 
 
 PROJECT_NAMESPACE_BEGIN
@@ -80,6 +81,21 @@ class CktGraph
         /// @brief set the name of this circuit
         /// @param the name of this circuit
         void                                                        setName(const std::string &name)                    { _name = name; }
+        /// @brief get the layout of this circuit
+        /// @param the layout implementation of this circuit
+        Layout &                                                    layout()                                            { return _layout; }
+        /// @brief get the implementation type of this circuit
+        /// @return the implementation type of this circuit
+        ImplType implType() const { return _implType; }
+        /// @brief set the implementation type of this circuit
+        /// @param the implementation type of this circuit
+        void setImplType(ImplType implType) { _implType = implType; }
+        /// @brief get the index of implementation type configuration in the database
+        /// @return the index of implementation type configuration in the database
+        IndexType implIdx() const { return _implIdx; }
+        /// @brief set the index of implementation type configuration in the database
+        /// @param the index of implementation type configuration in the database
+        void setImplIdx(IndexType implIdx) { _implIdx = implIdx; }
         /*------------------------------*/ 
         /* Vector operation             */
         /*------------------------------*/ 
@@ -97,6 +113,9 @@ class CktGraph
         std::vector<Pin> _pinArray; ///< The pins of the circuit
         std::vector<Net> _netArray; ///< The nets of the circuit
         std::string _name = ""; ///< The name of this circuit
+        Layout _layout; ///< The layout implementation for this circuit
+        ImplType _implType = ImplType::UNSET; ///< The implementation set of this circuit
+        IndexType _implIdx = INDEX_TYPE_MAX; ///< The index of this implementation type configuration in the database
 };
 
 PROJECT_NAMESPACE_END

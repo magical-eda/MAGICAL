@@ -12,6 +12,17 @@ namespace py = pybind11;
 
 void initPhysicalPropAPI(py::module &m)
 {
+    py::class_<PROJECT_NAMESPACE::PhyPropDB>(m, "PhyProbDB")
+        .def(py::init<>())
+        .def("nch", &PROJECT_NAMESPACE::PhyPropDB::nch, py::return_value_policy::reference, "Get a nch device property")
+        .def("allocateNch", &PROJECT_NAMESPACE::PhyPropDB::allocateNch, "Allocate a new nch device")
+        .def("pch", &PROJECT_NAMESPACE::PhyPropDB::pch, py::return_value_policy::reference, "Get a pch device property")
+        .def("allocatePch", &PROJECT_NAMESPACE::PhyPropDB::allocatePch, "Allocate a new pch device")
+        .def("rppolywom", &PROJECT_NAMESPACE::PhyPropDB::rppolywom, py::return_value_policy::reference, "Get a rppolywom device property")
+        .def("allocateRppolywom", &PROJECT_NAMESPACE::PhyPropDB::allocateRppolywom, py::return_value_policy::reference, "Get a rppolywom device property")
+        .def("cfmom", &PROJECT_NAMESPACE::PhyPropDB::cfmom, py::return_value_policy::reference, "Get a Cfmom device property")
+        .def("allocateCfmom", &PROJECT_NAMESPACE::PhyPropDB::allocateCfmom, "Allocate a cfmom devices");
+
     py::class_<PROJECT_NAMESPACE::MosProp>(m , "MosProp")
         .def(py::init<>())
         .def_property("length", &PROJECT_NAMESPACE::MosProp::length, &PROJECT_NAMESPACE::MosProp::setLength)
