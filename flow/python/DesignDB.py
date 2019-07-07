@@ -23,6 +23,15 @@ class DesignDB(object):
         """
         @brief parse spectre netlist
         """
+        nlp = Netlist_parser(self.db)
+        nlp.parse_spectre(sp_netlist)
+    
+    def read_hspice_netlist(self, sp_netlist):
+        """
+        @brief parse hspice netlist
+        """
+        nlp = Netlist_parser(self.db)
+        nlp.parse_hspice(sp_netlist)
 
 class netlist_element(object):
     def __init__(self, typeof):
@@ -426,6 +435,7 @@ class Netlist_parser(object):
                     self.db.subCkt(ckt_idx).pin(pin_idx).intNetIdx = sub_net_idx # from ckt to subckt
                     self.db.subCkt(ckt_idx).node(node_idx).graphIdx = subckt_idx
                     pin_idx += 1
+#TODO: 1. add the correct implType to subCkt 2. add the correct PhysicalProp to DesignDB 3. set the phyProp index
 
     def translate_ckt(self, ckt):
         """

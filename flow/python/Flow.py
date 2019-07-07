@@ -1,30 +1,20 @@
 ##
 # @file Flow.py
 # @author Keren Zhu
-# @date 06/27/2019
-# @brief Main file to run the Magical hierarchical flow
+# @date 07/07/2019
+# @brief The flow
 #
 
-import os
-import sys
-import Params
+import magicalFlow
 
-if __name__ = "__main__":
-    """
-    @brief main function to invoke the entire Magical flow
-    """
+class Flow(object):
+    def __init__(self, db):
+        self.db = db # MagicalDB
 
-    params = Params.Params()
-    params.printWelcome()
-    if len(sys.argv) == 1 or '-h' in sys.argv[1:] or '--help' in sys.argv[1:]:
-        params.printHelp()
-        exit()
-    elif len(sys.argv) != 2:
-        print("[E] One input parameters in json format in required")
-        params.printHelp()
-        exit()
-
-    # load parameters 
-    params.load(sys.argv[1])
-    print("[I] parameters = %s" % (params))
-
+    def run(self):
+        """
+        @brief the main function to run the flow
+        @return if successful
+        """
+        return True
+    

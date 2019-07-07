@@ -16,7 +16,9 @@ class Params:
         """
         @brief initialization
         """
-        self.spectre_netlist = None # Input netlist file
+        self.spectre_netlist = None # Input spectre netlist file
+        self.hspice_netlist = None # Input hspice netlist file
+        self.simple_tech_file = None # Input simple tech file
 
     def printWelcome(self):
         """
@@ -37,7 +39,11 @@ class Params:
                     JSON Parameters
 ========================================================
 spectre_netlist [required for spectre netlist]    | input .sp file 
-        """ % (self.spectre_netlist 
+hspice_netlist [required for hspice netlist]    | input .sp file 
+simple_tech_file [required]    | input simple techfile 
+        """ % (self.spectre_netlist,
+                self.hspice_netlist,
+                self.simple_tech_file
                 )
         print(content)
 
@@ -48,13 +54,17 @@ spectre_netlist [required for spectre netlist]    | input .sp file
         """
         data = dict()
         data['spectre_netlist'] = self.spectre_netlist
+        data['hspice_netlist'] = self.hspice_netlist
+        data['simple_tech_file'] = self.simple_tech_file
         return data 
 
     def fromJson(self, data):
         """
         @brief load form json 
         """
-        if 'spectre_netlist' in data: self.spectre = data['spectre_netlist']
+        if 'spectre_netlist' in data: self.spectre_netlist = data['spectre_netlist']
+        if 'hspice_netlist' in data: self.hspice_netlist = data['hspice_netlist']
+        if 'simple_tech_file' in data: self.simple_tech_file = data['simple_tech_file']
 
     def dump(self, filename):
         """
