@@ -40,5 +40,9 @@ void initGraphComponentsAPI(py::module &m)
         .def_property("nodeIdx", &::PROJECT_NAMESPACE::Pin::nodeIdx, &PROJECT_NAMESPACE::Pin::setNodeIdx)
         .def_property("intNetIdx", &PROJECT_NAMESPACE::Pin::intNetIdx, &PROJECT_NAMESPACE::Pin::setIntNetIdx)
         .def_property("netIdx", &PROJECT_NAMESPACE::Pin::netIdx, &PROJECT_NAMESPACE::Pin::setNetIdx)
-        .def("isConnected", &PROJECT_NAMESPACE::Pin::isConnected);
+        .def("isConnected", &PROJECT_NAMESPACE::Pin::isConnected)
+        .def("numLayoutRects", &PROJECT_NAMESPACE::Pin::numLayoutRects, "the number of rectangles in Layout")
+        .def("layoutRectIdx", &PROJECT_NAMESPACE::Pin::layoutRectIdx, "get one layout rectangle index of this pin")
+        .def("addLayoutRectIdx", &PROJECT_NAMESPACE::Pin::addLayoutRectIdx, "add a new rectangle index in _layoutRectIdx");
+        
 }

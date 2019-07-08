@@ -173,6 +173,13 @@ class Pin
         /// @brief whether this pin is connected to a net
         /// @return whether this pin is connected to a net
         bool isConnected() const { return _netIdx != INDEX_TYPE_MAX; }
+        /// @brief get the number of elements in the _layoutIdx
+        /// @return the number of rectangles in Layout
+        IndexType numLayoutRects() const { return _layoutRectIdx.size(); }
+        /// @brief get one layout rectangle index of this pin
+        /// @param the index in the member variable vector
+        /// @return one layout rectangle index of this pin
+        IndexType layoutRectIdx(IndexType idx) const { return _layoutRectIdx.at(idx); }
         /*------------------------------*/ 
         /* Setters                      */
         /*------------------------------*/ 
@@ -185,10 +192,18 @@ class Pin
         /// @brief set the net index
         /// @param the index of the net this pin connecting to
         void setNetIdx(IndexType netIdx) { _netIdx = netIdx; }
+        /*------------------------------*/ 
+        /* Vector operations            */
+        /*------------------------------*/ 
+        /// @brief add a new rectangle index in _layoutRectIdx
+        /// @param An index of rectangle in Layout
+        /// @return the index of the new rectangle
+        IndexType addLayoutRectIdx(IndexType rectIdx) { _layoutRectIdx.emplace_back(rectIdx); return _layoutRectIdx.size() - 1; }
     private:
         IndexType _nodeIdx = INDEX_TYPE_MAX; ///< The node index of the pin
         IndexType _intNetIdx = INDEX_TYPE_MAX; ///< The corresponding internal pin index in the internal node
         IndexType _netIdx = INDEX_TYPE_MAX; ///< The nets this pin corresponding to
+        std::vector<IndexType> _layoutRectIdx; ///< The corresponding indices of rectangles in the Layout
 };
 
 PROJECT_NAMESPACE_END

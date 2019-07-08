@@ -76,5 +76,11 @@ class TestPin(unittest.TestCase):
         self.assertEqual(pin.netIdx, 3)
         self.assertTrue(pin.isConnected())
 
+        self.assertEqual(pin.numLayoutRects(), 0)
+        rect_idx = pin.addLayoutRectIdx(31)
+        self.assertEqual(pin.numLayoutRects(), 1)
+        self.assertEqual(rect_idx, 0)
+        self.assertEqual(pin.layoutRectIdx(rect_idx), 31)
+
 if __name__ == '__main__':
     unittest.main()
