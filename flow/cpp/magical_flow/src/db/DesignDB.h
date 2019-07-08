@@ -40,6 +40,9 @@ class DesignDB
         /// @brief get the index of the root node
         /// @return the index of the root node
         IndexType rootCktIdx() const { return _rootCkt; }
+        /// @brief get PhyPropDB
+        /// @return the physical property DB
+        PhyPropDB & phyPropDB() { return _phyPropDB; }
         /*------------------------------*/ 
         /* Vector operation             */
         /*------------------------------*/ 

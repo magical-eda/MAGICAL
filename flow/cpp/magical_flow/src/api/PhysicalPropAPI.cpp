@@ -19,7 +19,7 @@ void initPhysicalPropAPI(py::module &m)
         .def("pch", &PROJECT_NAMESPACE::PhyPropDB::pch, py::return_value_policy::reference, "Get a pch device property")
         .def("allocatePch", &PROJECT_NAMESPACE::PhyPropDB::allocatePch, "Allocate a new pch device")
         .def("rppolywom", &PROJECT_NAMESPACE::PhyPropDB::rppolywom, py::return_value_policy::reference, "Get a rppolywom device property")
-        .def("allocateRppolywom", &PROJECT_NAMESPACE::PhyPropDB::allocateRppolywom, py::return_value_policy::reference, "Get a rppolywom device property")
+        .def("allocateRppolywom", &PROJECT_NAMESPACE::PhyPropDB::allocateRppolywom, "Get a rppolywom device property")
         .def("cfmom", &PROJECT_NAMESPACE::PhyPropDB::cfmom, py::return_value_policy::reference, "Get a Cfmom device property")
         .def("allocateCfmom", &PROJECT_NAMESPACE::PhyPropDB::allocateCfmom, "Allocate a cfmom devices");
 

@@ -42,6 +42,7 @@ class TestNetlistParser(unittest.TestCase):
                 node = ckt.node(node_idx)
                 print("Node ", node.name, " subgraph index ", node.graphIdx)
         """
+        
         db.findRootCkt()
         topckt = db.subCkt(db.rootCktIdx())
         self.assertEqual(db.rootCktIdx(), 0) # topcircuit is node 0. others are CMOS

@@ -19,5 +19,6 @@ void initDesignDBAPI(py::module &m)
         .def("subCkt", &PROJECT_NAMESPACE::DesignDB::subCkt, py::return_value_policy::reference)
         .def("rootCktIdx", &PROJECT_NAMESPACE::DesignDB::rootCktIdx)
         .def("allocateCkt", &PROJECT_NAMESPACE::DesignDB::allocateCkt)
-        .def("findRootCkt", &PROJECT_NAMESPACE::DesignDB::findRootCkt);
+        .def("findRootCkt", &PROJECT_NAMESPACE::DesignDB::findRootCkt)
+        .def("phyPropDB", &PROJECT_NAMESPACE::DesignDB::phyPropDB, py::return_value_policy::reference, "Get physical property DB");
 }

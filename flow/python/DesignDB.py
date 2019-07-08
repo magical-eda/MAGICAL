@@ -435,6 +435,9 @@ class Netlist_parser(object):
                     self.db.subCkt(ckt_idx).pin(pin_idx).intNetIdx = sub_net_idx # from ckt to subckt
                     self.db.subCkt(ckt_idx).node(node_idx).graphIdx = subckt_idx
                     pin_idx += 1
+
+
+
 #TODO: 1. add the correct implType to subCkt 2. add the correct PhysicalProp to DesignDB 3. set the phyProp index
 
     def translate_ckt(self, ckt):
