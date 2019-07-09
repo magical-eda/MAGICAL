@@ -28,9 +28,9 @@ void initGlobalAPI(py::module &m)
         .value("ImplTypeUNSET", PROJECT_NAMESPACE::ImplType::UNSET)
         .value("ImplTypePCELL_Pch", PROJECT_NAMESPACE::ImplType::PCELL_Pch)
         .value("ImplTypePCELL_Nch", PROJECT_NAMESPACE::ImplType::PCELL_Nch)
-        .value("ImplTypePCELL_Nch25ud18mac", PROJECT_NAMESPACE::ImplType::PCELL_Nch25ud18mac)
-        .value("ImplTypePCELL_RppolywoM", PROJECT_NAMESPACE::ImplType::PCELL_RppolywoM)
-        .value("ImplTypePCELL_Cfmom", PROJECT_NAMESPACE::ImplType::PCELL_Cfmom)
+//        .value("ImplTypePCELL_Nch25ud18mac", PROJECT_NAMESPACE::ImplType::PCELL_Nch25ud18mac)
+        .value("ImplTypePCELL_Res", PROJECT_NAMESPACE::ImplType::PCELL_Res)
+        .value("ImplTypePCELL_Cap", PROJECT_NAMESPACE::ImplType::PCELL_Cap)
         .export_values();
     
     m.def("orientConv", &PROJECT_NAMESPACE::MfUtil::orientConv, "convert coordinates under different offset and orientation",
