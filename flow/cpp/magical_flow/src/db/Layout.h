@@ -201,6 +201,17 @@ class Layout
         /// @param second: the index of the text in that layer
         /// @return the requested rect layout object
         RectLayout & rect(IndexType layerIdx, IndexType rectIdx) { return _layers.at(layerIdx).rect(rectIdx); }
+        /// @brief get the number of layers
+        /// @return the number of layers
+        IndexType numLayers() const { return _numLayers; }
+        /// @brief get the number of texts in one layer
+        /// @param the index of one layer
+        /// @return the number of texts in the layer
+        IndexType numTexts(IndexType layerIdx) const { return _layers.at(layerIdx).textList().size(); }
+        /// @brief get the number of rectangles in one layer
+        /// @param the index of one layer
+        /// @return the number of rectangles in the layer
+        IndexType numRects(IndexType layerIdx) const { return _layers.at(layerIdx).rectList().size(); }
         /*------------------------------*/ 
         /* Add items                    */
         /*------------------------------*/ 

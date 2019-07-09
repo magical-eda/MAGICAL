@@ -115,6 +115,7 @@ include_directories (
     ${GTEST_ROOT_DIR}/googletest/include
     ${PYBIND11_ROOT_DIR}/include
     ${PYTHON_INCLUDE_DIRS}
+    ${LIMBO_ROOT_DIR}/include
 )
 
 file (GLOB GTEST_MAIN_LIB ${GTEST_ROOT_DIR}/lib/libgtest_main.a)
@@ -129,6 +130,7 @@ file(GLOB SOURCES src/db/*.h        src/db/*.cpp
                   src/util/*.h      src/util/*.cpp 
                   src/parser/*.h    src/parser/*.cpp
                   src/global/*.h
+                  src/writer/*.h
                   )
 
 file(GLOB PROJECT_SOURCES src/main/*.cpp ${SOURCES})
