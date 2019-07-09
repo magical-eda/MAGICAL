@@ -151,7 +151,7 @@ file(GLOB UNITTEST_SOURCES
 
 # Add modules to pybind
 pybind11_add_module(${PROJECT_NAME} ${PY_API_SOURCES})
-target_link_libraries(${PROJECT_NAME} ${LIMBO_LIB} )
+target_link_libraries(${PROJECT_NAME} PUBLIC ${LIMBO_LIB} )
 
 #Unit Tests using GoogleTest
 enable_testing()
