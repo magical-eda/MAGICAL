@@ -490,6 +490,7 @@ class CfmomProp
         IntType _ftip = -1; ///< ftip. unit: e-12
 };
 
+
 class PhyPropDB
 {
     public:
@@ -530,6 +531,8 @@ class PhyPropDB
         std::vector<RppolywoMProp> _rppolywomArray; ///< for rppolym
         std::vector<CfmomProp> _cfmomArray; ///< for cfmom
 };
+
+
 PROJECT_NAMESPACE_END
 
 #endif //MAGICAL_FLOW_PHYSICAL_PROP_H_

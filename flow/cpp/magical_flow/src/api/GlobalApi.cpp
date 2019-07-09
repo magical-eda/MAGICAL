@@ -38,4 +38,6 @@ void initGlobalAPI(py::module &m)
             py::arg_v("orient", PROJECT_NAMESPACE::OriType::N, "OriType::N"), 
             py::arg_v("offset", PROJECT_NAMESPACE::XY<PROJECT_NAMESPACE::LocType>(0, 0), "XYLoc(0, 0)"), 
             py::arg_v("bbox", PROJECT_NAMESPACE::Box<PROJECT_NAMESPACE::LocType>(0,0,0,0)), "BoxLoc(0, 0)");
+
+    m.def("isImplTypeDevice", &PROJECT_NAMESPACE::MfUtil::isImplTypeDevice, "Determine whether the implementation type is a device or subckt");
 }

@@ -196,6 +196,42 @@ namespace MfUtil
             return flipEastCoordinate(coord, offset, bbox);
         }
     }
+
+    /// @brief Determine whether the implementation type is a device or subckt
+    /// @param the ImplType for CktGraph
+    /// @return true: device. false: subckt
+    inline bool isImplTypeDevice(ImplType implType)
+    {
+        if (implType == ImplType::PCELL_Cfmom)
+        {
+            return true;
+        }
+        else if (implType == ImplType::PCELL_Nch)
+        {
+            return true;
+        }
+        else if (implType == ImplType::PCELL_Nch25ud18mac)
+        {
+            return true;
+        }
+        else if (implType == ImplType::PCELL_Pch)
+        {
+            return true;
+        }
+        else if (implType == ImplType::PCELL_RppolywoM)
+        {
+            return true;
+        }
+        else if (implType == ImplType::UNSET)
+        {
+            return false;
+        }
+        else
+        {
+            AssertMsg(false, "UTIL::isDevice: unknown ImplType \n");
+            return true;
+        }
+    }
 }
 
 PROJECT_NAMESPACE_END
