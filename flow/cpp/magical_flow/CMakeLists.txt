@@ -115,7 +115,14 @@ include_directories (
     ${GTEST_ROOT_DIR}/googletest/include
     ${PYBIND11_ROOT_DIR}/include
     ${PYTHON_INCLUDE_DIRS}
+    ${LIMBO_ROOT_DIR}/include
 )
+
+# LIMBO LIB
+file(GLOB LIMBO_LIB
+    #limbo gdsparser
+    ${LIMBO_ROOT_DIR}/lib/libgdsdb.a 
+    ${LIMBO_ROOT_DIR}/lib/libgdsparser.a)
 
 file (GLOB GTEST_MAIN_LIB ${GTEST_ROOT_DIR}/lib/libgtest_main.a)
 file (GLOB GTEST_LIB ${GTEST_ROOT_DIR}/lib/libgtest.a)
@@ -129,6 +136,7 @@ file(GLOB SOURCES src/db/*.h        src/db/*.cpp
                   src/util/*.h      src/util/*.cpp 
                   src/parser/*.h    src/parser/*.cpp
                   src/global/*.h
+                  src/writer/*.h
                   )
 
 file(GLOB PROJECT_SOURCES src/main/*.cpp ${SOURCES})
@@ -143,9 +151,10 @@ file(GLOB UNITTEST_SOURCES
 
 # Add modules to pybind
 pybind11_add_module(${PROJECT_NAME} ${PY_API_SOURCES})
+target_link_libraries(${PROJECT_NAME} PUBLIC ${LIMBO_LIB} )
 
 #Unit Tests using GoogleTest
 enable_testing()
 add_executable(unittest ${UNITTEST_SOURCES})
-target_link_libraries(unittest ${GTEST_LIB} )
+target_link_libraries(unittest ${GTEST_LIB} ${LIMBO_LIB} )
 add_test(NAME unittest COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/unittest ${CMAKE_CURRENT_SOURCE_DIR}/unittest)

@@ -5,6 +5,17 @@
 
 import unittest, magicalFlow
 
+class TestImplType(unittest.TestCase):
+    def runTest(self):
+        self.testIsImplTypeDevice()
+    def testIsImplTypeDevice(self):
+        self.assertFalse(magicalFlow.isImplTypeDevice(magicalFlow.ImplTypeUNSET))
+        self.assertTrue(magicalFlow.isImplTypeDevice(magicalFlow.ImplTypePCELL_Pch))
+        self.assertTrue(magicalFlow.isImplTypeDevice(magicalFlow.ImplTypePCELL_Nch))
+        self.assertTrue(magicalFlow.isImplTypeDevice(magicalFlow.ImplTypePCELL_Nch25ud18mac))
+        self.assertTrue(magicalFlow.isImplTypeDevice(magicalFlow.ImplTypePCELL_RppolywoM))
+        self.assertTrue(magicalFlow.isImplTypeDevice(magicalFlow.ImplTypePCELL_Cfmom))
+
 class TestOriType(unittest.TestCase):
     def runTest(self):
         self.assertNotEqual(magicalFlow.OriTypeN, magicalFlow.OriTypeS)

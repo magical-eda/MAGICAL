@@ -241,6 +241,7 @@ class CapProp
         std::string _attributes = ""; ///< attributes string.
 };
 
+
 class PhyPropDB
 {
     public:
@@ -280,6 +281,8 @@ class PhyPropDB
         std::vector<ResProp> _resArray; ///< for rppolym
         std::vector<CapProp> _capArray; ///< for cfmom
 };
+
+
 PROJECT_NAMESPACE_END
 
 #endif //MAGICAL_FLOW_PHYSICAL_PROP_H_

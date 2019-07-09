@@ -19,6 +19,7 @@ void initGraphComponentsAPI(py::module &);
 void initCktGraphAPI(py::module &);
 void initDesignDBAPI(py::module &);
 void initParseAPI(py::module &);
+void initWriterAPI(py::module &);
 void initTechDbAPI(py::module &);
 
 PYBIND11_MAKE_OPAQUE(std::vector<PROJECT_NAMESPACE::IndexType>);
@@ -33,5 +34,6 @@ PYBIND11_MODULE(magicalFlow, m)
     initCktGraphAPI(m);
     initDesignDBAPI(m);
     initParseAPI(m);
+    initWriterAPI(m);
     initTechDbAPI(m);
 }
