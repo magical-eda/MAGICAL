@@ -24,6 +24,15 @@ class TechUnit
         /// @brief get the dbu
         /// @return the dbu
         IntType dbu() const { return _dbu; }
+        /// @brief get the GDSII user unit, 1nm per bit
+        /// @return the GDSII user unit, 1nm per bit
+        RealType dbuUU() const { return 1 / static_cast<RealType>(_dbu); }
+        /// @brief get the GDSII database unit in meter, usually 1e-9
+        /// @return the GDSII database unit
+        RealType dbuM() const { return 1 / static_cast<RealType>(_dbu * 1000000); }
+        /// @brief get the GDSII header
+        /// @return the GDSII header
+        IntType gdsHeader() const { return _gdsHeader; }
         /*------------------------------*/ 
         /* Setters                      */
         /*------------------------------*/ 
@@ -32,6 +41,7 @@ class TechUnit
         void setDbu(IntType dbu) { _dbu = dbu; }
     private:
         IntType _dbu = 1000; ///< database unit / um. ie. 1 dbu imply 1 unit = 1nm
+        IntType _gdsHeader = 600; ///< GDSII format header. usually 600 see: http://boolean.klaasholwerda.nl/interface/bnf/gdsformat.html#recordheader
 };
 
 /// @class MAGICAL_FLOW::TechDB
