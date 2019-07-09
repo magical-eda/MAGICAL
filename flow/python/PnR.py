@@ -5,11 +5,12 @@
 # @brief The class for implementing one layout for a circuit
 #
 
-import Device_generator
 
 class PnR(object):
-    def __init__(self, db):
-        self.db = db # MagicalDB
+    def __init__(self, magicalDB):
+        self.mDB = magicalDB
+        self.dDB = magicalDB.designDB.db
+        self.tDB = magicalDB.techDB
     
     def implLayout(self, ckt_idx):
         """
