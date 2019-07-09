@@ -17,6 +17,7 @@ class MagicalDB(object):
     def parse(self):
         self.parse_simple_techfile(self.params)
         self.parse_input_netlist(self.params)
+        self.designDB.db.findRootCkt() # After the parsing, find the root circuit of the hierarchy
         return True
 
     def parse_simple_techfile(self, params):
@@ -36,3 +37,12 @@ class MagicalDB(object):
 
     def read_hspice_netlist(self, sp_netlist):
         self.designDB.read_hspice_netlist(sp_netlist)
+
+    """
+    Some wrapper
+    """
+    def topCktIdx(self):
+        """
+        @brief Get the index of circuit graph of the hierarchy
+        """
+        return self.designDB.db.rootCktIdx()
