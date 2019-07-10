@@ -435,7 +435,81 @@ class Netlist_parser(object):
                     self.db.subCkt(ckt_idx).pin(pin_idx).intNetIdx = sub_net_idx # from ckt to subckt
                     self.db.subCkt(ckt_idx).node(node_idx).graphIdx = subckt_idx
                     pin_idx += 1
+                if 'm' in inst.parameters:
+                    inst.parameters['multi'] = inst.parameters['m']
+                if inst.reference in nmos_set: 
+                    nchId = self.db.phyPropDB().allocateNch()
+                    nch = self.db.phyPropDB().nch(nchId)
+                    nch.length = self.get_value(inst.parameters['l'], unit=1e-12)
+                    nch.width = self.get_value(inst.parameters['w'], unit=1e-12)
+                    nch.numFingers = self.get_value(inst.parameters['nf'], unit=1)
+                    if 'multi' in inst.parameters.keys():
+                        nch.mult = self.get_value(inst.parameters['multi'], unit=1)
+                    nch.attr = inst.reference
+                    self.db.subCkt(subckt_idx).implIdx = nchId
+                    self.db.subCkt(subckt_idx).implType = magicalFlow.ImplTypePCELL_Nch
+                elif inst.reference in pmos_set: 
+                    pchId = self.db.phyPropDB().allocatePch()
+                    pch = self.db.phyPropDB().pch(pchId)
+                    pch.length = self.get_value(inst.parameters['l'], unit=1e-12)
+                    pch.width = self.get_value(inst.parameters['w'], unit=1e-12)
+                    pch.numFingers = self.get_value(inst.parameters['nf'], unit=1)
+                    if 'multi' in inst.parameters.keys():
+                        pch.mult = self.get_value(inst.parameters['multi'], unit=1)
+                    pch.attr = inst.reference
+                    self.db.subCkt(subckt_idx).implIdx = pchId
+                    self.db.subCkt(subckt_idx).implType = magicalFlow.ImplTypePCELL_Pch
+                elif inst.reference in resistor_set: 
+                    resId = self.db.phyPropDB().allocateRes()
+                    res = self.db.phyPropDB().resister(resId)
+                    res.lr = self.get_value(inst.parameters['lr'], unit=1e-12)
+                    res.wr = self.get_value(inst.parameters['wr'], unit=1e-12)
+                    if 'series' in inst.parameters.keys():
+                        res.series = True
+                        res.segNum = self.get_value(inst.parameters['series'], unit=1)
+                        res.segSpace = self.get_value(inst.parameters['segspace'], unit=1e-12)
+                    elif 'para' in inst.parameters.keys():
+                        res.parallel = True
+                        res.segNum = self.get_value(inst.parameters['para'], unit=1)
+                        res.segSpace = self.get_value(inst.parameters['segspace'], unit=1e-12)
+                    else:
+                        res.segNum = 1
+                        res.segSpace = self.get_value('0.18e-6', unit=1e-12)
+                    res.attr = inst.reference
+                    self.db.subCkt(subckt_idx).implIdx = resId
+                    self.db.subCkt(subckt_idx).implType = magicalFlow.ImplTypePCELL_Res
+                elif inst.reference in capacitor_set:
+                    capId = self.db.phyPropDB().allocateCap()
+                    cap = self.db.phyPropDB().capacitor(capId)
+                    cap.w = self.get_value(inst.parameters['w'], unit=1e-12)
+                    cap.spacing = self.get_value(inst.parameters['sp'], unit=1e-12)
+                    cap.numFingers = self.get_value(inst.parameters['nr'], unit=1)
+                    cap.lr = self.get_value(inst.parameters['lr'], unit=1e-12)
+                    cap.stm = self.get_value(inst.parameters['stm'], unit=1)
+                    cap.spm = self.get_value(inst.parameters['spm'], unit=1)
+                    cap.ftip = self.get_value(inst.parameters['ftip'], unit=1e-12)
+                    cap.attr = inst.attr
+                    if 'multi' in inst.parameters.keys():
+                        cap.multi = self.get_value(inst.parameters['multi'], unit=1)
+                    self.db.subCkt(subckt_idx).implIdx = capId
+                    self.db.subCkt(subckt_idx).implType = magicalFlow.ImplTypePCELL_Cap
+                else:
+                    # This is reserved for subCkt pin etc...
+                    pass
 #TODO: 1. add the correct implType to subCkt 2. add the correct PhysicalProp to DesignDB 3. set the phyProp index
+
+    @staticmethod
+    def get_value(string, unit=1):
+        """
+        @brief return a number string into a integer based on unit
+        """
+        x = string[-1]
+        if x.isalpha():
+            if x == 'u':
+                string = string[:-1] + 'e-6'
+            elif x == 'n':
+                string = string[:-1] + 'e-9'
+        return int(float(string)/unit)
 
     def translate_ckt(self, ckt):
         """

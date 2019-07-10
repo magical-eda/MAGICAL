@@ -1,4 +1,4 @@
-/**
+/*
  * @file type.h
  * @brief Define the types used in the project
  * @author Keren Zhu
@@ -58,9 +58,9 @@ enum class ImplType
     UNSET,
     PCELL_Nch,
     PCELL_Pch,
-    PCELL_Nch25ud18mac,
-    PCELL_RppolywoM,
-    PCELL_Cfmom
+//    PCELL_Nch25ud18mac,
+    PCELL_Res,
+    PCELL_Cap
 };
 
 PROJECT_NAMESPACE_END
