@@ -1,7 +1,7 @@
 /*
  * @file type.h
  * @brief Define the types used in the project
- * @author Keren Zhu
+ * @author Keren Zhu, Mingjie Liu
  * @date 06/14/2019
  */
 

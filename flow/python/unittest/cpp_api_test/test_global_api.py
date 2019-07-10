@@ -1,5 +1,5 @@
 """
-@author Keren Zhu
+@author Keren Zhu, Mingjie Liu
 @brief test the global api
 """
 
