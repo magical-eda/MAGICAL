@@ -4,8 +4,8 @@
 # @brief The class for generating the layout for pcell devices
 #
 
-import sys
-sys.path.append("./../../../constraint_generation/python")
+import sys, os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))+'/constraint_generation/python/')
 from device_generation.Mosfet import Mosfet
 from device_generation.Capacitor import Capacitor
 from device_generation.Resistor import Resistor
