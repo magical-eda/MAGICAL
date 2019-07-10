@@ -202,7 +202,7 @@ namespace MfUtil
     /// @return true: device. false: subckt
     inline bool isImplTypeDevice(ImplType implType)
     {
-        if (implType == ImplType::PCELL_Cfmom)
+        if (implType == ImplType::PCELL_Cap)
         {
             return true;
         }
@@ -210,15 +210,15 @@ namespace MfUtil
         {
             return true;
         }
-        else if (implType == ImplType::PCELL_Nch25ud18mac)
-        {
-            return true;
-        }
+//        else if (implType == ImplType::PCELL_Nch25ud18mac)
+//        {
+//            return true;
+//        }
         else if (implType == ImplType::PCELL_Pch)
         {
             return true;
         }
-        else if (implType == ImplType::PCELL_RppolywoM)
+        else if (implType == ImplType::PCELL_Res)
         {
             return true;
         }
