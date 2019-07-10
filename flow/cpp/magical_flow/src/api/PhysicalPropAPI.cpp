@@ -1,7 +1,7 @@
 /**
  * @file PhysicalPropAPI.cpp
  * @brief The Python interface for the classes defined in PhysicalProp
- * @author Keren Zhu
+ * @author Keren Zhu, Mingjie Liu
  * @date 06/21/2019
  */
 

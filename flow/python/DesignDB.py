@@ -1,6 +1,6 @@
 ##
 # @file DesignDB.py
-# @author Keren Zhu
+# @author Keren Zhu, Mingjie Liu
 # @date 06/27/2019
 # @brief The design database for the magical flow.
 #

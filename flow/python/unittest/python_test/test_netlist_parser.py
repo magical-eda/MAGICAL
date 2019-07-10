@@ -1,6 +1,6 @@
 ##
 # @file test_netlist_parser.py
-# @author Keren Zhu
+# @author Keren Zhu, Mingjie Liu
 # @date 06/28/2019
 # @brief Unittest for netlist parsers
 #

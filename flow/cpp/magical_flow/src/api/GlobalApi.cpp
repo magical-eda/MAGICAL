@@ -1,7 +1,7 @@
 /**
  * @file GlobalAPI.cpp
  * @brief The Python interface for the classes defined in global.h
- *mom @author Keren Zhu
+ * @author Keren Zhu, Mingjie Liu
  * @date 06/24/2019
  */
 

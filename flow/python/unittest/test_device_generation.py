@@ -1,8 +1,9 @@
 ##
-# @file test_netlist_parser.py
-# @author Keren Zhu
+# @file test_device_generation.py
+# @author Mingjie Liu
 # @date 06/28/2019
 # @brief Unittest for netlist parsers
+# Unittest not supported for gdspy
 #
 
 import os 
@@ -24,7 +25,7 @@ class TestNetlistParser():
         nlp.parse_spectre(self.spectre_comparator)
         db.findRootCkt()
         topckt = db.subCkt(db.rootCktIdx())
-        devgen = devGen(db)
+        devgen = devGen.Device_generator(db)
         for node_idx in range(topckt.numNodes()):
             node = topckt.node(node_idx)
             devgen.setGDS(self.out_dir+node.name+'.gds')
