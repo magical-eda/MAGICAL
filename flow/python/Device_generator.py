@@ -36,6 +36,7 @@ class Device_generator(object):
     def writeOut(self):
         """
         @brief write GDSII, Pin, Bin for file based version
+        Need to setGDS() and setPinBB
         Should be removed in later versions
         """
         gdspy.write_gds(self.outGDS, [self.cell], unit=1.0e-6, precision=1.0e-9)
@@ -45,6 +46,28 @@ class Device_generator(object):
         for pin in self.cell.pin():
             of.write(pin.normalize())
         of.close
+
+    def writeDB(self, cktIdx):
+        """
+        @brief write to GdsData. Current version GDS is file based
+        Need to setGDS()
+        Should write to layoutDB in future.
+        """
+        gdspy.write_gds(self.outGDS, [self.cell], unit=1.0e-6, precision=1.0e-9)
+        ckt = self.dDB.subCkt(cktIdx)
+        gdsData = ckt.GdsData()
+        BB = basic.BB(self.cell)
+        gdsData.setBBox(int(BB[0][0]), int(BB[0][1]), int(BB[1][0]), int(BB[1][1]))
+        gdsData.gdsFile = self.outGDS
+        # Match pin name, current implementation is integer, bulk need to be ommited for res/cap/mos
+        # Example, 0:drain, 1:gate, etc...
+        net_name = 0
+        for pin in self.cell.pin():
+            shape = pin.normalize_shape()
+            ckt.net(net_name).setIoShape(shape[1], shape[2], shape[3], shape[4])
+            ckt.net(net_name).ioLayer = shape[0]
+            net_name += 1
+
  
     @staticmethod
     def get_attr(string):
@@ -85,4 +108,5 @@ class Device_generator(object):
             raise Exception("Unsupported device")
             return False
         self.writeOut()
+        self.writeDB(cktIdx)
         return True
