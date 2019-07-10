@@ -421,9 +421,15 @@ class Netlist_parser(object):
             else: # leaf
                 subckt_idx = self.db.allocateCkt()
                 self.db.subCkt(subckt_idx).name = inst.name
-                for net_name in inst.pins:
+                for i in range(len(inst.pins)):
                     sub_net_idx = self.db.subCkt(subckt_idx).allocateNet()
-                    self.db.subCkt(subckt_idx).net(sub_net_idx).name = net_name
+                    self.db.subCkt(subckt_idx).net(sub_net_idx).name = str(i) 
+                    # For device hard encoding the net name as the index
+                    # In this setting for mos name:pin is 0:drain, 1:gate, etc...
+# TODO We will be using only 3 index for mosfets and 2 index for res/caps. 
+# Mosfet Bulk will be implemented in wellgen after placement.
+# Device generation support 3t caps but only 2t res.
+# For now the flow will only support 2t caps and res.
                     sub_pin_idx = self.db.subCkt(subckt_idx).allocatePin()
                     sub_node_idx = self.db.subCkt(subckt_idx).allocateNode()
                     self.db.subCkt(subckt_idx).pin(sub_pin_idx).nodeIdx = sub_node_idx
