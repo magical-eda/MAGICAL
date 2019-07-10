@@ -96,6 +96,9 @@ class CktGraph
         /// @brief set the index of implementation type configuration in the database
         /// @param the index of implementation type configuration in the database
         void setImplIdx(IndexType implIdx) { _implIdx = implIdx; }
+        /// @brief get GdsData 
+        /// @return GdsData reference
+        GdsData & gdsData() { return _gdsData; }
         /*------------------------------*/ 
         /* Vector operation             */
         /*------------------------------*/ 
@@ -116,6 +119,10 @@ class CktGraph
         Layout _layout; ///< The layout implementation for this circuit
         ImplType _implType = ImplType::UNSET; ///< The implementation set of this circuit
         IndexType _implIdx = INDEX_TYPE_MAX; ///< The index of this implementation type configuration in the database
+        /*------------------------------*/ 
+        /* Integration                  */
+        /*------------------------------*/ 
+        GdsData _gdsData; ///< The gds data
 };
 
 PROJECT_NAMESPACE_END

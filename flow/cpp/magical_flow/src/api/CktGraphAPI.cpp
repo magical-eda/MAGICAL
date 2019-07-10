@@ -27,5 +27,6 @@ void initCktGraphAPI(py::module &m)
         .def_property("name", &PROJECT_NAMESPACE::CktGraph::name, &PROJECT_NAMESPACE::CktGraph::setName)
         .def("layout", &PROJECT_NAMESPACE::CktGraph::layout, py::return_value_policy::reference)
         .def_property("implType", &PROJECT_NAMESPACE::CktGraph::implType, &PROJECT_NAMESPACE::CktGraph::setImplType)
-        .def_property("implIdx", &PROJECT_NAMESPACE::CktGraph::implIdx, &PROJECT_NAMESPACE::CktGraph::setImplIdx);
+        .def_property("implIdx", &PROJECT_NAMESPACE::CktGraph::implIdx, &PROJECT_NAMESPACE::CktGraph::setImplIdx)
+        .def("GdsData", &::MAGICAL_FLOW::CktGraph::gdsData, py::return_value_policy::reference);
 }

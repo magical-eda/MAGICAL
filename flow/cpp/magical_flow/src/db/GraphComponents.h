@@ -12,6 +12,29 @@
 
 PROJECT_NAMESPACE_BEGIN
 
+/// @class MAGICAL_FLOW::GdsData
+/// @brief for July integration. Store the GDSII filename and bounding box
+class GdsData
+{
+    public:
+        explicit GdsData() = default;
+        /// @brief get the bounding box
+        /// @return the reference to the bounding box
+        Box<LocType> & bbox() { return _bbox; }
+        /// @brief set the bounding box
+        /// @param xlo ylo xhi yhi
+        void setBBox(LocType xLo, LocType yLo, LocType xHi, LocType yHi) { _bbox = Box<LocType>(xLo, yLo, xHi, yHi); }
+        /// @brief get the gds filename
+        /// @return gds filename
+        std::string gdsFile() { return _gdsFile; }
+        /// @breif set gds filename
+        /// @param gds filename
+        void setGdsFile(const std::string &filename) { _gdsFile = filename; }
+    private:
+        std::string _gdsFile = ""; ///< Filename for GDSII layout
+        Box<LocType> _bbox; ///< The bounding box of the layout
+};
+
 /// @class MAGICAL_FLOW::CktNode
 /// @brief the abstracted node concepts for representing the physical components circuits
 class CktNode 
@@ -145,9 +168,34 @@ class Net
         /// @brief append a pinIdx to the pinIdxArray
         /// @param a pinIdx
         void appendPinIdx(IndexType pinIdx) { _pinIdxArray.emplace_back(pinIdx); }
+        /*------------------------------*/ 
+        /* Integration                  */
+        /*------------------------------*/ 
+        /// @brief set the pin shape of this net for external accessing
+        /// @param first: xlo
+        /// @param second: ylo
+        /// @param third: xhi
+        /// @param fourth: yhi
+        void setIoShape(LocType xLo, LocType yLo, LocType xHi, LocType yHi) { _ioShape = Box<LocType>(xLo, yLo, xHi, yHi); }
+        /// @brief get the pin shape of this net for external accessing
+        /// @return the pin shape as rectangle
+        Box<LocType> & ioShape() { return _ioShape; }
+        /// @brief get io shape layer. Metal layer
+        /// @return IO shape layer, metal layer
+        IndexType ioLayer() const { return _ioLayer; }
+        /// @brief set IO shape layer. Metal layer
+        /// @param metal layer
+        void setIoLayer(IndexType ioLayer) { _ioLayer = ioLayer; }
+
     private:
         std::vector<IndexType> _pinIdxArray; ///< The indices of pins this nets connecting to
         std::string _name = ""; ///< The name of this net
+        /*------------------------------*/ 
+        /* Integration                  */
+        /*------------------------------*/ 
+        Box<LocType> _ioShape; ///< The shape for pin for accessing from external
+        IndexType _ioLayer = INDEX_TYPE_MAX; ///< Metal layers
+
 };
 
 /// @class MAGICAL_FLOW::Pin

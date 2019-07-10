@@ -13,6 +13,12 @@ namespace py = pybind11;
 
 void initGraphComponentsAPI(py::module &m)
 {
+    py::class_<PROJECT_NAMESPACE::GdsData>(m, "GdsData")
+        .def(py::init<>())
+        .def_property("gdsFile", &PROJECT_NAMESPACE::GdsData::gdsFile, &PROJECT_NAMESPACE::GdsData::setGdsFile)
+        .def("bbox", &PROJECT_NAMESPACE::GdsData::bbox, py::return_value_policy::reference)
+        .def("setBBox", &PROJECT_NAMESPACE::GdsData::setBBox);
+
     py::class_<PROJECT_NAMESPACE::CktNode>(m , "CktNode")
         .def(py::init<>())
         .def_property("graphIdx", &PROJECT_NAMESPACE::CktNode::subgraphIdx, &PROJECT_NAMESPACE::CktNode::setSubgraphIdx)
@@ -33,7 +39,10 @@ void initGraphComponentsAPI(py::module &m)
         .def("appendPinIdx", &PROJECT_NAMESPACE::Net::appendPinIdx)
         .def("numPins", &PROJECT_NAMESPACE::Net::numPins)
         .def_property("name", &PROJECT_NAMESPACE::Net::name, &PROJECT_NAMESPACE::Net::setName)
-        .def("pinIdx", &PROJECT_NAMESPACE::Net::pinIdx);
+        .def("pinIdx", &PROJECT_NAMESPACE::Net::pinIdx)
+        .def("setIoShape", &PROJECT_NAMESPACE::Net::setIoShape)
+        .def("ioShape", &PROJECT_NAMESPACE::Net::ioShape, py::return_value_policy::reference)
+        .def_property("ioLayer", &PROJECT_NAMESPACE::Net::ioLayer, &PROJECT_NAMESPACE::Net::setIoLayer);
 
     py::class_<PROJECT_NAMESPACE::Pin>(m, "Pin")
         .def(py::init())
