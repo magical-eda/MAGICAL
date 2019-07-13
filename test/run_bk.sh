@@ -26,49 +26,48 @@ TOP_WIDTH_AREA_RULE_FILE=$5
 TOP_ENCLOSURE_RULE_FILE=$6
 TOP_WELL_CON_GDS_FILE=$7
 TOP_LEF_FILE=$8
-TOP_RESULT_DIR=$9
-TOP_WELL_CONTACT=${10}
 
-#echo "CIRCUIT = ${TOP_CIRCUIT}"
-#echo "CIRCUIT_NAME = ${TOP_CIRCUIT_NAME}"
-#echo "TOP_SCRIPT_DIR = ${TOP_SCRIPT_DIR}"
+TOP_RESULT_DIR=results
+
+echo "CIRCUIT = ${TOP_CIRCUIT}"
+echo "CIRCUIT_NAME = ${TOP_CIRCUIT_NAME}"
+echo "TOP_SCRIPT_DIR = ${TOP_SCRIPT_DIR}"
 
 # run device generation and constraint generation 
-#echo -e "${STATUS_PREFIX_COLOR}${TOP_CIRCUIT_NAME}:${NC} constraint generation"
-#source ${TOP_SCRIPT_DIR}/../constraint_generation/test/run.sh ${TOP_RESULT_DIR}/${TOP_CIRCUIT}/${TOP_CIRCUIT_NAME}.sp
+echo -e "${STATUS_PREFIX_COLOR}${TOP_CIRCUIT_NAME}:${NC} constraint generation"
+source ${TOP_SCRIPT_DIR}/../constraint_generation/test/run.sh ${TOP_RESULT_DIR}/${TOP_CIRCUIT}/${TOP_CIRCUIT_NAME}.sp
 
 ## run device generation 
 #echo -e "${STATUS_PREFIX_COLOR}${TOP_CIRCUIT_NAME}:${NC} device generation"
-#source ${TOP_SCRIPT_DIR}/../placement/device_generation/test/run.sh ${TOP_CIRCUIT}
-
+##source ${TOP_SCRIPT_DIR}/../placement/device_generation/test/run.sh ${TOP_CIRCUIT}
 
 # run analog placement 
 echo -e "${STATUS_PREFIX_COLOR}${TOP_CIRCUIT_NAME}:${NC} analog placement"
 source ${TOP_SCRIPT_DIR}/../placement/idea_place/test/run.sh \
-    ${TOP_CIRCUIT_NAME} \
+    ${TOP_RESULT_DIR}/${TOP_CIRCUIT} \
     ${TOP_SIMPLE_TECHFILE} \
     ${TOP_SPACING_RULE_FILE} \
-    ${TOP_WIDTH_AREA_RULE_FILE} > /dev/null
+    ${TOP_WIDTH_AREA_RULE_FILE} 
 
 # run well generation 
 echo -e "${STATUS_PREFIX_COLOR}${TOP_CIRCUIT_NAME}:${NC} well generation"
 source ${TOP_SCRIPT_DIR}/../placement/well_generation/test/run.sh \
-    ${TOP_CIRCUIT_NAME} \
+    ${TOP_RESULT_DIR}/${TOP_CIRCUIT} \
     ${TOP_SIMPLE_TECHFILE} \
     ${TOP_SPACING_RULE_FILE} \
     ${TOP_ENCLOSURE_RULE_FILE} \
     ${TOP_WELL_CON_GDS_FILE} \
-    ${TOP_RESULT_DIR}/result_legal_detail.txt > /dev/null
-#
+    ${TOP_RESULT_DIR}/${TOP_CIRCUIT}/result_legal_detail.txt
+
 # run analog routing 
 echo -e "${STATUS_PREFIX_COLOR}${TOP_CIRCUIT_NAME}:${NC} analog routing"
 source ${TOP_SCRIPT_DIR}/../routing/test/run.sh \
-    ${TOP_RESULT_DIR}/${TOP_CIRCUIT_NAME}.wellgen.gds \
-    ${TOP_RESULT_DIR}/DataTest/${TOP_CIRCUIT_NAME}.result.final \
-    ${TOP_RESULT_DIR}/${TOP_CIRCUIT_NAME}.pin \
-    ${TOP_RESULT_DIR}/${TOP_CIRCUIT_NAME}.wcon \
-    ${TOP_RESULT_DIR}/${TOP_CIRCUIT_NAME}.sub \
-    ${TOP_RESULT_DIR}/${TOP_CIRCUIT_NAME}.iopin \
-    ${TOP_RESULT_DIR}/${TOP_CIRCUIT_NAME}.symnet \
+    ${TOP_RESULT_DIR}/${TOP_CIRCUIT_NAME}/${TOP_CIRCUIT_NAME}.wellgen.gds \
+    ${TOP_RESULT_DIR}/${TOP_CIRCUIT_NAME}/DataTest/${TOP_CIRCUIT_NAME}/${TOP_CIRCUIT_NAME}.result.final \
+    ${TOP_RESULT_DIR}/${TOP_CIRCUIT_NAME}/${TOP_CIRCUIT_NAME}.pin \
+    ${TOP_RESULT_DIR}/${TOP_CIRCUIT_NAME}/${TOP_CIRCUIT_NAME}.wcon \
+    ${TOP_RESULT_DIR}/${TOP_CIRCUIT_NAME}/${TOP_CIRCUIT_NAME}.sub \
+    ${TOP_RESULT_DIR}/${TOP_CIRCUIT_NAME}/${TOP_CIRCUIT_NAME}.iopin \
+    ${TOP_RESULT_DIR}/${TOP_CIRCUIT_NAME}/${TOP_CIRCUIT_NAME}.symnet \
     ${TOP_LEF_FILE} \
-    ${TOP_TECHFILE} > /dev/null
+    ${TOP_TECHFILE}
