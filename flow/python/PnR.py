@@ -4,7 +4,9 @@
 # @date 07/07/2019
 # @brief The class for implementing one layout for a circuit
 #
-
+import subprocess
+import Router
+import magicalFlow
 
 class PnR(object):
     def __init__(self, magicalDB):
@@ -17,6 +19,27 @@ class PnR(object):
         @brief PnR a circuit in the designDB
         @param the index of subckt
         """
+        cirname = self.dDB.subCkt(cktIdx).name
+        self.writeBlockFile(cktIdx, dirname+cirname+'.block')
+        self.writeConnectionFile(cktIdx, dirname+cirname+'.connection')
+        self.writeNetFile(cktIdx, dirname+cirname+'.net')
+        self.writeOffsetFile(cktIdx, dirname+cirname+'.offset')
+        self.writePinFile(cktIdx, dirname+cirname+'.pin')
+        wellFinished = " true"
+        ckt = self.dDB.subCkt(cktIdx)
+        for nodeIdx in range(ckt.numNodes()):
+            node = ckt.node(nodeIdx)
+            if node.isLeaf():
+                assert(False)
+            subCktIdx = node.graphIdx
+            subCkt = self.dDB.subCkt(subCktIdx)
+            if not magicalFlow.isImplTypeDevice(subCkt.implType):
+                wellFinished = " false"
+                break
+        cmd = "source /home/unga/jayliu/projects/develop/magical/magical/install/test/run.sh " + cirname + " ../../inputs/techfile ../../inputs/techfile.simple ../../inputs/spacing.rules ../../inputs/width_area.rules ../../inputs/enclosure.rules ../../inputs/M1_NW_x2.gds ../../inputs/tcbn40lpbwp_10lm7X2ZRDL.lef " + dirname + wellFinished    
+        subprocess.call(cmd, shell=True)
+        Router.Router(self.mDB).readBackDumbFile(cirname+'.route.gds.dumb', cktIdx)
+        self.dDB.subCkt(cktIdx).isImpl = True
         return True
     def writeBlockFile(self, cktIdx, filename):
         """
@@ -29,9 +52,9 @@ class PnR(object):
             subCkt = self.dDB.subCkt(node.graphIdx)
             fout.write(node.name)
             fout.write(" ")
-            fout.write(str(subckt.gdsData().bbox().xLen()))
+            fout.write(str(subCkt.gdsData().bbox().xLen()/10))
             fout.write(" ")
-            fout.write(str(subckt.gdsData().bbox().yLen()))
+            fout.write(str(subCkt.gdsData().bbox().yLen()/10))
             fout.write("\n")
     def writeConnectionFile(self, cktIdx, filename):
         """
@@ -43,9 +66,10 @@ class PnR(object):
             net = ckt.net(netIdx)
             fout.write(net.name)
             fout.write(" ")
-            for pinIdx in net.numPins():
-                pin = ckt.pin(pinIdx)
-                nodeIdx = pin.nodeIdx()
+            for pinIdx in range(net.numPins()):
+                pinidxidx = net.pinIdx(pinIdx)
+                pin = ckt.pin(pinidxidx)
+                nodeIdx = pin.nodeIdx
                 node = ckt.node(nodeIdx)
                 fout.write(node.name)
                 fout.write(" ")
@@ -62,9 +86,10 @@ class PnR(object):
             net = ckt.net(netIdx)
             fout.write(net.name)
             fout.write(" ")
-            for pinIdx in net.numPins():
-                pin = ckt.pin(pinIdx)
-                nodeIdx = pin.nodeIdx()
+            for pinIdx in range(net.numPins()):
+                pinidxidx = net.pinIdx(pinIdx)
+                pin = ckt.pin(pinidxidx)
+                nodeIdx = pin.nodeIdx
                 node = ckt.node(nodeIdx)
                 fout.write(node.name)
                 fout.write(" 0 0 ")
@@ -102,11 +127,13 @@ class PnR(object):
             for netIdx in range(subCkt.numNets()):
                 net = subCkt.net(netIdx)
                 shape = net.ioShape()
-                layer = net.ioLayer()
-                xLo = float(shape.xLo / 1000) 
-                yLo = float(shape.yLo / 1000) 
-                xHi = float(shape.xHi / 1000) 
-                yHi = float(shape.yHi / 1000) 
+                layer = net.ioLayer
+                if layer > 10:
+                    continue
+                xLo = float(shape.xLo)  / 1000
+                yLo = float(shape.yLo)  / 1000
+                xHi = float(shape.xHi)  / 1000
+                yHi = float(shape.yHi)  / 1000
                 fout.write(str(netIdx))
                 fout.write("    1\n ")
                 fout.write("M")

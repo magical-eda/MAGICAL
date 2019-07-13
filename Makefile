@@ -30,6 +30,7 @@ install:
 	mkdir -p $(PREFIX)/test
 	cp test/run.sh $(PREFIX)/test/.
 	cp test/color.sh $(PREFIX)/test/.
+	cp -r flow/python $(PREFIX)/.
 	make install -C routing
 	make install -C constraint_generation
 	make install -C placement

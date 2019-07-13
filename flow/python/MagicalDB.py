@@ -15,7 +15,6 @@ class MagicalDB(object):
         self.techDB = magicalFlow.TechDB()
 
     def parse(self):
-        self.parse_simple_techfile(self.params)
         self.parse_input_netlist(self.params)
         self.designDB.db.findRootCkt() # After the parsing, find the root circuit of the hierarchy
         return True

@@ -19,6 +19,7 @@ class Params:
         self.spectre_netlist = None # Input spectre netlist file
         self.hspice_netlist = None # Input hspice netlist file
         self.simple_tech_file = None # Input simple tech file
+        self.resultDir = None
 
     def printWelcome(self):
         """
@@ -56,6 +57,7 @@ simple_tech_file [required]    | input simple techfile
         data['spectre_netlist'] = self.spectre_netlist
         data['hspice_netlist'] = self.hspice_netlist
         data['simple_tech_file'] = self.simple_tech_file
+        data['resultDir'] = self.resultDir
         return data 
 
     def fromJson(self, data):
@@ -65,6 +67,7 @@ simple_tech_file [required]    | input simple techfile
         if 'spectre_netlist' in data: self.spectre_netlist = data['spectre_netlist']
         if 'hspice_netlist' in data: self.hspice_netlist = data['hspice_netlist']
         if 'simple_tech_file' in data: self.simple_tech_file = data['simple_tech_file']
+        if 'resultDir' in data: self.resultDir = data['resultDir']
 
     def dump(self, filename):
         """

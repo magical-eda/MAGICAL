@@ -419,8 +419,9 @@ class Netlist_parser(object):
                     self.db.subCkt(ckt_idx).node(node_idx).graphIdx = subckt_idx
                     pin_idx += 1
             else: # leaf
+                self.db.subCkt(ckt_idx).node(node_idx).name = self.db.subCkt(ckt_idx).name + "_" + self.db.subCkt(ckt_idx).node(node_idx).name 
                 subckt_idx = self.db.allocateCkt()
-                self.db.subCkt(subckt_idx).name = inst.name
+                self.db.subCkt(subckt_idx).name = self.db.subCkt(ckt_idx).name + "_" + inst.name
                 for i in range(len(inst.pins)):
                     sub_net_idx = self.db.subCkt(subckt_idx).allocateNet()
                     self.db.subCkt(subckt_idx).net(sub_net_idx).name = str(i) 
@@ -467,7 +468,7 @@ class Netlist_parser(object):
                     self.db.subCkt(subckt_idx).implType = magicalFlow.ImplTypePCELL_Pch
                 elif inst.reference in resistor_set: 
                     resId = self.db.phyPropDB().allocateRes()
-                    res = self.db.phyPropDB().resister(resId)
+                    res = self.db.phyPropDB().resistor(resId)
                     res.lr = self.get_value(inst.parameters['lr'], unit=1e-12)
                     res.wr = self.get_value(inst.parameters['wr'], unit=1e-12)
                     if 'series' in inst.parameters.keys():
@@ -488,13 +489,13 @@ class Netlist_parser(object):
                     capId = self.db.phyPropDB().allocateCap()
                     cap = self.db.phyPropDB().capacitor(capId)
                     cap.w = self.get_value(inst.parameters['w'], unit=1e-12)
-                    cap.spacing = self.get_value(inst.parameters['sp'], unit=1e-12)
+                    cap.spacing = self.get_value(inst.parameters['s'], unit=1e-12)
                     cap.numFingers = self.get_value(inst.parameters['nr'], unit=1)
                     cap.lr = self.get_value(inst.parameters['lr'], unit=1e-12)
                     cap.stm = self.get_value(inst.parameters['stm'], unit=1)
                     cap.spm = self.get_value(inst.parameters['spm'], unit=1)
                     cap.ftip = self.get_value(inst.parameters['ftip'], unit=1e-12)
-                    cap.attr = inst.attr
+                    cap.attr = inst.reference
                     if 'multi' in inst.parameters.keys():
                         cap.multi = self.get_value(inst.parameters['multi'], unit=1)
                     self.db.subCkt(subckt_idx).implIdx = capId

@@ -18,7 +18,7 @@ void initPhysicalPropAPI(py::module &m)
         .def("allocateNch", &PROJECT_NAMESPACE::PhyPropDB::allocateNch, "Allocate a new nch device")
         .def("pch", &PROJECT_NAMESPACE::PhyPropDB::pch, py::return_value_policy::reference, "Get a pch device property")
         .def("allocatePch", &PROJECT_NAMESPACE::PhyPropDB::allocatePch, "Allocate a new pch device")
-        .def("resisitor", &PROJECT_NAMESPACE::PhyPropDB::resister, py::return_value_policy::reference, "Get a resistor device property")
+        .def("resistor", &PROJECT_NAMESPACE::PhyPropDB::resister, py::return_value_policy::reference, "Get a resistor device property")
         .def("allocateRes", &PROJECT_NAMESPACE::PhyPropDB::allocateRes, "Get a resistor device property")
         .def("capacitor", &PROJECT_NAMESPACE::PhyPropDB::capacitor, py::return_value_policy::reference, "Get a capacitor device property")
         .def("allocateCap", &PROJECT_NAMESPACE::PhyPropDB::allocateCap, "Allocate a capacitor devices");

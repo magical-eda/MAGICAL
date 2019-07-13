@@ -15,10 +15,9 @@ import magicalFlow
 
 class Device_generator(object):
     def __init__(self, magicalDB):
-        self.dDB = magicalDB
-#        self.mDB = magicalDB
-#        self.dDB = magicalDB.designDB.db
-#        self.tDB = magicalDB.techDB
+        self.mDB = magicalDB
+        self.dDB = magicalDB.designDB.db
+        self.tDB = magicalDB.techDB
 
     def setGDS(self, outfile):
         """
@@ -42,7 +41,7 @@ class Device_generator(object):
         gdspy.write_gds(self.outGDS, [self.cell], unit=1.0e-6, precision=1.0e-9)
         of = open(self.outPinBB, 'w')
         BB = basic.BB(self.cell)
-        of.write("%d %d %d %d\n" % (BB[0][0], BB[0][1], BB[1][0], BB[1][1]))
+        of.write("%d %d %d %d\n" % (BB[0], BB[1], BB[2], BB[3]))
         for pin in self.cell.pin():
             of.write(pin.normalize())
         of.close
@@ -57,7 +56,7 @@ class Device_generator(object):
         ckt = self.dDB.subCkt(cktIdx)
         gdsData = ckt.GdsData()
         BB = basic.BB(self.cell)
-        gdsData.setBBox(int(BB[0][0]), int(BB[0][1]), int(BB[1][0]), int(BB[1][1]))
+        gdsData.setBBox(int(BB[0]), int(BB[1]), int(BB[2]), int(BB[3]))
         gdsData.gdsFile = self.outGDS
         # Match pin name, current implementation is integer, bulk need to be ommited for res/cap/mos
         # Example, 0:drain, 1:gate, etc...
@@ -87,8 +86,9 @@ class Device_generator(object):
         outval = (inval*i_unit*1.0)/o_unit
         return outval
 
-    def generateDevice(self, cktIdx):
+    def generateDevice(self, cktIdx, dirname):
         ckt = self.dDB.subCkt(cktIdx)
+        cirname = ckt.name
         implIdx = ckt.implIdx
         implType = ckt.implType
         phyDB = self.dDB.phyPropDB()
@@ -99,14 +99,16 @@ class Device_generator(object):
             pch = phyDB.pch(implIdx)
             self.cell = Mosfet(False, ckt.name, self.norm_val(pch.width), self.norm_val(pch.length), pch.numFingers, self.get_attr(pch.attr))
         elif implType == magicalFlow.ImplTypePCELL_Res:
-            res = phyDB.resister(implIdx)
-            self.cell = Resister(res.series, ckt.name, self.norm_val(res.wr), self.norm_val(res.lr), res.segNum, self.norm_val(res.segSpace), self.get_attr(res.attr))
+            res = phyDB.resistor(implIdx)
+            self.cell = Resistor(res.series, ckt.name, self.norm_val(res.wr), self.norm_val(res.lr), res.segNum, self.norm_val(res.segSpace), self.get_attr(res.attr))
         elif implType == magicalFlow.ImplTypePCELL_Cap:
             cap = phyDB.capacitor(implIdx)
             self.cell = Capacitor(ckt.name, self.norm_val(cap.w), self.norm_val(cap.spacing), cap.numFingers, self.norm_val(cap.lr), cap.stm, cap.spm, self.get_attr(cap.attr), self.norm_val(cap.ftip))
         else:
             raise Exception("Unsupported device")
             return False
+        self.setGDS(dirname+cirname+'.gds')
+        self.setPinBB(dirname+cirname+'.pin')
         self.writeOut()
         self.writeDB(cktIdx)
         return True

@@ -111,6 +111,8 @@ class CktGraph
         /// @brief allocate a new net
         /// @return the index of a new net
         IndexType allocateNet() { _netArray.emplace_back(Net()); return _netArray.size() - 1; }
+        bool isImpl() const { return _isImplemented; }
+        void setIsImpl(bool impl) { _isImplemented = impl; }
     private:
         std::vector<CktNode> _nodeArray; ///< The circuit nodes of this graph
         std::vector<Pin> _pinArray; ///< The pins of the circuit
@@ -119,6 +121,7 @@ class CktGraph
         Layout _layout; ///< The layout implementation for this circuit
         ImplType _implType = ImplType::UNSET; ///< The implementation set of this circuit
         IndexType _implIdx = INDEX_TYPE_MAX; ///< The index of this implementation type configuration in the database
+        bool _isImplemented = false; 
         /*------------------------------*/ 
         /* Integration                  */
         /*------------------------------*/ 
