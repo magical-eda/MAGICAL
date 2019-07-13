@@ -540,7 +540,7 @@ void Legalize::parse_gds_file(size_t index, string file_name)
 		rectangle_t rect(xl-cell_xl, yl-cell_yl, xh-cell_xl, yh-cell_yl);
 		devices[index].layers_shapes.push_back( LayerShape(layer, rect) );
 		// FIXME: currently it only supports N well
-		if(layer == 3) {
+		if(layer == 1) {
             M_DEBUG(
 			cout<<"device with NW layer"<<endl;
             );
@@ -1056,7 +1056,7 @@ void Legalize::init_rtrees(rtree_type& rtree_devices, rtree_type& rtree_od)
 		data_type yl = devices[i].loc.y();
 		for(LayerShape lshape : devices[i].layers_shapes) {
 			// FIXME: OD layer
-			if(lshape.layer == 6) {
+			if(lshape.layer == 2) {
 				rectangle_t rect = lshape.shape; 
 				M_DEBUG(
 				cout<<"before:\t"<<bg::dsv(rect)<<endl;
@@ -1259,7 +1259,7 @@ void Legalize::init_individual_well(vector< polygon_90_t > & rect_contours, vect
 //{{{
 {
 	// FIXME: currently hardcode in the layer number
-	int nw_layer_num = 3;
+	int nw_layer_num = 1;
 	for(size_t i=0; i<devices.size(); ++i) {
 		if(devices[i].type == 1) {
 			rectangle_t nw_rect;

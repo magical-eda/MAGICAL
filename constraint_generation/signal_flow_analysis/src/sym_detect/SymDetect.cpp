@@ -14,17 +14,27 @@ void SymDetect::dumpSym(const std::string file) const
 {
     std::ofstream outFile(file);
     std::cout << "Dumping symmetry constraints..." << std::endl;
+    std::vector<MosPair> allPair;
     for (const std::vector<MosPair> & diffPair : _symGroup) //print hiSym Groups
     {
         if (!diffPair[0].valid())
             continue;
         for (const MosPair & pair : diffPair)
         {
-            if (pair.mosId1() != pair.mosId2())
+            if (pair.mosId1() != pair.mosId2() &&
+                !existPair(allPair, pair.mosId1()) &&
+                !existPair(allPair, pair.mosId2()))
+            {
+                allPair.push_back(pair);
                 outFile << _netlist.inst(pair.mosId1()).name() << " " 
                     << _netlist.inst(pair.mosId2()).name() << std::endl;
-            else
+            }
+            else if (pair.mosId1() == pair.mosId2() &&
+                !existPair(allPair, pair.mosId1()))
+            {
+                allPair.push_back(pair);
                 outFile << _netlist.inst(pair.mosId1()).name() << std::endl; 
+            }
         }
         outFile << std::endl;
     }
@@ -128,7 +138,7 @@ void SymDetect::getDiffPair(std::vector<MosPair> & diffPair) const
 // FIXME: Currently because placement issues, existPair is broken and only output 1 pair for each instId
 bool SymDetect::existPair(const std::vector<MosPair> & library, IndexType instId1, IndexType instId2) const
 {
-    return existPair(library, instId1) && existPair(library, instId2);
+//    return existPair(library, instId1) || existPair(library, instId2);
     for (const MosPair & currPair : library)
     {
         if (currPair.mosId1() == instId1 && currPair.mosId2() == instId2)
