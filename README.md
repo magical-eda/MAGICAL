@@ -167,5 +167,5 @@ cd execution
 source run.sh
 ```
 
-## License
+# License #
 [BSD 3-Clause](https://github.com/magical-eda/MAGICAL/blob/master/LICENSE)
