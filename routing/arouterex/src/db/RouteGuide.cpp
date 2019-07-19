@@ -2,11 +2,14 @@
 #include "Database.h"
 
 #ifdef DEBUG_INPUT
+#ifdef USE_CAIRO
 #include "util/CairoDraw.h"
+#endif
 #endif
 
 PROJECT_NAMESPACE_BEGIN
 #ifdef DEBUG_INPUT
+#ifdef USE_CAIRO
 void RouteGuide::drawRouteGuide(IndexType netIdx, const std::string &filename) const
 {
     CairoDraw cd(CairoDraw::ImageType::PNG);
@@ -23,6 +26,7 @@ void RouteGuide::drawRouteGuide(IndexType netIdx, const std::string &filename) c
     cd.exportImage();
     DBG("%s PNG saved to %s \n", __FUNCTION__, filename.c_str());
 }
+#endif
 #endif
 
 void RouteGuide::initAverageProb(Database &db)

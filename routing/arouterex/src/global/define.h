@@ -13,15 +13,7 @@
 //#define AROUTER_LEF_PRINT /// Only print the layer information from the technology LEF
 //#define AROUTER_DRAFT_TEST /// Testing modules
 
-//#define _USE_LAWS                 // Layer Assignment for Weighted Sum Delay
-//#define _USE_LAMP               // Layer Assignment for Maximum Path Delay
-
-
-//#define _USE_GUROBI               // whether use GUROBI to solve ILP/LP
-//#define _USE_CPLEX              // whether use CPLEX to solve ILP/LP
-//#define _USE_CBC                // whether use CBC to solve ILP/LP
-//#define _USE_LEMON              // whether use lemon to solve min-cost flow
-//#define _USE_BOOST
+//#define USE_CAIRO
 
 //#define DEBUG_GR_  /// if debugging the global routing
 //#define DEBUG_INPUT /// if debug input parser

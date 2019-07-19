@@ -103,10 +103,12 @@ class RouteGuide
         /// @brief init average probability
         void initAverageProb(Database &db);
 #ifdef DEBUG_INPUT
+#ifdef USE_CAIRO
         /// @brief draw a guide of one net
         /// @param first: net index
         /// @param second: save to figure name
         void drawRouteGuide(IndexType netIdx, const std::string &filename) const;
+#endif
 #endif
     private:
         /// @brief the cost for violating the guidance

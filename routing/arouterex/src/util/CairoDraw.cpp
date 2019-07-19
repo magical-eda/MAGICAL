@@ -1,3 +1,4 @@
+#ifdef USE_CAIRO
 #include "CairoDraw.h"
 
 PROJECT_NAMESPACE_BEGIN
@@ -88,3 +89,4 @@ void CairoDraw::drawRectangle(IntType xl, IntType yl, IntType xh, IntType yh, bo
 }
 
 PROJECT_NAMESPACE_END
+#endif

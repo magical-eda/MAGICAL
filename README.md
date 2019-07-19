@@ -19,9 +19,9 @@ This project is currently still under active development.
 - [Zlib](https://www.zlib.net)
     - Required by Limbo package
 
-- [Cairo](https://cairographics.org)
+- ~~[Cairo](https://cairographics.org)~~
     - GNU/Linux distributions available (apt-get, yum, zypper etc...)
-    - Required by routing engine for visualizations
+    - ~~Required by routing engine for visualizations~~
 
 - [Limbo](https://github.com/limbo018/Limbo)
     - Integrated as a thirdparty package
