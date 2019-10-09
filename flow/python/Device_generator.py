@@ -5,7 +5,8 @@
 #
 
 import sys, os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/constraint_generation/python/')
+#sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/constraint_generation/python/')
+sys.path.append('/home/local/eda10/jayliu/projects/develop/magical/magical/constraint_generation/python/')
 from device_generation.Mosfet import Mosfet
 from device_generation.Capacitor import Capacitor
 from device_generation.Resistor import Resistor
@@ -75,6 +76,10 @@ class Device_generator(object):
         """
         string  = string.encode('ascii', 'ignore')
         attr = string.split('_')
+        if '25ud18' in attr:
+            attr.remove('25ud18')
+            attr.append('25')
+            attr.append('ud')
         return attr[1:]
 
     @staticmethod
@@ -92,6 +97,7 @@ class Device_generator(object):
         implIdx = ckt.implIdx
         implType = ckt.implType
         phyDB = self.dDB.phyPropDB()
+        print "Generating Device " + cirname
         if implType == magicalFlow.ImplTypePCELL_Nch:
             nch = phyDB.nch(implIdx)
             self.cell = Mosfet(True, ckt.name, self.norm_val(nch.width), self.norm_val(nch.length), nch.numFingers, self.get_attr(nch.attr))

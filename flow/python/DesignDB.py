@@ -540,6 +540,7 @@ class Netlist_parser(object):
             self.db.subCkt(ckt_idx).net(db_net_idx).name = ckt.net_name[net_idx]
             assert(db_net_idx == net_idx)
             if ckt.nets[ckt.net_name[net_idx]].is_io:
+                self.db.subCkt(ckt_idx).net(db_net_idx).ioPos = net_idx
                 inst_pin_map.append(net_idx) # [index of io_net/pin in ckt] = index of net in db 
 
         for inst_idx in range(len(ckt.instances)):

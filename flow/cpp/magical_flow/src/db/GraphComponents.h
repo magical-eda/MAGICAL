@@ -153,15 +153,24 @@ class Net
         /// @brief get the name of the net
         /// @return the name of the net
         const std::string & name() const { return _name; }
+        /// @brief get the index of io
+        /// @return index of the net io
+        IndexType ioPos() const { return _ioPos; }
         /*------------------------------*/ 
         /* Setters                      */
         /*------------------------------*/ 
         /// @brief set the name for the net
         /// @param the name for the net
         void setName(const std::string &name) { _name = name; }
+        /// @brief set pos of io
+        /// @param the index pos of io
+        void setIoPos(IndexType ioPos) { _ioPos = ioPos; }
         /*------------------------------*/ 
         /* Attributes                   */
         /*------------------------------*/ 
+        /// @brief check if the net is io
+        /// @param return true if net is io
+        bool isIo() { return _ioPos != INDEX_TYPE_MAX; }
         /*------------------------------*/ 
         /* Vector operation             */
         /*------------------------------*/ 
@@ -190,6 +199,7 @@ class Net
     private:
         std::vector<IndexType> _pinIdxArray; ///< The indices of pins this nets connecting to
         std::string _name = ""; ///< The name of this net
+        IndexType _ioPos = INDEX_TYPE_MAX; ///< The index of net if it is IO.
         /*------------------------------*/ 
         /* Integration                  */
         /*------------------------------*/ 

@@ -7,6 +7,7 @@
 
 import magicalFlow
 import Device_generator
+import Constraint
 import PnR
 import subprocess
 
@@ -14,6 +15,7 @@ class Flow(object):
     def __init__(self, db):
         self.mDB = db # MagicalDB
         self.dDB = db.designDB.db
+        self.constraint = Constraint.Constraint(self.mDB)
 
     def run(self):
         """
@@ -61,4 +63,5 @@ class Flow(object):
             self.implCktLayout(cktNode.graphIdx) # Recursively implement all the children
         # After all the children being implemented. P&R at this circuit
         self.stupidSetup(cktIdx)
+        self.constraint.genConstraint(cktIdx, self.resultName)
         PnR.PnR(self.mDB).implLayout(cktIdx, self.resultName)
