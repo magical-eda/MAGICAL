@@ -16,7 +16,7 @@ vdd_set = {"vdd", "vdd_and", "vdd_c", "vdd_comp", "vdd_gm", "vddd", "vdda", "vel
 ignore_set = vss_set.union(vdd_set)#, clk_set)
 
 class S3DET(object):
-    def __init__(self, magicalDB, symTol=0.9):
+    def __init__(self, magicalDB, symTol=0.8):
         self.mDB = magicalDB
         self.dDB = magicalDB.designDB.db
         self.tDB = magicalDB.techDB
@@ -57,24 +57,24 @@ class S3DET(object):
             idxB = tempDict.keys()[tempList.index(max(tempList))]
             symPair[idxA] = idxB
             symVal.pop(idxB, None)
-        #print symVal
-        #print symPair
-        hierGraph = self.hierGraph(cktIdx)
-        selfSym = self.selfSym(symPair, hierGraph)
-        symNet = self.symNet(cktIdx, symPair, selfSym)
         filename = dirName + ckt.name + ".sym"
         symFile = open(filename, "w")
-        filename = dirName + ckt.name + ".symnet"
-        netFile = open(filename, "w")
         for idxA in symPair:
             idxB = symPair[idxA]
+            nameA = ckt.node(idxA).name
+            nameB = ckt.node(idxB).name
             if symVal[idxA][idxB] >= self.symTol:
-                nameA = ckt.node(idxA).name
-                nameB = ckt.node(idxB).name
                 symFile.write("%s %s\n" % (nameA, nameB))
+            else:
+                print "wavied constrinat", nameA, nameB, symVal[idxA][idxB]
+        hierGraph = self.hierGraph(cktIdx)
+        selfSym = self.selfSym(symPair, hierGraph)
         for idx in selfSym:
             name = ckt.node(idx).name
             symFile.write("%s\n" % name)
+        symNet = self.symNet(cktIdx, symPair, selfSym)
+        filename = dirName + ckt.name + ".symnet"
+        netFile = open(filename, "w")
         for idxA in symNet:
             idxB = symNet[idxA]
             if idxA == idxB:
@@ -95,6 +95,8 @@ class S3DET(object):
             if idxB:
                 for comNei in set(nx.common_neighbors(hierGraph, idxA, idxB)).difference(symVerified):
                     selfSym.add(comNei)
+                    symPair[comNei] = comNei
+            symPair[idxB] = idxA
         return selfSym
 
     def symNet(self, cktIdx, symPair, selfSym):
@@ -105,31 +107,31 @@ class S3DET(object):
             devListA = self.devList(cktIdx, netIdxA) 
             devListB = self.devList(cktIdx, netIdxB) 
             sym = True
+            if len(devListA) == 0 or len(devListB) == 0:
+                sym = False
+            if len(devListA) != len(devListB):
+                sym = False
             for devA in devListA:
                 if devA in symPair and symPair[devA] in devListB:
-                    continue
-                elif devA in selfSym and devA in devListB:
                     continue
                 else:
                     sym = False
                     break
             if sym:
                 symNet[netIdxA] = netIdxB
-        #for netIdx in netId:
-        #    devList = self.devList(cktIdx, netIdx)
-        #    sym = True
-        #    for devList
         return symNet
 
 
     def devList(self, cktIdx, netIdx):
         ckt = self.dDB.subCkt(cktIdx)
-        devList = []
+        devList = set()
+        if ckt.net(netIdx).name in ignore_set:
+            return list(devList)
         for pinId in range(ckt.net(netIdx).numPins()):
             pinIdx = ckt.net(netIdx).pinIdx(pinId)
             pin = ckt.pin(pinIdx)
-            devList.append(pin.nodeIdx)
-        return devList
+            devList.add(pin.nodeIdx)
+        return list(devList)
 
 
     def plotGraph(self, cktIdx=None, recursive=True):
