@@ -14,6 +14,8 @@ pmos_set = {"pmos", "pch", "pch_mac", "pch_lvt", "pch_lvt_mac", "pch_25_mac", "p
 capacitor_set = {"cfmom", "cfmom_2t"}
 resistor_set = {"rppoly", "rppoly_m", "rppolywo_m", "rppolywo"}
 unsupported_set = {"rppolyl", "crtmom", "crtmom_2t"}
+mos_set = nmos_set.union(pmos_set)
+pas_set = capacitor_set.union(resistor_set)
 
 class DesignDB(object):
     def __init__(self):
@@ -424,6 +426,12 @@ class Netlist_parser(object):
                 self.db.subCkt(subckt_idx).name = self.db.subCkt(ckt_idx).name + "_" + inst.name
                 for i in range(len(inst.pins)):
                     sub_net_idx = self.db.subCkt(subckt_idx).allocateNet()
+                    psub = (inst.reference in nmos_set and i == 3) or (inst.reference in pas_set and i == 2)
+                    nwell = inst.reference in pmos_set and i == 3
+                    if psub:
+                        self.db.subCkt(subckt_idx).addPsubIdx(sub_net_idx)
+                    elif nwell:
+                        self.db.subCkt(subckt_idx).addNwellIdx(sub_net_idx)
                     self.db.subCkt(subckt_idx).net(sub_net_idx).name = str(i) 
                     # For device hard encoding the net name as the index
                     # In this setting for mos name:pin is 0:drain, 1:gate, etc...
@@ -435,11 +443,21 @@ class Netlist_parser(object):
                     sub_node_idx = self.db.subCkt(subckt_idx).allocateNode()
                     self.db.subCkt(subckt_idx).pin(sub_pin_idx).nodeIdx = sub_node_idx
                     self.db.subCkt(subckt_idx).pin(sub_pin_idx).netIdx = sub_net_idx
-                    self.db.subCkt(subckt_idx).net(sub_net_idx).appendPinIdx(sub_pin_idx)
-                    self.db.subCkt(subckt_idx).node(sub_node_idx).appendPinIdx(sub_pin_idx)
+                    if psub or nwell:
+                        self.db.subCkt(subckt_idx).net(sub_net_idx).appendSubIdx(sub_pin_idx)
+                    else:
+                        self.db.subCkt(subckt_idx).net(sub_net_idx).appendPinIdx(sub_pin_idx)
                     self.db.subCkt(subckt_idx).node(sub_node_idx).refName = inst.reference
                     self.db.subCkt(subckt_idx).node(sub_node_idx).name = inst.name
                     self.db.subCkt(ckt_idx).pin(pin_idx).intNetIdx = sub_net_idx # from ckt to subckt
+                    if psub or nwell:
+                        self.db.subCkt(ckt_idx).net(self.db.subCkt(ckt_idx).pin(pin_idx).netIdx).appendSubIdx(pin_idx)
+                        if psub:
+                            self.db.subCkt(subckt_idx).pin(sub_pin_idx).pinType = magicalFlow.PinType.PSUB
+                            self.db.subCkt(ckt_idx).pin(pin_idx).pinType = magicalFlow.PinType.PSUB
+                        else:
+                            self.db.subCkt(subckt_idx).pin(sub_pin_idx).pinType = magicalFlow.PinType.NWELL
+                            self.db.subCkt(ckt_idx).pin(pin_idx).pinType = magicalFlow.PinType.NWELL
                     self.db.subCkt(ckt_idx).node(node_idx).graphIdx = subckt_idx
                     pin_idx += 1
                 if 'm' in inst.parameters:

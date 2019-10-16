@@ -1,7 +1,7 @@
 /**
  * @file DesignDB.h
  * @brief Database for the hierarchical design
- * @author Keren Zhu
+ * @author Keren Zhu, Mingjie Liu
  * @date 06/17/2019
  */
 
@@ -56,6 +56,15 @@ class DesignDB
         /// @brief topological sort of the hierarchical tree. The top level therefore is surely placed at the first level
         /// @return if successful
         bool findRootCkt();
+        /*------------------------------*/ 
+        /* Exposed public python memory */
+        /*------------------------------*/ 
+        /// @brief names for power nets
+        /// @return exposed vector of power names for pybind
+        std::vector<std::string> power;
+        /// @brief names for ground nets
+        /// @return exposed vector of ground names for pybind
+        std::vector<std::string> ground;
     private:
         std::vector<CktGraph> _ckts; ///< The hierarchical tree of the circuits. Each circuit is represented as a graph.
         IndexType _rootCkt = INDEX_TYPE_MAX; ///< The root node of the hierarchy. Should have only one.

@@ -81,6 +81,9 @@ class CktNode
         /// @brief set the name of this node
         /// @param the name of the node
         void setName(const std::string &name) { _name = name; }
+        /// @brief set the coordinate offset of this node
+        /// @set the offset of this node
+        void setOffset(LocType x, LocType y) { _offset = XY<LocType>(x, y); }
         /*------------------------------*/ 
         /* Attributes                   */
         /*------------------------------*/ 
@@ -147,6 +150,9 @@ class Net
         /// @brief get the number of pins this net is connecting
         /// @return the number of pins this net is connecting
         IndexType numPins() const { return _pinIdxArray.size(); }
+        /// @brief get the number of substrate pins this CktNode contains
+        /// @return the number of substrate pins this CktNode contains
+        IndexType numSubs() const { return _subIdxArray.size(); }
         /// @brief get the n-th pin index of this net
         /// @return the n-th pin index of this net
         IndexType pinIdx(IndexType nth) const { return _pinIdxArray.at(nth); }
@@ -171,12 +177,18 @@ class Net
         /// @brief check if the net is io
         /// @param return true if net is io
         bool isIo() { return _ioPos != INDEX_TYPE_MAX; }
+        /// @brief return true if net is a substrate net
+        /// @return true if a substrate net
+        bool isSub() { return _subIdxArray.empty(); }
         /*------------------------------*/ 
         /* Vector operation             */
         /*------------------------------*/ 
         /// @brief append a pinIdx to the pinIdxArray
         /// @param a pinIdx
         void appendPinIdx(IndexType pinIdx) { _pinIdxArray.emplace_back(pinIdx); }
+        /// @brief append a pinIdx to the subIdxArray
+        /// @param a pinIdx
+        void appendSubIdx(IndexType pinIdx) { _subIdxArray.emplace_back(pinIdx); }
         /*------------------------------*/ 
         /* Integration                  */
         /*------------------------------*/ 
@@ -197,7 +209,8 @@ class Net
         void setIoLayer(IndexType ioLayer) { _ioLayer = ioLayer; }
 
     private:
-        std::vector<IndexType> _pinIdxArray; ///< The indices of pins this nets connecting to
+        std::vector<IndexType> _pinIdxArray; ///< The indices of pins this nets connecting to (includes sub pins)
+        std::vector<IndexType> _subIdxArray; ///< The indices of device substrate pins this nets connecting to
         std::string _name = ""; ///< The name of this net
         IndexType _ioPos = INDEX_TYPE_MAX; ///< The index of net if it is IO.
         /*------------------------------*/ 
@@ -205,7 +218,6 @@ class Net
         /*------------------------------*/ 
         Box<LocType> _ioShape; ///< The shape for pin for accessing from external
         IndexType _ioLayer = INDEX_TYPE_MAX; ///< Metal layers
-
 };
 
 /// @class MAGICAL_FLOW::Pin
@@ -238,6 +250,9 @@ class Pin
         /// @param the index in the member variable vector
         /// @return one layout rectangle index of this pin
         IndexType layoutRectIdx(IndexType idx) const { return _layoutRectIdx.at(idx); }
+        /// @brief get if the pin type
+        /// @return return the pin type
+        PinType pinType() const { return _pinType; }
         /*------------------------------*/ 
         /* Setters                      */
         /*------------------------------*/ 
@@ -250,6 +265,9 @@ class Pin
         /// @brief set the net index
         /// @param the index of the net this pin connecting to
         void setNetIdx(IndexType netIdx) { _netIdx = netIdx; }
+        /// @brief set the pin type
+        /// @param a pinType
+        void setPinType(PinType pinType) { _pinType = pinType; }
         /*------------------------------*/ 
         /* Vector operations            */
         /*------------------------------*/ 
@@ -258,6 +276,7 @@ class Pin
         /// @return the index of the new rectangle
         IndexType addLayoutRectIdx(IndexType rectIdx) { _layoutRectIdx.emplace_back(rectIdx); return _layoutRectIdx.size() - 1; }
     private:
+        PinType _pinType = PinType::UNSET; ///< The pin is a substrate pin psub/nwell
         IndexType _nodeIdx = INDEX_TYPE_MAX; ///< The node index of the pin
         IndexType _intNetIdx = INDEX_TYPE_MAX; ///< The corresponding internal pin index in the internal node
         IndexType _netIdx = INDEX_TYPE_MAX; ///< The nets this pin corresponding to

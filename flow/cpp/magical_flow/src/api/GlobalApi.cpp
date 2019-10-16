@@ -33,6 +33,12 @@ void initGlobalAPI(py::module &m)
         .value("ImplTypePCELL_Cap", PROJECT_NAMESPACE::ImplType::PCELL_Cap)
         .export_values();
     
+    py::enum_<PROJECT_NAMESPACE::PinType>(m, "PinType")
+        .value("UNSET", PROJECT_NAMESPACE::PinType::UNSET)
+        .value("PSUB", PROJECT_NAMESPACE::PinType::PSUB)
+        .value("NWELL", PROJECT_NAMESPACE::PinType::NWELL)
+        .export_values();
+ 
     m.def("orientConv", &PROJECT_NAMESPACE::MfUtil::orientConv, "convert coordinates under different offset and orientation",
             py::arg_v("coord", PROJECT_NAMESPACE::XY<PROJECT_NAMESPACE::LocType>(0,0), "XYLoc(0, 0)"), 
             py::arg_v("orient", PROJECT_NAMESPACE::OriType::N, "OriType::N"), 

@@ -1,6 +1,6 @@
 ##
 # @file Router.py
-# @author Keren Zhu
+# @author Keren Zhu, Mingjie Liu
 # @date 07/09/2019
 # @brief The class for interfacing routing
 #
@@ -32,6 +32,7 @@ class Router(object):
                 line = lines[lineIdx].split()
                 netIdx = lineIdx - 1
                 net = ckt.net(netIdx)
+                assert net.name == line[0], "Error in .dumb file"
                 layer = int(line[1])
                 xLo = int(line[2])
                 yLo = int(line[3])
@@ -39,4 +40,3 @@ class Router(object):
                 yHi = int(line[5])
                 net.setIoShape(xLo, yLo, xHi, yHi)
                 net.ioLayer = layer
-

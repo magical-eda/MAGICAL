@@ -63,6 +63,14 @@ enum class ImplType
     PCELL_Cap
 };
 
+enum class PinType
+{
+    UNSET,
+    PSUB,
+    NWELL
+};
+
+
 PROJECT_NAMESPACE_END
 
 #endif // MAGICAL_FLOW_TYPE_H_

@@ -1,7 +1,7 @@
 /**
  * @file CktGraph.h
  * @brief A graph for the implementation of circuit at one level of hierarchy
- * @author Keren Zhu
+ * @author Keren Zhu, Mingjie Liu
  * @date 06/17/2019
  */
 
@@ -50,6 +50,12 @@ class CktGraph
         /// @brief get the number of pins
         /// @return the number of pins
         IndexType                                                   numPins() const                                     { return _pinArray.size(); }
+        /// @brief get the number psub nets
+        /// @return the number of psub nets
+        IndexType                                                   numPsubs() const                                    { return _psubIdxArray.size(); }
+        /// @brief get the number psub nets
+        /// @return the number of psub nets
+        IndexType                                                   numNwells() const                                   { return _nwellIdxArray.size(); }
         /// @brief get a pin of this graph
         /// @param the index of the pin of this graph
         /// @return the pin object
@@ -75,6 +81,14 @@ class CktGraph
         /// @param the index of net in this graph
         /// @return a net
         Net &                                                       net(IndexType netIdx)                               { return _netArray.at(netIdx); }
+        /// @brief get the net of a psub according to psubIdx
+        /// @param the index of a psub net
+        /// @return a net
+        Net &                                                       psub(IndexType psubIdx)                             { return _netArray.at(_psubIdxArray.at(psubIdx)); }
+        /// @brief get the net of a nwell according to nwellIdx
+        /// @param the index of a nwell net
+        /// @return a net
+        Net &                                                       nwell(IndexType nwellIdx)                            { return _netArray.at(_nwellIdxArray.at(nwellIdx)); }
         /// @brief get the name of this circuit graph
         /// @return the name of this circuit
         const std::string &                                         name() const                                        { return _name; }
@@ -111,12 +125,26 @@ class CktGraph
         /// @brief allocate a new net
         /// @return the index of a new net
         IndexType allocateNet() { _netArray.emplace_back(Net()); return _netArray.size() - 1; }
+        /// @brief create a new substrate net
+        /// @return the index of a new psub net
+        IndexType allocatePsub() { IndexType netIdx = allocateNet(); _psubIdxArray.push_back(netIdx); return netIdx; }
+        /// @brief add a existing net index as psub net
+        /// @param the net index of exising net
+        void addPsubIdx(IndexType netIdx) { _psubIdxArray.push_back(netIdx); }
+        /// @brief create a new nwell net
+        /// @return the index of a new nwell net
+        IndexType allocateNwell() { IndexType netIdx = allocateNet(); _nwellIdxArray.push_back(netIdx); return netIdx; }
+        /// @brief add a existing net index as nwell net
+        /// @param the net index of exising net
+        void addNwellIdx(IndexType netIdx) { _nwellIdxArray.push_back(netIdx); }
         bool isImpl() const { return _isImplemented; }
         void setIsImpl(bool impl) { _isImplemented = impl; }
     private:
         std::vector<CktNode> _nodeArray; ///< The circuit nodes of this graph
         std::vector<Pin> _pinArray; ///< The pins of the circuit
         std::vector<Net> _netArray; ///< The nets of the circuit
+        std::vector<IndexType> _psubIdxArray; ///< The index of substrate nets in _netArray
+        std::vector<IndexType> _nwellIdxArray; ///< The index of nwell nets in _netArray
         std::string _name = ""; ///< The name of this circuit
         Layout _layout; ///< The layout implementation for this circuit
         ImplType _implType = ImplType::UNSET; ///< The implementation set of this circuit
