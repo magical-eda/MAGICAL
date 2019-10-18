@@ -80,6 +80,8 @@ class Device_generator(object):
             attr.remove('25ud18')
             attr.append('25')
             attr.append('ud')
+        if 'rppolywo' in attr:
+            attr.append('wo')
         return attr[1:]
 
     @staticmethod
