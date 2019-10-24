@@ -9,6 +9,7 @@ import magicalFlow
 import Device_generator
 import Constraint
 import PnR
+import StdCell
 import subprocess
 
 class Flow(object):
@@ -27,20 +28,35 @@ class Flow(object):
         self.implCktLayout(topCktIdx)
         return True
 
-    def stupidSetup(self, cktIdx):
+    def setup(self, cktIdx):
+    # This setup is usded to flip the gds layout cell due to symmetry constraint if needed
+    # The devices pins are all flipped and correct
+    # The subcircuit cells pins are not flipped and the only the flipVertFlag is set
+    # The pins will be flipped in python according to the flag when generating GR file
         ckt = self.dDB.subCkt(cktIdx) 
         for nodeIdx in range(ckt.numNodes()):
+            flipCell = False
             cktNode = ckt.node(nodeIdx)
+            # Flip cell if is in the "right" half device of symmetry
+            if cktNode.name in self.symDict.values():
+                flipCell = True
             if cktNode.isLeaf():
                 continue
             subCktIdx = self.dDB.subCkt(cktIdx).node(nodeIdx).graphIdx
             subCktName = self.dDB.subCkt(subCktIdx).name
             if magicalFlow.isImplTypeDevice(self.dDB.subCkt(subCktIdx).implType):
+                # Lazy implementation, simply regenerate device cell with flipCell flag set
+                if flipCell:
+                    Device_generator.Device_generator(self.mDB).generateDevice(subCktIdx, self.resultName+'/gds/', True)
                 continue
             cmd = "/home/unga/jayliu/projects/develop/magical/magical/install/python/bin/renameGds " \
             + self.resultName + subCktName + ".route.gds " \
             + self.dDB.subCkt(cktIdx).node(nodeIdx).name \
             + " ./gds/" + self.resultName + self.dDB.subCkt(cktIdx).node(nodeIdx).name + ".gds"
+            if flipCell:
+                symAxis = (self.dDB.subCkt(subCktIdx).gdsData().bbox().xLo + self.dDB.subCkt(subCktIdx).gdsData().bbox().xHi)/2
+                cmd = cmd + " " + str(symAxis)
+                cktNode.flipVertFlag = True
             subprocess.call(cmd, shell=True)
 
     def implCktLayout(self, cktIdx):
@@ -49,8 +65,15 @@ class Flow(object):
         """
         dDB = self.mDB.designDB.db #c++ database
         ckt = dDB.subCkt(cktIdx) #magicalFlow.CktGraph
+        # If the ckt is a device
         if magicalFlow.isImplTypeDevice(ckt.implType):
             Device_generator.Device_generator(self.mDB).generateDevice(cktIdx, self.resultName+'/gds/')
+            return
+        # If the ckt is a standard cell
+        # This version only support DFCNQD2BWP and NR2D8BWP, hard-encoded
+        # TODO: This should be parsed from the json file
+        if ckt.name in ['DFCNQD2BWP', 'NR2D8BWP']:
+            StdCell.StdCell(self.mDB).setup(cktIdx, self.resultName)
             return
         # If the ckt is actually a circuit instead of a device
         for nodeIdx in range(ckt.numNodes()):
@@ -62,6 +85,6 @@ class Flow(object):
                 continue
             self.implCktLayout(cktNode.graphIdx) # Recursively implement all the children
         # After all the children being implemented. P&R at this circuit
-        self.stupidSetup(cktIdx)
-        self.constraint.genConstraint(cktIdx, self.resultName)
+        self.symDict = self.constraint.genConstraint(cktIdx, self.resultName)
+        self.setup(cktIdx)
         PnR.PnR(self.mDB).implLayout(cktIdx, self.resultName)

@@ -24,6 +24,7 @@ class PnR(object):
         self.writeConnectionFile(cktIdx, dirname+cirname+'.connection')
         self.writeNetFile(cktIdx, dirname+cirname+'.net')
         self.writeOffsetFile(cktIdx, dirname+cirname+'.offset')
+        # The .pin file is not needed now and might be wrong due to flipping symmetry cells
         self.writePinFile(cktIdx, dirname+cirname+'.pin')
         self.runPlace(cktIdx, dirname)
         self.runRoute(cktIdx, dirname)
@@ -216,16 +217,23 @@ class PnR(object):
                 conNode = pin.nodeIdx
                 conNet = pin.intNetIdx
                 conCkt = self.dDB.subCkt(ckt.node(conNode).graphIdx)
+                flipFlag = ckt.node(conNode).flipVertFlag
                 if pin.pinType == magicalFlow.PinType.PSUB:
                     assert net.isSub
                     continue
-                conShape = self.adjustIoShape(conCkt.net(conNet).ioShape(), ckt.node(conNode).offset(), conCkt.gdsData().bbox())
+                conShape = self.adjustIoShape(conCkt.net(conNet).ioShape(), ckt.node(conNode).offset(), conCkt.gdsData().bbox(), flipFlag)
                 xLo = int(conShape[0]) 
                 yLo = int(conShape[1])
                 xHi = int(conShape[2])
                 yHi = int(conShape[3])
                 fout.write(str(conCkt.net(conNet).ioLayer))
                 fout.write(" %s\n" % self.pinToStr(xLo,yLo,xHi,yHi))
+
+    @staticmethod
+    def flipPin(xLo, xHi, symAxis):
+        xLo_s = 2 * symAxis - xHi
+        xHi_s = 2 * symAxis - xLo
+        return xLo_s, xHi_s
 
     def cktNeedSub(self, cktIdx):
         ckt = self.dDB.subCkt(cktIdx)
@@ -250,9 +258,21 @@ class PnR(object):
         return pinCount + netPsub, bool(netPsub)
 
     @staticmethod
-    def adjustIoShape(ioShape, offset, cellBBox):
-        xLo = ioShape.xLo + offset.x - cellBBox.xLo
-        xHi = ioShape.xHi + offset.x - cellBBox.xLo
+    def flipPin(xLo, xHi, symAxis):
+        xLo_s = 2 * symAxis - xHi
+        xHi_s = 2 * symAxis - xLo
+        return xLo_s, xHi_s
+
+    @staticmethod
+    def adjustIoShape(ioShape, offset, cellBBox, flipPin):
+        if flipPin:
+            symAxis = (cellBBox.xLo + cellBBox.xHi)/2
+            xLo, xHi = PnR.flipPin(ioShape.xLo, ioShape.xHi, symAxis)
+        else:
+            xLo = ioShape.xLo
+            xHi = ioShape.xHi
+        xLo = xLo + offset.x - cellBBox.xLo
+        xHi = xHi + offset.x - cellBBox.xLo
         yLo = ioShape.yLo + offset.y - cellBBox.yLo
         yHi = ioShape.yHi + offset.y - cellBBox.yLo
         return [xLo, yLo, xHi, yHi]

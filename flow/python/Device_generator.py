@@ -93,7 +93,7 @@ class Device_generator(object):
         outval = (inval*i_unit*1.0)/o_unit
         return outval
 
-    def generateDevice(self, cktIdx, dirname):
+    def generateDevice(self, cktIdx, dirname, flipCell=False):
         ckt = self.dDB.subCkt(cktIdx)
         cirname = ckt.name
         implIdx = ckt.implIdx
@@ -115,6 +115,8 @@ class Device_generator(object):
         else:
             raise Exception("Unsupported device")
             return False
+        if flipCell:
+            self.cell.flip_vert()
         self.setGDS(dirname+cirname+'.gds')
         self.setPinBB(dirname+cirname+'.pin')
         self.writeOut()

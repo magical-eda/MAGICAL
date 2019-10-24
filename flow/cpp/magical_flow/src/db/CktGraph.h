@@ -113,6 +113,10 @@ class CktGraph
         /// @brief get GdsData 
         /// @return GdsData reference
         GdsData & gdsData() { return _gdsData; }
+        /// @brief is Net Io shape has been flipped vertically
+        /// @return boolean
+        bool flipVertFlag() const { return _flipVertFlag; }
+
         /*------------------------------*/ 
         /* Vector operation             */
         /*------------------------------*/ 
@@ -139,6 +143,20 @@ class CktGraph
         void addNwellIdx(IndexType netIdx) { _nwellIdxArray.push_back(netIdx); }
         bool isImpl() const { return _isImplemented; }
         void setIsImpl(bool impl) { _isImplemented = impl; }
+        /*------------------------------*/ 
+        /* Integration                  */
+        /*------------------------------*/ 
+        /// @brief flip all net Io shape according to vertical axis
+        /// @param symmetry vertical axis x=axis
+        void flipVert(LocType axis)
+        {
+            _flipVertFlag = !_flipVertFlag;
+            for(Net &net : _netArray)
+            {
+                net.flipVert(axis);
+            }
+        }
+
     private:
         std::vector<CktNode> _nodeArray; ///< The circuit nodes of this graph
         std::vector<Pin> _pinArray; ///< The pins of the circuit
@@ -150,6 +168,7 @@ class CktGraph
         ImplType _implType = ImplType::UNSET; ///< The implementation set of this circuit
         IndexType _implIdx = INDEX_TYPE_MAX; ///< The index of this implementation type configuration in the database
         bool _isImplemented = false; 
+        bool _flipVertFlag = false; ///< Flag indicating that net Io shape has been flipped vertically
         /*------------------------------*/ 
         /* Integration                  */
         /*------------------------------*/ 

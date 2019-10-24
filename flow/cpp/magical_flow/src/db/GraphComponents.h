@@ -66,6 +66,10 @@ class CktNode
         /// @brief get the name of the node
         /// @return the name of node
         const std::string & name() const { return _name; }
+        /// @brief get if the node should be flipped
+        /// @return the flip vert flag
+        bool flipVertFlag() const { return _flipVertFlag; }
+
         /*------------------------------*/ 
         /* Setters                      */
         /*------------------------------*/ 
@@ -84,6 +88,10 @@ class CktNode
         /// @brief set the coordinate offset of this node
         /// @set the offset of this node
         void setOffset(LocType x, LocType y) { _offset = XY<LocType>(x, y); }
+        /// @brief set the flip flag
+        /// @set the flip flag
+        void setFlipVertFlag(bool flag) { _flipVertFlag = flag; }
+
         /*------------------------------*/ 
         /* Attributes                   */
         /*------------------------------*/ 
@@ -129,6 +137,7 @@ class CktNode
         XY<LocType> _offset = XY<LocType>(0, 0); ///< The offset of the location
         OriType _orient = OriType::N; ///< The orientation of this node
         bool _implPhy = false; ///< Whether this node has been implemented physically
+        bool _flipVertFlag = false; ///< Whether this node should be fliped due to symmetry constraint
         ImplType _implType = ImplType::UNSET; ///< what is the implementation type of the node 
         std::string _refName = ""; ///< The reference name of this node
         std::string _name = ""; ///< The name of this node
@@ -207,6 +216,14 @@ class Net
         /// @brief set IO shape layer. Metal layer
         /// @param metal layer
         void setIoLayer(IndexType ioLayer) { _ioLayer = ioLayer; }
+        /// @brief flip io shape according to vertical axis
+        /// @param symmetry vertical axis x=axis
+        void flipVert(LocType axis) 
+        { 
+            LocType xLo = _ioShape.xLo();    
+            _ioShape.setXLo(2 * axis - _ioShape.xHi());
+            _ioShape.setXHi(2 * axis - xLo);
+        }
 
     private:
         std::vector<IndexType> _pinIdxArray; ///< The indices of pins this nets connecting to (includes sub pins)

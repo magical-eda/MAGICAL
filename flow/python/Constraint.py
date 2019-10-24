@@ -25,7 +25,19 @@ class Constraint(object):
             self.s3det.systemSym(cktIdx, dirName)
             print "%s is not a primary cell." % cktname
             print "Constraints saved at %s.sym" % cktname 
-            #print "Waiving constraints for now."
+        return self.parseSym(cktIdx, dirName)
+
+    def parseSym(self, cktIdx, dirName):
+        cktname = self.dDB.subCkt(cktIdx).name
+        symDict = dict()
+        symFile = dirName + cktname + ".sym"
+        with open(symFile) as fin:
+            lines = fin.readlines()
+            for line in lines:
+                cellNames = line.split()
+                if len(cellNames) > 1:
+                    symDict[cellNames[0]] = cellNames[1]
+        return symDict
 
     def primaryCell(self, cktIdx):
         """
