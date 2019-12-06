@@ -24,10 +24,10 @@ class MagicalDB(object):
 
     def parse_input_netlist(self, params):
         if (params.hspice_netlist is not None):
-            self.read_hspice_netlist(params.hspice_netlist)
+            self.read_hspice_netlist(params.resultDir+params.hspice_netlist)
             return
         if (params.spectre_netlist is not None):
-            self.read_spectre_netlist(params.spectre_netlist)
+            self.read_spectre_netlist(params.resultDir+params.spectre_netlist)
             return
         raise ParamException("No input netlist file!")
 

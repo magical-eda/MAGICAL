@@ -99,7 +99,7 @@ class Device_generator(object):
         implIdx = ckt.implIdx
         implType = ckt.implType
         phyDB = self.dDB.phyPropDB()
-        print "Generating Device " + cirname
+        #print "Generating Device " + cirname
         if implType == magicalFlow.ImplTypePCELL_Nch:
             nch = phyDB.nch(implIdx)
             self.cell = Mosfet(True, ckt.name, self.norm_val(nch.width), self.norm_val(nch.length), nch.numFingers, self.get_attr(nch.attr))

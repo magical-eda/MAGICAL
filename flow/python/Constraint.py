@@ -19,12 +19,12 @@ class Constraint(object):
         cktname = self.dDB.subCkt(cktIdx).name
         if self.primaryCell(cktIdx):
             self.primarySym(cktIdx, dirName)
-            print "%s is a primary cell, generating constraints." % cktname
-            print "Constraints saved at %s.sym" % cktname 
+            #print "%s is a primary cell, generating constraints." % cktname
+            #print "Constraints saved at %s.sym" % cktname 
         else:
             self.s3det.systemSym(cktIdx, dirName)
-            print "%s is not a primary cell." % cktname
-            print "Constraints saved at %s.sym" % cktname 
+            #print "%s is not a primary cell." % cktname
+            #print "Constraints saved at %s.sym" % cktname 
         return self.parseSym(cktIdx, dirName)
 
     def parseSym(self, cktIdx, dirName):
@@ -57,7 +57,7 @@ class Constraint(object):
         """
         self.writeInitObj(cktIdx, dirName)
         cirname = self.dDB.subCkt(cktIdx).name
-        cmd = "source /home/unga/jayliu/projects/develop/magical/magical/install/constraint_generation/test/run_init.sh " + cirname + " " + dirName
+        cmd = "source /home/unga/jayliu/projects/develop/magical/magical/install/constraint_generation/test/run_init.sh " + cirname + " " + dirName + " &>/dev/null"
         subprocess.call(cmd, shell=True)
 
     def writeInitObj(self, cktIdx, dirName):

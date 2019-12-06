@@ -13,12 +13,15 @@ class PnR(object):
         self.mDB = magicalDB
         self.dDB = magicalDB.designDB.db
         self.tDB = magicalDB.techDB
+        self.dDB.findRootCkt()
+        self.rootCktIdx = self.dDB.rootCktIdx()
 
     def implLayout(self, cktIdx, dirname):
         """
         @brief PnR a circuit in the designDB
         @param the index of subckt
         """
+        isTopCkt = (self.rootCktIdx == cktIdx)
         cirname = self.dDB.subCkt(cktIdx).name
         self.writeBlockFile(cktIdx, dirname+cirname+'.block')
         self.writeConnectionFile(cktIdx, dirname+cirname+'.connection')
@@ -27,8 +30,8 @@ class PnR(object):
         # The .pin file is not needed now and might be wrong due to flipping symmetry cells
         self.writePinFile(cktIdx, dirname+cirname+'.pin')
         self.runPlace(cktIdx, dirname)
-        self.runRoute(cktIdx, dirname)
-        Router.Router(self.mDB).readBackDumbFile(cirname+'.route.gds.dumb', cktIdx)
+        self.runRoute(cktIdx, dirname, isTopCkt)
+        Router.Router(self.mDB).readBackDumbFile(dirname+cirname+'.route.gds.dumb', cktIdx)
         self.dDB.subCkt(cktIdx).isImpl = True
 
     def runMagical(self, cktIdx, dirname):
@@ -53,12 +56,11 @@ class PnR(object):
         if self.cktNeedSub(cktIdx):
             subFinished = " true"
         cirname = self.dDB.subCkt(cktIdx).name
-        cmd = "source /home/unga/jayliu/projects/develop/magical/magical/install/test/run_place.sh " + cirname + " ../../inputs/techfile ../../inputs/techfile.simple ../../inputs/spacing.rules ../../inputs/width_area.rules ../../inputs/enclosure.rules ../../inputs/M1_NW_x2.gds ../../inputs/tcbn40lpbwp_10lm7X2ZRDL.lef " + dirname + wellFinished + subFinished 
-        print cmd
+        cmd = "source /home/unga/jayliu/projects/develop/magical/magical/install/test/run_place.sh " + cirname + " ../../inputs/techfile ../../inputs/techfile.simple ../../inputs/spacing.rules ../../inputs/width_area.rules ../../inputs/enclosure.rules ../../inputs/M1_NW_x2.gds ../../inputs/tcbn40lpbwp_10lm7X2ZRDL.lef " + dirname + wellFinished + subFinished + " &>/dev/null"
         subprocess.call(cmd, shell=True)
         self.readPlace(cktIdx, dirname + "result_legal_detail.txt")
 
-    def runRoute(self, cktIdx, dirname):
+    def runRoute(self, cktIdx, dirname, top=False):
         wellFinished = " false"
         subFinished = " false"
         cirname = self.dDB.subCkt(cktIdx).name
@@ -67,7 +69,11 @@ class PnR(object):
             subFinished = " true"
         self.writeGR(cktIdx, dirname + cirname + ".ROUTING_INPUT.gr")
         self.writeGR(cktIdx, dirname + "ROUTING_INPUT.gr")
-        cmd = "source /home/unga/jayliu/projects/develop/magical/magical/install/test/run_route.sh " + cirname + " ../../inputs/techfile ../../inputs/techfile.simple ../../inputs/spacing.rules ../../inputs/width_area.rules ../../inputs/enclosure.rules ../../inputs/M1_NW_x2.gds ../../inputs/tcbn40lpbwp_10lm7X2ZRDL.lef " + dirname + wellFinished + subFinished 
+        if top:
+            script_name = "run_route_top.sh "
+        else:
+            script_name = "run_route.sh "
+        cmd = "source /home/unga/jayliu/projects/develop/magical/magical/install/test/" + script_name + cirname + " ../../inputs/techfile ../../inputs/techfile.simple ../../inputs/spacing.rules ../../inputs/width_area.rules ../../inputs/enclosure.rules ../../inputs/M1_NW_x2.gds ../../inputs/tcbn40lpbwp_10lm7X2ZRDL.lef " + dirname + wellFinished + subFinished + " &>/dev/null"
         subprocess.call(cmd, shell=True)
 
     def writeBlockFile(self, cktIdx, filename):
@@ -208,7 +214,8 @@ class PnR(object):
             net = ckt.net(netIdx)
             numPin = net.numPins()
             grPinCount, isPsub = self.netPinCount(ckt, net)
-            fout.write("%s %d %d 1\n"%(net.name, netIdx, grPinCount))
+            ##### TODO DIRTY FIX FOR PIN NEED TO BE BETTER
+            fout.write("%s %d %d 1 1 1\n"%(net.name, netIdx, grPinCount))
             if isPsub:
                 fout.write(self.psub)
             for pinId in range(numPin):

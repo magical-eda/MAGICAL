@@ -12,6 +12,8 @@ import PnR
 import StdCell
 import subprocess
 
+cell_cnt = 0
+
 class Flow(object):
     def __init__(self, db):
         self.mDB = db # MagicalDB
@@ -66,13 +68,15 @@ class Flow(object):
         dDB = self.mDB.designDB.db #c++ database
         ckt = dDB.subCkt(cktIdx) #magicalFlow.CktGraph
         # If the ckt is a device
+        global cell_cnt
         if magicalFlow.isImplTypeDevice(ckt.implType):
             Device_generator.Device_generator(self.mDB).generateDevice(cktIdx, self.resultName+'/gds/')
+            cell_cnt += 1
             return
         # If the ckt is a standard cell
         # This version only support DFCNQD2BWP and NR2D8BWP, hard-encoded
         # TODO: This should be parsed from the json file
-        if ckt.name in ['DFCNQD2BWP', 'NR2D8BWP']:
+        if ckt.name in ['DFCNQD2BWP', 'NR2D8BWP_LVT', 'INVD4BWP_LVT', 'DFCND4BWP_LVT']:#, 'BUFFD4BWP_LVT']:
             StdCell.StdCell(self.mDB).setup(cktIdx, self.resultName)
             return
         # If the ckt is actually a circuit instead of a device
@@ -88,3 +92,4 @@ class Flow(object):
         self.symDict = self.constraint.genConstraint(cktIdx, self.resultName)
         self.setup(cktIdx)
         PnR.PnR(self.mDB).implLayout(cktIdx, self.resultName)
+        print cell_cnt, "COUNT"

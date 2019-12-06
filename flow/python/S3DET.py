@@ -47,6 +47,9 @@ class S3DET(object):
                 if nodeIdxA not in symVal:
                     symVal[nodeIdxA] = dict()
                 symVal[nodeIdxA][nodeIdxB] = self.graphSim.specSimScore(subgraphA, subgraphB)
+                if nodeIdxB not in symVal:
+                    symVal[nodeIdxB] = dict()
+                symVal[nodeIdxB][nodeIdxA] = symVal[nodeIdxA][nodeIdxB]
                 print "Recognized symmetry pair:"
                 print nodeA.name, nodeB.name, symVal[nodeIdxA][nodeIdxB]
         for idxA in symVal.keys():
@@ -55,8 +58,23 @@ class S3DET(object):
             tempDict = symVal[idxA]
             tempList = list(tempDict.values())
             idxB = tempDict.keys()[tempList.index(max(tempList))]
-            symPair[idxA] = idxB
-            symVal.pop(idxB, None)
+            #symPair[idxA] = idxB
+            #symVal.pop(idxB, None)
+            # Adding fix, need to recursively remove. Dirty fix for now.
+            tempDict_p = symVal[idxB]
+            tempList_p = list(tempDict_p.values())
+            idxA_p = tempDict_p.keys()[tempList_p.index(max(tempList_p))]
+            if idxA == idxA_p:
+                symPair[idxA] = idxB
+                symVal.pop(idxB, None)
+            else:
+                val1 = tempDict[idxB]
+                val2 = tempDict_p[idxA_p]
+                if val1 > val2:
+                    symPair[idxA] = idxB
+                    symVal.pop(idxB, None)
+                else:
+                    continue
         filename = dirName + ckt.name + ".sym"
         symFile = open(filename, "w")
         for idxA in symPair:

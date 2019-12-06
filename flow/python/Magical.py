@@ -9,6 +9,16 @@ import os
 import sys
 import Params, MagicalDB, Flow
 
+class Magical(object):
+    def __init__(self, jsonFile):
+        self.params = Params.Params()
+        self.params.load(jsonFile)
+        self.db = MagicalDB.MagicalDB(self.params) # The flow database
+        self.db.parse() #parsing the input files
+        self.flow = Flow.Flow(self.db)
+    def run(self):
+        self.flow.run()
+
 if __name__ == "__main__":
     """
     @brief main function to invoke the entire Magical flow
