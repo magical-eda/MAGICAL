@@ -21,14 +21,21 @@ class S3DET(object):
         self.dDB = magicalDB.designDB.db
         self.tDB = magicalDB.techDB
         self.symTol = symTol
-        self.graph = nx.Graph()
-        self.circuitNodes = dict()
         self.addPins = True
-        self.constructGraph()
-        self.graphSim = GraphSim.GraphSim(self.graph)
+        # Modified for fix for local graph generation
+        #self.graph = nx.Graph()
+        #self.circuitNodes = dict()
+        #self.constructGraph()
+        #self.graphSim = GraphSim.GraphSim(self.graph)
         #self.plotGraph()
 
     def systemSym(self, cktIdx, dirName):
+        # Adding fix for local graph generation
+        self.graph = nx.Graph()
+        self.circuitNodes = dict()
+        self.constructGraph(cktIdx)
+        self.graphSim = GraphSim.GraphSim(self.graph)
+        #
         ckt = self.dDB.subCkt(cktIdx)
         cktNodes = range(ckt.numNodes())
         symVal = dict()
@@ -84,7 +91,7 @@ class S3DET(object):
             if symVal[idxA][idxB] >= self.symTol:
                 symFile.write("%s %s\n" % (nameA, nameB))
             else:
-                print "wavied constrinat", nameA, nameB, symVal[idxA][idxB]
+                print "waived constraint", nameA, nameB, symVal[idxA][idxB]
         hierGraph = self.hierGraph(cktIdx)
         selfSym = self.selfSym(symPair, hierGraph)
         for idx in selfSym:
@@ -221,8 +228,10 @@ class S3DET(object):
                 self.graph.add_edge(devNode, netNode, edgetype="dev_net")
         return nodeList
     
-    def constructGraph(self):
-        topCktIdx = self.mDB.topCktIdx()
+    def constructGraph(self, topCktIdx=None):
+        # Added option for local graph generation
+        if not topCktIdx:
+            topCktIdx = self.mDB.topCktIdx()
         self.circuitNodes[topCktIdx] = dict()
         ckt = self.dDB.subCkt(topCktIdx)
         netNodeIdx = dict() # dict of net name to graph node idx

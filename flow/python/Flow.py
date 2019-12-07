@@ -89,7 +89,8 @@ class Flow(object):
                 continue
             self.implCktLayout(cktNode.graphIdx) # Recursively implement all the children
         # After all the children being implemented. P&R at this circuit
+        print "Implementing circuit", ckt.name
         self.symDict = self.constraint.genConstraint(cktIdx, self.resultName)
         self.setup(cktIdx)
         PnR.PnR(self.mDB).implLayout(cktIdx, self.resultName)
-        print cell_cnt, "COUNT"
+        #print cell_cnt, "COUNT"
