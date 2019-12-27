@@ -59,8 +59,8 @@ class CMakeBuild(build_ext):
 setup(
     name='magicalFlow',
     version='0.0.1',
-    author='Keren Zhu',
-    author_email='keren.zhu@utexas.edu',
+    author='Keren Zhu, Mingjie Liu',
+    author_email='keren.zhu@utexas.edu, jay_liu@utexas.edu',
     description='The flow and database for Magical',
     long_description='',
     ext_modules=[CMakeExtension('magicalFlow')],
