@@ -12,7 +12,6 @@ import PnR
 import StdCell
 import subprocess
 
-cell_cnt = 0
 
 class Flow(object):
     def __init__(self, db):
@@ -31,10 +30,6 @@ class Flow(object):
         return True
 
     def setup(self, cktIdx):
-    # This setup is usded to flip the gds layout cell due to symmetry constraint if needed
-    # The devices pins are all flipped and correct
-    # The subcircuit cells pins are not flipped and the only the flipVertFlag is set
-    # The pins will be flipped in python according to the flag when generating GR file
         ckt = self.dDB.subCkt(cktIdx) 
         for nodeIdx in range(ckt.numNodes()):
             flipCell = False
@@ -50,16 +45,9 @@ class Flow(object):
                 # Lazy implementation, simply regenerate device cell with flipCell flag set
                 if flipCell:
                     Device_generator.Device_generator(self.mDB).generateDevice(subCktIdx, self.resultName+'/gds/', True)
-                continue
-            cmd = "/home/unga/jayliu/projects/develop/magical/magical/install/python/bin/renameGds " \
-            + self.resultName + subCktName + ".route.gds " \
-            + self.dDB.subCkt(cktIdx).node(nodeIdx).name \
-            + " ./gds/" + self.resultName + self.dDB.subCkt(cktIdx).node(nodeIdx).name + ".gds"
-            if flipCell:
-                symAxis = (self.dDB.subCkt(subCktIdx).gdsData().bbox().xLo + self.dDB.subCkt(subCktIdx).gdsData().bbox().xHi)/2
-                cmd = cmd + " " + str(symAxis)
-                cktNode.flipVertFlag = True
-            subprocess.call(cmd, shell=True)
+            else:
+                if flipCell:
+                    cktNode.flipVertFlag = True
 
     def implCktLayout(self, cktIdx):
         """
@@ -68,10 +56,8 @@ class Flow(object):
         dDB = self.mDB.designDB.db #c++ database
         ckt = dDB.subCkt(cktIdx) #magicalFlow.CktGraph
         # If the ckt is a device
-        global cell_cnt
         if magicalFlow.isImplTypeDevice(ckt.implType):
             Device_generator.Device_generator(self.mDB).generateDevice(cktIdx, self.resultName+'/gds/')
-            cell_cnt += 1
             return
         # If the ckt is a standard cell
         # This version only support DFCNQD2BWP and NR2D8BWP, hard-encoded
@@ -93,4 +79,3 @@ class Flow(object):
         self.symDict = self.constraint.genConstraint(cktIdx, self.resultName)
         self.setup(cktIdx)
         PnR.PnR(self.mDB).implLayout(cktIdx, self.resultName)
-        #print cell_cnt, "COUNT"

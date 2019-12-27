@@ -9,7 +9,9 @@
 #define MAGICAL_FLOW_CKTGRAPH_H_
 
 #include "GraphComponents.h"
+#include "parser/ParseGDS.h"
 #include "Layout.h"
+#include "TechDB.h"
 
 
 PROJECT_NAMESPACE_BEGIN
@@ -21,6 +23,7 @@ class CktGraph
     public:
         /// @brief default construtor
         explicit CktGraph() = default; 
+        void setTechDB(TechDB & techDB) { _techDB = techDB; }
         /*------------------------------*/ 
         /* Getters                      */
         /*------------------------------*/ 
@@ -143,6 +146,10 @@ class CktGraph
         void addNwellIdx(IndexType netIdx) { _nwellIdxArray.push_back(netIdx); }
         bool isImpl() const { return _isImplemented; }
         void setIsImpl(bool impl) { _isImplemented = impl; }
+        /// @brief readin GDSII file into _layout
+        /// @param GDSII filename
+        void parseGDS(const std::string & fileName) { Parser parse(fileName, _layout, _techDB); }
+
         /*------------------------------*/ 
         /* Integration                  */
         /*------------------------------*/ 
@@ -158,6 +165,7 @@ class CktGraph
         }
 
     private:
+        TechDB _techDB;
         std::vector<CktNode> _nodeArray; ///< The circuit nodes of this graph
         std::vector<Pin> _pinArray; ///< The pins of the circuit
         std::vector<Net> _netArray; ///< The nets of the circuit

@@ -1,7 +1,7 @@
 /**
  * @file Layout.h
  * @brief Data structure for maintain the layout in the flow
- * @author Keren Zhu
+ * @author Keren Zhu, Mingjie Liu
  * @date 07/03/2019
  */
 
@@ -9,6 +9,7 @@
 #define MAGICAL_FLOW_LAYOUT_H_
 
 #include <utility> // std::forward
+#include <limits> // std::numeric_limits
 #include "global/global.h"
 
 PROJECT_NAMESPACE_BEGIN
@@ -80,25 +81,30 @@ class RectLayout : public LayoutObject
         explicit RectLayout() = default;
         /// @brief construtor
         /// @param a box object representing the rectangle geometry
-        explicit RectLayout(const Box<LocType> &rect) : _rect(rect) {}
+        explicit RectLayout(const Box<LocType> &rect) : _rect(rect), _datatype(0) {}
         /// @brief constructor
         /// @param the lower left coordinate
         /// @param the upper right coordinate
-        explicit RectLayout(const XY<LocType> &lo, const XY<LocType> &ur) : _rect(Box<LocType>(lo, ur)) {}
+        explicit RectLayout(const XY<LocType> &lo, const XY<LocType> &ur) : _rect(Box<LocType>(lo, ur)), _datatype(0) {}
         /// @brief constructor
         /// @param the x coordinate of the lower left point
         /// @param the y coordinate of the lower left point
         /// @param the x coordinate of the upper right point
         /// @param the y coordinate of the upper right pointLayout
-        explicit RectLayout(LocType xLo, LocType yLo, LocType xHi, LocType yHi) : _rect(Box<LocType>(xLo, yLo, xHi, yHi)) {}
+        explicit RectLayout(LocType xLo, LocType yLo, LocType xHi, LocType yHi) : _rect(Box<LocType>(xLo, yLo, xHi, yHi)), _datatype(0) {}
         /*------------------------------*/ 
         /* Getters                      */
         /*------------------------------*/ 
         /// @brief get the rectangle of the object
         /// @return the rectangle shape of the object
         Box<LocType> & rect() { return _rect; }
+        const Box<LocType> & rect() const { return _rect; }
+        IndexType datatype() { return _datatype; }
+        /// @brief set the datatype of the shape, default is 0
+        void setDatatype(IndexType datatype) { _datatype = datatype; }
     private:
         Box<LocType> _rect; ///< The shape of this rectangle
+        IndexType _datatype;
 };
 
 /// @class MAGICAL_FLOW::LayoutLayer
@@ -182,12 +188,21 @@ class Layout
 {
     public:
         /// @brief default constructor
-        explicit Layout() = default;
+        explicit Layout() { this->init(RESERVED_LAYERS_NUMBER); }
         /// @brief clear the layout
-        void clear() {  AssertMsg(_numLayers >= 0, "%s: ensure the number of layers are set \n", __FUNCTION__); _layers.clear(); _layers.resize(_numLayers); }
+        void clear() {  
+            AssertMsg(_numLayers >= 0, "%s: ensure the number of layers are set \n", __FUNCTION__); _layers.clear(); _layers.resize(_numLayers); 
+            }
         /// @brief initialize the object with number of layers
         /// @param the number of layers
-        void init(IndexType numLayers) { _numLayers = numLayers; this->clear(); }
+        void init(IndexType numLayers) { 
+            _numLayers = numLayers; 
+            this->clear(); 
+            _boundary.setXLo(std::numeric_limits<LocType>::max());
+            _boundary.setYLo(std::numeric_limits<LocType>::max());
+            _boundary.setXHi(std::numeric_limits<LocType>::min());
+            _boundary.setYHi(std::numeric_limits<LocType>::min());
+        }
         /*------------------------------*/ 
         /* Getters                      */
         /*------------------------------*/ 
@@ -212,6 +227,9 @@ class Layout
         /// @param the index of one layer
         /// @return the number of rectangles in the layer
         IndexType numRects(IndexType layerIdx) const { return _layers.at(layerIdx).rectList().size(); }
+        /// @brief get the boundary box of layout
+        /// @return boundary box
+        Box<LocType> boundary() const { return _boundary; }
         /*------------------------------*/ 
         /* Add items                    */
         /*------------------------------*/ 
@@ -237,18 +255,27 @@ class Layout
         /// @param first: layer index
         /// @param second: a rectangle object
         /// @return the index of the object inserted
-        IndexType insertRect(IndexType layerIdx, const RectLayout &rect) { return _layers.at(layerIdx).insertRect(rect); }
+        IndexType insertRect(IndexType layerIdx, const RectLayout &rect) { 
+            _boundary.unionBox(rect.rect());
+            return _layers.at(layerIdx).insertRect(rect); 
+            }
         /// @brief insert a rectangle
         /// @param first: layer index
         /// @param second: a box object to represent the geometry of the rectanle
         /// @return the index of the object inserted
-        IndexType insertRect(IndexType layerIdx, const Box<LocType> &box) { return _layers.at(layerIdx).insertRect(box); }
+        IndexType insertRect(IndexType layerIdx, const Box<LocType> &box) { 
+            _boundary.unionBox(box);
+            return _layers.at(layerIdx).insertRect(box); 
+            }
         /// @brief insert a rectangle
         /// @param first: layer index
         /// @param second: the lower left coordinate of the rectangle
         /// @param third: the upper right coordinate of the rectangle
         /// @return the index of the object inserted
-        IndexType insertRect(IndexType layerIdx, const XY<LocType> &lo, const XY<LocType> &ur) { return _layers.at(layerIdx).insertRect(lo, ur); } 
+        IndexType insertRect(IndexType layerIdx, const XY<LocType> &lo, const XY<LocType> &ur) { 
+            _boundary.unionBox(Box<LocType>(lo, ur));
+            return _layers.at(layerIdx).insertRect(lo, ur); 
+            } 
         /// @brief insert a rectangle
         /// @param first: layer index
         /// @param second: the x coordinate of the lower-left point
@@ -256,9 +283,24 @@ class Layout
         /// @param second: the x coordinate of the upper-right point
         /// @param third: the y coordinate of the upper-right point
         /// @return the index of the object inserted
-        IndexType insertRect(IndexType layerIdx, LocType xLo, LocType yLo, LocType xHi, LocType yHi) { return _layers.at(layerIdx).insertRect(xLo, yLo, xHi, yHi); } 
+        IndexType insertRect(IndexType layerIdx, LocType xLo, LocType yLo, LocType xHi, LocType yHi) { 
+            _boundary.unionBox(Box<LocType>(xLo, yLo, xHi, yHi));
+            return _layers.at(layerIdx).insertRect(xLo, yLo, xHi, yHi); 
+            } 
+        /// @brief insert a Layout
+        /// @param first: layout to be inserted
+        /// @param second: x_offset
+        /// @param third: y_offset
+        /// @param fourth: boolean if to flip vertically
+        void insertLayout(Layout & layout, LocType x_offset, LocType y_offset, bool flipVertFlag);
+        /// @brief set the datatype of a rectangle
+        /// @param first: layer index
+        /// @param second: the rect index in the layer
+        /// @param third: the datatype of the object
+        void setRectDatatype(IndexType layerIdx, IndexType rectIdx, IndexType datatype) {_layers.at(layerIdx).rect(rectIdx).setDatatype(datatype); }
     private:
         std::vector<LayoutLayer> _layers; ///< _text[idx of layer] = vector of text objects
+        Box<LocType> _boundary;
         IntType _numLayers = -1; ///< The number of layers
 };
 

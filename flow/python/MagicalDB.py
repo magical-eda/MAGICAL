@@ -16,11 +16,12 @@ class MagicalDB(object):
 
     def parse(self):
         self.parse_input_netlist(self.params)
+        self.parse_simple_techfile('/home/unga/jayliu/projects/inputs/techfile.simple')
         self.designDB.db.findRootCkt() # After the parsing, find the root circuit of the hierarchy
         return True
 
     def parse_simple_techfile(self, params):
-        magicalFlow.parseSimpleTechFile( params.simple_tech_file, self.techDB)
+        magicalFlow.parseSimpleTechFile( params, self.techDB)
 
     def parse_input_netlist(self, params):
         if (params.hspice_netlist is not None):

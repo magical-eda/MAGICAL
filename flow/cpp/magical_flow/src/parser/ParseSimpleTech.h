@@ -34,6 +34,10 @@ class ParseSimpleTech
         /// @param the file name of the simple tech file
         /// @return whether the parsing is successful
         bool parse(const std::string &filename);
+        /// @brief read a simple tech file, no idea what parse reads
+        /// @param the file name of the simple tech file
+        /// @return whether the parsing is successful
+        bool read(const std::string &filename);
     private:
         /// @brief finish up the parsing
         bool finish();

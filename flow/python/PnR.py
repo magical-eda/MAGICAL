@@ -5,8 +5,12 @@
 # @brief The class for implementing one layout for a circuit
 #
 import subprocess
-import Router
 import magicalFlow
+import IdeaPlaceExPy
+import sys
+sys.path.append('/home/local/eda10/jayliu/projects/develop/magical/magical/constraint_generation/python/')
+import device_generation.basic as basic
+import Router
 
 class PnR(object):
     def __init__(self, magicalDB):
@@ -26,39 +30,120 @@ class PnR(object):
         self.writeBlockFile(cktIdx, dirname+cirname+'.block')
         self.writeConnectionFile(cktIdx, dirname+cirname+'.connection')
         self.writeNetFile(cktIdx, dirname+cirname+'.net')
-        self.writeOffsetFile(cktIdx, dirname+cirname+'.offset')
         # The .pin file is not needed now and might be wrong due to flipping symmetry cells
         self.writePinFile(cktIdx, dirname+cirname+'.pin')
-        self.runPlace(cktIdx, dirname)
+        #self.runPlace(cktIdx, dirname)
+        self.runPlace_file(cktIdx, dirname)
         self.runRoute(cktIdx, dirname, isTopCkt)
         Router.Router(self.mDB).readBackDumbFile(dirname+cirname+'.route.gds.dumb', cktIdx)
         self.dDB.subCkt(cktIdx).isImpl = True
 
-    def runMagical(self, cktIdx, dirname):
-        wellFinished = " true"
-        ckt = self.dDB.subCkt(cktIdx)
-        for nodeIdx in range(ckt.numNodes()):
-            node = ckt.node(nodeIdx)
-            if node.isLeaf():
-                assert(False)
-            subCktIdx = node.graphIdx
-            subCkt = self.dDB.subCkt(subCktIdx)
-            if not magicalFlow.isImplTypeDevice(subCkt.implType):
-                wellFinished = " false"
-                break
-        cirname = self.dDB.subCkt(cktIdx).name
-        cmd = "source /home/unga/jayliu/projects/develop/magical/magical/install/test/run.sh " + cirname + " ../../inputs/techfile ../../inputs/techfile.simple ../../inputs/spacing.rules ../../inputs/width_area.rules ../../inputs/enclosure.rules ../../inputs/M1_NW_x2.gds ../../inputs/tcbn40lpbwp_10lm7X2ZRDL.lef " + dirname + wellFinished 
-        subprocess.call(cmd, shell=True)
-
     def runPlace(self, cktIdx, dirname):
-        wellFinished = " false"
-        subFinished = " false"
+        ckt = self.dDB.subCkt(cktIdx)
+        cktname = ckt.name
+        placer = IdeaPlaceExPy.IdeaPlaceEx()
+        placer.readTechSimpleFile('/home/unga/jayliu/projects/inputs/techfile.simple')
+        self.placeParsePin(placer, cktIdx)
+        self.placeConnection(placer, cktIdx)
+        placer.readSymFile(dirname + cktname + '.sym')
+        for nodeIdx in range(ckt.numNodes()):
+            cktNode = ckt.node(nodeIdx)
+            subCkt = self.dDB.subCkt(cktNode.graphIdx)
+            bBox = subCkt.layout().boundary()
+            print bBox.xLo, bBox.yLo, bBox.xHi, bBox.yHi, cktNode.name, nodeIdx
+            placer.addCellShape(nodeIdx, 0, bBox.xLo, bBox.yLo, bBox.xHi, bBox.yHi)
+        placer.solve()
+        for nodeIdx in range(ckt.numNodes()):
+            cktNode = ckt.node(nodeIdx)
+            subCkt = self.dDB.subCkt(cktNode.graphIdx)
+            x_offset = placer.xCellLoc(nodeIdx)
+            y_offset = placer.yCellLoc(nodeIdx)
+            print "Placement Solution KEREN"
+            print x_offset, y_offset
+            cktNode.setOffset(x_offset, y_offset)
+            ckt.layout().insertLayout(subCkt.layout(), x_offset, y_offset, cktNode.flipVertFlag)
         if self.cktNeedSub(cktIdx):
-            subFinished = " true"
-        cirname = self.dDB.subCkt(cktIdx).name
-        cmd = "source /home/unga/jayliu/projects/develop/magical/magical/install/test/run_place.sh " + cirname + " ../../inputs/techfile ../../inputs/techfile.simple ../../inputs/spacing.rules ../../inputs/width_area.rules ../../inputs/enclosure.rules ../../inputs/M1_NW_x2.gds ../../inputs/tcbn40lpbwp_10lm7X2ZRDL.lef " + dirname + wellFinished + subFinished + " &>/dev/null"
-        subprocess.call(cmd, shell=True)
-        self.readPlace(cktIdx, dirname + "result_legal_detail.txt")
+            bBox = ckt.layout().boundary()
+            grCell = basic.sub_GR([bBox.xLo/1000.0-0.08, bBox.yLo/1000.0-0.08], [bBox.xHi/1000.0+0.08, bBox.yHi/1000.0+0.08])
+            self.addPycell(ckt.layout(), grCell)
+        magicalFlow.writeGdsLayout(cktIdx, dirname + cktname + '.wellgen.gds', self.dDB, self.tDB)
+        boundary = ckt.layout().boundary()
+        # TODO: Remove in future
+        if self.cktNeedSub(cktIdx):
+            outFile = dirname + cktname + '.sub'
+            self.writeSub(boundary.xLo, boundary.yLo, boundary.xHi, boundary.yHi, outFile)
+            
+    def runPlace_file(self, cktIdx, dirname):
+        ckt = self.dDB.subCkt(cktIdx)
+        cktname = ckt.name
+        placer = IdeaPlaceExPy.IdeaPlaceEx()
+        placer.readTechSimpleFile('/home/unga/jayliu/projects/inputs/techfile.simple')
+        placer.readPinFile(dirname + cktname + '.pin')
+        placer.readConnectionFile(dirname + cktname + '.connection')
+        placer.readSymFile(dirname + cktname + '.sym')
+        for nodeIdx in range(ckt.numNodes()):
+            cktNode = ckt.node(nodeIdx)
+            subCkt = self.dDB.subCkt(cktNode.graphIdx)
+            bBox = subCkt.layout().boundary()
+            cellIdx = placer.cellIdxName(cktNode.name)
+            placer.addCellShape(cellIdx, 0, bBox.xLo, bBox.yLo, bBox.xHi, bBox.yHi)
+        placer.solve()
+        for nodeIdx in range(ckt.numNodes()):
+            cktNode = ckt.node(nodeIdx)
+            subCkt = self.dDB.subCkt(cktNode.graphIdx)
+            cellIdx = placer.cellIdxName(cktNode.name)
+            x_offset = placer.xCellLoc(cellIdx)
+            y_offset = placer.yCellLoc(cellIdx)
+            print "Placement Solution KEREN2"
+            print x_offset, y_offset
+            cktNode.setOffset(x_offset, y_offset)
+            ckt.layout().insertLayout(subCkt.layout(), x_offset, y_offset, cktNode.flipVertFlag)
+        if self.cktNeedSub(cktIdx):
+            bBox = ckt.layout().boundary()
+            grCell = basic.sub_GR([bBox.xLo/1000.0-0.08, bBox.yLo/1000.0-0.08], [bBox.xHi/1000.0+0.08, bBox.yHi/1000.0+0.08])
+            self.addPycell(ckt.layout(), grCell)
+        magicalFlow.writeGdsLayout(cktIdx, dirname + cktname + '.wellgen.gds', self.dDB, self.tDB)
+        boundary = ckt.layout().boundary()
+        # TODO: Remove in future
+        if self.cktNeedSub(cktIdx):
+            outFile = dirname + cktname + '.sub'
+            self.writeSub(boundary.xLo, boundary.yLo, boundary.xHi, boundary.yHi, outFile)
+
+    def addPycell(self, layout, pyCell):
+        polygons = pyCell.get_polygons(True)
+        layers = polygons.keys()
+        for layer in layers:
+            layerIdx = self.tDB.pdkLayerToDb(layer[0])
+            datatype = layer[1]
+            polyList = polygons[layer]
+            for poly in polyList:
+                xLo = int(round(poly[0][0]*200))*5
+                yLo = int(round(poly[0][1]*200))*5
+                xHi = int(round(poly[2][0]*200))*5
+                yHi = int(round(poly[2][1]*200))*5
+                rectIdx = layout.insertRect(layerIdx, xLo, yLo, xHi, yHi)
+                if datatype != 0:
+                    layout.setRectDatatype(layerIdx, rectIdx, datatype)
+
+    def writeSub(self, xlo, ylo, xhi, yhi, outFile):
+        xlo = xlo + 50
+        ylo = ylo + 50
+        xhi = xhi - 50
+        yhi = yhi - 50
+        w = 170
+        fout = open(outFile, "w")
+        fout.write("1 ")
+        fout.write("%d %d "% (xlo, ylo))
+        fout.write("%d %d "% (xhi, ylo))
+        fout.write("%d %d "% (xhi, yhi))
+        fout.write("%d %d "% (xlo, yhi))
+        fout.write("%d %d "% (xlo, ylo+w))
+        fout.write("%d %d "% (xlo+w, ylo+w))
+        fout.write("%d %d "% (xlo+w, yhi-w))
+        fout.write("%d %d "% (xhi-w, yhi-w))
+        fout.write("%d %d "% (xhi-w, ylo+w))
+        fout.write("%d %d \n"% (xlo, ylo+w))
+        fout.close()
 
     def runRoute(self, cktIdx, dirname, top=False):
         wellFinished = " false"
@@ -70,11 +155,14 @@ class PnR(object):
         self.writeGR(cktIdx, dirname + cirname + ".ROUTING_INPUT.gr")
         self.writeGR(cktIdx, dirname + "ROUTING_INPUT.gr")
         if top:
-            script_name = "run_route_top.sh "
+            script_name = "run_route_hao_top.sh "
         else:
-            script_name = "run_route.sh "
-        cmd = "source /home/unga/jayliu/projects/develop/magical/magical/install/test/" + script_name + cirname + " ../../inputs/techfile ../../inputs/techfile.simple ../../inputs/spacing.rules ../../inputs/width_area.rules ../../inputs/enclosure.rules ../../inputs/M1_NW_x2.gds ../../inputs/tcbn40lpbwp_10lm7X2ZRDL.lef " + dirname + wellFinished + subFinished + " &>/dev/null"
+            script_name = "run_route_hao.sh "
+        cmd = "source /home/unga/jayliu/projects/develop/magical/magical/install/test/" + script_name + cirname + " ../../inputs/techfile ../../inputs/techfile.simple ../../inputs/spacing.rules ../../inputs/width_area.rules ../../inputs/enclosure.rules ../../inputs/M1_NW_x2.gds ../../inputs/tcbn40lpbwp_10lm7X2ZRDL.lef " + dirname + wellFinished + subFinished# + " &>/dev/null"
         subprocess.call(cmd, shell=True)
+        ckt = self.dDB.subCkt(cktIdx)
+        ckt.setTechDB(self.tDB)
+        ckt.parseGDS(dirname+ckt.name+'.route.gds')
 
     def writeBlockFile(self, cktIdx, filename):
         """
@@ -92,26 +180,21 @@ class PnR(object):
             fout.write(str(subCkt.gdsData().bbox().yLen()/10))
             fout.write("\n")
 
-    def writeConnectionFile(self, cktIdx, filename):
+    def placeConnection(self, placer, cktIdx):
         """
-        @brief write .connection file
+        @brief add pin connection info to placer
         """
-        fout = open(filename, "w")
         ckt = self.dDB.subCkt(cktIdx)
         for netIdx in range(ckt.numNets()):
             net = ckt.net(netIdx)
-            fout.write(net.name)
-            fout.write(" ")
+            dbNetIdx = placer.allocateNet()
+            assert netIdx == dbNetIdx, "placeConnection, netIdx == dbNetIdx"
             for pinIdx in range(net.numPins()):
                 pinidxidx = net.pinIdx(pinIdx)
                 pin = ckt.pin(pinidxidx)
                 nodeIdx = pin.nodeIdx
-                node = ckt.node(nodeIdx)
-                fout.write(node.name)
-                fout.write(" ")
-                fout.write(str(pin.intNetIdx))
-                fout.write(" ")
-            fout.write("\n")
+                print nodeIdx, pin.intNetIdx, "0,3 should be wrong", placer.pinIdx(nodeIdx, pin.intNetIdx)
+                placer.addPinToNet(placer.pinIdx(nodeIdx, pin.intNetIdx), netIdx)
 
     def writeNetFile(self, cktIdx, filename):
         """
@@ -150,42 +233,25 @@ class PnR(object):
             fout.write(str(float(yLo) / 1000))
             fout.write("\n")
 
-    def writePinFile(self, cktIdx, filename):
+    def placeParsePin(self, placer, cktIdx):
         """
-        @brief write .pin file
+        @brief parse pin and cell for placer
         """
-        fout = open(filename, "w")
         ckt = self.dDB.subCkt(cktIdx)
         for nodeIdx in range(ckt.numNodes()):
+            cellIdx = placer.allocateCell()
+            assert nodeIdx == cellIdx, "placeParsePin, nodeIdx != ckdIdx"
             node = ckt.node(nodeIdx)
             subCkt = self.dDB.subCkt(node.graphIdx)
-            fout.write(node.name)
-            fout.write("\n")
-            offsetXLo = float(subCkt.gdsData().bbox().xLo) / 1000
-            offsetYLo = float(subCkt.gdsData().bbox().yLo) / 1000
             for netIdx in range(subCkt.numNets()):
+                pinIdx = placer.allocatePin(nodeIdx)
                 net = subCkt.net(netIdx)
                 shape = net.ioShape()
                 layer = net.ioLayer
                 if layer > 10:
                     continue
-                xLo = float(shape.xLo)  / 1000
-                yLo = float(shape.yLo)  / 1000
-                xHi = float(shape.xHi)  / 1000
-                yHi = float(shape.yHi)  / 1000
-                fout.write(str(netIdx))
-                fout.write("    1\n ")
-                fout.write("M")
-                fout.write(str(layer))
-                fout.write("    ((")
-                fout.write(str(xLo - offsetXLo))
-                fout.write(" ")
-                fout.write(str(yLo - offsetYLo))
-                fout.write(") (")
-                fout.write(str(xHi - offsetXLo))
-                fout.write(" ")
-                fout.write(str(yHi - offsetYLo))
-                fout.write("))\n")
+                print shape.xLo, shape.yLo, shape.xHi, shape.yHi, net.name, subCkt.name
+                placer.addPinShape(pinIdx, shape.xLo, shape.yLo, shape.xHi, shape.yHi)
 
     def readPlace(self, cktIdx, filename):
         ckt = self.dDB.subCkt(cktIdx)
@@ -215,7 +281,8 @@ class PnR(object):
             numPin = net.numPins()
             grPinCount, isPsub = self.netPinCount(ckt, net)
             ##### TODO DIRTY FIX FOR PIN NEED TO BE BETTER
-            fout.write("%s %d %d 1 1 1\n"%(net.name, netIdx, grPinCount))
+            #fout.write("%s %d %d 1 1 1\n"%(net.name, netIdx, grPinCount))
+            fout.write("%s %d %d 1\n"%(net.name, netIdx, grPinCount))
             if isPsub:
                 fout.write(self.psub)
             for pinId in range(numPin):
@@ -228,7 +295,7 @@ class PnR(object):
                 if pin.pinType == magicalFlow.PinType.PSUB:
                     assert net.isSub
                     continue
-                conShape = self.adjustIoShape(conCkt.net(conNet).ioShape(), ckt.node(conNode).offset(), conCkt.gdsData().bbox(), flipFlag)
+                conShape = self.adjustIoShape(conCkt.net(conNet).ioShape(), ckt.node(conNode).offset(), conCkt.layout().boundary(), ckt.node(conNode).flipVertFlag)
                 xLo = int(conShape[0]) 
                 yLo = int(conShape[1])
                 xHi = int(conShape[2])
@@ -278,12 +345,70 @@ class PnR(object):
         else:
             xLo = ioShape.xLo
             xHi = ioShape.xHi
-        xLo = xLo + offset.x - cellBBox.xLo
-        xHi = xHi + offset.x - cellBBox.xLo
-        yLo = ioShape.yLo + offset.y - cellBBox.yLo
-        yHi = ioShape.yHi + offset.y - cellBBox.yLo
+        xLo = xLo + offset.x #- cellBBox.xLo ?????
+        xHi = xHi + offset.x #- cellBBox.xLo ?????
+        yLo = ioShape.yLo + offset.y #- cellBBox.yLo
+        yHi = ioShape.yHi + offset.y #- cellBBox.yLo
         return [xLo, yLo, xHi, yHi]
 
     @staticmethod
     def pinToStr(xLo, yLo, xHi, yHi):
         return str(xLo)+" "+str(yLo)+" "+str(xHi)+" "+str(yLo)+" "+str(xHi)+" "+str(yHi)+" "+str(xLo)+" "+str(yHi)
+ 
+    def writeConnectionFile(self, cktIdx, filename):
+        """
+        @brief write .connection file
+        """
+        fout = open(filename, "w")
+        ckt = self.dDB.subCkt(cktIdx)
+        for netIdx in range(ckt.numNets()):
+            net = ckt.net(netIdx)
+            fout.write(net.name)
+            fout.write(" ")
+            for pinIdx in range(net.numPins()):
+                pinidxidx = net.pinIdx(pinIdx)
+                pin = ckt.pin(pinidxidx)
+                nodeIdx = pin.nodeIdx
+                node = ckt.node(nodeIdx)
+                fout.write(node.name)
+                fout.write(" ")
+                fout.write(str(pin.intNetIdx))
+                fout.write(" ")
+            fout.write("\n")       
+
+    def writePinFile(self, cktIdx, filename):
+        """
+        @brief write .pin file
+        """
+        fout = open(filename, "w")
+        ckt = self.dDB.subCkt(cktIdx)
+        for nodeIdx in range(ckt.numNodes()):
+            node = ckt.node(nodeIdx)
+            subCkt = self.dDB.subCkt(node.graphIdx)
+            fout.write(node.name)
+            fout.write("\n")
+            offsetXLo = float(subCkt.gdsData().bbox().xLo) / 1000
+            offsetYLo = float(subCkt.gdsData().bbox().yLo) / 1000
+            for netIdx in range(subCkt.numNets()):
+                net = subCkt.net(netIdx)
+                shape = net.ioShape()
+                layer = net.ioLayer
+                if layer > 10:
+                    continue
+                xLo = float(shape.xLo)  / 1000
+                yLo = float(shape.yLo)  / 1000
+                xHi = float(shape.xHi)  / 1000
+                yHi = float(shape.yHi)  / 1000
+                fout.write(str(netIdx))
+                fout.write("    1\n ")
+                fout.write("M")
+                fout.write(str(layer))
+                fout.write("    ((")
+                fout.write(str(xLo - offsetXLo))
+                fout.write(" ")
+                fout.write(str(yLo - offsetYLo))
+                fout.write(") (")
+                fout.write(str(xHi - offsetXLo))
+                fout.write(" ")
+                fout.write(str(yHi - offsetYLo))
+                fout.write("))\n")        

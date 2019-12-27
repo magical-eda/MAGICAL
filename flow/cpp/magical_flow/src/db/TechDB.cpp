@@ -9,7 +9,7 @@ namespace PARSE
     /// @param the input file name for layers(simple techfile)
     bool parseSimpleTechFile(const std::string &file, TechDB &techDB)
     {
-        if (!ParseSimpleTech(techDB).parse(file))
+        if (!ParseSimpleTech(techDB).read(file))
         {
             return false;
         }

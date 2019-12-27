@@ -2,6 +2,31 @@
 
 PROJECT_NAMESPACE_BEGIN
 
+bool ParseSimpleTech::read(const std::string &filename)
+{
+    std::ifstream inf(filename.c_str());
+    if (!inf.is_open()) 
+    {
+        ERR("ParserTechSimple::%s: cannot open file: %s \n", __FUNCTION__ , filename.c_str());
+        Assert(false);
+        return false;
+    }
+    // Read in the file
+    std::string line;
+    while (std::getline(inf, line))
+    {
+        // Split the line into words
+        std::vector<std::string> words;
+        std::istringstream iss(line);
+        std::string layerName;
+        IndexType gdsLayer = INDEX_TYPE_MAX;
+        iss >> layerName;
+        iss >> gdsLayer;
+        // Add to the database
+        _techDB.addNewLayer(gdsLayer, layerName);
+    }
+    return true;
+}
 
 bool ParseSimpleTech::parse(const std::string &filename)
 {

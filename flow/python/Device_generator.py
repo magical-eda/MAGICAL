@@ -93,7 +93,7 @@ class Device_generator(object):
         outval = (inval*i_unit*1.0)/o_unit
         return outval
 
-    def generateDevice(self, cktIdx, dirname, flipCell=False):
+    def generateDevice(self, cktIdx, dirname, flipCell=False, writeFile=None):
         ckt = self.dDB.subCkt(cktIdx)
         cirname = ckt.name
         implIdx = ckt.implIdx
@@ -121,4 +121,12 @@ class Device_generator(object):
         self.setPinBB(dirname+cirname+'.pin')
         self.writeOut()
         self.writeDB(cktIdx)
+        self.readGDS(cktIdx, dirname)
         return True
+
+    def readGDS(self, cktIdx, dirname):
+        ckt = self.dDB.subCkt(cktIdx)
+        ckt.setTechDB(self.tDB)
+        cirname = ckt.name
+        fileName = dirname + cirname + '.gds'
+        ckt.parseGDS(fileName)

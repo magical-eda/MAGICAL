@@ -21,4 +21,7 @@ class StdCell(object):
         subprocess.call(cmd, shell=True)
         self.dDB.subCkt(cktIdx).isImpl = True
 
-        
+    def parseGDS(self, cktIdx, dirName): 
+        ckt = self.dDB.subCkt(cktIdx)
+        ckt.parseGDS(dirName+ckt.name+'.rout.gds')
+        layout = ckt.layout

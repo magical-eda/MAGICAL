@@ -95,7 +95,7 @@ inline void GdsWriter::addCktGraph(IndexType cktGraphIdx)
     {
         for (IndexType rectIdx = 0; rectIdx < cktLayout.numRects(layerIdx); ++rectIdx)
         {
-            this->addRect2Cell(gdsCell, cktLayout.rect(layerIdx, rectIdx).rect(), layerIdx, 0); // FIXME For >M6 layer, need to use datatype=40
+            this->addRect2Cell(gdsCell, cktLayout.rect(layerIdx, rectIdx).rect(), layerIdx, cktLayout.rect(layerIdx, rectIdx).datatype()); // FIXME For >M6 layer, need to use datatype=40
         }
         for (IndexType textIdx = 0; textIdx < cktLayout.numTexts(layerIdx); ++textIdx)
         {
@@ -112,8 +112,8 @@ inline void GdsWriter::addCktGraph(IndexType cktGraphIdx)
             continue;
         }
         // If it is not leaf, add a reference cell and recursively add the cell
-        this->addCellRef2Cell(gdsCell, node);
-        this->addCktGraph(node.subgraphIdx());
+        // this->addCktGraph(node.subgraphIdx());
+        // this->addCellRef2Cell(gdsCell, node);
     }
 }
 
@@ -150,8 +150,10 @@ inline void GdsWriter::addCellRef2Cell(GdsParser::GdsDB::GdsCell &gdsCell, CktNo
     }
     else
     {
+        angle = 0;
+        flip = true;
         // TODO:
-        AssertMsg(false, "GdsWriter::addCellRef2Cell. TODO: Not yet implemented. Only N orientation is supported right now. \n");
+        // AssertMsg(false, "GdsWriter::addCellRef2Cell. TODO: Not yet implemented. Only N orientation is supported right now. \n");
     }
     int strans;
     if (flip)
