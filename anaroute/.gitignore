@@ -1,0 +1,8 @@
+bin/anaroute
+bin/out
+bin/k.sh
+bin/ARouter
+build/
+bench/
+bench_new/
+tags
