@@ -1,8 +1,0 @@
-obj
-test_reader
-test_writer
-test_driver
-test_gdsdb
-valgrind.*
-test_writer2.gds
-debug*.gds

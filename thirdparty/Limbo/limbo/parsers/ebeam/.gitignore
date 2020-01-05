@@ -1,7 +1,0 @@
-test/test_bison
-test/test_spirit
-bison/EbeamParser.cc
-bison/EbeamParser.h
-bison/EbeamScanner.cc
-*.hh
-test/valgrind.txt

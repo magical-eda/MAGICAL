@@ -1,5 +1,0 @@
-test/test_bison
-bison/LpParser.cc
-bison/LpParser.h
-bison/LpScanner.cc
-*.hh

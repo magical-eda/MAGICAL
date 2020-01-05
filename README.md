@@ -19,15 +19,8 @@ This project is currently still under active development.
 - [Zlib](https://www.zlib.net)
     - Required by Limbo package
 
-- ~~[Cairo](https://cairographics.org)~~
-    - GNU/Linux distributions available (apt-get, yum, zypper etc...)
-    - ~~Required by routing engine for visualizations~~
-
 - [Limbo](https://github.com/limbo018/Limbo)
     - Integrated as a thirdparty package
-
-- ~~[Gurobi 8.0.1](http://www.gurobi.com/)~~
-    - ~~ Replaced with LPSolve~~
 
 - [LPSolve 5.5](http://lpsolve.sourceforge.net/5.5/)
     - Integrated as a thirdparty package 
@@ -37,6 +30,9 @@ This project is currently still under active development.
 
 - [wnlib](http://www.willnaylor.com/wnlib.html)
     - Integrated as a thirdparty package
+
+The following are outdated.
+
 
 # How to clone #
 
