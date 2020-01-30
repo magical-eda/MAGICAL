@@ -31,20 +31,21 @@ RESULT_DIR=results
 
 echo "CIRCUIT_GDSII = ${CIRCUIT_GDSII}"
 echo "CIRCUIT_NAME = ${CIRCUIT_NAME}"
+echo "CUR_SCRIPT_DIR = ${CUR_SCRIPT_DIR}"
 
 # generate gr file 
 echo -e "${STATUS_PREFIX_COLOR}${CIRCUIT_NAME}:${NC} generate gr file"
-python ${CUR_SCRIPT_DIR}/../python/getPinLoc.py -f ${PLACE_SOL_FILE} -p ${PIN_FILE} -n ${RESULT_DIR}/${CIRCUIT_NAME}/${CIRCUIT_NAME}.connection -o ${RESULT_DIR}/${CIRCUIT_NAME}/${CIRCUIT_NAME}.gr
+python ${CUR_SCRIPT_DIR}/../install/routing/python/getPinLoc.py -f ${PLACE_SOL_FILE} -p ${PIN_FILE} -n ${RESULT_DIR}/${CIRCUIT_NAME}/${CIRCUIT_NAME}.connection -o ${RESULT_DIR}/${CIRCUIT_NAME}/${CIRCUIT_NAME}.gr
 
 # merge GR 
 echo -e "${STATUS_PREFIX_COLOR}${CIRCUIT_NAME}:${NC} merge VDD/VSS contacts to GR"
-python ${CUR_SCRIPT_DIR}/../python/addPinsToGR.py ${WCON_FILE} ${RESULT_DIR}/${CIRCUIT_NAME}/${CIRCUIT_NAME}.gr temp.gr VDD
-python ${CUR_SCRIPT_DIR}/../python/addPinsToGR.py ${SUB_FILE} temp.gr ${RESULT_DIR}/${CIRCUIT_NAME}/ROUTING_INPUT.gr GND
+python ${CUR_SCRIPT_DIR}/../install/routing/python/addPinsToGR.py ${WCON_FILE} ${RESULT_DIR}/${CIRCUIT_NAME}/${CIRCUIT_NAME}.gr temp.gr VDD
+python ${CUR_SCRIPT_DIR}/../install/routing/python/addPinsToGR.py ${SUB_FILE} temp.gr ${RESULT_DIR}/${CIRCUIT_NAME}/ROUTING_INPUT.gr GND
 rm temp.gr
 
 # routing 
 echo -e "${STATUS_PREFIX_COLOR}${CIRCUIT_NAME}:${NC} analog routing"
-${CUR_SCRIPT_DIR}/../arouterex/bin/ARouter\
+${CUR_SCRIPT_DIR}/../install/routing/arouterex/bin/ARouter\
     --designType ispd08pin \
     --designFile ${RESULT_DIR}/${CIRCUIT_NAME}/ROUTING_INPUT.gr \
     --simpleTech ${SIMPLE_TECH_FILE} \

@@ -28,12 +28,13 @@ WIDTH_AREA_RULE_FILE=$4
 echo "CIRCUIT = ${CIRCUIT}"
 echo "CIRCUIT_NAME = ${CIRCUIT_NAME}"
 echo "TECHFILE = ${TECHFILE}"
+echo "CUR_SCRIPT_DIR = ${CUR_SCRIPT_DIR}"
 echo "SPACING_RULE_FILE = ${SPACING_RULE_FILE}"
 echo "WIDTH_AREA_RULE_FILE = ${WIDTH_AREA_RULE_FILE}"
 
 echo -e "${STATUS_PREFIX_COLOR}${CIRCUIT_NAME}:${NC} analog placement"
 mkdir -p results/${CIRCUIT_NAME}
-${CUR_SCRIPT_DIR}/../bin/idea_place \
+${CUR_SCRIPT_DIR}/../install/placement/idea_place/bin/idea_place \
     --techfile ${TECHFILE} \
     --spacing ${SPACING_RULE_FILE} \
     --width_area ${WIDTH_AREA_RULE_FILE} \
