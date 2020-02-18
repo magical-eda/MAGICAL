@@ -10,7 +10,7 @@ import pyparsing as _p
 
 
 nmos_set = {"nmos", "nch", "nch_na", "nch_mac", "nch_lvt", "nch_lvt_mac", "nch_25_mac", "nch_na25_mac", "nch_hvt_mac", "nch_25ud18_mac"}
-pmos_set = {"pmos", "pch", "pch_mac", "pch_lvt", "pch_lvt_mac", "pch_25_mac", "pch_na25_mac", "pch_hvt_mac", "nch_25ud18_mac"}
+pmos_set = {"pmos", "pch", "pch_mac", "pch_lvt", "pch_lvt_mac", "pch_25_mac", "pch_na25_mac", "pch_hvt_mac", "pch_25ud18_mac", "pch_hvt"}
 capacitor_set = {"cfmom", "cfmom_2t"}
 resistor_set = {"rppoly", "rppoly_m", "rppolywo_m", "rppolywo"}
 unsupported_set = {"rppolyl", "crtmom", "crtmom_2t"}
@@ -401,6 +401,26 @@ class Netlist_parser(object):
                 print("Unexpected circuit types ", ckt.typeof)
                 assert(False)
 
+    def intra_devcon(self, inst):
+        pins = list(inst.pins)
+        inst.bulkCon = []
+        inst.pinConType = None
+        if inst.reference in pmos_set:
+            for i in range(3):
+                if pins[i] == pins[3]:
+                    inst.bulkCon.append(i)
+                    inst.pins[i] = None
+        if inst.reference in nmos_set or inst.reference in pmos_set:
+            if pins[1] == pins[2] and pins[1] and pins[2]:
+                inst.pinConType = 'GS'
+                inst.pins[2] = None
+            elif pins[1] == pins[0] and pins[0] and pins[1]:
+                inst.pinConType = 'GD'
+                inst.pins[0] = None
+            elif pins[0] == pins[2] and pins[0] and pins[2]:
+                inst.pinConType = 'SD'
+                inst.pins[2] = None
+
     def connect_children(self, ckt, ckt_idx):
         """
         @brief connect the translated circuits to their children in db
@@ -421,10 +441,14 @@ class Netlist_parser(object):
                     self.db.subCkt(ckt_idx).node(node_idx).graphIdx = subckt_idx
                     pin_idx += 1
             else: # leaf
+                #self.intra_devcon(inst)
                 self.db.subCkt(ckt_idx).node(node_idx).name = self.db.subCkt(ckt_idx).name + "_" + self.db.subCkt(ckt_idx).node(node_idx).name 
                 subckt_idx = self.db.allocateCkt()
                 self.db.subCkt(subckt_idx).name = self.db.subCkt(ckt_idx).name + "_" + inst.name
                 for i in range(len(inst.pins)):
+                    if not inst.pins[i]:
+                        print inst.pins, i
+                        continue
                     sub_net_idx = self.db.subCkt(subckt_idx).allocateNet()
                     psub = (inst.reference in nmos_set and i == 3) or (inst.reference in pas_set and i == 2)
                     nwell = inst.reference in pmos_set and i == 3

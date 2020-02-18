@@ -40,12 +40,12 @@ class Device_generator(object):
         Should be removed in later versions
         """
         gdspy.write_gds(self.outGDS, [self.cell], unit=1.0e-6, precision=1.0e-9)
-        of = open(self.outPinBB, 'w')
-        BB = basic.BB(self.cell)
-        of.write("%d %d %d %d\n" % (BB[0], BB[1], BB[2], BB[3]))
-        for pin in self.cell.pin():
-            of.write(pin.normalize())
-        of.close
+        #of = open(self.outPinBB, 'w')
+        #BB = basic.BB(self.cell)
+        #of.write("%d %d %d %d\n" % (BB[0], BB[1], BB[2], BB[3]))
+        #for pin in self.cell.pin():
+        #    of.write(pin.normalize())
+        #of.close
 
     def writeDB(self, cktIdx):
         """
@@ -64,7 +64,11 @@ class Device_generator(object):
         net_name = 0
         for pin in self.cell.pin():
             shape = pin.normalize_shape()
-            ckt.net(net_name).setIoShape(shape[1], shape[2], shape[3], shape[4])
+            if shape[1] > shape[3]:
+                ckt.net(net_name).setIoShape(shape[3], shape[2], shape[1], shape[4])
+            else:
+                ckt.net(net_name).setIoShape(shape[1], shape[2], shape[3], shape[4])
+            assert shape[2] < shape[4], "Device_generator, yLo > yHi"
             ckt.net(net_name).ioLayer = shape[0]
             net_name += 1
 
@@ -118,10 +122,10 @@ class Device_generator(object):
         if flipCell:
             self.cell.flip_vert()
         self.setGDS(dirname+cirname+'.gds')
-        self.setPinBB(dirname+cirname+'.pin')
+        #self.setPinBB(dirname+cirname+'.pin')
         self.writeOut()
         self.writeDB(cktIdx)
-        self.readGDS(cktIdx, dirname)
+        #self.readGDS(cktIdx, dirname)
         return True
 
     def readGDS(self, cktIdx, dirname):

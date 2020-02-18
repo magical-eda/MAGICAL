@@ -40,10 +40,13 @@ class Flow(object):
             if cktNode.isLeaf():
                 continue
             subCktIdx = self.dDB.subCkt(cktIdx).node(nodeIdx).graphIdx
-            subCktName = self.dDB.subCkt(subCktIdx).name
+            devGen = Device_generator.Device_generator(self.mDB)
             if magicalFlow.isImplTypeDevice(self.dDB.subCkt(subCktIdx).implType):
                 if flipCell:
-                    Device_generator.Device_generator(self.mDB).generateDevice(subCktIdx, self.resultName+'/gds/', True)
+                    devGen.generateDevice(subCktIdx, self.resultName+'/gds/', True)
+                else:
+                    devGen.generateDevice(subCktIdx, self.resultName+'/gds/', False)
+                devGen.readGDS(subCktIdx, self.resultName+'/gds/')
             else:
                 if flipCell:
                     cktNode.flipVertFlag = True
@@ -54,7 +57,7 @@ class Flow(object):
         """
         dDB = self.mDB.designDB.db #c++ database
         ckt = dDB.subCkt(cktIdx) #magicalFlow.CktGraph
-        # If the ckt is a device
+        # If the ckt is a device, generation will be added in setup()
         if magicalFlow.isImplTypeDevice(ckt.implType):
             Device_generator.Device_generator(self.mDB).generateDevice(cktIdx, self.resultName+'/gds/')
             return

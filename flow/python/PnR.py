@@ -11,6 +11,7 @@ import sys
 sys.path.append('/home/local/eda10/jayliu/projects/develop/magical/magical/constraint_generation/python/')
 import device_generation.basic as basic
 import Router
+import gdspy
 
 class PnR(object):
     def __init__(self, magicalDB):
@@ -19,16 +20,16 @@ class PnR(object):
         self.tDB = magicalDB.techDB
         self.dDB.findRootCkt()
         self.rootCktIdx = self.dDB.rootCktIdx()
+        # debug mode will output .pin and .gr file
+        self.debug = True
 
     def implLayout(self, cktIdx, dirname):
         """
         @brief PnR a circuit in the designDB
         @param the index of subckt
         """
-        isTopCkt = (self.rootCktIdx == cktIdx)
-        cirname = self.dDB.subCkt(cktIdx).name
         self.runPlace(cktIdx, dirname)
-        self.runRoute(cktIdx, dirname, isTopCkt)
+        self.runRoute(cktIdx, dirname)
         self.dDB.subCkt(cktIdx).isImpl = True
             
     def runPlace(self, cktIdx, dirname):
@@ -36,40 +37,58 @@ class PnR(object):
         cktname = ckt.name
         placer = IdeaPlaceExPy.IdeaPlaceEx()
         placer.readTechSimpleFile('/home/unga/jayliu/projects/inputs/techfile.simple')
-        self.placeParsePin(placer, ckt)
+        self.placeParsePin(placer, ckt, dirname+ckt.name+'.pin')
         self.placeConnection(placer, ckt)
         placer.readSymFile(dirname + cktname + '.sym')
         self.placeParseBoundary(placer, ckt)
         placer.solve()
+        placer.alignToGrid(200)
+        self.origin = None
         # Write results to flow
         for nodeIdx in range(ckt.numNodes()):
             cktNode = ckt.node(nodeIdx)
             subCkt = self.dDB.subCkt(cktNode.graphIdx)
             x_offset = placer.xCellLoc(nodeIdx)
             y_offset = placer.yCellLoc(nodeIdx)
+            x_offset = int(round(x_offset/5.0))*5
+            y_offset = int(round(y_offset/5.0))*5
+            if not self.origin:
+                self.origin = [x_offset, y_offset]
+                print self.origin, "ORIGIN"
+            else:
+            # Hard encoded legalization
+                x_offset = int(round((x_offset - self.origin[0])/200.0)) * 200 + self.origin[0]
+                y_offset = int(round((y_offset - self.origin[1])/200.0)) * 200 + self.origin[1]
             cktNode.setOffset(x_offset, y_offset)
             ckt.layout().insertLayout(subCkt.layout(), x_offset, y_offset, cktNode.flipVertFlag)
+            print cktNode.name, placer.cellName(nodeIdx), x_offset, y_offset, "PLACEMENT"
         # write guardring using gdspy
         if self.cktNeedSub(cktIdx):
             print "Adding GuardRing to Cell"
             bBox = ckt.layout().boundary()
             # Leave additional 80nm spacing
-            grCell = basic.sub_GR([bBox.xLo/1000.0-0.08, bBox.yLo/1000.0-0.08], [bBox.xHi/1000.0+0.08, bBox.yHi/1000.0+0.08])
+            grCell, _ = basic.sub_GR([bBox.xLo/1000.0-0.08, bBox.yLo/1000.0-0.08], [bBox.xHi/1000.0+0.08, bBox.yHi/1000.0+0.08], [self.origin[0]/1000.0, self.origin[1]/1000.0])
             self.addPycell(ckt.layout(), grCell)
             bBox = ckt.layout().boundary()
             self.subShape(bBox.xLo, bBox.yLo, bBox.xHi, bBox.yHi)
         # Output placement result
         magicalFlow.writeGdsLayout(cktIdx, dirname + cktname + '.place.gds', self.dDB, self.tDB)
 
-    def runRoute(self, cktIdx, dirname, top=False):
+    def runRoute(self, cktIdx, dirname):
         ckt = self.dDB.subCkt(cktIdx)
         router = anaroutePy.AnaroutePy()
         placeFile = dirname + ckt.name + '.place.gds'
         router.parseLef('/home/unga/jayliu/projects/inputs/tcbn40lpbwp_10lm7X2ZRDL.lef')
         router.parseTechfile('/home/unga/jayliu/projects/inputs/techfile')
         router.parseGds(placeFile)
-        self.routeParsePin(router, cktIdx)        
+        self.routeParsePin(router, cktIdx, dirname+ckt.name+'.gr')        
         router.parseSymNet(dirname+ckt.name+'.symnet')
+        if cktIdx == self.rootCktIdx:
+            for netIdx in range(ckt.numNets()):
+                net = ckt.net(netIdx)
+                if net.isIo():
+                    print net.name, "added to IO port"
+                    router.addIOPort(net.name)
         router.solve()
         router.writeLayoutGds(placeFile, dirname+ckt.name+'.route.gds', True)
         router.writeDumb(placeFile, dirname+ckt.name+'.ioPin') 
@@ -93,20 +112,28 @@ class PnR(object):
                 if placer.pinIdx(nodeIdx, pin.intNetIdx) < pow(2,32)-1:
                     placer.addPinToNet(placer.pinIdx(nodeIdx, pin.intNetIdx), netIdx)
                 else:
-                    assert pin.intNetIdx == 3, "Should be a BODY pin"
-                    assert self.dDB.subCkt(ckt.node(nodeIdx).graphIdx)
-                    print nodeIdx, pin.intNetIdx, "Should be NMOS BODY pin"
+                    device_type = self.dDB.subCkt(ckt.node(nodeIdx).graphIdx).implType
+                    if device_type == magicalFlow.ImplTypePCELL_Nch:
+                        assert pin.intNetIdx == 3, "placeConnection, sub not NMOS BODY pin"
+                    elif device_type == magicalFlow.ImplTypePCELL_Res:
+                        assert pin.intNetIdx == 2, "placeConnection, sub not RES BODY pin"
+                    else:
+                        assert False, "placeConnection, sub not NMOS or RES device"
 
-    def placeParsePin(self, placer, ckt):
+    def placeParsePin(self, placer, ckt, fileName):
         """
         @brief parse pin and cell for placer
         """
+        if self.debug:
+            outFile = open(fileName, 'w') #
         for nodeIdx in range(ckt.numNodes()):
             cellIdx = placer.allocateCell()
             assert nodeIdx == cellIdx, "placeParsePin, nodeIdx != ckdIdx"
             node = ckt.node(nodeIdx)
             placer.setCellName(nodeIdx, node.name)
             subCkt = self.dDB.subCkt(node.graphIdx)
+            if self.debug:
+                outFile.write(placer.cellName(nodeIdx)+'\n') #
             for netIdx in range(subCkt.numNets()):
                 net = subCkt.net(netIdx)
                 shape = net.ioShape()
@@ -117,6 +144,10 @@ class PnR(object):
                 pinIdx = placer.allocatePin(nodeIdx)
                 assert pinIdx == placer.pinIdx(nodeIdx, netIdx), "placeParsePin, pin insertion error"
                 placer.addPinShape(pinIdx, shape.xLo, shape.yLo, shape.xHi, shape.yHi)
+                string = ' M' + str(layer) + '\t\t((' + str(shape.xLo/1000.0) + ' ' + str(shape.yLo/1000.0) + ') (' + str(shape.xHi/1000.0) + ' ' + str(shape.yHi/1000.0) + '))\n'
+                if self.debug:
+                    outFile.write(net.name + '\t1\n')
+                    outFile.write(string)
 
     def placeParseBoundary(self, placer, ckt):
         for nodeIdx in range(ckt.numNodes()):
@@ -124,6 +155,11 @@ class PnR(object):
             subCkt = self.dDB.subCkt(cktNode.graphIdx)
             bBox = subCkt.layout().boundary()
             placer.addCellShape(nodeIdx, 0, bBox.xLo, bBox.yLo, bBox.xHi, bBox.yHi)
+            # Strange debug
+            #cell = gdspy.Cell(cktNode.name, True)
+            #bound_shape = gdspy.Rectangle((bBox.xLo/1000.0, bBox.yLo/1000.0), (bBox.xHi/1000.0, bBox.yHi/1000.0), 3)
+            #cell.add(bound_shape)
+            #gdspy.write_gds('/home/unga/jayliu/projects/develop/magical/magical/execution/tsmc40/integration/USC_ADC12/gds/'+cktNode.name+'.gds',[cell],unit=1.0e-6,precision=1.0e-9)
             
     def addPycell(self, layout, pyCell):
         polygons = pyCell.get_polygons(True)
@@ -143,22 +179,30 @@ class PnR(object):
 
     def subShape(self, xlo, ylo, xhi, yhi):
         self.subShapeList = list()
-        xlo = xlo + 50
-        ylo = ylo + 50
-        xhi = xhi - 50
-        yhi = yhi - 50
-        w = 170
+        xlo = xlo + 85 # 50
+        ylo = ylo + 85
+        xhi = xhi - 85
+        yhi = yhi - 85
+        w = 100 # 170
         # Only the lower metal for now
-        self.subShapeList.append([xlo,ylo])
-        self.subShapeList.append([xhi,ylo+w])
+        self.subShapeList.append([xlo,ylo,xhi,ylo+w])
+        self.subShapeList.append([xlo,ylo,xlo+w,yhi])
+        self.subShapeList.append([xhi-w,ylo,xhi,yhi])
+        self.subShapeList.append([xlo,yhi-w,xhi,yhi])
         
-    def routeParsePin(self, router, cktIdx):
+    def routeParsePin(self, router, cktIdx, fileName):
         ckt = self.dDB.subCkt(cktIdx)
         pinNameIdx = 0
+        if self.debug:
+            outFile = open(fileName, 'w')
+            outFile.write('num net '+ str(ckt.numNets()) + '\n')
         for netIdx in range(ckt.numNets()):
             net = ckt.net(netIdx)
             router.addNet(net.name)
             grPinCount, isPsub = self.netPinCount(ckt, net)
+            if self.debug:
+                pass
+                #outFile.write(net.name + ' ' + str(netIdx) + ' ' + str(grPinCount) + ' 1\n')
             for pinId in range(net.numPins()):
                 pinIdx = net.pinIdx(pinId)
                 pin = ckt.pin(pinIdx)
@@ -166,8 +210,9 @@ class PnR(object):
                 conNet = pin.intNetIdx
                 conCkt = self.dDB.subCkt(ckt.node(conNode).graphIdx)
                 if pin.pinType == magicalFlow.PinType.PSUB:
-                    assert net.isSub
-                    continue
+                    assert net.isSub, net.name
+                    if conCkt.implType != magicalFlow.ImplTypePCELL_Cap:
+                        continue
                 # Router starts as 0 with M1
                 conLayer = conCkt.net(conNet).ioLayer - 1
                 conShape = self.adjustIoShape(conCkt.net(conNet).ioShape(), ckt.node(conNode).offset(), conCkt.layout().boundary(), ckt.node(conNode).flipVertFlag)
@@ -176,13 +221,27 @@ class PnR(object):
                 # GDS and LEF unit mismatch, multiply by 2
                 router.addShape2Pin(pinNameIdx, conLayer, conShape[0]*2, conShape[1]*2, conShape[2]*2, conShape[3]*2)
                 pinNameIdx += 1
+                if self.debug:
+                    string = "%s %d %d %d %d %d %d %d\n" % (str(net.name), conLayer+1, conShape[0], conShape[1], conShape[2], conShape[3], (conShape[0]+265)/140, (conShape[1]+280)/140)
+                    #string = str(conLayer+1) + ' ' + self.rectToPoly(conShape)
+                    outFile.write(string)
+                assert basic.check_legal_coord([conShape[0]/1000.0, conShape[1]/1000.0],[self.origin[0]/1000.0, self.origin[1]/1000.0]), "Pin Not Legal!"
+                assert basic.check_legal_coord([conShape[2]/1000.0-0.1, conShape[3]/1000.0-0.1],[self.origin[0]/1000.0, self.origin[1]/1000.0]), "Pin Not Legal!"
             if isPsub:
                 assert self.cktNeedSub(cktIdx)
                 router.addPin(str(pinNameIdx))
                 router.addPin2Net(pinNameIdx, netIdx)
                 # GDS and LEF unit mismatch, multiply by 2
-                router.addShape2Pin(pinNameIdx, 0, self.subShapeList[0][0]*2, self.subShapeList[0][1]*2, self.subShapeList[1][0]*2, self.subShapeList[1][1]*2)
+                for i in range(len(self.subShapeList)):
+                    router.addShape2Pin(pinNameIdx, 0, self.subShapeList[i][0]*2, self.subShapeList[i][1]*2, self.subShapeList[i][2]*2, self.subShapeList[i][3]*2)
                 pinNameIdx += 1
+                print self.subShapeList[0]
+                assert basic.check_legal_coord([self.subShapeList[0][0]/1000.0, self.subShapeList[0][1]/1000.0],[self.origin[0]/1000.0, self.origin[1]/1000.0]), "Pin Not Legal!"
+                assert basic.check_legal_coord([self.subShapeList[0][2]/1000.0-0.1, self.subShapeList[0][3]/1000.0-0.1],[self.origin[0]/1000.0, self.origin[1]/1000.0]), "Pin Not Legal!"
+                if self.debug:
+                    string = "%s 1 %d %d %d %d %d %d\n" % (net.name, self.subShapeList[0][0], self.subShapeList[0][1], self.subShapeList[0][2], self.subShapeList[0][3], (self.subShapeList[0][0]+265)/140, (self.subShapeList[0][1]+280)/140)
+                    #string = '1 ' + self.rectToPoly(self.subShapeList[0])
+                    outFile.write(string) 
             
     @staticmethod
     def flipPin(xLo, xHi, symAxis_2):
@@ -224,5 +283,23 @@ class PnR(object):
         xHi = xHi + offset.x 
         yLo = ioShape.yLo + offset.y 
         yHi = ioShape.yHi + offset.y 
+        assert xLo < xHi, "addShape, xLo > xHi"
+        assert yLo < yHi, "addShape, yLo > yHi"
         return [xLo, yLo, xHi, yHi]
 
+    @staticmethod
+    def rectToPoly(shape):
+        newshape = list()
+        xlo, ylo, xhi, yhi = shape
+        newshape.append(xlo)
+        newshape.append(ylo)
+        newshape.append(xhi)
+        newshape.append(ylo)
+        newshape.append(xhi)
+        newshape.append(yhi)
+        newshape.append(xlo)
+        newshape.append(yhi)
+        string = ''
+        for x in newshape:
+            string = string + str(x) + ' '
+        return string + '\n'

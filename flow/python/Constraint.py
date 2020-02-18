@@ -7,6 +7,7 @@
 import subprocess
 import magicalFlow
 import S3DET
+import os
 
 class Constraint(object):
     def __init__(self, magicalDB):
@@ -17,14 +18,16 @@ class Constraint(object):
 
     def genConstraint(self, cktIdx, dirName):
         cktname = self.dDB.subCkt(cktIdx).name
-        if self.primaryCell(cktIdx):
-            self.primarySym(cktIdx, dirName)
-            #print "%s is a primary cell, generating constraints." % cktname
-            #print "Constraints saved at %s.sym" % cktname 
-        else:
-            self.s3det.systemSym(cktIdx, dirName)
-            #print "%s is not a primary cell." % cktname
-            #print "Constraints saved at %s.sym" % cktname 
+        if not os.path.isfile(dirName+cktname+'.sym'):
+            if self.primaryCell(cktIdx):
+                #pass
+                self.primarySym(cktIdx, dirName)
+                #print "%s is a primary cell, generating constraints." % cktname
+                #print "Constraints saved at %s.sym" % cktname 
+            else:
+                self.s3det.systemSym(cktIdx, dirName)
+                #print "%s is not a primary cell." % cktname
+                #print "Constraints saved at %s.sym" % cktname 
         return self.parseSym(cktIdx, dirName)
 
     def parseSym(self, cktIdx, dirName):

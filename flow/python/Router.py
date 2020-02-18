@@ -38,5 +38,6 @@ class Router(object):
                 yLo = int(line[3])
                 xHi = int(line[4])
                 yHi = int(line[5])
+                assert xLo < xHi
                 net.setIoShape(xLo, yLo, xHi, yHi)
                 net.ioLayer = layer

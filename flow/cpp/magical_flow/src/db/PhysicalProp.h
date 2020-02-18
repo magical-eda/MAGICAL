@@ -55,14 +55,34 @@ class MosProp
         /// @brief set _attribute string
         /// @param the attribute string
         void setAttr(std::string attributes) { _attributes = attributes; }
-        /// @brief get _attribute string
+        /// @brief set _attribute string
         /// @param the attribute string
+        std::string pinConType() const { return _pinConType; }
+        /// @brief get pinConType string
+        /// @param the type string: 'GS', 'DG', 'DS' for self connection
+        void setPinConType(std::string type) { _pinConType = type; }
+        /// @brief set pinConType string
+        /// @param the type string: 'GS', 'DG', 'DS' for self connection
+        void appendBulkCon(IndexType pin) { _bulkCon.emplace_back(pin); }
+        /// @brief append to bulkCon 
+        /// @param the pinType connected to bulk: 0:D, 1:G, 2:S 
+        /// Currently only valid for PMOS
+        IndexType numBulkCon() { return _bulkCon.size(); }
+        /// @brief append to bulkCon 
+        /// @param the pinType connected to bulk: 0:D, 1:G, 2:S 
+        /// Currently only valid for PMOS
+        IndexType bulkCon(IndexType id) { return _bulkCon.at(id); }
+        /// @brief return the bulkCon at Index
+        /// @param the Index
+        /// Currently only valid for PMOS
     protected:
         IntType _length = -1; ///< l. unit: e-12
         IntType _width = -1; ///< w. unit: e-12
         IntType _mult = 1; ///<mult. 
         IntType _numFingers = 1; ///<numFinger.
         std::string _attributes=""; ///<attributes. This is reference of the device to match devgen.
+        std::string _pinConType=""; ///<pinConType. Self connection type.
+        std::vector<IndexType> _bulkCon; ///<bulkConnections.
 };
 
 /// @class MAGICAL_FLOW::NchProp

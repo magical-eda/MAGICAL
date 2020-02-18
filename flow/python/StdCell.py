@@ -15,13 +15,11 @@ class StdCell(object):
         self.tDB = magicalDB.techDB
 
     def setup(self, cktIdx, dirName):
-        cirname = self.dDB.subCkt(cktIdx).name 
-        Router.Router(self.mDB).readBackDumbFile(dirName+'stdcell/'+cirname+'.route.gds.dumb', cktIdx)
-        cmd = "cp " + dirName+'stdcell/'+cirname+'.route.gds ' + dirName+cirname+'.route.gds'
-        subprocess.call(cmd, shell=True)
-        self.dDB.subCkt(cktIdx).isImpl = True
-
-    def parseGDS(self, cktIdx, dirName): 
         ckt = self.dDB.subCkt(cktIdx)
-        ckt.parseGDS(dirName+ckt.name+'.rout.gds')
-        layout = ckt.layout
+        Router.Router(self.mDB).readBackDumbFile(dirName+'stdcell/'+ckt.name+'.route.gds.dumb', cktIdx)
+        #cmd = "cp " + dirName+'stdcell/'+cirname+'.route.gds ' + dirName+cirname+'.route.gds'
+        #subprocess.call(cmd, shell=True)
+        self.dDB.subCkt(cktIdx).isImpl = True
+        # Read standard cell.
+        ckt.setTechDB(self.tDB)
+        ckt.parseGDS(dirName+'stdcell/'+ckt.name+'.route.gds')

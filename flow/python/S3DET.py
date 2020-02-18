@@ -16,7 +16,7 @@ vdd_set = {"vdd", "vdd_and", "vdd_c", "vdd_comp", "vdd_gm", "vddd", "vdda", "vel
 ignore_set = vss_set.union(vdd_set)#, clk_set)
 
 class S3DET(object):
-    def __init__(self, magicalDB, symTol=0.8):
+    def __init__(self, magicalDB, symTol=0.7):
         self.mDB = magicalDB
         self.dDB = magicalDB.designDB.db
         self.tDB = magicalDB.techDB

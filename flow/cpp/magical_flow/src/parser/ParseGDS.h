@@ -6,6 +6,7 @@
 #include "global/global.h"
 #include "db/Layout.h"
 #include "db/TechDB.h"
+#include "util/Polygon2Rect.h"
 #include <algorithm>
 #include <string>
 #include <vector>
@@ -51,24 +52,37 @@ namespace ParseLayoutAction
     template<>
     inline void extractLayout(Layout & layer, TechDB& techDB, ::GdsParser::GdsRecords::EnumType type, GdsPolygon *object)
     {
-        /// The shape by default will be a rectangle
+        /// Polygon shapes will be processed into rectangles
         IndexType layer_id(object->layer()), datatype(object->datatype()); 
         IndexType rect_id;
-        LocType x_min = std::numeric_limits<LocType>::max();
-        LocType x_max = std::numeric_limits<LocType>::min();
-        LocType y_min = std::numeric_limits<LocType>::max();
-        LocType y_max = std::numeric_limits<LocType>::min();
+        std::vector<Box<LocType>> rects;
+        std::vector<XY<LocType>> pts;
+        layer_id = techDB.pdkLayerToDb(layer_id);
         for (auto pt : *object)
         {
-            if(pt.x() < x_min) x_min = pt.x();
-            if(pt.x() > x_max) x_max = pt.x();
-            if(pt.y() < y_min) y_min = pt.y();
-            if(pt.y() > y_max) y_max = pt.y();
+            pts.emplace_back(pt.x(), pt.y());
         }
-        layer_id = techDB.pdkLayerToDb(layer_id);
-        rect_id = layer.insertRect(layer_id, x_min, y_min, x_max, y_max);
-        if(datatype != 0) 
-            layer.setRectDatatype(layer_id, rect_id, datatype);
+        ::klib::convertPolygon2Rects<LocType>(pts, rects);
+        for (auto rect : rects)
+        {
+            rect_id = layer.insertRect(layer_id, rect);
+            if(datatype != 0)
+                layer.setRectDatatype(layer_id, rect_id, datatype);
+        }
+        // LocType x_min = std::numeric_limits<LocType>::max();
+        // LocType x_max = std::numeric_limits<LocType>::min();
+        // LocType y_min = std::numeric_limits<LocType>::max();
+        // LocType y_max = std::numeric_limits<LocType>::min();
+        // for (auto pt : *object)
+        // {
+        //     if(pt.x() < x_min) x_min = pt.x();
+        //     if(pt.x() > x_max) x_max = pt.x();
+        //     if(pt.y() < y_min) y_min = pt.y();
+        //     if(pt.y() > y_max) y_max = pt.y();
+        // }
+        // rect_id = layer.insertRect(layer_id, x_min, y_min, x_max, y_max);
+        // if(datatype != 0) 
+        //     layer.setRectDatatype(layer_id, rect_id, datatype);
     }
     /// @brief process path
     template<>
