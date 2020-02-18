@@ -41,8 +41,8 @@ class PnR(object):
         self.placeConnection(placer, ckt)
         placer.readSymFile(dirname + cktname + '.sym')
         self.placeParseBoundary(placer, ckt)
-        placer.solve()
-        placer.alignToGrid(200)
+        placer.solve(200)
+        #placer.alignToGrid(200)
         self.origin = None
         # Write results to flow
         for nodeIdx in range(ckt.numNodes()):
@@ -109,6 +109,8 @@ class PnR(object):
                 pinidxidx = net.pinIdx(pinIdx)
                 pin = ckt.pin(pinidxidx)
                 nodeIdx = pin.nodeIdx
+                if not pin.valid:
+                    continue
                 if placer.pinIdx(nodeIdx, pin.intNetIdx) < pow(2,32)-1:
                     placer.addPinToNet(placer.pinIdx(nodeIdx, pin.intNetIdx), netIdx)
                 else:
@@ -209,6 +211,8 @@ class PnR(object):
                 conNode = pin.nodeIdx
                 conNet = pin.intNetIdx
                 conCkt = self.dDB.subCkt(ckt.node(conNode).graphIdx)
+                if not pin.valid:
+                    continue
                 if pin.pinType == magicalFlow.PinType.PSUB:
                     assert net.isSub, net.name
                     if conCkt.implType != magicalFlow.ImplTypePCELL_Cap:

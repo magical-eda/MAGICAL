@@ -441,14 +441,11 @@ class Netlist_parser(object):
                     self.db.subCkt(ckt_idx).node(node_idx).graphIdx = subckt_idx
                     pin_idx += 1
             else: # leaf
-                #self.intra_devcon(inst)
+                self.intra_devcon(inst)
                 self.db.subCkt(ckt_idx).node(node_idx).name = self.db.subCkt(ckt_idx).name + "_" + self.db.subCkt(ckt_idx).node(node_idx).name 
                 subckt_idx = self.db.allocateCkt()
                 self.db.subCkt(subckt_idx).name = self.db.subCkt(ckt_idx).name + "_" + inst.name
                 for i in range(len(inst.pins)):
-                    if not inst.pins[i]:
-                        print inst.pins, i
-                        continue
                     sub_net_idx = self.db.subCkt(subckt_idx).allocateNet()
                     psub = (inst.reference in nmos_set and i == 3) or (inst.reference in pas_set and i == 2)
                     nwell = inst.reference in pmos_set and i == 3
@@ -483,6 +480,10 @@ class Netlist_parser(object):
                             self.db.subCkt(subckt_idx).pin(sub_pin_idx).pinType = magicalFlow.PinType.NWELL
                             self.db.subCkt(ckt_idx).pin(pin_idx).pinType = magicalFlow.PinType.NWELL
                     self.db.subCkt(ckt_idx).node(node_idx).graphIdx = subckt_idx
+                    if not inst.pins[i]:
+                        #print inst.pins, i, inst.name, self.db.subCkt(subckt_idx).pin(sub_pin_idx).valid
+                        self.db.subCkt(subckt_idx).pin(sub_pin_idx).valid = False
+                        self.db.subCkt(ckt_idx).pin(pin_idx).valid = False
                     pin_idx += 1
                 if 'm' in inst.parameters:
                     inst.parameters['multi'] = inst.parameters['m']
@@ -492,6 +493,8 @@ class Netlist_parser(object):
                     nch.length = self.get_value(inst.parameters['l'], unit=1e-12)
                     nch.width = self.get_value(inst.parameters['w'], unit=1e-12)
                     nch.numFingers = self.get_value(inst.parameters['nf'], unit=1)
+                    if inst.pinConType:
+                        nch.pinConType = inst.pinConType
                     if 'multi' in inst.parameters.keys():
                         nch.mult = self.get_value(inst.parameters['multi'], unit=1)
                     nch.attr = inst.reference
@@ -503,6 +506,10 @@ class Netlist_parser(object):
                     pch.length = self.get_value(inst.parameters['l'], unit=1e-12)
                     pch.width = self.get_value(inst.parameters['w'], unit=1e-12)
                     pch.numFingers = self.get_value(inst.parameters['nf'], unit=1)
+                    if inst.pinConType:
+                        pch.pinConType = inst.pinConType
+                    for bulkPin in inst.bulkCon:
+                        pch.appendBulkCon(bulkPin)
                     if 'multi' in inst.parameters.keys():
                         pch.mult = self.get_value(inst.parameters['multi'], unit=1)
                     pch.attr = inst.reference

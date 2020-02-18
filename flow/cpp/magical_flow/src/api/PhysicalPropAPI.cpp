@@ -31,7 +31,11 @@ void initPhysicalPropAPI(py::module &m)
         .def("widthValid", &PROJECT_NAMESPACE::MosProp::widthValid)
         .def_property("mult", &PROJECT_NAMESPACE::MosProp::mult, &PROJECT_NAMESPACE::NchProp::setMult)
         .def_property("numFingers", &PROJECT_NAMESPACE::MosProp::numFingers, &PROJECT_NAMESPACE::NchProp::setNumFingers)
-        .def_property("attr", &PROJECT_NAMESPACE::MosProp::attr, &PROJECT_NAMESPACE::MosProp::setAttr);
+        .def_property("attr", &PROJECT_NAMESPACE::MosProp::attr, &PROJECT_NAMESPACE::MosProp::setAttr)
+        .def_property("pinConType", &PROJECT_NAMESPACE::MosProp::pinConType, &PROJECT_NAMESPACE::MosProp::setPinConType)
+        .def("numBulkCon", &PROJECT_NAMESPACE::MosProp::numBulkCon)
+        .def("bulkCon", &PROJECT_NAMESPACE::MosProp::bulkCon)
+        .def("appendBulkCon", &PROJECT_NAMESPACE::MosProp::appendBulkCon);
     
     py::class_<PROJECT_NAMESPACE::NchProp, PROJECT_NAMESPACE::MosProp>(m , "NchProp")
         .def(py::init<>());

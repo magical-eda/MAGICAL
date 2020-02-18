@@ -61,15 +61,21 @@ class Device_generator(object):
         gdsData.gdsFile = self.outGDS
         # Match pin name, current implementation is integer, bulk need to be ommited for res/cap/mos
         # Example, 0:drain, 1:gate, etc...
+        nets = dict()
+        for idx in range(ckt.numNets()):
+            nets[int(ckt.net(idx).name)] = idx
         net_name = 0
         for pin in self.cell.pin():
+            if net_name not in nets:
+                net_name += 1
+                continue
             shape = pin.normalize_shape()
             if shape[1] > shape[3]:
-                ckt.net(net_name).setIoShape(shape[3], shape[2], shape[1], shape[4])
+                ckt.net(nets[net_name]).setIoShape(shape[3], shape[2], shape[1], shape[4])
             else:
-                ckt.net(net_name).setIoShape(shape[1], shape[2], shape[3], shape[4])
+                ckt.net(nets[net_name]).setIoShape(shape[1], shape[2], shape[3], shape[4])
             assert shape[2] < shape[4], "Device_generator, yLo > yHi"
-            ckt.net(net_name).ioLayer = shape[0]
+            ckt.net(nets[net_name]).ioLayer = shape[0]
             net_name += 1
 
  
@@ -106,10 +112,18 @@ class Device_generator(object):
         #print "Generating Device " + cirname
         if implType == magicalFlow.ImplTypePCELL_Nch:
             nch = phyDB.nch(implIdx)
-            self.cell = Mosfet(True, ckt.name, self.norm_val(nch.width), self.norm_val(nch.length), nch.numFingers, self.get_attr(nch.attr))
+            pinConType = nch.pinConType
+            bulkCon = []
+            for i in range(nch.numBulkCon()):
+                bulkCon.append(nch.bulkCon(i))
+            self.cell = Mosfet(True, ckt.name, self.norm_val(nch.width), self.norm_val(nch.length), nch.numFingers, self.get_attr(nch.attr), pinConType=pinConType, bulkCon=bulkCon)
         elif implType == magicalFlow.ImplTypePCELL_Pch:
             pch = phyDB.pch(implIdx)
-            self.cell = Mosfet(False, ckt.name, self.norm_val(pch.width), self.norm_val(pch.length), pch.numFingers, self.get_attr(pch.attr))
+            pinConType = pch.pinConType
+            bulkCon = []
+            for i in range(pch.numBulkCon()):
+                bulkCon.append(pch.bulkCon(i))
+            self.cell = Mosfet(False, ckt.name, self.norm_val(pch.width), self.norm_val(pch.length), pch.numFingers, self.get_attr(pch.attr), pinConType=pinConType, bulkCon=bulkCon)
         elif implType == magicalFlow.ImplTypePCELL_Res:
             res = phyDB.resistor(implIdx)
             self.cell = Resistor(res.series, ckt.name, self.norm_val(res.wr), self.norm_val(res.lr), res.segNum, self.norm_val(res.segSpace), self.get_attr(res.attr))

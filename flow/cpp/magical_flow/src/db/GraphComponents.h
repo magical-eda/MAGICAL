@@ -270,6 +270,9 @@ class Pin
         /// @brief get if the pin type
         /// @return return the pin type
         PinType pinType() const { return _pinType; }
+        /// @brief get if pin is valid
+        /// @return return true if pin is valid
+        bool valid() const { return _valid; }
         /*------------------------------*/ 
         /* Setters                      */
         /*------------------------------*/ 
@@ -285,6 +288,9 @@ class Pin
         /// @brief set the pin type
         /// @param a pinType
         void setPinType(PinType pinType) { _pinType = pinType; }
+        /// @brief set if pin is valid
+        /// @param boolean
+        void setValid(bool valid) { _valid = valid ; }
         /*------------------------------*/ 
         /* Vector operations            */
         /*------------------------------*/ 
@@ -298,6 +304,7 @@ class Pin
         IndexType _intNetIdx = INDEX_TYPE_MAX; ///< The corresponding internal pin index in the internal node
         IndexType _netIdx = INDEX_TYPE_MAX; ///< The nets this pin corresponding to
         std::vector<IndexType> _layoutRectIdx; ///< The corresponding indices of rectangles in the Layout
+        bool _valid = true; ///< If the pin is valid and should be routed to net.
 };
 
 PROJECT_NAMESPACE_END
