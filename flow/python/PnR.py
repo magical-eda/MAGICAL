@@ -1,4 +1,4 @@
-##
+#
 # @file PnR.py
 # @author Keren Zhu, Mingjie Liu
 # @date 07/07/2019
@@ -12,6 +12,7 @@ sys.path.append('/home/local/eda10/jayliu/projects/develop/magical/magical/const
 import device_generation.basic as basic
 import Router
 import gdspy
+import device_generation.glovar as glovar
 
 class PnR(object):
     def __init__(self, magicalDB):
@@ -50,15 +51,13 @@ class PnR(object):
             subCkt = self.dDB.subCkt(cktNode.graphIdx)
             x_offset = placer.xCellLoc(nodeIdx)
             y_offset = placer.yCellLoc(nodeIdx)
-            x_offset = int(round(x_offset/5.0))*5
-            y_offset = int(round(y_offset/5.0))*5
             if not self.origin:
-                self.origin = [x_offset, y_offset]
+                self.origin = [x_offset - 50, y_offset - 50]
                 print self.origin, "ORIGIN"
-            else:
-            # Hard encoded legalization
-                x_offset = int(round((x_offset - self.origin[0])/200.0)) * 200 + self.origin[0]
-                y_offset = int(round((y_offset - self.origin[1])/200.0)) * 200 + self.origin[1]
+            #else:
+            ## Hard encoded legalization
+            #    x_offset = int(round((x_offset - self.origin[0])/200.0)) * 200 + self.origin[0]
+            #    y_offset = int(round((y_offset - self.origin[1])/200.0)) * 200 + self.origin[1]
             cktNode.setOffset(x_offset, y_offset)
             ckt.layout().insertLayout(subCkt.layout(), x_offset, y_offset, cktNode.flipVertFlag)
             print cktNode.name, placer.cellName(nodeIdx), x_offset, y_offset, "PLACEMENT"
@@ -229,8 +228,9 @@ class PnR(object):
                     string = "%s %d %d %d %d %d %d %d\n" % (str(net.name), conLayer+1, conShape[0], conShape[1], conShape[2], conShape[3], (conShape[0]+265)/140, (conShape[1]+280)/140)
                     #string = str(conLayer+1) + ' ' + self.rectToPoly(conShape)
                     outFile.write(string)
+                print conShape, self.origin
                 assert basic.check_legal_coord([conShape[0]/1000.0, conShape[1]/1000.0],[self.origin[0]/1000.0, self.origin[1]/1000.0]), "Pin Not Legal!"
-                assert basic.check_legal_coord([conShape[2]/1000.0-0.1, conShape[3]/1000.0-0.1],[self.origin[0]/1000.0, self.origin[1]/1000.0]), "Pin Not Legal!"
+                assert basic.check_legal_coord([conShape[2]/1000.0-glovar.min_w['M1'], conShape[3]/1000.0-glovar.min_w['M1']],[self.origin[0]/1000.0, self.origin[1]/1000.0]), "Pin Not Legal!"
             if isPsub:
                 assert self.cktNeedSub(cktIdx)
                 router.addPin(str(pinNameIdx))
@@ -239,10 +239,10 @@ class PnR(object):
                 for i in range(len(self.subShapeList)):
                     router.addShape2Pin(pinNameIdx, 0, self.subShapeList[i][0]*2, self.subShapeList[i][1]*2, self.subShapeList[i][2]*2, self.subShapeList[i][3]*2)
                 pinNameIdx += 1
-                print self.subShapeList[0]
                 assert basic.check_legal_coord([self.subShapeList[0][0]/1000.0, self.subShapeList[0][1]/1000.0],[self.origin[0]/1000.0, self.origin[1]/1000.0]), "Pin Not Legal!"
-                assert basic.check_legal_coord([self.subShapeList[0][2]/1000.0-0.1, self.subShapeList[0][3]/1000.0-0.1],[self.origin[0]/1000.0, self.origin[1]/1000.0]), "Pin Not Legal!"
+                assert basic.check_legal_coord([self.subShapeList[0][2]/1000.0-glovar.min_w['M1'], self.subShapeList[0][3]/1000.0-glovar.min_w['M1']],[self.origin[0]/1000.0, self.origin[1]/1000.0]), "Pin Not Legal!"
                 if self.debug:
+                    #string = "%s 1 %d %d %d %d %d %d\n" % (net.name, self.subShapeList[0][0], self.subShapeList[0][1], self.subShapeList[0][2], self.subShapeList[0][3], (self.subShapeList[0][0]+265)/140, (self.subShapeList[0][1]+280)/140)
                     string = "%s 1 %d %d %d %d %d %d\n" % (net.name, self.subShapeList[0][0], self.subShapeList[0][1], self.subShapeList[0][2], self.subShapeList[0][3], (self.subShapeList[0][0]+265)/140, (self.subShapeList[0][1]+280)/140)
                     #string = '1 ' + self.rectToPoly(self.subShapeList[0])
                     outFile.write(string) 

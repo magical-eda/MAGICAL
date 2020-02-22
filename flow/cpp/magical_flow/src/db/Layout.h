@@ -298,6 +298,10 @@ class Layout
         /// @param second: the rect index in the layer
         /// @param third: the datatype of the object
         void setRectDatatype(IndexType layerIdx, IndexType rectIdx, IndexType datatype) {_layers.at(layerIdx).rect(rectIdx).setDatatype(datatype); }
+        /// @brief set the boundary box of layout
+        /// @param boundary box
+        void setBoundary(LocType xLo, LocType yLo, LocType xHi, LocType yHi) { _boundary.set(xLo, yLo, xHi, yHi); }
+
     private:
         std::vector<LayoutLayer> _layers; ///< _text[idx of layer] = vector of text objects
         Box<LocType> _boundary;

@@ -1,4 +1,4 @@
-##
+#
 # @file Device_generator.py
 # @date 07/07/2019
 # @brief The class for generating the layout for pcell devices
@@ -57,6 +57,7 @@ class Device_generator(object):
         ckt = self.dDB.subCkt(cktIdx)
         gdsData = ckt.GdsData()
         BB = basic.BB(self.cell)
+        bound = self.cell.cell.get_bounding_box()
         gdsData.setBBox(int(BB[0]), int(BB[1]), int(BB[2]), int(BB[3]))
         gdsData.gdsFile = self.outGDS
         # Match pin name, current implementation is integer, bulk need to be ommited for res/cap/mos
@@ -74,6 +75,7 @@ class Device_generator(object):
                 ckt.net(nets[net_name]).setIoShape(shape[3], shape[2], shape[1], shape[4])
             else:
                 ckt.net(nets[net_name]).setIoShape(shape[1], shape[2], shape[3], shape[4])
+                assert shape[1] < shape[3], "Device_generator, xLo = xHi"
             assert shape[2] < shape[4], "Device_generator, yLo > yHi"
             ckt.net(nets[net_name]).ioLayer = shape[0]
             net_name += 1
@@ -148,3 +150,5 @@ class Device_generator(object):
         cirname = ckt.name
         fileName = dirname + cirname + '.gds'
         ckt.parseGDS(fileName)
+        ckt.layout().setBoundary(ckt.gdsData().bbox().xLo, ckt.gdsData().bbox().yLo, ckt.gdsData().bbox().xHi, ckt.gdsData().bbox().yHi)
+        #ckt.layout().insertRect(100,ckt.gdsData().bbox().xLo, ckt.gdsData().bbox().yLo, ckt.gdsData().bbox().xHi, ckt.gdsData().bbox().yHi) 
