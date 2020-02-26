@@ -44,7 +44,8 @@ class PnR(object):
         self.placeParseBoundary(placer, ckt)
         if self.debug:
             tempCell = gdspy.Cell("FLOORPLAN")
-        placer.solve(200)
+        self.symAxis = placer.solve(200)
+        print self.symAxis
         #placer.alignToGrid(200)
         self.origin = None
         # Write results to flow
@@ -89,6 +90,10 @@ class PnR(object):
         placeFile = dirname + ckt.name + '.place.gds'
         router.parseLef('/home/unga/jayliu/projects/inputs/tcbn40lpbwp_10lm7X2ZRDL.lef')
         router.parseTechfile('/home/unga/jayliu/projects/inputs/techfile')
+        router.setGridStep(400)
+        router.setSymAxisX(2*self.symAxis)
+        router.setGridOffsetX(-200)
+        router.setGridOffsetY(200)
         router.parseGds(placeFile)
         self.routeParsePin(router, cktIdx, dirname+ckt.name+'.gr')        
         router.parseSymNet(dirname+ckt.name+'.symnet')
@@ -212,8 +217,9 @@ class PnR(object):
             outFile.write('num net '+ str(ckt.numNets()) + '\n')
         for netIdx in range(ckt.numNets()):
             net = ckt.net(netIdx)
-            router.addNet(net.name)
-            grPinCount, isPsub = self.netPinCount(ckt, net)
+            grPinCount, isPsub, isNwell = self.netPinCount(ckt, net)
+            router.addNet(net.name, 200, 1, (isPsub or isNwell))
+            #router.addNet(net.name)
             if self.debug:
                 pass
                 #outFile.write(net.name + ' ' + str(netIdx) + ' ' + str(grPinCount) + ' 1\n')
@@ -235,13 +241,15 @@ class PnR(object):
                 router.addPin(str(pinNameIdx))
                 router.addPin2Net(pinNameIdx, netIdx)
                 # GDS and LEF unit mismatch, multiply by 2
+                assert conShape[0] <= conShape[2]
+                assert conShape[1] <= conShape[3]
                 router.addShape2Pin(pinNameIdx, conLayer, conShape[0]*2, conShape[1]*2, conShape[2]*2, conShape[3]*2)
                 pinNameIdx += 1
                 if self.debug:
                     string = "%s %d %d %d %d %d %d %d\n" % (str(net.name), conLayer+1, conShape[0], conShape[1], conShape[2], conShape[3], (conShape[0]+265)/140, (conShape[1]+280)/140)
                     #string = str(conLayer+1) + ' ' + self.rectToPoly(conShape)
                     outFile.write(string)
-                print conShape, self.origin
+                #print conShape, self.origin
                 assert basic.check_legal_coord([conShape[0]/1000.0, conShape[1]/1000.0],[self.origin[0]/1000.0, self.origin[1]/1000.0]), "Pin Not Legal!"
                 assert basic.check_legal_coord([conShape[2]/1000.0-glovar.min_w['M1'], conShape[3]/1000.0-glovar.min_w['M1']],[self.origin[0]/1000.0, self.origin[1]/1000.0]), "Pin Not Legal!"
             if isPsub:
@@ -250,6 +258,8 @@ class PnR(object):
                 router.addPin2Net(pinNameIdx, netIdx)
                 # GDS and LEF unit mismatch, multiply by 2
                 for i in range(len(self.subShapeList)):
+                    assert self.subShapeList[i][0] <= self.subShapeList[i][2]
+                    assert self.subShapeList[i][1] <= self.subShapeList[i][3]
                     router.addShape2Pin(pinNameIdx, 0, self.subShapeList[i][0]*2, self.subShapeList[i][1]*2, self.subShapeList[i][2]*2, self.subShapeList[i][3]*2)
                 pinNameIdx += 1
                 assert basic.check_legal_coord([self.subShapeList[0][0]/1000.0, self.subShapeList[0][1]/1000.0],[self.origin[0]/1000.0, self.origin[1]/1000.0]), "Pin Not Legal!"
@@ -270,7 +280,7 @@ class PnR(object):
         ckt = self.dDB.subCkt(cktIdx)
         for netIdx in range(ckt.numNets()):
             net = ckt.net(netIdx)
-            _, isPsub = self.netPinCount(ckt, net)
+            _, isPsub, _ = self.netPinCount(ckt, net)
             if isPsub:
                 return True
         return False
@@ -278,15 +288,19 @@ class PnR(object):
     @staticmethod
     def netPinCount(ckt, net):
         netPsub = 0
+        netNwell = 0
         pinCount = 0
         for pinId in range(net.numPins()):
             pinIdx = net.pinIdx(pinId)
             pin = ckt.pin(pinIdx)
             if pin.pinType == magicalFlow.PinType.PSUB:
                 netPsub = 1
+            elif pin.pinType == magicalFlow.PinType.NWELL:
+                netNwell = 1
+                pinCount += 1
             else:
                 pinCount += 1
-        return pinCount + netPsub, bool(netPsub)
+        return pinCount + netPsub, bool(netPsub), bool(netNwell)
 
     @staticmethod
     def adjustIoShape(ioShape, offset, cellBBox, flipPin):
