@@ -42,6 +42,8 @@ class PnR(object):
         self.placeConnection(placer, ckt)
         placer.readSymFile(dirname + cktname + '.sym')
         self.placeParseBoundary(placer, ckt)
+        if self.debug:
+            tempCell = gdspy.Cell("FLOORPLAN")
         placer.solve(200)
         #placer.alignToGrid(200)
         self.origin = None
@@ -61,6 +63,12 @@ class PnR(object):
             cktNode.setOffset(x_offset, y_offset)
             ckt.layout().insertLayout(subCkt.layout(), x_offset, y_offset, cktNode.flipVertFlag)
             print cktNode.name, placer.cellName(nodeIdx), x_offset, y_offset, "PLACEMENT"
+            if self.debug:
+                boundary = subCkt.layout().boundary()
+                rect = gdspy.Rectangle((boundary.xLo+x_offset,boundary.yLo+y_offset), (boundary.xHi+x_offset,boundary.yHi+y_offset))
+                text = gdspy.Text(cktNode.name,50,((boundary.xLo+boundary.xHi)/2+x_offset,(boundary.yLo+boundary.yHi)/2+y_offset),layer=100)
+                tempCell.add(rect)
+                tempCell.add(text)
         # write guardring using gdspy
         if self.cktNeedSub(cktIdx):
             print "Adding GuardRing to Cell"
@@ -72,6 +80,8 @@ class PnR(object):
             self.subShape(bBox.xLo, bBox.yLo, bBox.xHi, bBox.yHi)
         # Output placement result
         magicalFlow.writeGdsLayout(cktIdx, dirname + cktname + '.place.gds', self.dDB, self.tDB)
+        if self.debug:
+            gdspy.write_gds(dirname+ckt.name+'.floorplan.gds', [tempCell], unit=1.0e-6, precision=1.0e-9)
 
     def runRoute(self, cktIdx, dirname):
         ckt = self.dDB.subCkt(cktIdx)
@@ -156,6 +166,9 @@ class PnR(object):
             subCkt = self.dDB.subCkt(cktNode.graphIdx)
             bBox = subCkt.layout().boundary()
             placer.addCellShape(nodeIdx, 0, bBox.xLo, bBox.yLo, bBox.xHi, bBox.yHi)
+            #print cktNode.name, bBox.xLo, bBox.yLo, bBox.xHi, bBox.yHi
+            #assert ((bBox.xHi - bBox.xLo)/200)  % 2 == 1
+            #assert ((bBox.yHi - bBox.yLo)/200)  % 2 == 1
             # Strange debug
             #cell = gdspy.Cell(cktNode.name, True)
             #bound_shape = gdspy.Rectangle((bBox.xLo/1000.0, bBox.yLo/1000.0), (bBox.xHi/1000.0, bBox.yHi/1000.0), 3)
