@@ -57,7 +57,7 @@ class Device_generator(object):
         ckt = self.dDB.subCkt(cktIdx)
         gdsData = ckt.GdsData()
         BB = basic.BB(self.cell)
-        bound = self.cell.cell.get_bounding_box()
+        #bound = self.cell.cell.get_bounding_box()
         gdsData.setBBox(int(BB[0]), int(BB[1]), int(BB[2]), int(BB[3]))
         gdsData.gdsFile = self.outGDS
         # Match pin name, current implementation is integer, bulk need to be ommited for res/cap/mos

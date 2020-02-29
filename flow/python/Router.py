@@ -5,8 +5,11 @@
 # @brief The class for interfacing routing
 #
 
+import sys
 import MagicalDB
 import magicalFlow
+sys.path.append('/home/local/eda10/jayliu/projects/develop/magical/magical/constraint_generation/python/')
+import device_generation.basic as basic
 
 class Router(object):
     def __init__(self, magicalDB):
@@ -23,11 +26,15 @@ class Router(object):
         with open(filename)  as fin:
             lines = fin.readlines()
             bboxLine = lines[0].split()
+            print bboxLine
+            bboxLine = basic.BB_list(bboxLine)
             xLo = int(bboxLine[0])
             yLo = int(bboxLine[1])
             xHi = int(bboxLine[2])
             yHi = int(bboxLine[3])
+            print xLo, yLo, xHi, yHi, "BOUNDARY"
             gdsData.setBBox(xLo, yLo, xHi, yHi)
+            ckt.layout().setBoundary(xLo, yLo, xHi, yHi)
             for lineIdx in range(1, len(lines)):
                 line = lines[lineIdx].split()
                 netIdx = lineIdx - 1

@@ -64,9 +64,9 @@ class Flow(object):
         # If the ckt is a standard cell
         # This version only support DFCNQD2BWP and NR2D8BWP, hard-encoded
         # TODO: This should be parsed from the json file
-        if ckt.name in ['DFCNQD2BWP', 'NR2D8BWP_LVT', 'INVD4BWP_LVT', 'DFCND4BWP_LVT']:
-            StdCell.StdCell(self.mDB).setup(cktIdx, self.resultName)
-            return
+        #if ckt.name in ['DFCNQD2BWP', 'NR2D8BWP_LVT', 'INVD4BWP_LVT', 'DFCND4BWP_LVT']:
+        #    StdCell.StdCell(self.mDB).setup(cktIdx, self.resultName)
+        #    return
         # If the ckt is actually a circuit instead of a device
         for nodeIdx in range(ckt.numNodes()):
             cktNode = ckt.node(nodeIdx) # magicalFlow.CktNode
