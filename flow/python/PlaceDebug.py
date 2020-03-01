@@ -23,20 +23,22 @@ def placeParsePin(placer, fileName):
     tokens = read_tokens(inFile)
     for nodeIdx in range(int(tokens.next())):
         cellIdx = placer.allocateCell()
+        assert nodeIdx == cellIdx
         name = tokens.next()
         placer.setCellName(nodeIdx, name)
-        assert nodeIdx == cellIdx
         for netIdx in range(int(tokens.next())):
-            pinIdx = placer.allocatePin(nodeIdx)
             x = int(tokens.next())
             if x != -1:
+                pinIdx = placer.allocatePin(nodeIdx)
+                assert pinIdx == placer.pinIdx(nodeIdx, netIdx)
                 placer.addPinShape(pinIdx, x,int(tokens.next()),int(tokens.next()),int(tokens.next()))
 
 def placeConnection(placer, fileName):
     inFile = open(fileName, 'r')
     tokens = read_tokens(inFile)
     for netIdx in range(int(tokens.next())):
-        placer.allocateNet()
+        dbNetIdx = placer.allocateNet()
+        assert netIdx == dbNetIdx
         for pinIdx in range(int(tokens.next())):
             valid = int(tokens.next())
             if valid != -1:

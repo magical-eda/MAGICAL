@@ -51,7 +51,7 @@ class PnR(object):
         #placer.alignToGrid(200)
         #  Set Placement origin
         self.setPlaceOrigin(placer, ckt.numNodes())
-        self.symAxis = int(self.symAxis - self.origin[0] + 0.5 * self.gridStep)
+        self.symAxis = int(self.symAxis - self.origin[0])
         # Write results to flow
         for nodeIdx in range(ckt.numNodes()):
             cktNode = ckt.node(nodeIdx)
@@ -60,7 +60,7 @@ class PnR(object):
             y_offset = placer.yCellLoc(nodeIdx) - self.origin[1]
             cktNode.setOffset(x_offset, y_offset)
             ckt.layout().insertLayout(subCkt.layout(), x_offset, y_offset, cktNode.flipVertFlag)
-            #print cktNode.name, placer.cellName(nodeIdx), x_offset, y_offset, "PLACEMENT"
+            print cktNode.name, placer.cellName(nodeIdx), x_offset, y_offset, "PLACEMENT"
             if self.debug:
                 boundary = subCkt.layout().boundary()
                 rect = gdspy.Rectangle((boundary.xLo+x_offset,boundary.yLo+y_offset), (boundary.xHi+x_offset,boundary.yHi+y_offset))
@@ -72,10 +72,10 @@ class PnR(object):
             print "Adding GuardRing to Cell"
             bBox = ckt.layout().boundary()
             # Leave additional 80nm spacing
-            grCell, _ = basic.sub_GR([bBox.xLo/1000.0-0.08, bBox.yLo/1000.0-0.08], [bBox.xHi/1000.0+0.08, bBox.yHi/1000.0+0.08], [0,0])
+            grCell, subPin = basic.sub_GR([bBox.xLo/1000.0-0.08, bBox.yLo/1000.0-0.08], [bBox.xHi/1000.0+0.08, bBox.yHi/1000.0+0.08], [-self.halfMetWid/1000.0,-self.halfMetWid/1000.0])
             self.addPycell(ckt.layout(), grCell)
             bBox = ckt.layout().boundary()
-            self.subShape(bBox.xLo, bBox.yLo, bBox.xHi, bBox.yHi)
+            self.subShape(subPin)
         # Output placement result
         magicalFlow.writeGdsLayout(cktIdx, dirname + cktname + '.place.gds', self.dDB, self.tDB)
         self.origin = [0,0]
@@ -92,8 +92,9 @@ class PnR(object):
         self.routeParsePin(router, cktIdx, dirname+ckt.name+'.gr')  
         router.setGridStep(2*self.gridStep)
         router.setSymAxisX(2*self.symAxis)
-        router.setGridOffsetX(2*(self.origin[0] + self.halfMetWid))
-        router.setGridOffsetY(2*(self.origin[1] + self.halfMetWid))
+        print self.symAxis, "SYMMMM"
+        router.setGridOffsetX(2*(self.origin[0]))
+        router.setGridOffsetY(2*(self.origin[1]))
         #print self.origin[0]+self.halfMetWid, self.origin[1]+self.halfMetWid, "OFFSET"
         router.parseSymNet(dirname+ckt.name+'.symnet')
         if cktIdx == self.rootCktIdx:
@@ -211,19 +212,11 @@ class PnR(object):
                 if datatype != 0:
                     layout.setRectDatatype(layerIdx, rectIdx, datatype)
 
-    def subShape(self, xlo, ylo, xhi, yhi):
+    def subShape(self, subPin):
         self.subShapeList = list()
-        # Hard encoded, need to figure out
-        xlo = xlo + 85 # 50
-        ylo = ylo + 85
-        xhi = xhi - 85
-        yhi = yhi - 85
-        w = 100 # 170
+        shape = subPin.normalize_shape()
         # Only the lower metal for now
-        self.subShapeList.append([xlo,ylo,xhi,ylo+w])
-        self.subShapeList.append([xlo,ylo,xlo+w,yhi])
-        self.subShapeList.append([xhi-w,ylo,xhi,yhi])
-        self.subShapeList.append([xlo,yhi-w,xhi,yhi])
+        self.subShapeList.append(shape[1:5])
         
     def routeParsePin(self, router, cktIdx, fileName):
         router.init()
@@ -272,7 +265,7 @@ class PnR(object):
                     #string = str(conLayer+1) + ' ' + self.rectToPoly(conShape)
                     outFile.write(string)
                 print conShape, self.origin
-                assert basic.check_legal_coord([conShape[0]/1000.0, conShape[1]/1000.0]), "Pin Not Legal!"
+                #assert basic.check_legal_coord([conShape[0]/1000.0, conShape[1]/1000.0],[-self.halfMetWid/1000.0,-self.halfMetWid/1000.0]), "Pin Not Legal!"
                 #assert basic.check_legal_coord([conShape[2]/1000.0-glovar.min_w['M1'], conShape[3]/1000.0-glovar.min_w['M1']]), "Pin Not Legal!"
             if isPsub:
                 assert self.cktNeedSub(cktIdx)
@@ -288,7 +281,7 @@ class PnR(object):
                     self.updateOrigin(self.subShapeList[0])
                     router.addShape2Pin(pinNameIdx, 0, self.subShapeList[i][0]*2, self.subShapeList[i][1]*2, self.subShapeList[i][2]*2, self.subShapeList[i][3]*2)
                 pinNameIdx += 1
-                assert basic.check_legal_coord([self.subShapeList[0][0]/1000.0, self.subShapeList[0][1]/1000.0]), "Pin Not Legal!"
+                #assert basic.check_legal_coord([self.subShapeList[0][0]/1000.0, self.subShapeList[0][1]/1000.0],[-self.halfMetWid/1000.0,-self.halfMetWid/1000.0]), "Pin Not Legal!"
                 #assert basic.check_legal_coord([self.subShapeList[0][2]/1000.0-glovar.min_w['M1'], self.subShapeList[0][3]/1000.0-glovar.min_w['M1']]), "Pin Not Legal!"
                 if self.debug:
                     #string = "%s 1 %d %d %d %d %d %d\n" % (net.name, self.subShapeList[0][0], self.subShapeList[0][1], self.subShapeList[0][2], self.subShapeList[0][3], (self.subShapeList[0][0]+265)/140, (self.subShapeList[0][1]+280)/140)
@@ -316,13 +309,13 @@ class PnR(object):
             elif self.origin[0] == placer.xCellLoc(nodeIdx) and self.origin[1] > placer.yCellLoc(nodeIdx):
                 self.origin = [placer.xCellLoc(nodeIdx), placer.yCellLoc(nodeIdx)]
         # Calibrate to ll corner
-        self.origin = [self.origin[0]-self.halfMetWid , self.origin[1]-self.halfMetWid]
+        #self.origin = [self.origin[0]-self.halfMetWid , self.origin[1]-self.halfMetWid]
 
     def updateOrigin(self, shape):
         if self.origin[0] > shape[0]:
-            self.origin = [shape[0], shape[1]]
+            self.origin = [shape[0]+self.halfMetWid, shape[1]+self.halfMetWid]
         elif self.origin[0] == shape[0] and self.origin[1] > shape[1]:  
-            self.origin = [shape[0], shape[1]]
+            self.origin = [shape[0]+self.halfMetWid, shape[1]+self.halfMetWid]
             
     @staticmethod
     def flipPin(xLo, xHi, symAxis_2):
