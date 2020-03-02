@@ -92,7 +92,6 @@ class PnR(object):
         self.routeParsePin(router, cktIdx, dirname+ckt.name+'.gr')  
         router.setGridStep(2*self.gridStep)
         router.setSymAxisX(2*self.symAxis)
-        print self.symAxis, "SYMMMM"
         router.setGridOffsetX(2*(self.origin[0]))
         router.setGridOffsetY(2*(self.origin[1]))
         #print self.origin[0]+self.halfMetWid, self.origin[1]+self.halfMetWid, "OFFSET"
@@ -225,7 +224,9 @@ class PnR(object):
         pinNameIdx = 0
         if self.debug:
             outFile = open(fileName, 'w')
-            outFile.write('num net '+ str(ckt.numNets()) + '\n')
+            outFile.write('gridStep %d\n' % (self.gridStep))
+            outFile.write('symAxis %d\n' % (self.symAxis))
+            outFile.write('Offset %d %d\n' % (self.origin[0],self.origin[1]))
         for netIdx in range(ckt.numNets()):
             net = ckt.net(netIdx)
             grPinCount, isPsub, isNwell = self.netPinCount(ckt, net)
@@ -265,7 +266,7 @@ class PnR(object):
                     #string = str(conLayer+1) + ' ' + self.rectToPoly(conShape)
                     outFile.write(string)
                 print conShape, self.origin
-                #assert basic.check_legal_coord([conShape[0]/1000.0, conShape[1]/1000.0],[-self.halfMetWid/1000.0,-self.halfMetWid/1000.0]), "Pin Not Legal!"
+                assert basic.check_legal_coord([conShape[0]/1000.0, conShape[1]/1000.0],[-self.halfMetWid/1000.0,-self.halfMetWid/1000.0]), "Pin Not Legal!"
                 #assert basic.check_legal_coord([conShape[2]/1000.0-glovar.min_w['M1'], conShape[3]/1000.0-glovar.min_w['M1']]), "Pin Not Legal!"
             if isPsub:
                 assert self.cktNeedSub(cktIdx)
