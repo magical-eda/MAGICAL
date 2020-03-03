@@ -20,7 +20,10 @@ class DesignDB
 {
     public:
         /// @brief default constructor
-        explicit DesignDB() = default;
+        explicit DesignDB() 
+        {
+            _ckts.reserve(10000); // reserve enough spaces
+        }
         /*------------------------------*/ 
         /* Getters                      */
         /*------------------------------*/ 
