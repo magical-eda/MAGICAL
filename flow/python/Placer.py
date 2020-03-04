@@ -44,6 +44,7 @@ class Placer(object):
     def processPlacementOutput(self):
         #  Set Placement origin
         self.setPlaceOrigin()
+        print("origin, ", self.origin[0], self.origin[1])
         self.symAxis = int(self.symAxis - self.origin[0])
         self.readoutIoPins()
         self.writeoutPlacementResult()
@@ -58,11 +59,11 @@ class Placer(object):
                 self.iopinOffsetx.append(ioPinX)
                 self.iopinOffsety.append(ioPinY)
                 #FIXME
-                hWidth = 100
-                hHeight = 100
+                hWidth = self.gridStep / 2
+                hHeight = self.gridStep / 2
                 pdkLayer = 31 #M1
                 dbLayer = self.tDB.pdkLayerToDb(pdkLayer)
-                net.setIoShape(- hWidth, - hHeight,  hWidth,  hHeight)
+                net.setIoShape(- hWidth + ioPinX, - hHeight + ioPinY,  hWidth + ioPinX,  hHeight + ioPinY)
                 net.ioLayer = 1
                 # add a new pin to the net
                 iopinNodeIdx = self.ckt.allocateNode()
@@ -116,8 +117,9 @@ class Placer(object):
         if self.cktNeedSub(self.cktIdx):
             print "Adding GuardRing to Cell"
             bBox = self.ckt.layout().boundary()
+            print("origin", self.origin[0], self.origin[1])
             # Leave additional 80nm spacing
-            grCell, subPin = basic.sub_GR([bBox.xLo/1000.0-0.08, bBox.yLo/1000.0-0.08], [bBox.xHi/1000.0+0.08, bBox.yHi/1000.0+0.08], [-self.halfMetWid/1000.0,-self.halfMetWid/1000.0])
+            grCell, subPin = basic.sub_GR([bBox.xLo/1000.0-0.08, bBox.yLo/1000.0-0.08], [bBox.xHi/1000.0+0.08, bBox.yHi/1000.0+0.08], [self.origin[0]-self.halfMetWid/1000.0,self.origin[1]-self.halfMetWid/1000.0])
             self.addPycell(self.ckt.layout(), grCell)
             bBox = self.ckt.layout().boundary()
             self.subShape(subPin)
@@ -212,9 +214,18 @@ class Placer(object):
         self.origin = [self.placer.xCellLoc(0), self.placer.yCellLoc(0)]
         for nodeIdx in range(self.numIntervalNodes):
             if self.origin[0] > self.placer.xCellLoc(nodeIdx):
-                self.origin = [self.placer.xCellLoc(nodeIdx), self.placer.yCellLoc(nodeIdx)]
-            elif self.origin[0] == self.placer.xCellLoc(nodeIdx) and self.origin[1] > self.placer.yCellLoc(nodeIdx):
-                self.origin = [self.placer.xCellLoc(nodeIdx), self.placer.yCellLoc(nodeIdx)]
+                self.origin[0] = self.placer.xCellLoc(nodeIdx)
+            if self.origin[1] > self.placer.yCellLoc(nodeIdx):
+                self.origin[1] = self.placer.yCellLoc(nodeIdx)
+        for netIdx in range(self.ckt.numNets()):
+            net = self.ckt.net(netIdx)
+            if (net.isIo()):
+                ioPinX = self.placer.iopinX(netIdx)
+                ioPinY = self.placer.iopinY(netIdx)
+                if self.origin[0] > ioPinX:
+                    self.origin[0] = ioPinX
+                if  self.origin[1] > ioPinY:
+                    self.origin[1] = ioPinY
     def cktNeedSub(self, cktIdx):
         ckt = self.dDB.subCkt(cktIdx)
         for netIdx in range(ckt.numNets()):

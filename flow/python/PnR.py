@@ -55,8 +55,9 @@ class PnR(object):
         router.setSymAxisX(2*self.symAxis)
         router.setGridOffsetX(2*(self.origin[0]))
         router.setGridOffsetY(2*(self.origin[1]))
+        print("routing grid off set", 2*(self.origin[0]), 2*(self.origin[1]))
         #print self.origin[0]+self.halfMetWid, self.origin[1]+self.halfMetWid, "OFFSET"
-        router.parseSymNet(dirname+ckt.name+'.symnet')
+        #router.parseSymNet(dirname+ckt.name+'.symnet')
         if cktIdx == self.rootCktIdx:
             for netIdx in range(ckt.numNets()):
                 net = ckt.net(netIdx)
@@ -65,7 +66,7 @@ class PnR(object):
                     router.addIOPort(net.name)
         router.solve(False)
         router.writeLayoutGds(placeFile, dirname+ckt.name+'.route.gds', True)
-        router.writeDumb(placeFile, dirname+ckt.name+'.ioPin') 
+        #router.writeDumb(placeFile, dirname+ckt.name+'.ioPin') 
         # Read results to flow
         ckt.setTechDB(self.tDB)
         ckt.parseGDS(dirname+ckt.name+'.route.gds')
@@ -112,7 +113,7 @@ class PnR(object):
                 assert conShape[0] <= conShape[2]
                 assert conShape[1] <= conShape[3]
                 #print pinName[netIdx][pinId], conShape[0], conShape[1]
-                self.updateOrigin(conShape)
+                self.updateOriginPin(conShape)
                 router.addShape2Pin(pinNameIdx, conLayer, conShape[0]*2, conShape[1]*2, conShape[2]*2, conShape[3]*2)
                 pinNameIdx += 1
                 if self.debug:
@@ -133,7 +134,7 @@ class PnR(object):
                         continue
                     assert self.subShapeList[i][0] <= self.subShapeList[i][2]
                     assert self.subShapeList[i][1] <= self.subShapeList[i][3]
-                    self.updateOrigin(self.subShapeList[0])
+                    self.updateOriginGuardRing(self.subShapeList[0])
                     router.addShape2Pin(pinNameIdx, 0, self.subShapeList[i][0]*2, self.subShapeList[i][1]*2, self.subShapeList[i][2]*2, self.subShapeList[i][3]*2)
                 pinNameIdx += 1
                 #assert basic.check_legal_coord([self.subShapeList[0][0]/1000.0, self.subShapeList[0][1]/1000.0],[-self.halfMetWid/1000.0,-self.halfMetWid/1000.0]), "Pin Not Legal!"
@@ -156,12 +157,17 @@ class PnR(object):
                 #print "sub"
                 router.addPin2Net(pinName[netIdx]['sub'], netIdx)                
 
-    def updateOrigin(self, shape):
-        if self.origin[0] > shape[0]:
-            self.origin = [shape[0]+self.halfMetWid, shape[1]+self.halfMetWid]
-        elif self.origin[0] == shape[0] and self.origin[1] > shape[1]:  
-            self.origin = [shape[0]+self.halfMetWid, shape[1]+self.halfMetWid]
+    def updateOriginPin(self, shape):
+        if self.origin[0] > shape[0] + self.gridStep / 2:
+            self.origin[0] = shape[0] + self.gridStep / 2
+        if self.origin[1] > shape[1] + self.gridStep / 2:  
+            self.origin[1] = shape[1] + self.gridStep / 2
             
+    def updateOriginGuardRing(self, shape):
+        if self.origin[0] > shape[0] + self.halfMetWid:
+            self.origin[0] = shape[0] + self.halfMetWid
+        if self.origin[1] > shape[1] + self.halfMetWid:  
+            self.origin[1] = shape[1] + self.halfMetWid
     @staticmethod
     def flipPin(xLo, xHi, symAxis_2):
         xLo_s = symAxis_2 - xHi
