@@ -46,6 +46,7 @@ class PnR(object):
     def runRoute(self, cktIdx, dirname):
         ckt = self.dDB.subCkt(cktIdx)
         router = anaroutePy.AnaroutePy()
+        router.setCircuitName(ckt.name)
         placeFile = dirname + ckt.name + '.place.gds'
         router.parseLef('/home/unga/jayliu/projects/inputs/tcbn40lpbwp_10lm7X2ZRDL.lef')
         router.parseTechfile('/home/unga/jayliu/projects/inputs/techfile')
@@ -70,7 +71,25 @@ class PnR(object):
         # Read results to flow
         ckt.setTechDB(self.tDB)
         ckt.parseGDS(dirname+ckt.name+'.route.gds')
-        #Router.Router(self.mDB).readBackDumbFile(dirname+ckt.name+'.ioPin', cktIdx)
+        self.upscaleBBox(self.gridStep, ckt, self.origin)
+
+    def upscaleBBox(self, gridStep, ckt, origin):
+        """
+        @brief for legalize the boundary box after the routing. The routing wire might change the boundary of placement, so that the bounding box need to be adjust to multiple of grid step
+        """
+        bBox = ckt.layout().boundary()
+        xLoLen = origin[0] - bBox.xLo + 200
+        yLoLen = origin[1] - bBox.yLo + 200
+        xHiLen = bBox.xHi - origin[0] + 200
+        yHiLen = bBox.yHi - origin[1] + 200
+        xLoLen += gridStep - (xLoLen % gridStep)
+        xHiLen += gridStep - (xHiLen % gridStep)
+        yLoLen += gridStep - (yLoLen % gridStep)
+        yHiLen += gridStep - (yHiLen % gridStep)
+        ckt.layout().setBoundary( origin[0] - xLoLen,
+                                  origin[1] - yLoLen,
+                                  origin[0] + xHiLen,
+                                  origin[1] + yHiLen)
 
     def routeParsePin(self, router, cktIdx, fileName):
         router.init()
@@ -104,25 +123,27 @@ class PnR(object):
                     if conCkt.implType != magicalFlow.ImplTypePCELL_Cap:
                         continue
                 # Router starts as 0 with M1
-                conLayer = conCkt.net(conNet).ioLayer - 1
-                conShape = self.adjustIoShape(conCkt.net(conNet).ioShape(), ckt.node(conNode).offset(), conCkt.layout().boundary(), ckt.node(conNode).flipVertFlag)
-                pinName[netIdx][pinId] = pinNameIdx
-                router.addPin(str(pinNameIdx))
-                #router.addPin2Net(pinNameIdx, netIdx)
-                # GDS and LEF unit mismatch, multiply by 2
-                assert conShape[0] <= conShape[2]
-                assert conShape[1] <= conShape[3]
-                #print pinName[netIdx][pinId], conShape[0], conShape[1]
-                self.updateOriginPin(conShape)
-                router.addShape2Pin(pinNameIdx, conLayer, conShape[0]*2, conShape[1]*2, conShape[2]*2, conShape[3]*2)
-                pinNameIdx += 1
-                if self.debug:
-                    string = "%s %d %d %d %d %d %d %d\n" % (str(net.name), conLayer+1, conShape[0], conShape[1], conShape[2], conShape[3], (conShape[0]+265)/140, (conShape[1]+280)/140)
-                    #string = str(conLayer+1) + ' ' + self.rectToPoly(conShape)
-                    outFile.write(string)
-                print conShape, self.origin
-                #assert basic.check_legal_coord([conShape[0]/1000.0, conShape[1]/1000.0],[-self.halfMetWid/1000.0,-self.halfMetWid/1000.0]), "Pin Not Legal!"
-                #assert basic.check_legal_coord([conShape[2]/1000.0-glovar.min_w['M1'], conShape[3]/1000.0-glovar.min_w['M1']]), "Pin Not Legal!"
+                for iopinidx in range(conCkt.net(conNet).numIoPins()):
+                    conLayer = conCkt.net(conNet).ioPinMetalLayer(iopinidx) - 1
+                    ioshape = conCkt.net(conNet).ioPinShape(iopinidx)
+                    conShape = self.adjustIoShape(ioshape, ckt.node(conNode).offset(), conCkt.layout().boundary(), ckt.node(conNode).flipVertFlag)
+                    pinName[netIdx][pinId] = pinNameIdx
+                    router.addPin(str(pinNameIdx))
+                    #router.addPin2Net(pinNameIdx, netIdx)
+                    # GDS and LEF unit mismatch, multiply by 2
+                    assert conShape[0] <= conShape[2]
+                    assert conShape[1] <= conShape[3]
+                    #print pinName[netIdx][pinId], conShape[0], conShape[1]
+                    self.updateOriginPin(conShape)
+                    router.addShape2Pin(pinNameIdx, conLayer, conShape[0]*2, conShape[1]*2, conShape[2]*2, conShape[3]*2)
+                    pinNameIdx += 1
+                    if self.debug:
+                        string = "%s %d %d %d %d %d %d %d\n" % (str(net.name), conLayer+1, conShape[0], conShape[1], conShape[2], conShape[3], (conShape[0]+265)/140, (conShape[1]+280)/140)
+                        #string = str(conLayer+1) + ' ' + self.rectToPoly(conShape)
+                        outFile.write(string)
+                    print conShape, self.origin
+                    #assert basic.check_legal_coord([conShape[0]/1000.0, conShape[1]/1000.0],[-self.halfMetWid/1000.0,-self.halfMetWid/1000.0]), "Pin Not Legal!"
+                    #assert basic.check_legal_coord([conShape[2]/1000.0-glovar.min_w['M1'], conShape[3]/1000.0-glovar.min_w['M1']]), "Pin Not Legal!"
             if isPsub:
                 assert self.cktNeedSub(cktIdx)
                 pinName[netIdx]['sub'] = pinNameIdx
@@ -158,10 +179,12 @@ class PnR(object):
                 router.addPin2Net(pinName[netIdx]['sub'], netIdx)                
 
     def updateOriginPin(self, shape):
-        if self.origin[0] > shape[0] + self.gridStep / 2:
-            self.origin[0] = shape[0] + self.gridStep / 2
-        if self.origin[1] > shape[1] + self.gridStep / 2:  
-            self.origin[1] = shape[1] + self.gridStep / 2
+        xCenter = (shape[0] + shape[2]) / 2
+        yCenter = (shape[1] + shape[3]) / 2
+        if self.origin[0] > xCenter:
+            self.origin[0] = xCenter
+        if self.origin[1] > yCenter:  
+            self.origin[1] = yCenter
             
     def updateOriginGuardRing(self, shape):
         if self.origin[0] > shape[0] + self.halfMetWid:

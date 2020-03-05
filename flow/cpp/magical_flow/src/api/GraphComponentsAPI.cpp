@@ -49,7 +49,12 @@ void initGraphComponentsAPI(py::module &m)
         .def("pinIdx", &PROJECT_NAMESPACE::Net::pinIdx)
         .def("setIoShape", &PROJECT_NAMESPACE::Net::setIoShape)
         .def("ioShape", &PROJECT_NAMESPACE::Net::ioShape, py::return_value_policy::reference)
-        .def_property("ioLayer", &PROJECT_NAMESPACE::Net::ioLayer, &PROJECT_NAMESPACE::Net::setIoLayer);
+        .def_property("ioLayer", &PROJECT_NAMESPACE::Net::ioLayer, &PROJECT_NAMESPACE::Net::setIoLayer)
+        .def("addIoPin", &PROJECT_NAMESPACE::Net::addIoPin, " Add a new io pin shape to the net")
+        .def("numIoPins", &PROJECT_NAMESPACE::Net::numIoPins, "Get the number of IO pin shapes in this net")
+        .def("ioPinShape", &PROJECT_NAMESPACE::Net::ioPinShape, py::return_value_policy::reference, "Similar to ioShape(), but instead of returnning the first io pin shape, this is returning by the index of io pin shape")
+        .def("ioPinMetalLayer", &PROJECT_NAMESPACE::Net::ioPinMetalLayer, "Similar to .ioLayer, but instead of returnning the first io pin shape, this is returning by the index of io pin shape")
+        ;
 
     py::class_<PROJECT_NAMESPACE::Pin>(m, "Pin")
         .def(py::init())

@@ -22,6 +22,9 @@ class Placer(object):
         self.halfMetWid = halfMetWid
         self.subShapeList = list()
     def run(self):
+        self.useIoPin = True
+        if (self.dDB.rootCktIdx() ==  self.cktIdx):
+            self.useIoPin = False
         self.dumpInput()
         self.symAxis = self.placer.solve(self.gridStep)
         self.processPlacementOutput()
@@ -36,7 +39,12 @@ class Placer(object):
             self.tempCell = gdspy.Cell("FLOORPLAN")
         self.configureIoPinParameters()
     def configureIoPinParameters(self):
+        if self.useIoPin == False:
+            self.placer.closeVirtualPinAssignment()
+            return
         self.placer.openVirtualPinAssignment()
+        self.placer.setIoPinBoundaryExtension( 1 * self.gridStep)
+        self.placer.setIoPinInterval( 2 * self.gridStep)
         for netIdx in range(self.ckt.numNets()):
             net = self.ckt.net(netIdx)
             if (net.isIo()):
@@ -51,6 +59,8 @@ class Placer(object):
     def readoutIoPins(self):
         self.iopinOffsetx =[]
         self.iopinOffsety = []
+        if self.useIoPin == False:
+            return
         for netIdx in range(self.ckt.numNets()):
             net = self.ckt.net(netIdx)
             if (net.isIo()):
@@ -59,8 +69,8 @@ class Placer(object):
                 self.iopinOffsetx.append(ioPinX)
                 self.iopinOffsety.append(ioPinY)
                 #FIXME
-                hWidth = self.gridStep / 2
-                hHeight = self.gridStep / 2
+                hWidth = 100 / 2
+                hHeight = 100 / 2
                 pdkLayer = 31 #M1
                 dbLayer = self.tDB.pdkLayerToDb(pdkLayer)
                 net.setIoShape(- hWidth + ioPinX, - hHeight + ioPinY,  hWidth + ioPinX,  hHeight + ioPinY)
@@ -106,13 +116,14 @@ class Placer(object):
                 self.tempCell.add(rect)
                 self.tempCell.add(text)
         #Process io pins      
-        for nodeIdx in range(self.numIntervalNodes, self.ckt.numNodes()):
-            cktNode = self.ckt.node(nodeIdx)
-            subCkt = self.dDB.subCkt(cktNode.graphIdx)
-            x_offset = self.iopinOffsetx[nodeIdx - self.numIntervalNodes]
-            y_offset = self.iopinOffsety[nodeIdx - self.numIntervalNodes]
-            cktNode.setOffset(x_offset, y_offset)
-            self.ckt.layout().insertLayout(subCkt.layout(), x_offset, y_offset, cktNode.flipVertFlag)
+        if self.useIoPin:
+            for nodeIdx in range(self.numIntervalNodes, self.ckt.numNodes()):
+                cktNode = self.ckt.node(nodeIdx)
+                subCkt = self.dDB.subCkt(cktNode.graphIdx)
+                x_offset = self.iopinOffsetx[nodeIdx - self.numIntervalNodes]
+                y_offset = self.iopinOffsety[nodeIdx - self.numIntervalNodes]
+                cktNode.setOffset(x_offset, y_offset)
+                self.ckt.layout().insertLayout(subCkt.layout(), x_offset, y_offset, cktNode.flipVertFlag)
         # write guardring using gdspy
         if self.cktNeedSub(self.cktIdx):
             print "Adding GuardRing to Cell"
@@ -217,15 +228,16 @@ class Placer(object):
                 self.origin[0] = self.placer.xCellLoc(nodeIdx)
             if self.origin[1] > self.placer.yCellLoc(nodeIdx):
                 self.origin[1] = self.placer.yCellLoc(nodeIdx)
-        for netIdx in range(self.ckt.numNets()):
-            net = self.ckt.net(netIdx)
-            if (net.isIo()):
-                ioPinX = self.placer.iopinX(netIdx)
-                ioPinY = self.placer.iopinY(netIdx)
-                if self.origin[0] > ioPinX:
-                    self.origin[0] = ioPinX
-                if  self.origin[1] > ioPinY:
-                    self.origin[1] = ioPinY
+        if self.useIoPin:
+            for netIdx in range(self.ckt.numNets()):
+                net = self.ckt.net(netIdx)
+                if (net.isIo()):
+                    ioPinX = self.placer.iopinX(netIdx)
+                    ioPinY = self.placer.iopinY(netIdx)
+                    if self.origin[0] > ioPinX:
+                        self.origin[0] = ioPinX
+                    if  self.origin[1] > ioPinY:
+                        self.origin[1] = ioPinY
     def cktNeedSub(self, cktIdx):
         ckt = self.dDB.subCkt(cktIdx)
         for netIdx in range(ckt.numNets()):
