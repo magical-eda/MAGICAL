@@ -2,7 +2,7 @@ import magicalFlow
 import IdeaPlaceExPy
 import anaroutePy
 import sys
-sys.path.append('/home/local/eda10/jayliu/projects/develop/magical/magical/constraint_generation/python/')
+sys.path.append('/home/local/eda09/keren/projects/magical/constraint_generation/python')
 import device_generation.basic as basic
 import gdspy
 import device_generation.glovar as glovar
@@ -21,6 +21,7 @@ class Placer(object):
         self.gridStep = gridStep 
         self.halfMetWid = halfMetWid
         self.subShapeList = list()
+        self.params = magicalDB.params
     def run(self):
         self.useIoPin = True
         if (self.dDB.rootCktIdx() ==  self.cktIdx):
@@ -29,7 +30,7 @@ class Placer(object):
         self.symAxis = self.placer.solve(self.gridStep)
         self.processPlacementOutput()
     def dumpInput(self):
-        self.placer.readTechSimpleFile('/home/unga/jayliu/projects/inputs/techfile.simple')
+        self.placer.readTechSimpleFile(self.params.simple_tech_file)
         self.placeParsePin()
         self.placeConnection()
         self.placer.readSymFile(self.dirname + self.ckt.name + '.sym')
@@ -43,8 +44,8 @@ class Placer(object):
             self.placer.closeVirtualPinAssignment()
             return
         self.placer.openVirtualPinAssignment()
-        self.placer.setIoPinBoundaryExtension( 1 * self.gridStep)
-        self.placer.setIoPinInterval( 2 * self.gridStep)
+        self.placer.setIoPinBoundaryExtension(3 * 1 * self.gridStep)
+        self.placer.setIoPinInterval(3 * 2 * self.gridStep)
         for netIdx in range(self.ckt.numNets()):
             net = self.ckt.net(netIdx)
             if (net.isIo()):
@@ -69,8 +70,8 @@ class Placer(object):
                 self.iopinOffsetx.append(ioPinX)
                 self.iopinOffsety.append(ioPinY)
                 #FIXME
-                hWidth = 100 / 2
-                hHeight = 100 / 2
+                hWidth = 100 *3 / 2
+                hHeight = 100 *3 / 2
                 pdkLayer = 31 #M1
                 dbLayer = self.tDB.pdkLayerToDb(pdkLayer)
                 net.setIoShape(- hWidth + ioPinX, - hHeight + ioPinY,  hWidth + ioPinX,  hHeight + ioPinY)

@@ -18,7 +18,9 @@ class Params:
         """
         self.spectre_netlist = None # Input spectre netlist file
         self.hspice_netlist = None # Input hspice netlist file
-        self.simple_tech_file = None # Input simple tech file
+        self.simple_tech_file = "/home/local/eda09/keren/benchmarks/tech/techfile" # Input simple tech file
+        self.techfile = "/home/local/eda09/keren/benchmarks/tech/techfile"
+        self.lef = "/home/local/eda09/keren/benchmarks/tech/40vhv.lef"
         self.resultDir = None
 
     def printWelcome(self):
@@ -68,6 +70,8 @@ simple_tech_file [required]    | input simple techfile
         if 'hspice_netlist' in data: self.hspice_netlist = data['hspice_netlist']
         if 'simple_tech_file' in data: self.simple_tech_file = data['simple_tech_file']
         if 'resultDir' in data: self.resultDir = data['resultDir']
+        if 'lef' in data : self.lef = data['lef']
+        if 'techfile' in data : self.techfile = data['techfile']
 
     def dump(self, filename):
         """

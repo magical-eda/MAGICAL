@@ -8,7 +8,7 @@ import magicalFlow
 import IdeaPlaceExPy
 import anaroutePy
 import sys
-sys.path.append('/home/local/eda10/jayliu/projects/develop/magical/magical/constraint_generation/python/')
+sys.path.append('/home/local/eda09/keren/projects/magical/constraint_generation/python')
 import device_generation.basic as basic
 import Router
 import Placer
@@ -26,15 +26,18 @@ class PnR(object):
         self.halfMetWid = int(glovar.min_w['M1']*1000)/2
         self.gridStep = int((glovar.min_w['M1'] + glovar.min_w['SP'])*1000)
         self.debug = True
+        self.params = self.mDB.params
 
     def implLayout(self, cktIdx, dirname):
         """
         @brief PnR a circuit in the designDB
         @param the index of subckt
         """
+        print("PnR: working on ", self.dDB.subCkt(cktIdx).name)
         self.runPlace(cktIdx, dirname)
         self.runRoute(cktIdx, dirname)
         self.dDB.subCkt(cktIdx).isImpl = True
+        print("PnR: finished ", self.dDB.subCkt(cktIdx).name)
             
     def runPlace(self, cktIdx, dirname):
         p = Placer.Placer(self.mDB, cktIdx, dirname,self.gridStep, self.halfMetWid)
@@ -48,8 +51,8 @@ class PnR(object):
         router = anaroutePy.AnaroutePy()
         router.setCircuitName(ckt.name)
         placeFile = dirname + ckt.name + '.place.gds'
-        router.parseLef('/home/unga/jayliu/projects/inputs/tcbn40lpbwp_10lm7X2ZRDL.lef')
-        router.parseTechfile('/home/unga/jayliu/projects/inputs/techfile')
+        router.parseLef(self.params.lef)
+        router.parseTechfile(self.params.techfile)
         router.parseGds(placeFile)
         self.routeParsePin(router, cktIdx, dirname+ckt.name+'.gr')  
         router.setGridStep(2*self.gridStep)
