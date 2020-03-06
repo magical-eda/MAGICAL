@@ -70,12 +70,18 @@ class Placer(object):
                 self.iopinOffsetx.append(ioPinX)
                 self.iopinOffsety.append(ioPinY)
                 #FIXME
-                hWidth = 100 *3 / 2
-                hHeight = 100 *3 / 2
-                pdkLayer = 31 #M1
-                dbLayer = self.tDB.pdkLayerToDb(pdkLayer)
-                net.setIoShape(- hWidth + ioPinX, - hHeight + ioPinY,  hWidth + ioPinX,  hHeight + ioPinY)
-                net.ioLayer = 1
+                if (self.placer.isIoPinVertical(netIdx)):
+                    metals = [
+                            [- 50, -self.gridStep / 2 - 70 - 30, 50, self.gridStep / 2 + 70 + 30]
+                            ]
+                    metalPkdLayers = [31]
+                    metalIoLayers = [1]
+                else:
+                    metals = [
+                            [-self.gridStep / 2 - 70 - 30, - 50, self.gridStep / 2 + 70 + 30, 50]
+                            ]
+                    metalPkdLayers = [31]
+                    metalIoLayers = [1]
                 # add a new pin to the net
                 iopinNodeIdx = self.ckt.allocateNode()
                 iopinPinIdx = self.ckt.allocatePin()
@@ -88,9 +94,18 @@ class Placer(object):
                 iopinGraph.isImpl = True
                 iopinGraph.allocateNet()
                 subiopinNet = iopinGraph.net(0)
-                iopinGraph.layout().insertRect(dbLayer,  - hWidth,  - hHeight,  hWidth,  hHeight)
-                subiopinNet.setIoShape( - hWidth, - hHeight,  hWidth,  hHeight)
-                subiopinNet.ioLayer = 1
+                for mIdx in range(len(metals)):
+                    metal = metals[mIdx]
+                    mPdkLayer = metalPkdLayers[mIdx]
+                    mIoLayer = metalIoLayers[mIdx]
+                    dbLayer = self.tDB.pdkLayerToDb(mPdkLayer)
+                    net.setIoShape(metal[0] + ioPinX,  metal[1] + ioPinY,  metal[2] + ioPinX,  metal[3] + ioPinY)
+                    net.ioLayer = mIoLayer
+                    iopinGraph.layout().insertRect(dbLayer,  metal[0],  metal[1],  metal[2],  metal[3])
+                    subiopinNet.setIoShape( metal[0],  metal[1],  metal[2],  metal[3])
+                    subiopinNet.ioLayer = mIoLayer
+                    zeroOrigin = [0, 0]
+                    self.upscaleBBox(self.gridStep, iopinGraph, zeroOrigin)
                 iopinNode.graphIdx = iopinGraphIdx
                 iopinNode.appendPinIdx(iopinPinIdx)
                 iopinPin = self.ckt.pin(iopinPinIdx)
@@ -99,6 +114,25 @@ class Placer(object):
                 iopinPin.netIdx = netIdx
                 #iopinPin.appendPinIdx(iopinPinIdx)
         self.ckt = self.dDB.subCkt(self.cktIdx)
+    def upscaleBBox(self, gridStep, ckt, origin):
+        """
+        @brief for legalize the boundary box after the routing. The routing wire might change the boundary of placement, so that the bounding box need to be adjust to multiple of grid step
+        """
+        bBox = ckt.layout().boundary()
+        xLoLen = origin[0] - bBox.xLo 
+        yLoLen = origin[1] - bBox.yLo 
+        xHiLen = bBox.xHi - origin[0] 
+        yHiLen = bBox.yHi - origin[1] 
+        print("adjust bbox ", xLoLen, yLoLen, xHiLen, yHiLen)
+        xLoLen += gridStep - (xLoLen % gridStep)
+        xHiLen += gridStep - (xHiLen % gridStep)
+        yLoLen += gridStep - (yLoLen % gridStep)
+        yHiLen += gridStep - (yHiLen % gridStep)
+        ckt.layout().setBoundary( origin[0] - xLoLen,
+                                  origin[1] - yLoLen,
+                                  origin[0] + xHiLen,
+                                  origin[1] + yHiLen)
+
     def writeoutPlacementResult(self):
         # Write results to flow
         for nodeIdx in range(self.numIntervalNodes):
