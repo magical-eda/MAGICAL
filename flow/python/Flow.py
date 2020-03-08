@@ -64,7 +64,7 @@ class Flow(object):
         # If the ckt is a standard cell
         # This version only support DFCNQD2BWP and NR2D8BWP, hard-encoded
         # TODO: This should be parsed from the json file
-        if ckt.name in ['SR_Latch_LVT','NR2D8BWP_LVT','BUFFD4BWP_LVT','DFCND4BWP_LVT','INVD4BWP_LVT']:
+        if ckt.name in ['SR_Latch_LVT','NR2D8BWP_LVT','BUFFD4BWP_LVT','DFCND4BWP_LVT','INVD4BWP_LVT','DFCNQD2BWP_LVT']:
             StdCell.StdCell(self.mDB).setup(cktIdx, self.resultName)
             return
         # If the ckt is actually a circuit instead of a device
