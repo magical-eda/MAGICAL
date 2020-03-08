@@ -2,3 +2,6 @@ execution
 install
 *.swp
 python_bk*
+placement
+routing
+

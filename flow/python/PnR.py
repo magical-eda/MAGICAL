@@ -8,7 +8,8 @@ import magicalFlow
 import IdeaPlaceExPy
 import anaroutePy
 import sys
-sys.path.append('/home/local/eda09/keren/projects/magical/constraint_generation/python')
+#sys.path.append('/home/local/eda09/keren/projects/magical/constraint_generation/python')
+sys.path.append('/home/local/eda10/jayliu/projects/develop/magical/magical/constraint_generation/python')
 import device_generation.basic as basic
 import Router
 import Placer
