@@ -16,7 +16,7 @@ vdd_set = {"vdd", "vdd_and", "vdd_c", "vdd_comp", "vdd_gm", "vddd", "vdda", "vel
 ignore_set = vss_set.union(vdd_set)#, clk_set)
 
 class S3DET(object):
-    def __init__(self, magicalDB, symTol=0.7):
+    def __init__(self, magicalDB, symTol=0.0):
         self.mDB = magicalDB
         self.dDB = magicalDB.designDB.db
         self.tDB = magicalDB.techDB
@@ -45,8 +45,10 @@ class S3DET(object):
             nodeB = ckt.node(nodeIdxB)
             cktA = self.dDB.subCkt(nodeA.graphIdx)
             cktB = self.dDB.subCkt(nodeB.graphIdx)
-            boxA = (cktA.gdsData().bbox().xLen(), cktA.gdsData().bbox().yLen())
-            boxB = (cktB.gdsData().bbox().xLen(), cktB.gdsData().bbox().yLen())
+            #boxA = (cktA.gdsData().bbox().xLen(), cktA.gdsData().bbox().yLen())
+            #boxB = (cktB.gdsData().bbox().xLen(), cktB.gdsData().bbox().yLen())
+            boxA = (cktA.layout().boundary().xLen(), cktA.layout().boundary().yLen())
+            boxB = (cktB.layout().boundary().xLen(), cktB.layout().boundary().yLen())
             subgraphA = self.subgraph(cktIdx, nodeIdxA)
             subgraphB = self.subgraph(cktIdx, nodeIdxB)
             # Boundary box size check and circuit graph isomorphic check

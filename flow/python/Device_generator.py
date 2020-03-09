@@ -60,6 +60,7 @@ class Device_generator(object):
         BB = basic.BB(self.cell)
         #bound = self.cell.cell.get_bounding_box()
         gdsData.setBBox(int(BB[0]), int(BB[1]), int(BB[2]), int(BB[3]))
+        ckt.layout().setBoundary(int(BB[0]), int(BB[1]), int(BB[2]), int(BB[3]))
         gdsData.gdsFile = self.outGDS
         # Match pin name, current implementation is integer, bulk need to be ommited for res/cap/mos
         # Example, 0:drain, 1:gate, etc...
