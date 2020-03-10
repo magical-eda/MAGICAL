@@ -33,12 +33,13 @@ class Placer(object):
         self.placer.readTechSimpleFile(self.params.simple_tech_file)
         self.placeParsePin()
         self.placeConnection()
-        self.placer.readSymFile(self.dirname + self.ckt.name + '.sym')
+        self.placer.readSymFile(self.dirname + self.ckt.name + '.sym') # FIXME: use in memory interface
         self.placeParseBoundary()
         if self.debug:
             gdspy.current_library = gdspy.GdsLibrary()
             self.tempCell = gdspy.Cell("FLOORPLAN")
         self.configureIoPinParameters()
+        self.placer.readSymNetFile(self.dirname + self.ckt.name + '.symnet') # FIXME: use in memory interface
     def configureIoPinParameters(self):
         if self.useIoPin == False:
             self.placer.closeVirtualPinAssignment()
@@ -72,13 +73,13 @@ class Placer(object):
                 #FIXME
                 if (self.placer.isIoPinVertical(netIdx)):
                     metals = [
-                            [- 50, -self.gridStep / 2 - 70 - 30, 50, self.gridStep / 2 + 70 + 30]
+                            [- 65, -self.gridStep  - 70 - 30, 65, self.gridStep  + 70 + 30]
                             ]
                     metalPkdLayers = [31]
                     metalIoLayers = [1]
                 else:
                     metals = [
-                            [-self.gridStep / 2 - 70 - 30, - 50, self.gridStep / 2 + 70 + 30, 50]
+                            [-self.gridStep  - 70 - 30, - 65, self.gridStep  + 70 + 30, 65]
                             ]
                     metalPkdLayers = [31]
                     metalIoLayers = [1]
@@ -187,6 +188,7 @@ class Placer(object):
         for netIdx in range(self.ckt.numNets()):
             net = self.ckt.net(netIdx)
             dbNetIdx = self.placer.allocateNet()
+            self.placer.setNetName(dbNetIdx, net.name) # FIXME: the only purpose is to use parse symnet file. Which ideally can be avoided
             assert netIdx == dbNetIdx, "placeConnection, netIdx == dbNetIdx"
             if self.debug:
                 outFile.write("%d\n" % net.numPins())

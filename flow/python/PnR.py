@@ -71,7 +71,7 @@ class PnR(object):
                     router.addIOPort(net.name)
         router.solve(False)
         router.writeLayoutGds(placeFile, dirname+ckt.name+'.route.gds', True)
-        #router.writeDumb(placeFile, dirname+ckt.name+'.ioPin') 
+        router.writeDumb(placeFile, dirname+ckt.name+'.ioPin') 
         # Read results to flow
         ckt.setTechDB(self.tDB)
         ckt.parseGDS(dirname+ckt.name+'.route.gds')
