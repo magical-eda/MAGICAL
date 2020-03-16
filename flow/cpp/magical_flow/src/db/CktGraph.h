@@ -136,7 +136,7 @@ class CktGraph
         /// @return the index of a new psub net
         IndexType allocatePsub() { IndexType netIdx = allocateNet(); _psubIdxArray.push_back(netIdx); return netIdx; }
         /// @brief add a existing net index as psub net
-        /// @param the net index of exising net
+        /// @param self.designDB.numCthe net index of exising net
         void addPsubIdx(IndexType netIdx) { _psubIdxArray.push_back(netIdx); }
         /// @brief create a new nwell net
         /// @return the index of a new nwell net

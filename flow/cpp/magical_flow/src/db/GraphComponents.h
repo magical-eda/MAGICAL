@@ -175,6 +175,12 @@ class Net
         /// @brief get the index of io
         /// @return index of the net io
         IndexType ioPos() const { return _ioPos; }
+        /// @brief get whether this net is power nets
+        bool isPower() const { return _isVss or _isVdd; }
+        /// @brief get whether this net is vdd net
+        bool isVdd() const { return _isVdd; }
+        /// @brief get whether this net is vss net
+        bool isVss() const { return _isVss; }
         /*------------------------------*/ 
         /* Setters                      */
         /*------------------------------*/ 
@@ -184,6 +190,14 @@ class Net
         /// @brief set pos of io
         /// @param the index pos of io
         void setIoPos(IndexType ioPos) { _ioPos = ioPos; }
+        /// @brief mark this net as VDD
+        void markVddFlag() { Assert(!_isVss); _isVdd = true; }
+        /// @brief remove the VDD flag from this net
+        void revokeVddFlag() { _isVdd = false; }
+        /// @brief mark this net as VSS
+        void markVssFlag() { Assert(!_isVdd); _isVss = true; }
+        /// @brief remove the VSS flag from this net
+        void revokeVssFlag() { _isVss = false; }
         /*------------------------------*/ 
         /* Attributes                   */
         /*------------------------------*/ 
@@ -267,6 +281,8 @@ class Net
         std::vector<IndexType> _subIdxArray; ///< The indices of device substrate pins this nets connecting to
         std::string _name = ""; ///< The name of this net
         IndexType _ioPos = INDEX_TYPE_MAX; ///< The index of net if it is IO.
+        bool _isVdd = false; ///< Whether this net is a VDD net
+        bool _isVss = false; ///< Whether this net is a VSS net
         /*------------------------------*/ 
         /* Integration                  */
         /*------------------------------*/ 

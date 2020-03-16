@@ -21,6 +21,8 @@ class Params:
         self.simple_tech_file = "/home/local/eda09/keren/benchmarks/tech/techfile" # Input simple tech file
         self.techfile = "/home/local/eda09/keren/benchmarks/tech/techfile"
         self.lef = "/home/local/eda09/keren/benchmarks/tech/40vhv.lef"
+        self.vddNetNames = ["VDD", "vdd"]
+        self.vssNetNames = ["VSS", "GND", "vss", "gnd"]
         self.resultDir = None
 
     def printWelcome(self):
@@ -72,6 +74,8 @@ simple_tech_file [required]    | input simple techfile
         if 'resultDir' in data: self.resultDir = data['resultDir']
         if 'lef' in data : self.lef = data['lef']
         if 'techfile' in data : self.techfile = data['techfile']
+        if 'vddNetNames' in data : self.vddNetNames = data['vddNetNames']
+        if 'vssNetNames' in data : self.vssNetNames = data['vssNetNames']
 
     def dump(self, filename):
         """

@@ -54,6 +54,13 @@ void initGraphComponentsAPI(py::module &m)
         .def("numIoPins", &PROJECT_NAMESPACE::Net::numIoPins, "Get the number of IO pin shapes in this net")
         .def("ioPinShape", &PROJECT_NAMESPACE::Net::ioPinShape, py::return_value_policy::reference, "Similar to ioShape(), but instead of returnning the first io pin shape, this is returning by the index of io pin shape")
         .def("ioPinMetalLayer", &PROJECT_NAMESPACE::Net::ioPinMetalLayer, "Similar to .ioLayer, but instead of returnning the first io pin shape, this is returning by the index of io pin shape")
+        .def("isPower", &PROJECT_NAMESPACE::Net::isPower, "Get whether this net is a power net")
+        .def("isVdd", &PROJECT_NAMESPACE::Net::isVdd, "Get whether this net is a vdd net")
+        .def("isVss", &PROJECT_NAMESPACE::Net::isVss, "Get whether this net is a vss net")
+        .def("markVddFlag", &PROJECT_NAMESPACE::Net::markVddFlag, "Mark this net as vdd net")
+        .def("revokeVddFlag", &PROJECT_NAMESPACE::Net::revokeVddFlag, "Remove the vdd flag from this net")
+        .def("markVssFlag", &PROJECT_NAMESPACE::Net::markVssFlag, "Mark this net as vss net")
+        .def("revokeVssFlag", &PROJECT_NAMESPACE::Net::revokeVssFlag, "Remove the vss flag from this net")
         ;
 
     py::class_<PROJECT_NAMESPACE::Pin>(m, "Pin")

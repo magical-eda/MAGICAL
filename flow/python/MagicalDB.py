@@ -18,7 +18,11 @@ class MagicalDB(object):
         self.parse_input_netlist(self.params)
         self.parse_simple_techfile('/home/unga/jayliu/projects/inputs/techfile.simple')
         self.designDB.db.findRootCkt() # After the parsing, find the root circuit of the hierarchy
+        self.postProcessing()
         return True
+
+    def postProcessing(self):
+        self.markPowerNets()
 
     def parse_simple_techfile(self, params):
         magicalFlow.parseSimpleTechFile( params, self.techDB)
@@ -37,6 +41,29 @@ class MagicalDB(object):
 
     def read_hspice_netlist(self, sp_netlist):
         self.designDB.read_hspice_netlist(sp_netlist)
+
+    """
+    Post-processing
+    """
+    def markPowerNets(self):
+        for cktIdx in range(self.designDB.db.numCkts()):
+            ckt = self.designDB.db.subCkt(cktIdx)
+            # using flags from body connections
+            for psubIdx in range(ckt.numPsubs()):
+                psubNet = ckt.psub(psubIdx)
+                psubNet.markVssFlag()
+            for nwellIdx in range(ckt.numNwells()):
+                nwellNet = ckt.nwell(nwellIdx)
+                nwellNet.markVddFlag()
+            # Using external naming-based labeling
+            vddNetNames = self.params.vddNetNames
+            vssNetNames = self.params.vssNetNames
+            for netIdx in range(ckt.numNets()):
+                net = ckt.net(netIdx)
+                if net.name in vddNetNames:
+                    net.markVddFlag()
+                if net.name in vssNetNames:
+                    net.markVssFlag()
 
     """
     Some wrapper
