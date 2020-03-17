@@ -49,6 +49,7 @@ class PnR(object):
 
     def runRoute(self, cktIdx, dirname):
         ckt = self.dDB.subCkt(cktIdx)
+        self.findOrigin(cktIdx)
         router = anaroutePy.AnaroutePy()
         router.setCircuitName(ckt.name)
         placeFile = dirname + ckt.name + '.place.gds'
@@ -58,8 +59,8 @@ class PnR(object):
         self.routeParsePin(router, cktIdx, dirname+ckt.name+'.gr')  
         router.setGridStep(2*self.gridStep)
         router.setSymAxisX(2*self.symAxis)
-        router.setGridOffsetX(2*(self.origin[0]))
-        router.setGridOffsetY(2*(self.origin[1]))
+        router.setGridOffsetX(2*(self.origin[0] - self.gridStep * 10))
+        router.setGridOffsetY(2*(self.origin[1] - self.gridStep * 10))
         print("routing grid off set", 2*(self.origin[0]), 2*(self.origin[1]))
         #print self.origin[0]+self.halfMetWid, self.origin[1]+self.halfMetWid, "OFFSET"
         #router.parseSymNet(dirname+ckt.name+'.symnet')
@@ -95,6 +96,49 @@ class PnR(object):
                                   origin[0] + xHiLen,
                                   origin[1] + yHiLen)
 
+    def findOrigin(self, cktIdx):
+        ckt = self.dDB.subCkt(cktIdx)
+        pinName = dict()
+        pinNameIdx = 0
+        for netIdx in range(ckt.numNets()):
+            net = ckt.net(netIdx)
+            grPinCount, isPsub, isNwell = self.netPinCount(ckt, net)
+            pinName[netIdx] = dict()
+            for pinId in range(net.numPins()):
+                pinIdx = net.pinIdx(pinId)
+                pin = ckt.pin(pinIdx)
+                conNode = pin.nodeIdx
+                conNet = pin.intNetIdx
+                conCkt = self.dDB.subCkt(ckt.node(conNode).graphIdx)
+                if not pin.valid:
+                    continue
+                if pin.pinType == magicalFlow.PinType.PSUB:
+                    assert net.isSub, net.name
+                    if conCkt.implType != magicalFlow.ImplTypePCELL_Cap:
+                        continue
+                # Router starts as 0 with M1
+                for iopinidx in range(conCkt.net(conNet).numIoPins()):
+                    conLayer = conCkt.net(conNet).ioPinMetalLayer(iopinidx) - 1
+                    ioshape = conCkt.net(conNet).ioPinShape(iopinidx)
+                    conShape = self.adjustIoShape(ioshape, ckt.node(conNode).offset(), conCkt.layout().boundary(), ckt.node(conNode).flipVertFlag)
+                    pinName[netIdx][pinId] = pinNameIdx
+                    # GDS and LEF unit mismatch, multiply by 2
+                    assert conShape[0] <= conShape[2]
+                    assert conShape[1] <= conShape[3]
+                    #print pinName[netIdx][pinId], conShape[0], conShape[1]
+                    self.updateOriginPin(conShape)
+                    pinNameIdx += 1
+            if isPsub:
+                assert self.cktNeedSub(cktIdx)
+                pinName[netIdx]['sub'] = pinNameIdx
+                # GDS and LEF unit mismatch, multiply by 2
+                for i in range(len(self.subShapeList)):
+                    if i > 0:
+                        continue
+                    assert self.subShapeList[i][0] <= self.subShapeList[i][2]
+                    assert self.subShapeList[i][1] <= self.subShapeList[i][3]
+                    self.updateOriginGuardRing(self.subShapeList[0])
+                pinNameIdx += 1
     def routeParsePin(self, router, cktIdx, fileName):
         router.init()
         ckt = self.dDB.subCkt(cktIdx)
@@ -138,7 +182,6 @@ class PnR(object):
                     assert conShape[0] <= conShape[2]
                     assert conShape[1] <= conShape[3]
                     #print pinName[netIdx][pinId], conShape[0], conShape[1]
-                    self.updateOriginPin(conShape)
                     router.addShape2Pin(pinNameIdx, conLayer, conShape[0]*2, conShape[1]*2, conShape[2]*2, conShape[3]*2)
                     pinNameIdx += 1
                     if self.debug:
@@ -159,7 +202,6 @@ class PnR(object):
                         continue
                     assert self.subShapeList[i][0] <= self.subShapeList[i][2]
                     assert self.subShapeList[i][1] <= self.subShapeList[i][3]
-                    self.updateOriginGuardRing(self.subShapeList[0])
                     router.addShape2Pin(pinNameIdx, 0, self.subShapeList[i][0]*2, self.subShapeList[i][1]*2, self.subShapeList[i][2]*2, self.subShapeList[i][3]*2)
                 pinNameIdx += 1
                 #assert basic.check_legal_coord([self.subShapeList[0][0]/1000.0, self.subShapeList[0][1]/1000.0],[-self.halfMetWid/1000.0,-self.halfMetWid/1000.0]), "Pin Not Legal!"

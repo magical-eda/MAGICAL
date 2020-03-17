@@ -124,6 +124,7 @@ class Placer(object):
                 text = gdspy.Text(cktNode.name,50,((boundary.xLo+boundary.xHi)/2+x_offset,(boundary.yLo+boundary.yHi)/2+y_offset),layer=100)
                 self.tempCell.add(rect)
                 self.tempCell.add(text)
+        cktBoundaryBox = self.ckt.layout().boundary()
         #Process io pins      
         if self.useIoPin:
             for nodeIdx in range(self.numIntervalNodes, self.ckt.numNodes()):
@@ -133,7 +134,6 @@ class Placer(object):
                 y_offset = self.iopinOffsety[nodeIdx - self.numIntervalNodes]
                 cktNode.setOffset(x_offset, y_offset)
                 self.ckt.layout().insertLayout(subCkt.layout(), x_offset, y_offset, cktNode.flipVertFlag)
-        cktBoundaryBox = self.ckt.layout().boundary()
         # write guardring using gdspy
         if self.cktNeedSub(self.cktIdx):
             print "Adding GuardRing to Cell"
@@ -260,15 +260,17 @@ class Placer(object):
         if width / self.gridStep % 2 == 0:
             width += self.gridStep
         height = int(1500)  # Just give a try
-        height = height + (self.gridStep - (height % self.gridStep))
+        height = height + (self.gridStep - (height % self.gridStep))  
+        if height / self.gridStep % 2 == 0:
+            height += self.gridStep
         fWidth = float(width) / 1000.0
         fHeight = float(height) / 1000.0
         vddOffset = [0.0, 0.0]
         vddOffset[0] = ( self.origin[0] - self.gridStep ) / 1000.0
-        vddOffset[1] = ( boundary.yHi +  4 * self.gridStep ) / 1000.0
+        vddOffset[1] = ( float(boundary.yHi +  4 * self.gridStep)) / 1000.0
         vssOffset = [0.0, 0.0]
         vssOffset[0] = ( self.origin[0] - self.gridStep    ) / 1000.0
-        vssOffset[1] = ( self.origin[1] - 36 * self.gridStep) / 1000.0 
+        vssOffset[1] = ( float(self.origin[1] - 36 * self.gridStep + self.gridStep / 2)) / 1000.0 
         print("width, ", fWidth, "height", fHeight, "vdd offset", vddOffset[0], vddOffset[1])
         print("width, ", fWidth, "height", fHeight, "vss offset", vssOffset[0], vssOffset[1])
         vddStripe = basic.power_strip(fWidth, fHeight, vddOffset)
