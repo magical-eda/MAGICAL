@@ -132,7 +132,7 @@ class PnR(object):
                     ioshape = conCkt.net(conNet).ioPinShape(iopinidx)
                     conShape = self.adjustIoShape(ioshape, ckt.node(conNode).offset(), conCkt.layout().boundary(), ckt.node(conNode).flipVertFlag)
                     pinName[netIdx][pinId] = pinNameIdx
-                    router.addPin(str(pinNameIdx))
+                    router.addPin(str(pinNameIdx), net.isPower())
                     #router.addPin2Net(pinNameIdx, netIdx)
                     # GDS and LEF unit mismatch, multiply by 2
                     assert conShape[0] <= conShape[2]
@@ -151,7 +151,7 @@ class PnR(object):
             if isPsub:
                 assert self.cktNeedSub(cktIdx)
                 pinName[netIdx]['sub'] = pinNameIdx
-                router.addPin(str(pinNameIdx))
+                router.addPin(str(pinNameIdx), net.isPower())
                 #router.addPin2Net(pinNameIdx, netIdx)
                 # GDS and LEF unit mismatch, multiply by 2
                 for i in range(len(self.subShapeList)):
@@ -172,7 +172,7 @@ class PnR(object):
         for netIdx in range(ckt.numNets()): 
             net = ckt.net(netIdx)  
             grPinCount, isPsub, isNwell = self.netPinCount(ckt, net)    
-            router.addNet(net.name, 200, 1, (isPsub or isNwell))  
+            router.addNet(net.name, 200, 1, net.isPower())  
             #print net.name     
             for pinId in range(net.numPins()):
                 if pinId in pinName[netIdx]:

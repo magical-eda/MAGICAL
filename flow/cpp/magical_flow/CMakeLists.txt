@@ -72,15 +72,18 @@ unset(PYBIND11_DIR CACHE)
 
 add_subdirectory(${PYBIND11_ROOT_DIR} "./pybind11")
 
+# boost
+find_package(Boost 1.6 REQUIRED COMPONENTS system graph iostreams)
+
 #Google Test
-if (GTEST_DIR)
-    set(GTEST_ROOT_DIR ${GTEST_DIR})
-    message(STATUS "Use google test: ${GTEST_ROOT_DIR}")
-else()
-    set(GTEST_ROOT_DIR $ENV{GTEST_DIR})
-    message(STATUS "Use system google test: ${GTEST_ROOT_DIR}")
-endif()
-unset(GTEST_DIR CACHE)
+#if (GTEST_DIR)
+    #set(GTEST_ROOT_DIR ${GTEST_DIR})
+    #message(STATUS "Use google test: ${GTEST_ROOT_DIR}")
+#else()
+    #set(GTEST_ROOT_DIR $ENV{GTEST_DIR})
+    #message(STATUS "Use system google test: ${GTEST_ROOT_DIR}")
+#endif()
+#unset(GTEST_DIR CACHE)
 
 # Python
 find_package(PythonLibs REQUIRED)
@@ -112,7 +115,7 @@ set(CMAKE_EXE_LINKER_FLAGS "-pthread")
 include_directories (
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/unittest
-    ${GTEST_ROOT_DIR}/googletest/include
+    #${GTEST_ROOT_DIR}/googletest/include
     ${PYBIND11_ROOT_DIR}/include
     ${PYTHON_INCLUDE_DIRS}
     ${LIMBO_ROOT_DIR}/include
@@ -124,8 +127,8 @@ file(GLOB LIMBO_LIB
     ${LIMBO_ROOT_DIR}/lib/libgdsdb.a 
     ${LIMBO_ROOT_DIR}/lib/libgdsparser.a)
 
-file (GLOB GTEST_MAIN_LIB ${GTEST_ROOT_DIR}/lib/libgtest_main.a)
-file (GLOB GTEST_LIB ${GTEST_ROOT_DIR}/lib/libgtest.a)
+#file (GLOB GTEST_MAIN_LIB ${GTEST_ROOT_DIR}/lib/libgtest_main.a)
+#file (GLOB GTEST_LIB ${GTEST_ROOT_DIR}/lib/libgtest.a)
 
 link_libraries (
     ${GTEST_MAIN_LIB}
@@ -141,20 +144,20 @@ file(GLOB SOURCES src/db/*.h        src/db/*.cpp
 
 file(GLOB PROJECT_SOURCES src/main/*.cpp ${SOURCES})
 file(GLOB PY_API_SOURCES src/api/*.cpp ${SOURCES})
-file(GLOB UNITTEST_SOURCES 
-    unittest/main/*.cpp
-    unittest/db/*.cpp
-    unittest/parser/*.cpp
-    ${SOURCES})
+#file(GLOB UNITTEST_SOURCES 
+    #unittest/main/*.cpp
+    #unittest/db/*.cpp
+    #unittest/parser/*.cpp
+    #${SOURCES})
 
 #set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS "-static")
 
 # Add modules to pybind
 pybind11_add_module(${PROJECT_NAME} ${PY_API_SOURCES})
-target_link_libraries(${PROJECT_NAME} PUBLIC ${LIMBO_LIB} )
+target_link_libraries(${PROJECT_NAME} PUBLIC ${LIMBO_LIB} ${Boost_LIBRARIES})
 
 #Unit Tests using GoogleTest
-enable_testing()
-add_executable(unittest ${UNITTEST_SOURCES})
-target_link_libraries(unittest ${GTEST_LIB} ${LIMBO_LIB} )
-add_test(NAME unittest COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/unittest ${CMAKE_CURRENT_SOURCE_DIR}/unittest)
+#enable_testing()
+#add_executable(unittest ${UNITTEST_SOURCES})
+#target_link_libraries(unittest ${GTEST_LIB} ${LIMBO_LIB} )
+#add_test(NAME unittest COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/unittest ${CMAKE_CURRENT_SOURCE_DIR}/unittest)
