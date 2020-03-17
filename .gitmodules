@@ -1,10 +1,3 @@
-[submodule "thirdparty/Limbo"]
-    path = thirdparty/Limbo
-    url = https://github.com/limbo018/Limbo
-[submodule "thirdparty/sparsehash"]
-	path = thirdparty/sparsehash
-	url = https://github.com/sparsehash/sparsehash
-    ignore = untracked
 [submodule "constraint_generation/signal_flow_analysis"]
 	path = constraint_generation/signal_flow_analysis
 	url = git@bitbucket.org:jayl940712/sfa.git
