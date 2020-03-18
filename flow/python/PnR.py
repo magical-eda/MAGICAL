@@ -53,6 +53,9 @@ class PnR(object):
         router = anaroutePy.AnaroutePy()
         router.setCircuitName(ckt.name)
         placeFile = dirname + ckt.name + '.place.gds'
+        if self.debug:
+            iopinfile = dirname + ckt.name + ".iopin"
+            self.writeiopifile(cktIdx, iopinfile)
         router.parseLef(self.params.lef)
         router.parseTechfile(self.params.techfile)
         router.parseGds(placeFile)
@@ -135,6 +138,16 @@ class PnR(object):
                     assert self.subShapeList[i][0] <= self.subShapeList[i][2]
                     assert self.subShapeList[i][1] <= self.subShapeList[i][3]
                     self.updateOriginGuardRing(self.subShapeList[0])
+    def writeiopifile(self, cktIdx, fileName):
+        """
+        @brief this function write out the .iopin file for router. Primaily for debugging
+        """
+        ckt = self.dDB.subCkt(cktIdx)
+        with open(fileName, 'w') as of:
+            for netIdx in range(ckt.numNets()):
+                net = ckt.net(netIdx)
+                if net.isIo():
+                    of.write("%s\n"% net.name)
     def routeParsePin(self, router, cktIdx, fileName):
         router.init()
         ckt = self.dDB.subCkt(cktIdx)
