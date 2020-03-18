@@ -143,8 +143,8 @@ class PnR(object):
         if self.debug:
             outFile = open(fileName, 'w')
             outFile.write('gridStep %d\n' % (self.gridStep))
-            outFile.write('symAxis %d\n' % (self.symAxis))
             outFile.write('Offset %d %d\n' % (self.origin[0],self.origin[1]))
+            outFile.write('symAxis %d\n' % (self.symAxis))
         for netIdx in range(ckt.numNets()):
             net = ckt.net(netIdx)
             grPinCount, isPsub, isNwell = self.netPinCount(ckt, net)
@@ -192,7 +192,7 @@ class PnR(object):
             if isPsub:
                 assert self.cktNeedSub(cktIdx)
                 pinName[netIdx]['sub'] = pinNameIdx
-                router.addPin(str(pinNameIdx), net.isPower())
+                router.addPin(str(pinNameIdx), net.isPower(), False)
                 #router.addPin2Net(pinNameIdx, netIdx)
                 # GDS and LEF unit mismatch, multiply by 2
                 for i in range(len(self.subShapeList)):
