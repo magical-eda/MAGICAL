@@ -121,16 +121,13 @@ class PnR(object):
                     conLayer = conCkt.net(conNet).ioPinMetalLayer(iopinidx) - 1
                     ioshape = conCkt.net(conNet).ioPinShape(iopinidx)
                     conShape = self.adjustIoShape(ioshape, ckt.node(conNode).offset(), conCkt.layout().boundary(), ckt.node(conNode).flipVertFlag)
-                    pinName[netIdx][pinId] = pinNameIdx
                     # GDS and LEF unit mismatch, multiply by 2
                     assert conShape[0] <= conShape[2]
                     assert conShape[1] <= conShape[3]
                     #print pinName[netIdx][pinId], conShape[0], conShape[1]
                     self.updateOriginPin(conShape)
-                    pinNameIdx += 1
             if isPsub:
                 assert self.cktNeedSub(cktIdx)
-                pinName[netIdx]['sub'] = pinNameIdx
                 # GDS and LEF unit mismatch, multiply by 2
                 for i in range(len(self.subShapeList)):
                     if i > 0:
@@ -138,7 +135,6 @@ class PnR(object):
                     assert self.subShapeList[i][0] <= self.subShapeList[i][2]
                     assert self.subShapeList[i][1] <= self.subShapeList[i][3]
                     self.updateOriginGuardRing(self.subShapeList[0])
-                pinNameIdx += 1
     def routeParsePin(self, router, cktIdx, fileName):
         router.init()
         ckt = self.dDB.subCkt(cktIdx)
@@ -155,6 +151,7 @@ class PnR(object):
             pinName[netIdx] = dict()
             #router.addNet(net.name, 200, 1, (isPsub or isNwell))
             #router.addNet(net.name)
+            print("net ", net.name)
             if self.debug:
                 pass
                 #outFile.write(net.name + ' ' + str(netIdx) + ' ' + str(grPinCount) + ' 1\n')
@@ -170,20 +167,20 @@ class PnR(object):
                     assert net.isSub, net.name
                     if conCkt.implType != magicalFlow.ImplTypePCELL_Cap:
                         continue
+                pinName[netIdx][pinId] = pinNameIdx
+                router.addPin(str(pinNameIdx), net.isPower())
+                print("add pin ", pinNameIdx)
                 # Router starts as 0 with M1
                 for iopinidx in range(conCkt.net(conNet).numIoPins()):
                     conLayer = conCkt.net(conNet).ioPinMetalLayer(iopinidx) - 1
                     ioshape = conCkt.net(conNet).ioPinShape(iopinidx)
                     conShape = self.adjustIoShape(ioshape, ckt.node(conNode).offset(), conCkt.layout().boundary(), ckt.node(conNode).flipVertFlag)
-                    pinName[netIdx][pinId] = pinNameIdx
-                    router.addPin(str(pinNameIdx), net.isPower())
-                    #router.addPin2Net(pinNameIdx, netIdx)
                     # GDS and LEF unit mismatch, multiply by 2
                     assert conShape[0] <= conShape[2]
                     assert conShape[1] <= conShape[3]
                     #print pinName[netIdx][pinId], conShape[0], conShape[1]
                     router.addShape2Pin(pinNameIdx, conLayer, conShape[0]*2, conShape[1]*2, conShape[2]*2, conShape[3]*2)
-                    pinNameIdx += 1
+                    print("add pin shape", conLayer, conShape[0]*2, conShape[1]*2, conShape[2]*2, conShape[3]*2)
                     if self.debug:
                         string = "%s %d %d %d %d %d %d %d\n" % (str(net.name), conLayer+1, conShape[0], conShape[1], conShape[2], conShape[3], (conShape[0]+265)/140, (conShape[1]+280)/140)
                         #string = str(conLayer+1) + ' ' + self.rectToPoly(conShape)
@@ -191,6 +188,7 @@ class PnR(object):
                     print conShape, self.origin
                     #assert basic.check_legal_coord([conShape[0]/1000.0, conShape[1]/1000.0],[-self.halfMetWid/1000.0,-self.halfMetWid/1000.0]), "Pin Not Legal!"
                     #assert basic.check_legal_coord([conShape[2]/1000.0-glovar.min_w['M1'], conShape[3]/1000.0-glovar.min_w['M1']]), "Pin Not Legal!"
+                pinNameIdx += 1
             if isPsub:
                 assert self.cktNeedSub(cktIdx)
                 pinName[netIdx]['sub'] = pinNameIdx
