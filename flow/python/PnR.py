@@ -169,7 +169,10 @@ class PnR(object):
                     if conCkt.implType != magicalFlow.ImplTypePCELL_Cap:
                         continue
                 pinName[netIdx][pinId] = pinNameIdx
-                router.addPin(str(pinNameIdx), net.isPower())
+                iopinshapeIsPowerStripe = 0
+                if conCkt.net(conNet).isIoPowerStripe(0):
+                    iopinshapeIsPowerStripe = 1
+                router.addPin(str(pinNameIdx), net.isPower(), iopinshapeIsPowerStripe)
                 print("add pin ", pinNameIdx)
                 # Router starts as 0 with M1
                 for iopinidx in range(conCkt.net(conNet).numIoPins()):
@@ -179,10 +182,7 @@ class PnR(object):
                     # GDS and LEF unit mismatch, multiply by 2
                     assert conShape[0] <= conShape[2]
                     assert conShape[1] <= conShape[3]
-                    iopinshapeIsPowerStripe = 0
-                    if conCkt.net(conNet).isIoPowerStripe(iopinidx):
-                        iopinshapeIsPowerStripe = 1
-                    router.addShape2Pin(pinNameIdx, conLayer, conShape[0]*2, conShape[1]*2, conShape[2]*2, conShape[3]*2, iopinshapeIsPowerStripe)
+                    router.addShape2Pin(pinNameIdx, conLayer, conShape[0]*2, conShape[1]*2, conShape[2]*2, conShape[3]*2)
                     print("add pin shape", conLayer, conShape[0]*2, conShape[1]*2, conShape[2]*2, conShape[3]*2)
                     if self.debug:
                         string = "%s %s %d %d %d %d %d %d %d\n" % (str(net.name), str(pinNameIdx), conLayer+1, conShape[0], conShape[1], conShape[2], conShape[3], netIsPower, iopinshapeIsPowerStripe)
