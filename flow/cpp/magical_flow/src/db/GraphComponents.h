@@ -143,6 +143,16 @@ class CktNode
         std::string _name = ""; ///< The name of this node
 };
 
+/// @brief the IO pin shape configuration
+struct IoPinConfigure
+{
+    explicit IoPinConfigure() = default;
+    Box<LocType> shape;  ///< The shape for pin for accessing from external
+    IndexType layer = INDEX_TYPE_MAX; ///< Metal layer
+    IntType isPowerStripe = 0;
+
+};
+
 /// @class MAGICAL_FLOW::Net
 /// @brief the abstracted net concepts for representing the connectivity of the circuits
 class Net
@@ -151,8 +161,9 @@ class Net
         /// @brief default constructor
         explicit Net() 
         {
-            _ioShape.resize(1, Box<LocType>(LOC_TYPE_MAX, LOC_TYPE_MAX, LOC_TYPE_MIN, LOC_TYPE_MIN));
-            _ioLayer.resize(1, INDEX_TYPE_MAX);
+            _ioInterfaces.resize(1);
+            Assert(_ioInterfaces.at(0).layer == INDEX_TYPE_MAX);
+            Assert(_ioInterfaces.at(0).isPowerStripe == 0);
         }
         /*------------------------------*/ 
         /* Getters                      */
@@ -224,19 +235,19 @@ class Net
         /// @param second: ylo
         /// @param third: xhi
         /// @param fourth: yhi
-        void setIoShape(LocType xLo, LocType yLo, LocType xHi, LocType yHi) { _ioShape[0] = Box<LocType>(xLo, yLo, xHi, yHi); }
+        void setIoShape(LocType xLo, LocType yLo, LocType xHi, LocType yHi) { _ioInterfaces.at(0).shape = Box<LocType>(xLo, yLo, xHi, yHi); }
         /// @brief get the pin shape of this net for external accessing
         /// @return the pin shape as rectangle
-        Box<LocType> & ioShape() { return _ioShape[0]; }
+        Box<LocType> & ioShape() { return _ioInterfaces.at(0).shape; }
         /// @brief get io shape layer. Metal layer
         /// @return IO shape layer, metal layer
-        IndexType ioLayer() const { return _ioLayer[0]; }
+        IndexType ioLayer() const { return _ioInterfaces.at(0).layer; }
         /// @brief set IO shape layer. Metal layer
         /// @param metal layer
-        void setIoLayer(IndexType ioLayer) { _ioLayer[0] = ioLayer; }
+        void setIoLayer(IndexType ioLayer) { _ioInterfaces.at(0).layer = ioLayer; }
         /// @brief get the number of io pins
         /// @return the number of io pins
-        IndexType numIoPins() const { return _ioLayer.size(); }
+        IndexType numIoPins() const { return _ioInterfaces.size(); }
         /// @brief add a io pin
         /// @param first: io pin shape xLo 
         /// @param second: io pin shape yLo 
@@ -245,31 +256,41 @@ class Net
         /// @param fifth: metal layer 
         void addIoPin(LocType xLo, LocType yLo, LocType xHi, LocType yHi, IndexType metalLayer)
         {
-            if (_ioLayer[0] == INDEX_TYPE_MAX)
+            if (_ioInterfaces.at(0).layer == INDEX_TYPE_MAX)
             {
-                _ioShape[0] = Box<LocType>(xLo, yLo, xHi, yHi);
-                _ioLayer[0] = metalLayer;
+                _ioInterfaces[0].shape = Box<LocType>(xLo, yLo, xHi, yHi);
+                _ioInterfaces[0].layer = metalLayer;
             }
             else
             {
-                _ioShape.emplace_back(Box<LocType>(xLo, yLo, xHi, yHi));
-                _ioLayer.emplace_back(metalLayer);
+                _ioInterfaces.emplace_back(IoPinConfigure());
+                _ioInterfaces.back().shape = Box<LocType>(xLo, yLo, xHi, yHi);
+                _ioInterfaces.back().layer = metalLayer;
             }
         }
+        /// @brief get whether a io shape is power stripe
+        /// @param the index of the io interface
+        bool isIoPowerStripe(IndexType ioIdx) const { return _ioInterfaces.at(ioIdx).isPowerStripe == 1; }
+        /// @brief mark a io shape as power stripe
+        /// @param the index of the io interface
+        void markIoPowerStripe(IndexType ioIdx) { _ioInterfaces.at(ioIdx).isPowerStripe = 1; }
+        /// @brief mark the last io shape as power stripe
+        void markLastIoPowerStripe() { _ioInterfaces.back().isPowerStripe = 1; }
         /// @brief get the io pin shape
         /// @param the index 
         /// @return the shape
-        Box<LocType> & ioPinShape(IndexType idx) { return _ioShape.at(idx); }
+        Box<LocType> & ioPinShape(IndexType idx) { return _ioInterfaces.at(idx).shape; }
         /// @brief get the io pin metal layer
         /// @param the index
         /// @return the metal layer
-        IndexType ioPinMetalLayer(IndexType idx) { return _ioLayer.at(idx); }
+        IndexType ioPinMetalLayer(IndexType idx) { return _ioInterfaces.at(idx).layer; }
         /// @brief flip io shape according to vertical axis
         /// @param symmetry vertical axis x=axis
         void flipVert(LocType axis) 
         { 
-            for (auto &ioshape : _ioShape)
+            for (auto &io : _ioInterfaces)
             {
+                auto & ioshape = io.shape;
                 LocType xLo = ioshape.xLo();    
                 ioshape.setXLo(2 * axis - ioshape.xHi());
                 ioshape.setXHi(2 * axis - xLo);
@@ -284,10 +305,9 @@ class Net
         bool _isVdd = false; ///< Whether this net is a VDD net
         bool _isVss = false; ///< Whether this net is a VSS net
         /*------------------------------*/ 
-        /* Integration                  */
+        /* For higher hierarchy         */
         /*------------------------------*/ 
-        std::vector<Box<LocType>> _ioShape; ///< The shape for pin for accessing from external
-        std::vector<IndexType> _ioLayer; ///< Metal layers
+        std::vector<IoPinConfigure> _ioInterfaces; ///< The shape for pin for accessing from external
 };
 
 /// @class MAGICAL_FLOW::Pin

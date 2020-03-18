@@ -149,8 +149,9 @@ class PnR(object):
             net = ckt.net(netIdx)
             grPinCount, isPsub, isNwell = self.netPinCount(ckt, net)
             pinName[netIdx] = dict()
-            #router.addNet(net.name, 200, 1, (isPsub or isNwell))
-            #router.addNet(net.name)
+            netIsPower = 0
+            if net.isPower():
+                netIsPower = 1
             print("net ", net.name)
             if self.debug:
                 pass
@@ -178,16 +179,15 @@ class PnR(object):
                     # GDS and LEF unit mismatch, multiply by 2
                     assert conShape[0] <= conShape[2]
                     assert conShape[1] <= conShape[3]
-                    #print pinName[netIdx][pinId], conShape[0], conShape[1]
-                    router.addShape2Pin(pinNameIdx, conLayer, conShape[0]*2, conShape[1]*2, conShape[2]*2, conShape[3]*2)
+                    iopinshapeIsPowerStripe = 0
+                    if conCkt.net(conNet).isIoPowerStripe(iopinidx):
+                        iopinshapeIsPowerStripe = 1
+                    router.addShape2Pin(pinNameIdx, conLayer, conShape[0]*2, conShape[1]*2, conShape[2]*2, conShape[3]*2, iopinshapeIsPowerStripe)
                     print("add pin shape", conLayer, conShape[0]*2, conShape[1]*2, conShape[2]*2, conShape[3]*2)
                     if self.debug:
-                        string = "%s %d %d %d %d %d %d %d\n" % (str(net.name), conLayer+1, conShape[0], conShape[1], conShape[2], conShape[3], (conShape[0]+265)/140, (conShape[1]+280)/140)
-                        #string = str(conLayer+1) + ' ' + self.rectToPoly(conShape)
+                        string = "%s %s %d %d %d %d %d %d %d\n" % (str(net.name), str(pinNameIdx), conLayer+1, conShape[0], conShape[1], conShape[2], conShape[3], netIsPower, iopinshapeIsPowerStripe)
                         outFile.write(string)
                     print conShape, self.origin
-                    #assert basic.check_legal_coord([conShape[0]/1000.0, conShape[1]/1000.0],[-self.halfMetWid/1000.0,-self.halfMetWid/1000.0]), "Pin Not Legal!"
-                    #assert basic.check_legal_coord([conShape[2]/1000.0-glovar.min_w['M1'], conShape[3]/1000.0-glovar.min_w['M1']]), "Pin Not Legal!"
                 pinNameIdx += 1
             if isPsub:
                 assert self.cktNeedSub(cktIdx)
@@ -201,14 +201,11 @@ class PnR(object):
                     assert self.subShapeList[i][0] <= self.subShapeList[i][2]
                     assert self.subShapeList[i][1] <= self.subShapeList[i][3]
                     router.addShape2Pin(pinNameIdx, 0, self.subShapeList[i][0]*2, self.subShapeList[i][1]*2, self.subShapeList[i][2]*2, self.subShapeList[i][3]*2)
-                pinNameIdx += 1
-                #assert basic.check_legal_coord([self.subShapeList[0][0]/1000.0, self.subShapeList[0][1]/1000.0],[-self.halfMetWid/1000.0,-self.halfMetWid/1000.0]), "Pin Not Legal!"
-                #assert basic.check_legal_coord([self.subShapeList[0][2]/1000.0-glovar.min_w['M1'], self.subShapeList[0][3]/1000.0-glovar.min_w['M1']]), "Pin Not Legal!"
                 if self.debug:
-                    #string = "%s 1 %d %d %d %d %d %d\n" % (net.name, self.subShapeList[0][0], self.subShapeList[0][1], self.subShapeList[0][2], self.subShapeList[0][3], (self.subShapeList[0][0]+265)/140, (self.subShapeList[0][1]+280)/140)
-                    string = "%s 1 %d %d %d %d %d %d\n" % (net.name, self.subShapeList[0][0], self.subShapeList[0][1], self.subShapeList[0][2], self.subShapeList[0][3], (self.subShapeList[0][0]+265)/140, (self.subShapeList[0][1]+280)/140)
+                    string = "%s %s 1 %d %d %d %d %d %d\n" % (net.name, str(pinNameIdx), self.subShapeList[0][0], self.subShapeList[0][1], self.subShapeList[0][2], self.subShapeList[0][3], 1, 0)
                     #string = '1 ' + self.rectToPoly(self.subShapeList[0])
                     outFile.write(string)   
+                pinNameIdx += 1
         for netIdx in range(ckt.numNets()): 
             net = ckt.net(netIdx)  
             grPinCount, isPsub, isNwell = self.netPinCount(ckt, net)    

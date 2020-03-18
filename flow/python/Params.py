@@ -21,8 +21,8 @@ class Params:
         self.simple_tech_file = "/home/local/eda09/keren/benchmarks/tech/techfile" # Input simple tech file
         self.techfile = "/home/local/eda09/keren/benchmarks/tech/techfile"
         self.lef = "/home/local/eda09/keren/benchmarks/tech/40vhv.lef"
-        self.vddNetNames = ["VDD", "vdd"]
-        self.vssNetNames = ["VSS", "GND", "vss", "gnd"]
+        self.vddNetNames = ["VDD", "vdd", "vdda"]
+        self.vssNetNames = ["VSS", "GND", "vss", "gnd", "vssa"]
         self.resultDir = None
 
     def printWelcome(self):

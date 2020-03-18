@@ -177,7 +177,7 @@ class Placer(object):
         else:
             return -1
 
-    def addPycellIoPinToNet(self, netIdx, offsetX, offsetY, pyCell):
+    def addPycellIoPinToNet(self, netIdx, offsetX, offsetY, pyCell, isPowerStripe=False):
         polygons = pyCell.get_polygons(True)
         layers = polygons.keys()
         routableShapes = []
@@ -200,10 +200,11 @@ class Placer(object):
                 else:
                     otherShapes.append([xLo, yLo, xHi, yHi])
                     otherPdkLayers.append(layer[0])
-        self.addIoPinToNet(netIdx, offsetX, offsetY, routableShapes, routablePdkLayers, otherShapes, otherPdkLayers, False)
+        self.addIoPinToNet(netIdx, offsetX, offsetY, routableShapes, routablePdkLayers, otherShapes, otherPdkLayers, addtocurrentlayout=False, isPowerStripe=isPowerStripe)
 
 
-    def addIoPinToNet(self, netIdx, offsetX, offsetY, routableShapes, routablePdkLayers, otherShapes, otherPdkLayers, addtocurrentlayout=False):
+    def addIoPinToNet(self, netIdx, offsetX, offsetY, routableShapes, routablePdkLayers, otherShapes, otherPdkLayers, addtocurrentlayout=False,
+            isPowerStripe=False):
         routableDbLayers = []
         routableIoLayers = []
         for pdkLayer in routablePdkLayers:
@@ -232,6 +233,8 @@ class Placer(object):
             mIoLayer = routableIoLayers[mIdx]
             dbLayer = routableDbLayers[mIdx]
             net.addIoPin(metal[0] + offsetX,  metal[1] + offsetY,  metal[2] + offsetX,  metal[3] + offsetY, mIoLayer)
+            if isPowerStripe:
+                net.markLastIoPowerStripe()
             if addtocurrentlayout:
                 self.ckt.layout().insertRect(dbLayer, metal[0] + offsetX,  metal[1] + offsetY,  metal[2] + offsetX,  metal[3] + offsetY)
             print("pin shape", metal[0] + offsetX,  metal[1] + offsetY,  metal[2] + offsetX,  metal[3] + offsetY)
@@ -281,10 +284,10 @@ class Placer(object):
             net = self.ckt.net(netIdx)
             if net.isVdd():
                 print("\n\n\n\n add vdd ")
-                self.addPycellIoPinToNet(netIdx, 0, 0, vddStripe)
+                self.addPycellIoPinToNet(netIdx, 0, 0, vddStripe, isPowerStripe=True)
             elif net.isVss():
                 print("\n\n\n\n add vss ")
-                self.addPycellIoPinToNet(netIdx, 0, 0, vssStripe)
+                self.addPycellIoPinToNet(netIdx, 0, 0, vssStripe, isPowerStripe=True)
 
 
     def placeConnection(self):
