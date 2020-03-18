@@ -241,6 +241,8 @@ class Placer(object):
             print("layer ", mIoLayer)
             iopinGraph.layout().insertRect(dbLayer,  metal[0],  metal[1],  metal[2],  metal[3])
             subiopinNet.addIoPin( metal[0],  metal[1],  metal[2],  metal[3], mIoLayer)
+            if isPowerStripe:
+                subiopinNet.markLastIoPowerStripe()
         for cIdx in range(len(otherShapes)):
             other = otherShapes[cIdx]
             oPdkLayer = otherPdkLayers[cIdx]
