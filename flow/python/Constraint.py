@@ -8,6 +8,7 @@ import subprocess
 import magicalFlow
 import S3DET
 import os
+import ConstGenPy
 
 class Constraint(object):
     def __init__(self, magicalDB):
@@ -55,6 +56,45 @@ class Constraint(object):
         return True
 
     def primarySym(self, cktIdx, dirName):
+        constGen = ConstGenPy.ConstGen()
+        ckt = self.dDB.subCkt(cktIdx)
+        phyDB = self.dDB.phyPropDB()
+        mosPinType = [ConstGenPy.D, ConstGenPy.G, ConstGenPy.S, ConstGenPy.B]
+        capPinType = [ConstGenPy.THIS, ConstGenPy.THAT, ConstGenPy.OTHER]
+        for net in range(ckt.numNets()):
+            idx = constGen.addNet(ckt.net(net).name, net)
+            assert net == idx, "Net index not matched!"
+        for nodeIdx in range(ckt.numNodes()):
+            instNode = ckt.node(nodeIdx)
+            assert not magicalFlow.isImplTypeDevice(instNode.implType), "Circuit %s contains non instance %s" %(ckt.name + instNode.name)
+            cirNode = self.dDB.subCkt(instNode.graphIdx)
+            instPIdx = cirNode.implIdx
+            if cirNode.implType == magicalFlow.ImplTypePCELL_Nch:
+                nch = phyDB.nch(instPIdx)
+                idx = constGen.addInst(instNode.name, ConstGenPy.Nch, nch.width, nch.length, nch.numFingers)
+                pinTypeArray = mosPinType
+            elif cirNode.implType == magicalFlow.ImplTypePCELL_Pch:
+                pch = phyDB.pch(instPIdx)
+                idx = constGen.addInst(instNode.name, ConstGenPy.Pch, pch.width, pch.length, pch.numFingers)
+                pinTypeArray = mosPinType
+            elif cirNode.implType == magicalFlow.ImplTypePCELL_Res:
+                res = phyDB.resistor(instPIdx)
+                idx = constGen.addInst(instNode.name, ConstGenPy.Res, res.wr, res.lr, res.segNum)
+                pinTypeArray = capPinType
+            elif cirNode.implType == magicalFlow.ImplTypePCELL_Cap:
+                cap = phyDB.capacitor(instPIdx)
+                idx = constGen.addInst(instNode.name, ConstGenPy.Res, cap.w, cap.lr, cap.numFingers)
+                pinTypeArray = capPinType
+            else:
+                assert False, "Device not supported %s" % instNode.name
+            for pin_idx in range(instNode.numPins()):
+                pinIdx = instNode.pinIdx(pin_idx)
+                netIdx = ckt.pin(pinIdx).netIdx
+                constGen.addInstPin(idx, netIdx, pinTypeArray[pin_idx])
+            assert nodeIdx == idx
+        constGen.dumpResult(dirName + ckt.name + '.sym')
+
+    def primarySymFile(self, cktIdx, dirName):
         """
         @brief Generating constraint files with .iniObj
         """
