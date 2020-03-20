@@ -51,6 +51,10 @@ class Placer(object):
             net = self.ckt.net(netIdx)
             if (net.isIo() and (not net.isPower())):
                 self.placer.markIoNet(netIdx)
+            if net.isVdd():
+                self.placer.markAsVddNet(netIdx)
+            if net.isVss():
+                self.placer.markAsVssNet(netIdx)
     def processPlacementOutput(self):
         #  Set Placement origin
         self.setPlaceOrigin()
