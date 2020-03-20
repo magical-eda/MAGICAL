@@ -186,8 +186,10 @@ class Placer(object):
         layers = polygons.keys()
         routableShapes = []
         routablePdkLayers = []
+        routableDatatype = []
         otherShapes = []
         otherPdkLayers = []
+        otherDataType = []
         for layer in layers:
             layerIdx = self.tDB.pdkLayerToDb(layer[0])
             datatype = layer[1]
@@ -200,15 +202,17 @@ class Placer(object):
                 if self.hardcodeConvertPdkLayerToIoLayer(layer[0]) != -1:
                     routableShapes.append([ xLo, yLo, xHi, yHi])
                     routablePdkLayers.append(layer[0])
+                    routableDatatype.append(datatype)
                     print("metal ", xLo, yLo, xHi, yHi, layer[0])
                 else:
                     otherShapes.append([xLo, yLo, xHi, yHi])
                     otherPdkLayers.append(layer[0])
-        self.addIoPinToNet(netIdx, offsetX, offsetY, routableShapes, routablePdkLayers, otherShapes, otherPdkLayers, addtocurrentlayout=False, isPowerStripe=isPowerStripe)
+                    otherDataType.append(datatype)
+        self.addIoPinToNet(netIdx, offsetX, offsetY, routableShapes, routablePdkLayers, otherShapes, otherPdkLayers, addtocurrentlayout=False, isPowerStripe=isPowerStripe, useDatatype=True, routableDatatype=routableDatatype, otherDataType=otherDataType)
 
 
     def addIoPinToNet(self, netIdx, offsetX, offsetY, routableShapes, routablePdkLayers, otherShapes, otherPdkLayers, addtocurrentlayout=False,
-            isPowerStripe=False):
+            isPowerStripe=False, useDatatype=False, routableDatatype=[], otherDataType=[]):
         routableDbLayers = []
         routableIoLayers = []
         for pdkLayer in routablePdkLayers:
@@ -240,10 +244,14 @@ class Placer(object):
             if isPowerStripe:
                 net.markLastIoPowerStripe()
             if addtocurrentlayout:
-                self.ckt.layout().insertRect(dbLayer, metal[0] + offsetX,  metal[1] + offsetY,  metal[2] + offsetX,  metal[3] + offsetY)
+                rectIdx = self.ckt.layout().insertRect(dbLayer, metal[0] + offsetX,  metal[1] + offsetY,  metal[2] + offsetX,  metal[3] + offsetY)
+                if useDatatype:
+                    self.ckt.layout().setRectDatatype(dbLayer, rectIdx, routableDatatype[mIdx])
             print("pin shape", metal[0] + offsetX,  metal[1] + offsetY,  metal[2] + offsetX,  metal[3] + offsetY)
             print("layer ", mIoLayer)
-            iopinGraph.layout().insertRect(dbLayer,  metal[0],  metal[1],  metal[2],  metal[3])
+            rectIdx = iopinGraph.layout().insertRect(dbLayer,  metal[0],  metal[1],  metal[2],  metal[3])
+            if useDatatype:
+                iopinGraph.layout().setRectDatatype(dbLayer, rectIdx, routableDatatype[mIdx])
             subiopinNet.addIoPin( metal[0],  metal[1],  metal[2],  metal[3], mIoLayer)
             if isPowerStripe:
                 subiopinNet.markLastIoPowerStripe()
@@ -251,9 +259,13 @@ class Placer(object):
             other = otherShapes[cIdx]
             oPdkLayer = otherPdkLayers[cIdx]
             dbLayer = otherDbLayers[cIdx]
-            iopinGraph.layout().insertRect(dbLayer, other[0], other[1], other[2], other[3])
+            rectIdx = iopinGraph.layout().insertRect(dbLayer, other[0], other[1], other[2], other[3])
+            if useDatatype:
+                rectIdx = iopinGraph.layout().setRectDatatype(dbLayer, rectIdx, otherDataType[cIdx])
             if addtocurrentlayout:
-                self.ckt.layout().insertRect(dbLayer, other[0] + offsetX,  other[1] + offsetY,  other[2] + offsetX,  other[3] + offsetY)
+                rectIdx = self.ckt.layout().insertRect(dbLayer, other[0] + offsetX,  other[1] + offsetY,  other[2] + offsetX,  other[3] + offsetY)
+                if useDatatype:
+                    self.ckt.layout().setRectDatatype(dbLayer, rectIdx, otherDataType[cIdx])
         zeroOrigin = [0, 0]
         self.upscaleBBox(self.gridStep, iopinGraph, zeroOrigin)
         iopinNode.graphIdx = iopinGraphIdx
