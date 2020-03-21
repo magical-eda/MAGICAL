@@ -24,8 +24,8 @@ class Placer(object):
         self.params = magicalDB.params
     def run(self):
         self.useIoPin = True
-        if (self.dDB.rootCktIdx() ==  self.cktIdx):
-            self.useIoPin = False
+        #if (self.dDB.rootCktIdx() ==  self.cktIdx):
+        #    self.useIoPin = False
         self.dumpInput()
         self.symAxis = self.placer.solve(self.gridStep)
         self.processPlacementOutput()
@@ -113,6 +113,7 @@ class Placer(object):
 
     def writeoutPlacementResult(self):
         # Write results to flow
+        self.initPowerPins()
         for nodeIdx in range(self.numIntervalNodes):
             cktNode = self.ckt.node(nodeIdx)
             subCkt = self.dDB.subCkt(cktNode.graphIdx)
@@ -180,6 +181,36 @@ class Placer(object):
             return 7
         else:
             return -1
+
+    def initPowerPins(self):
+        for netIdx in range(self.ckt.numNets()):
+            net = self.ckt.net(netIdx)
+            if net.isVdd():
+                self.initNetPinToPower(netIdx)
+            elif net.isVss():
+                self.initNetPinToPower(netIdx)
+
+    def initNetPinToPower(self, netIdx, topmet=7):
+        net = self.ckt.net(netIdx)
+        for pinId in range(net.numPins()):
+            pinIdx = net.pinIdx(pinId)
+            pin = self.ckt.pin(pinIdx)
+            conNode = pin.nodeIdx
+            conNet = pin.intNetIdx
+            conCkt = self.dDB.subCkt(self.ckt.node(conNode).graphIdx)
+            if not pin.valid:
+                continue
+            if pin.pinType == magicalFlow.PinType.PSUB:
+                assert net.isSub, net.name
+                if conCkt.implType != magicalFlow.ImplTypePCELL_Cap:
+                    continue
+            conLayer = conCkt.net(conNet).ioPinMetalLayer(0) 
+            ioshape = conCkt.net(conNet).ioPinShape(0)
+            if conLayer < topmet:
+                met_cell = basic.power_pin_init([ioshape.xLo/1000.0, ioshape.yLo/1000.0], [ioshape.xHi/1000.0, ioshape.yHi/1000.0], conLayer+1, topmet)
+                self.addPycell(conCkt.layout(), met_cell)
+                conCkt.net(conNet).ioLayer = topmet
+
 
     def addPycellIoPinToNet(self, netIdx, offsetX, offsetY, pyCell, isPowerStripe=False):
         polygons = pyCell.get_polygons(True)
