@@ -190,7 +190,7 @@ class Placer(object):
             elif net.isVss():
                 self.initNetPinToPower(netIdx)
 
-    def initNetPinToPower(self, netIdx, topmet=7):
+    def initNetPinToPower(self, netIdx, topmet=6):
         net = self.ckt.net(netIdx)
         for pinId in range(net.numPins()):
             pinIdx = net.pinIdx(pinId)
@@ -325,9 +325,9 @@ class Placer(object):
         vssOffset[1] = ( float(self.origin[1] - 36 * self.gridStep + self.gridStep / 2)) / 1000.0 
         print("width, ", fWidth, "height", fHeight, "vdd offset", vddOffset[0], vddOffset[1])
         print("width, ", fWidth, "height", fHeight, "vss offset", vssOffset[0], vssOffset[1])
-        vddStripe = basic.power_strip(fWidth, fHeight, vddOffset, lay=[7, 8])
+        vddStripe = basic.power_strip(fWidth, fHeight, vddOffset, lay=[5, 6])
         print("generated vdd")
-        vssStripe = basic.power_strip(fWidth, fHeight, vssOffset, lay=[7,8])
+        vssStripe = basic.power_strip(fWidth, fHeight, vssOffset, lay=[5, 6])
         print("generated vss")
         for netIdx in range(self.ckt.numNets()):
             net = self.ckt.net(netIdx)
