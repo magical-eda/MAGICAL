@@ -24,8 +24,8 @@ class Placer(object):
         self.params = magicalDB.params
     def run(self):
         self.useIoPin = True
-        #if (self.dDB.rootCktIdx() ==  self.cktIdx):
-        #    self.useIoPin = False
+        if (self.dDB.rootCktIdx() ==  self.cktIdx):
+            self.useIoPin = False
         self.dumpInput()
         self.symAxis = self.placer.solve(self.gridStep)
         self.processPlacementOutput()
