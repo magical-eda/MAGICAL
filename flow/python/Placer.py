@@ -325,9 +325,9 @@ class Placer(object):
         vssOffset[1] = ( float(self.origin[1] - 36 * self.gridStep + self.gridStep / 2)) / 1000.0 
         print("width, ", fWidth, "height", fHeight, "vdd offset", vddOffset[0], vddOffset[1])
         print("width, ", fWidth, "height", fHeight, "vss offset", vssOffset[0], vssOffset[1])
-        vddStripe = basic.power_strip(fWidth, fHeight, vddOffset, lay=[5, 6])
+        vddStripe = basic.power_strip(fWidth, fHeight, vddOffset, lay=[6])
         print("generated vdd")
-        vssStripe = basic.power_strip(fWidth, fHeight, vssOffset, lay=[5, 6])
+        vssStripe = basic.power_strip(fWidth, fHeight, vssOffset, lay=[6])
         print("generated vss")
         for netIdx in range(self.ckt.numNets()):
             net = self.ckt.net(netIdx)
