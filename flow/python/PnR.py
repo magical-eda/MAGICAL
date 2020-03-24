@@ -222,7 +222,10 @@ class PnR(object):
         for netIdx in range(ckt.numNets()): 
             net = ckt.net(netIdx)  
             grPinCount, isPsub, isNwell = self.netPinCount(ckt, net)    
-            router.addNet(net.name, 200, 1, net.isPower())  
+            width = 200
+            if net.isPower():
+                width = 1000
+            router.addNet(net.name, width, 1, net.isPower())  
             #print net.name     
             for pinId in range(net.numPins()):
                 if pinId in pinName[netIdx]:

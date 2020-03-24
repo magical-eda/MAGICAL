@@ -323,6 +323,9 @@ class Placer(object):
         vssOffset = [0.0, 0.0]
         vssOffset[0] = ( self.origin[0] - self.gridStep    ) / 1000.0
         vssOffset[1] = ( float(self.origin[1] - 36 * self.gridStep + self.gridStep / 2)) / 1000.0 
+        # update width to ensure symmetry
+        halfWidth = float(self.symAxis) / 1000.0 - vddOffset[0]
+        fWidth =  halfWidth *2 
         print("width, ", fWidth, "height", fHeight, "vdd offset", vddOffset[0], vddOffset[1])
         print("width, ", fWidth, "height", fHeight, "vss offset", vssOffset[0], vssOffset[1])
         vddStripe = basic.power_strip(fWidth, fHeight, vddOffset, lay=[6])
