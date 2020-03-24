@@ -92,7 +92,7 @@ class Constraint(object):
                 netIdx = ckt.pin(pinIdx).netIdx
                 constGen.addInstPin(idx, netIdx, pinTypeArray[pin_idx])
             assert nodeIdx == idx
-        constGen.dumpResult(dirName + ckt.name + '.sym')
+        constGen.dumpResult(dirName + ckt.name)
 
     def primarySymFile(self, cktIdx, dirName):
         """
