@@ -152,7 +152,8 @@ class Placer(object):
         # Power stripes
         if self.useIoPin:
             existingNodes = self.ckt.numNodes()
-            self.addPowerStripe(cktBoundaryBox)
+            cktBBoxAfterGuardRing = self.ckt.layout().boundary()
+            self.addPowerStripe(cktBoundaryBox, cktBBoxAfterGuardRing)
             for nodeIdx in range(existingNodes, self.ckt.numNodes()):
                 cktNode = self.ckt.node(nodeIdx)
                 subCkt = self.dDB.subCkt(cktNode.graphIdx)
@@ -306,7 +307,7 @@ class Placer(object):
         iopinPin.intNetIdx = 0
         iopinPin.nodeIdx = iopinNodeIdx
         iopinPin.netIdx = netIdx
-    def addPowerStripe(self, boundary):
+    def addPowerStripe(self, boundary, boundaryWithGuardRing):
         # Use 80 nm spacing.
         width = int(boundary.xLen() + 2 * self.gridStep)
         width = width + (self.gridStep - (width % self.gridStep))
@@ -323,7 +324,10 @@ class Placer(object):
         vddOffset[1] = ( float(boundary.yHi +  4 * self.gridStep)) / 1000.0
         vssOffset = [0.0, 0.0]
         vssOffset[0] = ( self.origin[0] - self.gridStep    ) / 1000.0
-        vssOffset[1] = ( float(self.origin[1] - 36 * self.gridStep + self.gridStep / 2)) / 1000.0 
+        offsetLo = self.origin[1] - 36 * self.gridStep + self.gridStep / 2
+        while offsetLo > boundaryWithGuardRing.yLo - self.gridStep - height:
+            offsetLo -= self.gridStep
+        vssOffset[1] = ( float(offsetLo)) / 1000.0 
         # update width to ensure symmetry
         halfWidth = float(self.symAxis) / 1000.0 - vddOffset[0]
         fWidth =  halfWidth *2 
