@@ -23,6 +23,7 @@ class Params:
         self.lef = "/home/local/eda09/keren/benchmarks/tech/40.lef"
         self.vddNetNames = ["VDD", "vdd", "vdda", "vddd"]
         self.vssNetNames = ["VSS", "GND", "vss", "gnd", "vssa"]
+        self.stdCells = ['SR_Latch_LVT','NR2D8BWP_LVT','BUFFD4BWP_LVT','DFCND4BWP_LVT','INVD4BWP_LVT','DFCNQD2BWP_LVT']
         self.resultDir = None
         self.powerLayer = 6 # m6
 
