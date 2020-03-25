@@ -24,6 +24,7 @@ class Params:
         self.vddNetNames = ["VDD", "vdd", "vdda", "vddd"]
         self.vssNetNames = ["VSS", "GND", "vss", "gnd", "vssa"]
         self.resultDir = None
+        self.powerLayer = 6 # m6
 
     def printWelcome(self):
         """

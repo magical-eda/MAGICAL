@@ -28,6 +28,7 @@ class Placer(object):
             self.useIoPin = False
         self.dumpInput()
         self.symAxis = self.placer.solve(self.gridStep)
+        print("placement finished: ", self.ckt.name)
         self.processPlacementOutput()
     def dumpInput(self):
         self.placer.readTechSimpleFile(self.params.simple_tech_file)
@@ -328,9 +329,9 @@ class Placer(object):
         fWidth =  halfWidth *2 
         print("width, ", fWidth, "height", fHeight, "vdd offset", vddOffset[0], vddOffset[1])
         print("width, ", fWidth, "height", fHeight, "vss offset", vssOffset[0], vssOffset[1])
-        vddStripe = basic.power_strip(fWidth, fHeight, vddOffset, lay=[6])
+        vddStripe = basic.power_strip(fWidth, fHeight, vddOffset, lay=[self.params.powerLayer])
         print("generated vdd")
-        vssStripe = basic.power_strip(fWidth, fHeight, vssOffset, lay=[6])
+        vssStripe = basic.power_strip(fWidth, fHeight, vssOffset, lay=[self.params.powerLayer])
         print("generated vss")
         for netIdx in range(self.ckt.numNets()):
             net = self.ckt.net(netIdx)
