@@ -27,7 +27,7 @@ class Flow(object):
         """
         self.resultName = self.mDB.params.resultDir
         topCktIdx = self.mDB.topCktIdx() # The index of the topckt
-        self.generateConstraints()
+        #self.generateConstraints()
         self.implCktLayout(topCktIdx)
         return True
 
@@ -97,5 +97,6 @@ class Flow(object):
             self.implCktLayout(cktNode.graphIdx) # Recursively implement all the children
             ckt = dDB.subCkt(cktIdx) # just to make sure the reference is not messed up
         # After all the children being implemented. P&R at this circuit
+        self.symDict = self.constraint.genConstraint(cktIdx, self.resultName)
         self.setup(cktIdx)
         PnR.PnR(self.mDB).implLayout(cktIdx, self.resultName)
