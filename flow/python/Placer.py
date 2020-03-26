@@ -22,6 +22,10 @@ class Placer(object):
         self.halfMetWid = halfMetWid
         self.subShapeList = list()
         self.params = magicalDB.params
+        self.nodeToCellIdx = []
+        self.placeParams()
+    def placeParams(self):
+        self.deviceProximityTypes = [magicalFlow.ImplTypePCELL_Nch, magicalFlow.ImplTypePCELL_Pch]
     def run(self):
         self.useIoPin = True
         if (self.dDB.rootCktIdx() ==  self.cktIdx):
@@ -41,6 +45,27 @@ class Placer(object):
             self.tempCell = gdspy.Cell("FLOORPLAN")
         self.configureIoPinParameters()
         self.placer.readSymNetFile(self.dirname + self.ckt.name + '.symnet') # FIXME: use in memory interface
+        self.feedDeviceProximity()
+    def feedDeviceProximity(self):
+        for idx in range(len(self.deviceProximityTypes)):
+            deviceType = self.deviceProximityTypes[idx]
+            cells = []
+            for nodeIdx in range(self.ckt.numNodes()):
+                # Find the correct node from subgraph
+                node = self.ckt.node(nodeIdx)
+                if node.isLeaf():
+                    continue
+                subCktIdx = node.graphIdx
+                subCkt = self.dDB.subCkt(subCktIdx)
+                placerCellIdx = self.nodeToCellIdx[nodeIdx]
+                if subCkt.implType == deviceType:
+                    cells.append(placerCellIdx)
+            if len(cells) > 1:
+                proxGrpIdx = self.placer.allocateProximityGroup()
+                for placerCellIdx in cells:
+                    self.placer.addCellToProximityGroup(placerCellIdx, proxGrpIdx)
+
+
     def configureIoPinParameters(self):
         if self.useIoPin == False:
             self.placer.closeVirtualPinAssignment()
@@ -395,6 +420,7 @@ class Placer(object):
             outFile.write("%d\n" % self.ckt.numNodes())
         for nodeIdx in range(self.ckt.numNodes()):
             cellIdx = self.placer.allocateCell()
+            self.nodeToCellIdx.append(cellIdx)
             assert nodeIdx == cellIdx, "placeParsePin, nodeIdx != ckdIdx"
             node = self.ckt.node(nodeIdx)
             self.placer.setCellName(nodeIdx, node.name)

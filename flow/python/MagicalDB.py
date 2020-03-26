@@ -73,3 +73,18 @@ class MagicalDB(object):
         @brief Get the index of circuit graph of the hierarchy
         """
         return self.designDB.db.rootCktIdx()
+    """
+    utility
+    """
+    def implTypeStr(self, implType):
+        if implType == magicalFlow.ImplTypeUNSET:
+            return "UNSET"
+        if implType == magicalFlow.ImplTypePCELL_Cap:
+            return "PCELLL_CAP"
+        if implType ==  magicalFlow.ImplTypePCELL_Res:
+            return "PCELL_RES"
+        if implType == magicalFlow.ImplTypePCELL_Nch:
+            return "PCELL_NCH"
+        if implType == magicalFlow.ImplTypePCELL_Pch:
+            return "PCELL_PCH"
+        return "UNKNOWN"
