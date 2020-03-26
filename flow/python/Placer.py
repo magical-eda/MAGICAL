@@ -28,6 +28,7 @@ class Placer(object):
         self.deviceProximityTypes = [magicalFlow.ImplTypePCELL_Nch, magicalFlow.ImplTypePCELL_Pch]
     def run(self):
         self.useIoPin = True
+        self.usePowerStripe = True
         if (self.dDB.rootCktIdx() ==  self.cktIdx):
             self.useIoPin = False
         self.dumpInput()
@@ -175,7 +176,7 @@ class Placer(object):
             bBox = self.ckt.layout().boundary()
             self.subShape(subPin)
         # Power stripes
-        if self.useIoPin:
+        if self.usePowerStripe:
             existingNodes = self.ckt.numNodes()
             cktBBoxAfterGuardRing = self.ckt.layout().boundary()
             self.addPowerStripe(cktBoundaryBox, cktBBoxAfterGuardRing)
