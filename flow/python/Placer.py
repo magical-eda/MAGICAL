@@ -68,15 +68,15 @@ class Placer(object):
 
 
     def configureIoPinParameters(self):
-        if self.useIoPin == False:
-            self.placer.closeVirtualPinAssignment()
-            return
+        #if self.useIoPin == False:
+        #    self.placer.closeVirtualPinAssignment()
+        #    return
         self.placer.openVirtualPinAssignment()
-        self.placer.setIoPinBoundaryExtension(3 * 1 * self.gridStep)
-        self.placer.setIoPinInterval(3 * 2 * self.gridStep)
+        self.placer.setIoPinBoundaryExtension(13 * 1 * self.gridStep)
+        self.placer.setIoPinInterval(5 * 2 * self.gridStep)
         for netIdx in range(self.ckt.numNets()):
             net = self.ckt.net(netIdx)
-            if (net.isIo() and (not net.isPower())):
+            if (net.isIo() and (not net.isPower()) and self.useIoPin):
                 self.placer.markIoNet(netIdx)
             if net.isVdd():
                 self.placer.markAsVddNet(netIdx)
@@ -351,7 +351,7 @@ class Placer(object):
         vssOffset = [0.0, 0.0]
         vssOffset[0] = ( self.origin[0] - self.gridStep    ) / 1000.0
         offsetLo = self.origin[1] - 36 * self.gridStep + self.gridStep / 2
-        while offsetLo > boundaryWithGuardRing.yLo - self.gridStep - height:
+        while offsetLo > boundaryWithGuardRing.yLo - self.gridStep * 5 - height:
             offsetLo -= self.gridStep
         vssOffset[1] = ( float(offsetLo)) / 1000.0 
         # update width to ensure symmetry

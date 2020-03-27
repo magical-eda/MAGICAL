@@ -481,7 +481,6 @@ class Netlist_parser(object):
                             self.db.subCkt(ckt_idx).pin(pin_idx).pinType = magicalFlow.PinType.NWELL
                     self.db.subCkt(ckt_idx).node(node_idx).graphIdx = subckt_idx
                     if not inst.pins[i]:
-                        #print inst.pins, i, inst.name, self.db.subCkt(subckt_idx).pin(sub_pin_idx).valid
                         self.db.subCkt(subckt_idx).pin(sub_pin_idx).valid = False
                         self.db.subCkt(ckt_idx).pin(pin_idx).valid = False
                     pin_idx += 1

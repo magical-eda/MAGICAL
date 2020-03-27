@@ -34,6 +34,10 @@ class PnR(object):
         @brief PnR a circuit in the designDB
         @param the index of subckt
         """
+        if self.rootCktIdx == cktIdx:
+            self.isTopLevel = True
+        else:
+            self.isTopLevel = False
         print("PnR: working on ", self.dDB.subCkt(cktIdx).name)
         self.runPlace(cktIdx, dirname)
         self.runRoute(cktIdx, dirname)
@@ -50,6 +54,12 @@ class PnR(object):
     def runRoute(self, cktIdx, dirname):
         ckt = self.dDB.subCkt(cktIdx)
         self.findOrigin(cktIdx)
+        self.routerNets = []
+        for netIdx in range(ckt.numNets()):
+            net = ckt.net(netIdx)
+            #if net.isPower() and self.isTopLevel:
+            #    continue
+            self.routerNets.append(netIdx)
         router = anaroutePy.AnaroutePy()
         router.setCircuitName(ckt.name)
         placeFile = dirname + ckt.name + '.place.gds'
@@ -67,8 +77,8 @@ class PnR(object):
         print("routing grid off set", 2*(self.origin[0]), 2*(self.origin[1]))
         #print self.origin[0]+self.halfMetWid, self.origin[1]+self.halfMetWid, "OFFSET"
         #router.parseSymNet(dirname+ckt.name+'.symnet')
-        if cktIdx == self.rootCktIdx:
-            for netIdx in range(ckt.numNets()):
+        if self.isTopLevel:
+            for netIdx in self.routerNets:
                 net = ckt.net(netIdx)
                 if net.isIo():
                     print net.name, "added to IO port"
@@ -144,7 +154,7 @@ class PnR(object):
         """
         ckt = self.dDB.subCkt(cktIdx)
         with open(fileName, 'w') as of:
-            for netIdx in range(ckt.numNets()):
+            for netIdx in self.routerNets:
                 net = ckt.net(netIdx)
                 if net.isIo():
                     of.write("%s\n"% net.name)
@@ -158,14 +168,13 @@ class PnR(object):
             outFile.write('gridStep %d\n' % (self.gridStep))
             outFile.write('Offset %d %d\n' % (self.origin[0],self.origin[1]))
             outFile.write('symAxis %d\n' % (self.symAxis))
-        for netIdx in range(ckt.numNets()):
+        for netIdx in self.routerNets:
             net = ckt.net(netIdx)
             grPinCount, isPsub, isNwell = self.netPinCount(ckt, net)
             pinName[netIdx] = dict()
             netIsPower = 0
             if net.isPower():
                 netIsPower = 1
-            print("net ", net.name)
             if self.debug:
                 pass
                 #outFile.write(net.name + ' ' + str(netIdx) + ' ' + str(grPinCount) + ' 1\n')
@@ -188,8 +197,8 @@ class PnR(object):
                         continue # do not give router lower level power stripe pin
                     iopinshapeIsPowerStripe = 1
                 router.addPin(str(pinNameIdx), net.isPower(), iopinshapeIsPowerStripe)
-                print("add pin ", pinNameIdx)
-                # Router starts as 0 with M1
+                print("add pin ", pinNameIdx, "net", net.name, "node", ckt.node(conNode).name)
+                # Router starts as 0 with M
                 for iopinidx in range(conCkt.net(conNet).numIoPins()):
                     conLayer = conCkt.net(conNet).ioPinMetalLayer(iopinidx) - 1
                     ioshape = conCkt.net(conNet).ioPinShape(iopinidx)
@@ -222,18 +231,16 @@ class PnR(object):
                     #string = '1 ' + self.rectToPoly(self.subShapeList[0])
                     outFile.write(string)   
                 pinNameIdx += 1
-        for netIdx in range(ckt.numNets()): 
+        for netIdx in self.routerNets: 
             net = ckt.net(netIdx)  
             grPinCount, isPsub, isNwell = self.netPinCount(ckt, net)    
             width = 200
             if net.isPower():
                 width = 1000
-            router.addNet(net.name, width, 1, net.isPower())  
-            #print net.name     
+            routerNetIdx = router.addNet(net.name, width, 1, net.isPower())  
             for pinId in range(net.numPins()):
                 if pinId in pinName[netIdx]:
-                    #print pinName[netIdx][pinId]
-                    router.addPin2Net(pinName[netIdx][pinId], netIdx)
+                    router.addPin2Net(pinName[netIdx][pinId], routerNetIdx)
             if isPsub:
                 #print "sub"
                 router.addPin2Net(pinName[netIdx]['sub'], netIdx)                
