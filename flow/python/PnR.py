@@ -83,7 +83,10 @@ class PnR(object):
                 if net.isIo():
                     print net.name, "added to IO port"
                     router.addIOPort(net.name)
-        router.solve(False)
+        routerPass = router.solve(False)
+        if not routerPass:
+            print("Routing failed! ckt ", ckt.name)
+            assert(routerPass)
         router.writeLayoutGds(placeFile, dirname+ckt.name+'.route.gds', True)
         router.writeDumb(placeFile, dirname+ckt.name+'.ioPin') 
         # Read results to flow

@@ -97,6 +97,7 @@ class Flow(object):
             self.implCktLayout(cktNode.graphIdx) # Recursively implement all the children
             ckt = dDB.subCkt(cktIdx) # just to make sure the reference is not messed up
         # After all the children being implemented. P&R at this circuit
+        ckt = dDB.subCkt(cktIdx) #magicalFlow.CktGraph
         self.symDict = self.constraint.genConstraint(cktIdx, self.resultName)
         self.setup(cktIdx)
         PnR.PnR(self.mDB).implLayout(cktIdx, self.resultName)
