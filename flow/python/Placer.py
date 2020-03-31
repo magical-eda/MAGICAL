@@ -2,6 +2,7 @@ import magicalFlow
 import IdeaPlaceExPy
 import anaroutePy
 import sys
+import os.path
 sys.path.append('/home/local/eda10/jayliu/projects/develop/magical/magical/constraint_generation/python')
 import device_generation.basic as basic
 import gdspy
@@ -40,6 +41,7 @@ class Placer(object):
         self.placeParsePin()
         self.placeConnection()
         self.placer.readSymFile(self.dirname + self.ckt.name + '.sym') # FIXME: use in memory interface
+        self.placeParseSigpath()
         self.placeParseBoundary()
         if self.debug:
             gdspy.current_library = gdspy.GdsLibrary()
@@ -47,6 +49,10 @@ class Placer(object):
         self.configureIoPinParameters()
         self.placer.readSymNetFile(self.dirname + self.ckt.name + '.symnet') # FIXME: use in memory interface
         self.feedDeviceProximity()
+    def placeParseSigpath(self):
+        filename = self.dirname + self.ckt.name + '.sigpath' #FIXME: use in memeory interface
+        if os.path.isfile(filename):
+            self.placer.readSigpathFile(filename)
     def feedDeviceProximity(self):
         for idx in range(len(self.deviceProximityTypes)):
             deviceType = self.deviceProximityTypes[idx]
@@ -437,6 +443,8 @@ class Placer(object):
                     outFile.write("-1\n")
                     continue
                 pinIdx = self.placer.allocatePin(nodeIdx)
+                self.placer.setPinName(pinIdx, net.name)
+                print("add pin", net.name, "to cell", node.name)
                 assert pinIdx == self.placer.pinIdx(nodeIdx, netIdx), "placeParsePin, pin insertion error"
                 self.placer.addPinShape(pinIdx, shape.xLo, shape.yLo, shape.xHi, shape.yHi)
                 if self.debug:
