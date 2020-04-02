@@ -200,7 +200,6 @@ class PnR(object):
                         continue # do not give router lower level power stripe pin
                     iopinshapeIsPowerStripe = 1
                 router.addPin(str(pinNameIdx), net.isPower(), iopinshapeIsPowerStripe)
-                print("add pin ", pinNameIdx, "net", net.name, "node", ckt.node(conNode).name)
                 # Router starts as 0 with M
                 for iopinidx in range(conCkt.net(conNet).numIoPins()):
                     conLayer = conCkt.net(conNet).ioPinMetalLayer(iopinidx) - 1
