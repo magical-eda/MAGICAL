@@ -23,6 +23,7 @@ class MagicalDB(object):
 
     def postProcessing(self):
         self.markPowerNets()
+        self.computeCurrentFlow()
 
     def parse_simple_techfile(self, params):
         magicalFlow.parseSimpleTechFile( params, self.techDB)
@@ -42,6 +43,24 @@ class MagicalDB(object):
     def read_hspice_netlist(self, sp_netlist):
         self.designDB.read_hspice_netlist(sp_netlist)
 
+    """
+    Current & Signal Flow
+    """
+    def computeCurrentFlow(self):
+        csflow = magicalFlow.CSFlow(self.designDB.db)
+        for cktIdx in range(self.designDB.db.numCkts()):
+            ckt = self.designDB.db.subCkt(cktIdx)
+            if ckt.implType == magicalFlow.ImplTypeUNSET:
+                csflow.computeCurrentFlow(ckt)
+                with open(self.params.resultDir + ckt.name + '.sigpath','w') as f:
+                    pinNamePaths = csflow.currentPinPaths();
+                    cellNamePaths = csflow.currentCellPaths();
+                    assert len(pinNamePaths) == len(cellNamePaths)
+                    for i in range(len(pinNamePaths)):
+                        assert len(pinNamePaths[i]) == len(cellNamePaths[i])
+                        for j in range(len(pinNamePaths[i])):
+                            f.write(cellNamePaths[i][j] + " " + pinNamePaths[i][j] + " ")
+                        f.write("\n")
     """
     Post-processing
     """
