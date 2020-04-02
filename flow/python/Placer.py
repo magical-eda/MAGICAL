@@ -78,7 +78,7 @@ class Placer(object):
         #    self.placer.closeVirtualPinAssignment()
         #    return
         self.placer.openVirtualPinAssignment()
-        self.placer.setIoPinBoundaryExtension(13 * 1 * self.gridStep)
+        self.placer.setIoPinBoundaryExtension(14 * 1 * self.gridStep)
         self.placer.setIoPinInterval(5 * 2 * self.gridStep)
         for netIdx in range(self.ckt.numNets()):
             net = self.ckt.net(netIdx)
