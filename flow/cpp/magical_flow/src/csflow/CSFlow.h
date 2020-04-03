@@ -37,7 +37,7 @@ class CSFlow {
   
   void currentDFS(CktGraph& ckt, const IndexType sPinIdx, const IndexType tPinIdx, std::vector<unsigned char>& visited, std::vector<std::string>& pinNames, std::vector<std::string>& cellNames);
 
-  ImplType getCktNodeImplType(const CktNode& node);
+  ImplType    getCktNodeImplType(const CktNode& node);
 
 }; 
 

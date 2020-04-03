@@ -51,9 +51,11 @@ void CSFlow::currentDFS(CktGraph& ckt, const IndexType sPinIdx, const IndexType 
   Pin& pin = ckt.pin(sPinIdx);
   Net& net = ckt.net(pin.netIdx());
   CktNode& node = ckt.node(pin.nodeIdx());
+
+  const auto &pinName = _db.subCkt(node.subgraphIdx()).net(pin.intNetIdx()).name();
   
   visited[sPinIdx] = 1;
-  pinNames.emplace_back(net.name());
+  pinNames.emplace_back(pinName);
   cellNames.emplace_back(node.name());
 
   if (sPinIdx == tPinIdx) {
