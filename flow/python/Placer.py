@@ -390,6 +390,8 @@ class Placer(object):
         for netIdx in range(self.ckt.numNets()):
             net = self.ckt.net(netIdx)
             dbNetIdx = self.placer.allocateNet()
+            if net.isPower():
+                self.placer.setNetWgt(dbNetIdx, 0)
             self.placer.setNetName(dbNetIdx, net.name) # FIXME: the only purpose is to use parse symnet file. Which ideally can be avoided
             assert netIdx == dbNetIdx, "placeConnection, netIdx == dbNetIdx"
             if self.debug:
