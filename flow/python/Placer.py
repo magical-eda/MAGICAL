@@ -35,6 +35,7 @@ class Placer(object):
             self.useIoPin = False
             self.isTopLevel = True
         self.dumpInput()
+        self.placer.numThreads(18) #FIXME
         self.symAxis = self.placer.solve(self.gridStep)
         print("placement finished: ", self.ckt.name)
         self.processPlacementOutput()

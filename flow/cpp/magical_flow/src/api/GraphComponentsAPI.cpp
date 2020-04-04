@@ -64,6 +64,10 @@ void initGraphComponentsAPI(py::module &m)
         .def("revokeVddFlag", &PROJECT_NAMESPACE::Net::revokeVddFlag, "Remove the vdd flag from this net")
         .def("markVssFlag", &PROJECT_NAMESPACE::Net::markVssFlag, "Mark this net as vss net")
         .def("revokeVssFlag", &PROJECT_NAMESPACE::Net::revokeVssFlag, "Remove the vss flag from this net")
+        .def("isDigital", &PROJECT_NAMESPACE::Net::isDigital, "Get whether this net is a digital net")
+        .def("isAnalog", &PROJECT_NAMESPACE::Net::isAnalog, "Get whether this net is a analog net")
+        .def("markDigitalFlag", &PROJECT_NAMESPACE::Net::markDigitalFlag, "Mark this net as digital net")
+        .def("markAnalogFlag", &PROJECT_NAMESPACE::Net::markAnalogFlag, "Mark this net as analog net")
         ;
 
     py::class_<PROJECT_NAMESPACE::Pin>(m, "Pin")

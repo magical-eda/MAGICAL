@@ -12,6 +12,7 @@ class MagicalDB(object):
     def __init__(self, params):
         self.designDB = DesignDB.DesignDB()
         self.params = params
+        self.digitalNetNames = ["clk"]
         self.techDB = magicalFlow.TechDB()
 
     def parse(self):
@@ -23,6 +24,7 @@ class MagicalDB(object):
 
     def postProcessing(self):
         self.markPowerNets()
+        self.markDigitalNets()
 
     def parse_simple_techfile(self, params):
         magicalFlow.parseSimpleTechFile( params, self.techDB)
@@ -64,6 +66,17 @@ class MagicalDB(object):
                     net.markVddFlag()
                 if net.name in vssNetNames:
                     net.markVssFlag()
+    def markDigitalNets(self):
+        for cktIdx in range(self.designDB.db.numCkts()):
+            ckt = self.designDB.db.subCkt(cktIdx)
+            # Using external naming-based labeling
+            digitalNetNames = self.params.digitalNetNames
+            for netIdx in range(ckt.numNets()):
+                net = ckt.net(netIdx)
+                if net.name in digitalNetNames:
+                    net.markDigitalFlag()
+                else:
+                    net.markAnalogFlag()
 
     """
     Some wrapper

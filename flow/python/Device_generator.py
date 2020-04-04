@@ -6,8 +6,8 @@
 
 import sys, os
 #sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/constraint_generation/python/')
-#sys.path.append('/home/local/eda10/keren/projects/magical/constraint_generation/python')
-sys.path.append('/home/local/eda10/jayliu/projects/develop/magical/magical/constraint_generation/python')
+sys.path.append('/home/local/eda09/keren/draftCodes')
+#sys.path.append('/home/local/eda10/jayliu/projects/develop/magical/magical/constraint_generation/python')
 from device_generation.Mosfet import Mosfet
 from device_generation.Capacitor import Capacitor
 from device_generation.Resistor import Resistor

@@ -54,13 +54,13 @@ class PnR(object):
 
     def runRoute(self, cktIdx, dirname):
         ckt = self.dDB.subCkt(cktIdx)
-        self.findOrigin(cktIdx)
         self.routerNets = []
         for netIdx in range(ckt.numNets()):
             net = ckt.net(netIdx)
             #if net.isPower() and self.isTopLevel:
             #    continue
             self.routerNets.append(netIdx)
+        self.findOrigin(cktIdx)
         router = anaroutePy.AnaroutePy()
         router.setCircuitName(ckt.name)
         placeFile = dirname + ckt.name + '.place.gds'
@@ -113,45 +113,48 @@ class PnR(object):
                                   origin[0] + xHiLen,
                                   origin[1] + yHiLen)
 
-    def findOrigin(self, cktIdx):
+    def iterateNetPinShapes(self, cktIdx, netIdx, callback):
         ckt = self.dDB.subCkt(cktIdx)
-        pinName = dict()
-        pinNameIdx = 0
-        for netIdx in range(ckt.numNets()):
-            net = ckt.net(netIdx)
-            grPinCount, isPsub, isNwell = self.netPinCount(ckt, net)
-            pinName[netIdx] = dict()
-            for pinId in range(net.numPins()):
-                pinIdx = net.pinIdx(pinId)
-                pin = ckt.pin(pinIdx)
-                conNode = pin.nodeIdx
-                conNet = pin.intNetIdx
-                conCkt = self.dDB.subCkt(ckt.node(conNode).graphIdx)
-                if not pin.valid:
+        net = ckt.net(netIdx)
+        grPinCount, isPsub, isNwell = self.netPinCount(ckt, net)
+        for pinId in range(net.numPins()):
+            pinIdx = net.pinIdx(pinId)
+            pin = ckt.pin(pinIdx)
+            conNode = pin.nodeIdx
+            conNet = pin.intNetIdx
+            conCkt = self.dDB.subCkt(ckt.node(conNode).graphIdx)
+            if not pin.valid:
+                continue
+            if pin.pinType == magicalFlow.PinType.PSUB:
+                assert net.isSub, net.name
+                if conCkt.implType != magicalFlow.ImplTypePCELL_Cap:
                     continue
-                if pin.pinType == magicalFlow.PinType.PSUB:
-                    assert net.isSub, net.name
-                    if conCkt.implType != magicalFlow.ImplTypePCELL_Cap:
-                        continue
-                # Router starts as 0 with M1
-                for iopinidx in range(conCkt.net(conNet).numIoPins()):
-                    conLayer = conCkt.net(conNet).ioPinMetalLayer(iopinidx) - 1
-                    ioshape = conCkt.net(conNet).ioPinShape(iopinidx)
-                    conShape = self.adjustIoShape(ioshape, ckt.node(conNode).offset(), conCkt.layout().boundary(), ckt.node(conNode).flipVertFlag)
-                    # GDS and LEF unit mismatch, multiply by 2
-                    assert conShape[0] <= conShape[2]
-                    assert conShape[1] <= conShape[3]
-                    #print pinName[netIdx][pinId], conShape[0], conShape[1]
-                    self.updateOriginPin(conShape)
-            if isPsub:
-                assert self.cktNeedSub(cktIdx)
+            # Router starts as 0 with M1
+            for iopinidx in range(conCkt.net(conNet).numIoPins()):
+                conLayer = conCkt.net(conNet).ioPinMetalLayer(iopinidx) - 1
+                ioshape = conCkt.net(conNet).ioPinShape(iopinidx)
+                conShape = self.adjustIoShape(ioshape, ckt.node(conNode).offset(), conCkt.layout().boundary(), ckt.node(conNode).flipVertFlag)
                 # GDS and LEF unit mismatch, multiply by 2
-                for i in range(len(self.subShapeList)):
-                    if i > 0:
-                        continue
-                    assert self.subShapeList[i][0] <= self.subShapeList[i][2]
-                    assert self.subShapeList[i][1] <= self.subShapeList[i][3]
-                    self.updateOriginGuardRing(self.subShapeList[0])
+                assert conShape[0] <= conShape[2]
+                assert conShape[1] <= conShape[3]
+                callback(conShape, False)
+        if isPsub:
+            assert self.cktNeedSub(cktIdx)
+            # GDS and LEF unit mismatch, multiply by 2
+            for i in range(len(self.subShapeList)):
+                if i > 0:
+                    continue
+                assert self.subShapeList[i][0] <= self.subShapeList[i][2]
+                assert self.subShapeList[i][1] <= self.subShapeList[i][3]
+                callback(self.subShapeList[0], True)
+    def findOrigin(self, cktIdx):
+        def updateCallback(shape, isGuardRing):
+            if isGuardRing:
+                self.updateOriginGuardRing(shape)
+            else:
+                self.updateOriginPin(shape)
+        for netIdx in self.routerNets:
+            self.iterateNetPinShapes(cktIdx, netIdx, updateCallback)
     def writeiopifile(self, cktIdx, fileName):
         """
         @brief this function write out the .iopin file for router. Primaily for debugging
@@ -237,11 +240,7 @@ class PnR(object):
         for netIdx in self.routerNets: 
             net = ckt.net(netIdx)  
             grPinCount, isPsub, isNwell = self.netPinCount(ckt, net)    
-            width = 200
-            if net.isPower():
-                width = 1000
-                if self.isSmallModule:
-                    width = 200
+            width = self.dbuToRouterDbu(self.determineNetWidth(cktIdx, netIdx))
             routerNetIdx = router.addNet(net.name, width, 1, net.isPower())  
             for pinId in range(net.numPins()):
                 if pinId in pinName[netIdx]:
@@ -338,3 +337,41 @@ class PnR(object):
             self.isSmallModule = True
         else:
             self.isSmallModule = False
+    def determineNetWidth(self, cktIdx, netIdx):
+        net = self.dDB.subCkt(cktIdx).net(netIdx)
+        wTable = self.params.signalAnalogWireWidthTable
+        if net.isPower():
+            wTable = self.params.powerWireWidthTable
+            if self.isSmallModule:
+                wTable = self.params.signalAnalogWireWidthTable # if the module is small. no need to use conservative power table
+        if net.isDigital():
+            wTable = self.params.signalDigitalWireWidthTable
+        length = self.calcNetLength(cktIdx, netIdx)
+        width = wTable[0][1]
+        for idx in range(len(wTable)):
+            if length > wTable[idx][0]:
+                width = wTable[idx][1]
+        print("setwidth", self.dDB.subCkt(cktIdx).name, net.name, width)
+        return self.umToDbu(width)
+    def calcNetLength(self, cktIdx, netIdx):
+        """
+        @brief calculate the hpwl. return in um
+        """
+        bbox = [1e20, 1e20, -1e20, -1e20]
+        def unionBBox(shape, dontcare):
+            bbox[0] = min(bbox[0], shape[0])
+            bbox[1] = min(bbox[1], shape[1])
+            bbox[2] = max(bbox[2], shape[2])
+            bbox[3] = max(bbox[3], shape[3])
+        self.iterateNetPinShapes(cktIdx, netIdx, unionBBox)
+        wl = max(bbox[2] - bbox[0], bbox[3] - bbox[0])
+        if self.dbuToUm(wl) > 100:
+            print("longwire", self.dDB.subCkt(cktIdx).name, self.dDB.subCkt(cktIdx).net(netIdx).name, self.dbuToUm(wl))
+        return self.dbuToUm(wl)
+
+    def umToDbu(self, um):
+        return int(float(self.tDB.units().dbu) * um)
+    def dbuToUm(self, dbu):
+        return float(dbu) / self.tDB.units().dbu
+    def dbuToRouterDbu(self, dbu): #FIXME
+        return dbu * 2

@@ -192,6 +192,10 @@ class Net
         bool isVdd() const { return _isVdd; }
         /// @brief get whether this net is vss net
         bool isVss() const { return _isVss; }
+        /// @brief get whether this net is digital net
+        bool isDigital() const { return _isDigital; }
+        /// @brief get whether this net is analog net
+        bool isAnalog() const { return _isAnalog; }
         /*------------------------------*/ 
         /* Setters                      */
         /*------------------------------*/ 
@@ -209,6 +213,10 @@ class Net
         void markVssFlag() { Assert(!_isVdd); _isVss = true; }
         /// @brief remove the VSS flag from this net
         void revokeVssFlag() { _isVss = false; }
+        /// @brief mark this net as digital
+        void markDigitalFlag() { _isDigital = true; _isAnalog = false; }
+        /// @brief mark this net as analog
+        void markAnalogFlag() { _isDigital = false; _isAnalog = true; }
         /*------------------------------*/ 
         /* Attributes                   */
         /*------------------------------*/ 
@@ -304,6 +312,8 @@ class Net
         IndexType _ioPos = INDEX_TYPE_MAX; ///< The index of net if it is IO.
         bool _isVdd = false; ///< Whether this net is a VDD net
         bool _isVss = false; ///< Whether this net is a VSS net
+        bool _isDigital = false; ///< Whether this net is digital
+        bool _isAnalog =  false; ///< whether this net is analog
         /*------------------------------*/ 
         /* For higher hierarchy         */
         /*------------------------------*/ 

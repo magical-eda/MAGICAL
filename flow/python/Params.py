@@ -23,11 +23,19 @@ class Params:
         self.lef = "/home/local/eda09/keren/benchmarks/tech/40.lef"
         self.vddNetNames = ["VDD", "vdd", "vdda", "vddd"]
         self.vssNetNames = ["VSS", "GND", "vss", "gnd", "vssa", "vssd"]
+        self.digitalNetNames = ["clk"]
         self.stdCells = ['SR_Latch_LVT','NR2D8BWP_LVT','BUFFD4BWP_LVT','DFCND4BWP_LVT','INVD4BWP_LVT','DFCNQD2BWP_LVT']
         self.resultDir = None
         self.powerLayer = 6 # m6
         self.psubLayer = self.powerLayer # same as power pin
         self.smallModuleAreaThreshold = 60 # um^2
+        # [um in length, um in width]
+        self.signalAnalogWireWidthTable = \
+        [ [0, 0.1], [80, 0.2],  [120, 0.3]]
+        self.signalDigitalWireWidthTable = \
+        [ [0, 0.1], [100, 0.2]]
+        self.powerWireWidthTable = \
+        [[0, 0.5]]
 
     def printWelcome(self):
         """
