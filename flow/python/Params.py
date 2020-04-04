@@ -27,6 +27,7 @@ class Params:
         self.resultDir = None
         self.powerLayer = 6 # m6
         self.psubLayer = self.powerLayer # same as power pin
+        self.smallModuleAreaThreshold = 60 # um^2
 
     def printWelcome(self):
         """

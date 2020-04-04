@@ -30,8 +30,10 @@ class Placer(object):
     def run(self):
         self.useIoPin = True
         self.usePowerStripe = True
+        self.isTopLevel = False
         if (self.dDB.rootCktIdx() ==  self.cktIdx):
             self.useIoPin = False
+            self.isTopLevel = True
         self.dumpInput()
         self.symAxis = self.placer.solve(self.gridStep)
         print("placement finished: ", self.ckt.name)
@@ -74,9 +76,9 @@ class Placer(object):
 
 
     def configureIoPinParameters(self):
-        #if self.useIoPin == False:
-        #    self.placer.closeVirtualPinAssignment()
-        #    return
+        if self.useIoPin == False:
+            self.placer.closeVirtualPinAssignment()
+            return
         self.placer.openVirtualPinAssignment()
         self.placer.setIoPinBoundaryExtension(14 * 1 * self.gridStep)
         self.placer.setIoPinInterval(5 * 2 * self.gridStep)
@@ -84,9 +86,9 @@ class Placer(object):
             net = self.ckt.net(netIdx)
             if (net.isIo() and (not net.isPower()) and self.useIoPin):
                 self.placer.markIoNet(netIdx)
-            if net.isVdd():
+            if net.isVdd() and not self.isTopLevel:
                 self.placer.markAsVddNet(netIdx)
-            if net.isVss():
+            if net.isVss() and not self.isTopLevel:
                 self.placer.markAsVssNet(netIdx)
     def processPlacementOutput(self):
         #  Set Placement origin
@@ -181,6 +183,8 @@ class Placer(object):
             self.addPycell(self.ckt.layout(), grCell)
             bBox = self.ckt.layout().boundary()
             self.subShape(subPin)
+        #change small
+        self.checkSmallModule(self.cktIdx)
         # Power stripes
         if self.usePowerStripe:
             existingNodes = self.ckt.numNodes()
@@ -345,7 +349,9 @@ class Placer(object):
         width = width + (self.gridStep - (width % self.gridStep))
         if width / self.gridStep % 2 == 0:
             width += self.gridStep
-        height = int(1500)  # Just give a try
+        height = int(1500)  # Just give a try FIXME
+        if self.isSmallModule:
+            height = int(500)
         height = height + (self.gridStep - (height % self.gridStep))  
         if height / self.gridStep % 2 == 0:
             height += self.gridStep
@@ -528,4 +534,14 @@ class Placer(object):
         shape = subPin.normalize_shape()
         # Only the lower metal for now
         self.subShapeList.append(shape[1:5])
-        
+    
+    def checkSmallModule(self, cktIdx):
+        ckt = self.dDB.subCkt(cktIdx)
+        bbox = ckt.layout().boundary()
+        xlen = bbox.xLen()
+        ylen = bbox.yLen()
+        area = xlen * ylen
+        if area < self.params.smallModuleAreaThreshold * 1000 * 1000:
+            self.isSmallModule = True
+        else:
+            self.isSmallModule = False

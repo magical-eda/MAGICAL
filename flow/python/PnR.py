@@ -50,6 +50,7 @@ class PnR(object):
         self.symAxis = p.symAxis
         self.origin = p.origin
         self.subShapeList = p.subShapeList
+        self.checkSmallModule(cktIdx)
 
     def runRoute(self, cktIdx, dirname):
         ckt = self.dDB.subCkt(cktIdx)
@@ -239,6 +240,8 @@ class PnR(object):
             width = 200
             if net.isPower():
                 width = 1000
+                if self.isSmallModule:
+                    width = 200
             routerNetIdx = router.addNet(net.name, width, 1, net.isPower())  
             for pinId in range(net.numPins()):
                 if pinId in pinName[netIdx]:
@@ -324,3 +327,14 @@ class PnR(object):
         for x in newshape:
             string = string + str(x) + ' '
         return string + '\n'
+    
+    def checkSmallModule(self, cktIdx):
+        ckt = self.dDB.subCkt(cktIdx)
+        bbox = ckt.layout().boundary()
+        xlen = bbox.xLen()
+        ylen = bbox.yLen()
+        area = xlen * ylen
+        if area < self.params.smallModuleAreaThreshold * 1000 * 1000:
+            self.isSmallModule = True
+        else:
+            self.isSmallModule = False

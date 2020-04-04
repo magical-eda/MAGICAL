@@ -324,7 +324,7 @@ class Pin
         /// @return the node index that this pin belonging to
         IndexType nodeIdx() const { return _nodeIdx; }
         /// @brief internal net index of this pin
-        /// @return the internal net index of the node this pin corresponding to
+        /// @return the internal net index of the node this pin corresponding to in the sub graph
         IndexType intNetIdx() const { return _intNetIdx; }
         /// @brief get one net index that connected to this pin
         /// @param the n-th net of this pin
