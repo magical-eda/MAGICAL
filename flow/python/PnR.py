@@ -379,7 +379,7 @@ class PnR(object):
             bbox[2] = max(bbox[2], shape[2])
             bbox[3] = max(bbox[3], shape[3])
         self.iterateNetPinShapes(cktIdx, netIdx, unionBBox)
-        wl = max(bbox[2] - bbox[0], bbox[3] - bbox[0])
+        wl = max(bbox[2] - bbox[0], bbox[3] - bbox[1])
         if self.dbuToUm(wl) > 100:
             print("longwire", self.dDB.subCkt(cktIdx).name, self.dDB.subCkt(cktIdx).net(netIdx).name, self.dbuToUm(wl))
         return self.dbuToUm(wl)
