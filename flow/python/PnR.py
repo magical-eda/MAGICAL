@@ -240,8 +240,9 @@ class PnR(object):
         for netIdx in self.routerNets: 
             net = ckt.net(netIdx)  
             grPinCount, isPsub, isNwell = self.netPinCount(ckt, net)    
-            width = self.dbuToRouterDbu(self.determineNetWidth(cktIdx, netIdx))
-            routerNetIdx = router.addNet(net.name, width, 1, net.isPower())  
+            width, cuts, rows, cols = self.determineNetWidthVia(cktIdx, netIdx)
+            width = self.dbuToRouterDbu(width)
+            routerNetIdx = router.addNet(net.name, width, cuts, net.isPower(), rows, cols)  
             for pinId in range(net.numPins()):
                 if pinId in pinName[netIdx]:
                     router.addPin2Net(pinName[netIdx][pinId], routerNetIdx)
@@ -337,22 +338,31 @@ class PnR(object):
             self.isSmallModule = True
         else:
             self.isSmallModule = False
-    def determineNetWidth(self, cktIdx, netIdx):
+    def determineNetWidthVia(self, cktIdx, netIdx):
         net = self.dDB.subCkt(cktIdx).net(netIdx)
         wTable = self.params.signalAnalogWireWidthTable
+        vTable = self.params.signalAnalogViaCutsTable
         if net.isPower():
             wTable = self.params.powerWireWidthTable
+            vTable = self.params.powerViaCutsTable
             if self.isSmallModule:
                 wTable = self.params.signalAnalogWireWidthTable # if the module is small. no need to use conservative power table
+                vTable = self.params.signalAnalogViaCutsTable
         if net.isDigital():
             wTable = self.params.signalDigitalWireWidthTable
+            vTable = self.params.signalDigitalViaCutsTable
         length = self.calcNetLength(cktIdx, netIdx)
         width = wTable[0][1]
         for idx in range(len(wTable)):
             if length > wTable[idx][0]:
                 width = wTable[idx][1]
+        viaType = vTable[0]
+        for idx in range(len(vTable)):
+            if length > vTable[idx][0]:
+                viaType = vTable[idx]
         print("setwidth", self.dDB.subCkt(cktIdx).name, net.name, width)
-        return self.umToDbu(width)
+        print("setvia", viaType[1], viaType[2], viaType[3])
+        return (self.umToDbu(width), viaType[1], viaType[2], viaType[3])
     def calcNetLength(self, cktIdx, netIdx):
         """
         @brief calculate the hpwl. return in um

@@ -111,15 +111,16 @@ class Placer(object):
                 self.iopinOffsetx.append(ioPinX)
                 self.iopinOffsety.append(ioPinY)
                 #FIXME
+                size_scale = 0;
                 if (self.placer.isIoPinVertical(netIdx)):
                     metals = [
-                            [- 65, -self.gridStep  - 70 - 30, 65, self.gridStep  + 70 + 30]
+                            [- 65 - self.gridStep * size_scale, -self.gridStep * (1 + size_scale)  - 70 - 30, 65 + self.gridStep * size_scale, self.gridStep * (1+size_scale)  + 70 + 30]
                             ]
                     metalPkdLayers = [31]
                     metalIoLayers = [1]
                 else:
                     metals = [
-                            [-self.gridStep  - 70 - 30, - 65, self.gridStep  + 70 + 30, 65]
+                            [-self.gridStep * (1+size_scale)  - 70 - 30, - 65 - self.gridStep * size_scale, self.gridStep  * (1 + size_scale) + 70 + 30, 65 + self.gridStep * size_scale]
                             ]
                     metalPkdLayers = [31]
                     metalIoLayers = [1]

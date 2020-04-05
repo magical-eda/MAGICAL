@@ -33,9 +33,16 @@ class Params:
         self.signalAnalogWireWidthTable = \
         [ [0, 0.1], [80, 0.2],  [120, 0.3]]
         self.signalDigitalWireWidthTable = \
-        [ [0, 0.1], [100, 0.2]]
+        [ [0, 0.1], [100, 0.16]]
         self.powerWireWidthTable = \
         [[0, 0.5]]
+        # via  [um in length, # of cuts, # of rols, # of cols]
+        self.signalAnalogViaCutsTable = \
+        [[0, 2, 1, 2], [40, 4, 2, 2], [80, 6, 2, 3], [120, 9, 3, 3], [200, 12, 3, 4]]
+        self.signalDigitalViaCutsTable = \
+        [[0, 2, 1, 2], [100, 4, 2, 2]]
+        self.powerViaCutsTable = \
+        [[0, 9, 3, 3], [100, 12, 3, 4]]
 
     def printWelcome(self):
         """
