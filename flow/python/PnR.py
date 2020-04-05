@@ -234,15 +234,20 @@ class PnR(object):
                     print("add psub shape",  self.params.psubLayer - 1, self.subShapeList[i][0]*2, self.subShapeList[i][1]*2, self.subShapeList[i][2]*2, self.subShapeList[i][3]*2)
                     if self.debug:
                         string = "%s %s %d %d %d %d %d %d %d\n" % (net.name, str(pinNameIdx),  self.params.psubLayer, self.subShapeList[i][0], self.subShapeList[i][1], self.subShapeList[i][2], self.subShapeList[i][3], 1, 0)
-                    #string = '1 ' + self.rectToPoly(self.subShapeList[0])
-                    outFile.write(string)   
+                        outFile.write(string)   
                 pinNameIdx += 1
+        if self.debug:
+            string = "\nNET_SPEC:\n" 
+            outFile.write(string)   
         for netIdx in self.routerNets: 
             net = ckt.net(netIdx)  
             grPinCount, isPsub, isNwell = self.netPinCount(ckt, net)    
             width, cuts, rows, cols = self.determineNetWidthVia(cktIdx, netIdx)
             width = self.dbuToRouterDbu(width)
             routerNetIdx = router.addNet(net.name, width, cuts, net.isPower(), rows, cols)  
+            if self.debug:
+                string = "%s %d %d %d %d %d\n" % (net.name, width, cuts, net.isPower(), rows, cols)
+                outFile.write(string)   
             for pinId in range(net.numPins()):
                 if pinId in pinName[netIdx]:
                     router.addPin2Net(pinName[netIdx][pinId], routerNetIdx)
