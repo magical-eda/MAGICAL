@@ -214,6 +214,7 @@ class PnR(object):
                     if conCkt.net(conNet).isIo():
                         continue # do not give router lower level power stripe pin
                     iopinshapeIsPowerStripe = 1
+                print("addPin", str(pinNameIdx), net.isPower(), iopinshapeIsPowerStripe)
                 router.addPin(str(pinNameIdx), net.isPower(), iopinshapeIsPowerStripe)
                 # Router starts as 0 with M
                 for iopinidx in range(conCkt.net(conNet).numIoPins()):
@@ -224,7 +225,7 @@ class PnR(object):
                     assert conShape[0] <= conShape[2]
                     assert conShape[1] <= conShape[3]
                     router.addShape2Pin(pinNameIdx, conLayer, conShape[0]*2, conShape[1]*2, conShape[2]*2, conShape[3]*2)
-                    print("add pin shape", conLayer, conShape[0]*2, conShape[1]*2, conShape[2]*2, conShape[3]*2)
+                    print("addShape2Pin",pinNameIdx, conLayer, conShape[0]*2, conShape[1]*2, conShape[2]*2, conShape[3]*2)
                     if self.debug:
                         string = "%s %s %d %d %d %d %d %d %d\n" % (str(net.name), str(pinNameIdx), conLayer+1, conShape[0], conShape[1], conShape[2], conShape[3], netIsPower, iopinshapeIsPowerStripe)
                         outFile.write(string)
@@ -234,6 +235,7 @@ class PnR(object):
                 assert self.cktNeedSub(cktIdx)
                 pinName[netIdx]['sub'] = pinNameIdx
                 router.addPin(str(pinNameIdx), net.isPower(), False)
+                print("addPin sub", str(pinNameIdx), net.isPower(), False)
                 #router.addPin2Net(pinNameIdx, netIdx)
                 # GDS and LEF unit mismatch, multiply by 2
                 for i in range(len(self.subShapeList)):
@@ -242,7 +244,7 @@ class PnR(object):
                     assert self.subShapeList[i][0] <= self.subShapeList[i][2]
                     assert self.subShapeList[i][1] <= self.subShapeList[i][3]
                     router.addShape2Pin(pinNameIdx, self.params.psubLayer - 1, self.subShapeList[i][0]*2, self.subShapeList[i][1]*2, self.subShapeList[i][2]*2, self.subShapeList[i][3]*2)
-                    print("add psub shape",  self.params.psubLayer - 1, self.subShapeList[i][0]*2, self.subShapeList[i][1]*2, self.subShapeList[i][2]*2, self.subShapeList[i][3]*2)
+                    print("addShape2Pin psub shape",  self.params.psubLayer - 1, self.subShapeList[i][0]*2, self.subShapeList[i][1]*2, self.subShapeList[i][2]*2, self.subShapeList[i][3]*2)
                     if self.debug:
                         string = "%s %s %d %d %d %d %d %d %d\n" % (net.name, str(pinNameIdx),  self.params.psubLayer, self.subShapeList[i][0], self.subShapeList[i][1], self.subShapeList[i][2], self.subShapeList[i][3], 1, 0)
                         outFile.write(string)   
@@ -256,14 +258,17 @@ class PnR(object):
             width, cuts, rows, cols = self.determineNetWidthVia(cktIdx, netIdx)
             width = self.dbuToRouterDbu(width)
             routerNetIdx = router.addNet(net.name, width, cuts, net.isPower(), rows, cols)  
+            print("addNet netname", net.name, "width", width, "cuts", cuts, "isPower", net.isPower(), "rows", rows, "cols", cols)
             if self.debug:
                 string = "%s %d %d %d %d %d\n" % (net.name, width, cuts, net.isPower(), rows, cols)
                 outFile.write(string)   
             for pinId in range(net.numPins()):
                 if pinId in pinName[netIdx]:
+                    print("addPin2Net ", pinName[netIdx][pinId], routerNetIdx)
                     router.addPin2Net(pinName[netIdx][pinId], routerNetIdx)
             if isPsub:
                 #print "sub"
+                print("addPin2Net pubs ver", pinName[netIdx]['sub'], routerNetIdx)
                 router.addPin2Net(pinName[netIdx]['sub'], netIdx)                
 
     def updateOriginPin(self, shape):
