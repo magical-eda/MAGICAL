@@ -43,6 +43,12 @@ class Params:
         [[0, 2, 1, 2], [100, 4, 2, 2]]
         self.powerViaCutsTable = \
         [[0, 9, 3, 3], [100, 12, 3, 4]]
+        # Additional spacing
+        # increase module spacing by area [um^2, um]
+        self.blockSpacingFromAreaTableX = \
+        [[0.0, 0.2], [100,0.8]]
+        self.blockSpacingFromAreaTableY = \
+        [[0.0, 0.2], [100, 0.4]]
 
     def printWelcome(self):
         """

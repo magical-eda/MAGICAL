@@ -100,10 +100,21 @@ class PnR(object):
         @brief for legalize the boundary box after the routing. The routing wire might change the boundary of placement, so that the bounding box need to be adjust to multiple of grid step
         """
         bBox = ckt.layout().boundary()
-        xLoLen = origin[0] - bBox.xLo + 200
-        yLoLen = origin[1] - bBox.yLo + 200
-        xHiLen = bBox.xHi - origin[0] + 200
-        yHiLen = bBox.yHi - origin[1] + 200
+        area = self.dbuToUm(bBox.xHi - bBox.xLo)  * self.dbuToUm(bBox.yHi - bBox.yLo)
+        spacingX = self.params.blockSpacingFromAreaTableX[0][1]
+        for idx in range(len(self.params.blockSpacingFromAreaTableX)):
+            if area > self.params.blockSpacingFromAreaTableX[idx][0]:
+                spacingX = self.params.blockSpacingFromAreaTableX[idx][1]
+        spacingY = self.params.blockSpacingFromAreaTableY[0][1]
+        for idx in range(len(self.params.blockSpacingFromAreaTableY)):
+            if area > self.params.blockSpacingFromAreaTableY[idx][0]:
+                spacingY = self.params.blockSpacingFromAreaTableY[idx][1]
+        spacingX = self.umToDbu(spacingX)
+        spacingY = self.umToDbu(spacingY)
+        xLoLen = origin[0] - bBox.xLo + spacingX
+        yLoLen = origin[1] - bBox.yLo + spacingY
+        xHiLen = bBox.xHi - origin[0] + spacingX
+        yHiLen = bBox.yHi - origin[1] + spacingY
         xLoLen += gridStep - (xLoLen % gridStep)
         xHiLen += gridStep - (xHiLen % gridStep)
         yLoLen += gridStep - (yLoLen % gridStep)
