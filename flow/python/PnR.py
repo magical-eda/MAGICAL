@@ -40,6 +40,7 @@ class PnR(object):
             self.isTopLevel = False
         print("PnR: working on ", self.dDB.subCkt(cktIdx).name)
         self.runPlace(cktIdx, dirname)
+        self.checkSmallModule(cktIdx)
         self.runRoute(cktIdx, dirname)
         self.dDB.subCkt(cktIdx).isImpl = True
         print("PnR: finished ", self.dDB.subCkt(cktIdx).name)
@@ -50,7 +51,6 @@ class PnR(object):
         self.symAxis = p.symAxis
         self.origin = p.origin
         self.subShapeList = p.subShapeList
-        self.checkSmallModule(cktIdx)
 
     def runRoute(self, cktIdx, dirname):
         ckt = self.dDB.subCkt(cktIdx)
@@ -191,7 +191,7 @@ class PnR(object):
             grPinCount, isPsub, isNwell = self.netPinCount(ckt, net)
             pinName[netIdx] = dict()
             netIsPower = 0
-            if net.isPower():
+            if net.isPower() and not self.isSmallModule:
                 netIsPower = 1
             if self.debug:
                 pass
@@ -210,7 +210,7 @@ class PnR(object):
                         continue
                 pinName[netIdx][pinId] = pinNameIdx
                 iopinshapeIsPowerStripe = 0
-                if conCkt.net(conNet).isIoPowerStripe(0):
+                if conCkt.net(conNet).isIoPowerStripe(0) and not self.isSmallModule:
                     if conCkt.net(conNet).isIo():
                         continue # do not give router lower level power stripe pin
                     iopinshapeIsPowerStripe = 1
@@ -257,10 +257,10 @@ class PnR(object):
             grPinCount, isPsub, isNwell = self.netPinCount(ckt, net)    
             width, cuts, rows, cols = self.determineNetWidthVia(cktIdx, netIdx)
             width = self.dbuToRouterDbu(width)
-            routerNetIdx = router.addNet(net.name, width, cuts, net.isPower(), rows, cols)  
-            print("addNet netname", net.name, "width", width, "cuts", cuts, "isPower", net.isPower(), "rows", rows, "cols", cols)
+            routerNetIdx = router.addNet(net.name, width, cuts, net.isPower() and not self.isSmallModule, rows, cols)  
+            print("addNet netname", net.name, "width", width, "cuts", cuts, "isPower", net.isPower() and not self.isSmallModule, "rows", rows, "cols", cols)
             if self.debug:
-                string = "%s %d %d %d %d %d\n" % (net.name, width, cuts, net.isPower(), rows, cols)
+                string = "%s %d %d %d %d %d\n" % (net.name, width, cuts, net.isPower() and not self.isSmallModule, rows, cols)
                 outFile.write(string)   
             for pinId in range(net.numPins()):
                 if pinId in pinName[netIdx]:
