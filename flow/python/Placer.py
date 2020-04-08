@@ -57,7 +57,6 @@ class Placer(object):
         if os.path.isfile(filename):
             self.placer.readSigpathFile(filename)
     def feedDeviceProximity(self):
-        return
         for idx in range(len(self.deviceProximityTypes)):
             deviceType = self.deviceProximityTypes[idx]
             cells = []
