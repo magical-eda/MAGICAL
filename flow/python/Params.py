@@ -33,7 +33,7 @@ class Params:
         self.signalAnalogWireWidthTable = \
         [ [0, 0.1], [80, 0.2],  [120, 0.3]]
         self.signalDigitalWireWidthTable = \
-        [ [0, 0.1], [100, 0.16]]
+        [ [0, 0.1], [100, 0.18]]
         self.powerWireWidthTable = \
         [[0, 0.5]]
         # via  [um in length, # of cuts, # of rols, # of cols]
