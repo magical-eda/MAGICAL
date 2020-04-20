@@ -44,6 +44,31 @@ class PnR(object):
         self.runRoute(cktIdx, dirname)
         self.dDB.subCkt(cktIdx).isImpl = True
         print("PnR: finished ", self.dDB.subCkt(cktIdx).name)
+
+    def placeOnly(self, cktIdx, dirname):
+        """
+        @brief PnR a circuit in the designDB
+        @param the index of subckt
+        """
+        if self.rootCktIdx == cktIdx:
+            self.isTopLevel = True
+        else:
+            self.isTopLevel = False
+        print("PnR: working on ", self.dDB.subCkt(cktIdx).name)
+        self.cktIdx = cktIdx
+        self.dirname = dirname
+        self.runPlace(cktIdx, dirname)
+        self.checkSmallModule(cktIdx)
+        self.dDB.subCkt(cktIdx).isImpl = True
+        print("PnR: placement finished ", self.dDB.subCkt(cktIdx).name)
+
+    def routeOnly(self):
+        """
+        @brief PnR a circuit in the designDB
+        @param the index of subckt
+        """
+        self.runRoute(self.cktIdx, self.dirname)
+        print("PnR: routing finished ", self.dDB.subCkt(self.cktIdx).name)
             
     def runPlace(self, cktIdx, dirname):
         p = Placer.Placer(self.mDB, cktIdx, dirname,self.gridStep, self.halfMetWid)
@@ -51,6 +76,7 @@ class PnR(object):
         self.symAxis = p.symAxis
         self.origin = p.origin
         self.subShapeList = p.subShapeList
+        self.upscaleBBox(self.gridStep, self.dDB.subCkt(cktIdx), self.origin)
 
     def runRoute(self, cktIdx, dirname):
         ckt = self.dDB.subCkt(cktIdx)

@@ -19,6 +19,7 @@ class Flow(object):
         self.dDB = db.designDB.db
         self.constraint = Constraint.Constraint(self.mDB)
         self.params = self.mDB.params
+        self.pnrs = []
 
     def run(self):
         """
@@ -29,6 +30,8 @@ class Flow(object):
         topCktIdx = self.mDB.topCktIdx() # The index of the topckt
         #self.generateConstraints()
         self.implCktLayout(topCktIdx)
+        for pnr in self.pnrs:
+            pnr.routeOnly()
         return True
 
     def generateConstraints(self):
@@ -100,4 +103,7 @@ class Flow(object):
         ckt = dDB.subCkt(cktIdx) #magicalFlow.CktGraph
         self.symDict = self.constraint.genConstraint(cktIdx, self.resultName)
         self.setup(cktIdx)
-        PnR.PnR(self.mDB).implLayout(cktIdx, self.resultName)
+        pnr = PnR.PnR(self.mDB)
+        pnr.placeOnly(cktIdx, self.resultName)
+        self.pnrs.append(pnr)
+        #PnR.PnR(self.mDB).implLayout(cktIdx, self.resultName)
