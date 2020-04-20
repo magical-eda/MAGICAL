@@ -25,6 +25,7 @@ class Placer(object):
         self.params = magicalDB.params
         self.nodeToCellIdx = []
         self.placeParams()
+        self.guardRingGrCells = []
     def placeParams(self):
         self.deviceProximityTypes = [magicalFlow.ImplTypePCELL_Nch, magicalFlow.ImplTypePCELL_Pch]
     def run(self):
@@ -168,20 +169,13 @@ class Placer(object):
                 y_offset = cktNode.offset().y
                 self.ckt.layout().insertLayout(subCkt.layout(), x_offset, y_offset, cktNode.flipVertFlag)
         # write guardring using gdspy
-        if self.cktNeedSub(self.cktIdx):
-            print "Adding GuardRing to Cell"
-            print("origin", self.origin[0], self.origin[1])
-            # Leave additional 80nm spacing
-            grCell, subPin = basic.sub_GR([cktBoundaryBox.xLo/1000.0-0.08, cktBoundaryBox.yLo/1000.0-0.08], [cktBoundaryBox.xHi/1000.0+0.08, cktBoundaryBox.yHi/1000.0+0.08], [self.origin[0]-self.halfMetWid/1000.0,self.origin[1]-self.halfMetWid/1000.0])
+        for grCell in self.guardRingGrCells:
             self.addPycell(self.ckt.layout(), grCell)
-            bBox = self.ckt.layout().boundary()
-            self.subShape(subPin)
         #change small
         self.checkSmallModule(self.cktIdx)
         # Power stripes
         if self.usePowerStripe:
             existingNodes = self.ckt.numNodes()
-            cktBBoxAfterGuardRing = self.ckt.layout().boundary()
             for nodeIdx in range(existingNodes, self.ckt.numNodes()):
                 cktNode = self.ckt.node(nodeIdx)
                 subCkt = self.dDB.subCkt(cktNode.graphIdx)
@@ -226,6 +220,7 @@ class Placer(object):
             self.addPycell(self.ckt.layout(), grCell)
             bBox = self.ckt.layout().boundary()
             self.subShape(subPin)
+            self.guardRingGrCells.append(grCell)
         #change small
         self.checkSmallModule(self.cktIdx)
         # Power stripes
