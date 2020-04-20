@@ -148,6 +148,47 @@ class Placer(object):
                                   origin[0] + xHiLen,
                                   origin[1] + yHiLen)
 
+    def updatePlacementResult(self):
+        self.ckt.layout().clear()
+        for nodeIdx in range(self.numIntervalNodes):
+            cktNode = self.ckt.node(nodeIdx)
+            subCkt = self.dDB.subCkt(cktNode.graphIdx)
+            x_offset = cktNode.offset().x
+            y_offset = cktNode.offset().y
+            print("node ", cktNode.name, x_offset, y_offset)
+            self.ckt.layout().insertLayout(subCkt.layout(), x_offset, y_offset, cktNode.flipVertFlag)
+            print cktNode.name, self.placer.cellName(nodeIdx), x_offset, y_offset, "PLACEMENT"
+        cktBoundaryBox = self.ckt.layout().boundary()
+        #Process io pins      
+        if self.useIoPin:
+            for nodeIdx in range(self.numIntervalNodes, self.ckt.numNodes()):
+                cktNode = self.ckt.node(nodeIdx)
+                subCkt = self.dDB.subCkt(cktNode.graphIdx)
+                x_offset = cktNode.offset().x
+                y_offset = cktNode.offset().y
+                self.ckt.layout().insertLayout(subCkt.layout(), x_offset, y_offset, cktNode.flipVertFlag)
+        # write guardring using gdspy
+        if self.cktNeedSub(self.cktIdx):
+            print "Adding GuardRing to Cell"
+            print("origin", self.origin[0], self.origin[1])
+            # Leave additional 80nm spacing
+            grCell, subPin = basic.sub_GR([cktBoundaryBox.xLo/1000.0-0.08, cktBoundaryBox.yLo/1000.0-0.08], [cktBoundaryBox.xHi/1000.0+0.08, cktBoundaryBox.yHi/1000.0+0.08], [self.origin[0]-self.halfMetWid/1000.0,self.origin[1]-self.halfMetWid/1000.0])
+            self.addPycell(self.ckt.layout(), grCell)
+            bBox = self.ckt.layout().boundary()
+            self.subShape(subPin)
+        #change small
+        self.checkSmallModule(self.cktIdx)
+        # Power stripes
+        if self.usePowerStripe:
+            existingNodes = self.ckt.numNodes()
+            cktBBoxAfterGuardRing = self.ckt.layout().boundary()
+            for nodeIdx in range(existingNodes, self.ckt.numNodes()):
+                cktNode = self.ckt.node(nodeIdx)
+                subCkt = self.dDB.subCkt(cktNode.graphIdx)
+                self.ckt.layout().insertLayout(subCkt.layout(), 0, 0, cktNode.flipVertFlag)
+        # Output placement result
+        magicalFlow.writeGdsLayout(self.cktIdx, self.dirname + self.ckt.name + '.place.gds', self.dDB, self.tDB)
+
     def writeoutPlacementResult(self):
         # Write results to flow
         self.initPowerPins()

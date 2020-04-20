@@ -67,15 +67,17 @@ class PnR(object):
         @brief PnR a circuit in the designDB
         @param the index of subckt
         """
+
+        self.p.updatePlacementResult()
         self.runRoute(self.cktIdx, self.dirname)
         print("PnR: routing finished ", self.dDB.subCkt(self.cktIdx).name)
             
     def runPlace(self, cktIdx, dirname):
-        p = Placer.Placer(self.mDB, cktIdx, dirname,self.gridStep, self.halfMetWid)
-        p.run()
-        self.symAxis = p.symAxis
-        self.origin = p.origin
-        self.subShapeList = p.subShapeList
+        self.p = Placer.Placer(self.mDB, cktIdx, dirname,self.gridStep, self.halfMetWid)
+        self.p.run()
+        self.symAxis = self.p.symAxis
+        self.origin = self.p.origin
+        self.subShapeList = self.p.subShapeList
         self.upscaleBBox(self.gridStep, self.dDB.subCkt(cktIdx), self.origin)
 
     def runRoute(self, cktIdx, dirname):
