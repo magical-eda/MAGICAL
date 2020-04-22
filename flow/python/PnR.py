@@ -214,6 +214,7 @@ class PnR(object):
             outFile.write('gridStep %d\n' % (self.gridStep))
             outFile.write('Offset %d %d\n' % (self.origin[0],self.origin[1]))
             outFile.write('symAxis %d\n' % (self.symAxis))
+            specFile = open(fileName + '.spec', 'w')
         for netIdx in self.routerNets:
             net = ckt.net(netIdx)
             grPinCount, isPsub, isNwell = self.netPinCount(ckt, net)
@@ -279,7 +280,7 @@ class PnR(object):
                 pinNameIdx += 1
         if self.debug:
             string = "\nNET_SPEC:\n" 
-            outFile.write(string)   
+            specFile.write(string)   
         for netIdx in self.routerNets: 
             net = ckt.net(netIdx)  
             grPinCount, isPsub, isNwell = self.netPinCount(ckt, net)    
@@ -289,7 +290,7 @@ class PnR(object):
             print("addNet netname", net.name, "width", width, "cuts", cuts, "isPower", net.isPower() and not self.isSmallModule, "rows", rows, "cols", cols)
             if self.debug:
                 string = "%s %d %d %d %d %d\n" % (net.name, width, cuts, net.isPower() and not self.isSmallModule, rows, cols)
-                outFile.write(string)   
+                specFile.write(string)   
             for pinId in range(net.numPins()):
                 if pinId in pinName[netIdx]:
                     print("addPin2Net ", pinName[netIdx][pinId], routerNetIdx)
