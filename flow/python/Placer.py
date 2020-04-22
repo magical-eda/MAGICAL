@@ -151,35 +151,15 @@ class Placer(object):
 
     def updatePlacementResult(self):
         self.ckt.layout().clear()
-        for nodeIdx in range(self.numIntervalNodes):
+        for nodeIdx in range(self.ckt.numNodes()):
             cktNode = self.ckt.node(nodeIdx)
             subCkt = self.dDB.subCkt(cktNode.graphIdx)
             x_offset = cktNode.offset().x
             y_offset = cktNode.offset().y
-            print("node ", cktNode.name, x_offset, y_offset)
             self.ckt.layout().insertLayout(subCkt.layout(), x_offset, y_offset, cktNode.flipVertFlag)
-            print cktNode.name, self.placer.cellName(nodeIdx), x_offset, y_offset, "PLACEMENT"
-        cktBoundaryBox = self.ckt.layout().boundary()
-        #Process io pins      
-        if self.useIoPin:
-            for nodeIdx in range(self.numIntervalNodes, self.ckt.numNodes()):
-                cktNode = self.ckt.node(nodeIdx)
-                subCkt = self.dDB.subCkt(cktNode.graphIdx)
-                x_offset = cktNode.offset().x
-                y_offset = cktNode.offset().y
-                self.ckt.layout().insertLayout(subCkt.layout(), x_offset, y_offset, cktNode.flipVertFlag)
         # write guardring using gdspy
         for grCell in self.guardRingGrCells:
             self.addPycell(self.ckt.layout(), grCell)
-        #change small
-        self.checkSmallModule(self.cktIdx)
-        # Power stripes
-        if self.usePowerStripe:
-            existingNodes = self.ckt.numNodes()
-            for nodeIdx in range(existingNodes, self.ckt.numNodes()):
-                cktNode = self.ckt.node(nodeIdx)
-                subCkt = self.dDB.subCkt(cktNode.graphIdx)
-                self.ckt.layout().insertLayout(subCkt.layout(), 0, 0, cktNode.flipVertFlag)
         # Output placement result
         magicalFlow.writeGdsLayout(self.cktIdx, self.dirname + self.ckt.name + '.place.gds', self.dDB, self.tDB)
 
@@ -383,7 +363,7 @@ class Placer(object):
         iopinPin.netIdx = netIdx
     def addPowerStripe(self, boundary, boundaryWithGuardRing):
         # Use 80 nm spacing.
-        width = int(boundary.xLen() + 2 * self.gridStep)
+        width = int(boundaryWithGuardRing.xLen() + 2 * self.gridStep)
         width = width + (self.gridStep - (width % self.gridStep))
         if width / self.gridStep % 2 == 0:
             width += self.gridStep
