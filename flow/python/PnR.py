@@ -113,6 +113,7 @@ class PnR(object):
                     print net.name, "added to IO port"
                     router.addIOPort(net.name)
         routerPass = router.solve(False)
+        router.evaluate()
         if not routerPass:
             print("Routing failed! ckt ", ckt.name)
             assert(routerPass)
