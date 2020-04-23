@@ -280,7 +280,7 @@ class PnR(object):
                         outFile.write(string)   
                 pinNameIdx += 1
         if self.debug:
-            string = "\nNET_SPEC:\n" 
+            string = "NET_SPEC:\n" 
             specFile.write(string)   
         for netIdx in self.routerNets: 
             net = ckt.net(netIdx)  
