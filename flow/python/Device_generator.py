@@ -48,7 +48,7 @@ class Device_generator(object):
         #    of.write(pin.normalize())
         #of.close
 
-    def writeDB(self, cktIdx):
+    def writeDB(self, cktIdx, flipCell):
         """
         @brief write to GdsData. Current version GDS is file based
         Need to setGDS()
@@ -57,7 +57,7 @@ class Device_generator(object):
         gdspy.write_gds(self.outGDS, [self.cell], unit=1.0e-6, precision=1.0e-9)
         ckt = self.dDB.subCkt(cktIdx)
         gdsData = ckt.GdsData()
-        BB = basic.BB(self.cell)
+        BB = basic.BB(self.cell, flipCell)
         #bound = self.cell.cell.get_bounding_box()
         gdsData.setBBox(int(BB[0]), int(BB[1]), int(BB[2]), int(BB[3]))
         ckt.layout().setBoundary(int(BB[0]), int(BB[1]), int(BB[2]), int(BB[3]))
@@ -142,7 +142,7 @@ class Device_generator(object):
         self.setGDS(dirname+cirname+'.gds')
         #self.setPinBB(dirname+cirname+'.pin')
         self.writeOut()
-        self.writeDB(cktIdx)
+        self.writeDB(cktIdx, flipCell)
         #self.readGDS(cktIdx, dirname)
         return True
 
