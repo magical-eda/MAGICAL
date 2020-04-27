@@ -140,6 +140,7 @@ file(GLOB SOURCES src/db/*.h        src/db/*.cpp
                   src/parser/*.h    src/parser/*.cpp
                   src/global/*.h
                   src/writer/*.h
+                  src/csflow/*.h    src/csflow/*.cpp
                   )
 
 file(GLOB PROJECT_SOURCES src/main/*.cpp ${SOURCES})

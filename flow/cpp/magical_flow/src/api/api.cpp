@@ -21,6 +21,7 @@ void initDesignDBAPI(py::module &);
 void initParseAPI(py::module &);
 void initWriterAPI(py::module &);
 void initTechDbAPI(py::module &);
+void initCSFlowAPI(py::module &);
 
 PYBIND11_MAKE_OPAQUE(std::vector<PROJECT_NAMESPACE::IndexType>);
 
@@ -36,4 +37,5 @@ PYBIND11_MODULE(magicalFlow, m)
     initParseAPI(m);
     initWriterAPI(m);
     initTechDbAPI(m);
+    initCSFlowAPI(m);
 }

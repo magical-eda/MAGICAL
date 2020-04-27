@@ -13,7 +13,6 @@
 #include "Layout.h"
 #include "TechDB.h"
 
-
 PROJECT_NAMESPACE_BEGIN
 
 /// @class MAGICAL_FLOW::CktGraph
@@ -163,6 +162,7 @@ class CktGraph
                 net.flipVert(axis);
             }
         }
+        
 
     private:
         TechDB _techDB;
@@ -181,6 +181,7 @@ class CktGraph
         /* Integration                  */
         /*------------------------------*/ 
         GdsData _gdsData; ///< The gds data
+
 };
 
 PROJECT_NAMESPACE_END

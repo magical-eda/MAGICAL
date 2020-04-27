@@ -46,6 +46,7 @@ class Placer(object):
         self.placeConnection()
         self.placer.readSymFile(self.dirname + self.ckt.name + '.sym') # FIXME: use in memory interface
         self.placeParseSigpath()
+        self.computeAndAddPowerCurrentFlow()
         self.placeParseBoundary()
         if self.debug:
             gdspy.current_library = gdspy.GdsLibrary()
@@ -57,7 +58,25 @@ class Placer(object):
         filename = self.dirname + self.ckt.name + '.sigpath' #FIXME: use in memeory interface
         if os.path.isfile(filename):
             self.placer.readSigpathFile(filename)
+    def computeAndAddPowerCurrentFlow(self):
+        if self.isTopLevel:
+            return
+        print("computeAndAddPowerCurrentFlow")
+        csflow = magicalFlow.CSFlow(self.dDB)
+        ckt = self.ckt
+        if ckt.implType == magicalFlow.ImplTypeUNSET:
+            csflow.computeCurrentFlow(ckt)
+            pinNamePaths = csflow.currentPinPaths();
+            cellNamePaths = csflow.currentCellPaths();
+            csflow.computeCurrentFlow(ckt)
+            for i in range(len(pinNamePaths)):
+                pathIdx = self.placer.allocateSignalPath()
+                print("allocate signal path", pathIdx)
+                for j in range(len(pinNamePaths[i])):
+                    self.placer.addPinToSignalPath(pathIdx, cellNamePaths[i][j], pinNamePaths[i][j])
+                    print("add pin to signal path", pathIdx, cellNamePaths[i][j], pinNamePaths[i][j])
     def feedDeviceProximity(self):
+        return
         for idx in range(len(self.deviceProximityTypes)):
             deviceType = self.deviceProximityTypes[idx]
             cells = []
