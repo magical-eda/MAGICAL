@@ -59,8 +59,6 @@ class Placer(object):
         if os.path.isfile(filename):
             self.placer.readSigpathFile(filename)
     def computeAndAddPowerCurrentFlow(self):
-        if self.isTopLevel:
-            return
         print("computeAndAddPowerCurrentFlow")
         csflow = magicalFlow.CSFlow(self.dDB)
         ckt = self.ckt
@@ -97,9 +95,9 @@ class Placer(object):
 
 
     def configureIoPinParameters(self):
-        if self.useIoPin == False:
-            self.placer.closeVirtualPinAssignment()
-            return
+        #if self.useIoPin == False:
+        #    self.placer.closeVirtualPinAssignment()
+        #    return
         self.placer.openVirtualPinAssignment()
         self.placer.setIoPinBoundaryExtension(12 * 1 * self.gridStep)
         self.placer.setIoPinInterval(5 * 2 * self.gridStep)
@@ -107,9 +105,11 @@ class Placer(object):
             net = self.ckt.net(netIdx)
             if (net.isIo() and (not net.isPower()) and self.useIoPin):
                 self.placer.markIoNet(netIdx)
-            if net.isVdd() and not self.isTopLevel:
+            #if net.isVdd() and not self.isTopLevel:
+            if net.isVdd():
                 self.placer.markAsVddNet(netIdx)
-            if net.isVss() and not self.isTopLevel:
+            if net.isVss():
+            #if net.isVss() and not self.isTopLevel:
                 self.placer.markAsVssNet(netIdx)
     def processPlacementOutput(self):
         #  Set Placement origin
@@ -383,9 +383,12 @@ class Placer(object):
     def addPowerStripe(self, boundary, boundaryWithGuardRing):
         # Use 80 nm spacing.
         width = int(boundaryWithGuardRing.xLen() + 2 * self.gridStep)
+        print("addPowerStripe length ", boundary.xLen(), boundaryWithGuardRing.xLen())
+        print("width", width)
         width = width + (self.gridStep - (width % self.gridStep))
         if width / self.gridStep % 2 == 0:
             width += self.gridStep
+        print("width", width)
         height = int(1500)  # Just give a try FIXME
         if self.isSmallModule:
             height = int(200)
@@ -394,11 +397,16 @@ class Placer(object):
             height += self.gridStep
         fWidth = float(width) / 1000.0
         fHeight = float(height) / 1000.0
+        print("fWidth", fWidth)
         vddOffset = [0.0, 0.0]
         vddOffset[0] = ( self.origin[0] - self.gridStep ) / 1000.0
         vddOffset[1] = ( float(boundary.yHi +  5 * self.gridStep)) / 1000.0
+        while vddOffset[0] > (float(self.symAxis) / 1000.0) - fWidth / 2.0:
+            vddOffset[0] -= self.gridStep / 1000.0
         vssOffset = [0.0, 0.0]
         vssOffset[0] = ( self.origin[0] - self.gridStep    ) / 1000.0
+        while vssOffset[0] > (float(self.symAxis) / 1000.0) - fWidth / 2.0:
+            vssOffset[0] -= self.gridStep / 1000.0
         offsetLo = self.origin[1] - 5 * self.gridStep + self.gridStep / 2
         while offsetLo > boundaryWithGuardRing.yLo - self.gridStep * 5 - height:
             offsetLo -= self.gridStep
