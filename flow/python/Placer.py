@@ -69,6 +69,7 @@ class Placer(object):
             csflow.computeCurrentFlow(ckt)
             for i in range(len(pinNamePaths)):
                 pathIdx = self.placer.allocateSignalPath()
+                self.placer.markSignalPathAsPower(pathIdx)
                 print("allocate signal path", pathIdx)
                 for j in range(len(pinNamePaths[i])):
                     self.placer.addPinToSignalPath(pathIdx, cellNamePaths[i][j], pinNamePaths[i][j])
