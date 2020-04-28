@@ -24,7 +24,7 @@ class Params:
         self.vddNetNames = ["VDD", "vdd", "vdda", "vddd"]
         self.vssNetNames = ["VSS", "GND", "vss", "gnd", "vssa", "vssd"]
         self.digitalNetNames = ["clk"]
-        self.stdCells = ['SR_Latch_LVT','NR2D8BWP_LVT','BUFFD4BWP_LVT','DFCND4BWP_LVT','INVD4BWP_LVT','DFCNQD2BWP_LVT']
+        self.stdCells = ['SR_Latch_LVT','NR2D8BWP_LVT','BUFFD4BWP_LVT','DFCND4BWP_LVT','INVD4BWP_LVT','DFCNQD2BWP_LVT', 'DFCND4BWP_LVT_stupid']
         self.resultDir = None
         self.powerLayer = 6 # m6
         self.psubLayer = self.powerLayer # same as power pin
