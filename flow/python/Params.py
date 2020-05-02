@@ -24,7 +24,7 @@ class Params:
         self.vddNetNames = ["VDD", "vdd", "vdda", "vddd"]
         self.vssNetNames = ["VSS", "GND", "vss", "gnd", "vssa", "vssd"]
         self.digitalNetNames = ["clk"]
-        self.stdCells = ['SR_Latch_LVT','NR2D8BWP_LVT','BUFFD4BWP_LVT','DFCND4BWP_LVT','INVD4BWP_LVT','DFCNQD2BWP_LVT']
+        self.stdCells = ['SR_Latch_LVT','NR2D8BWP_LVT','BUFFD4BWP_LVT','DFCND4BWP_LVT','INVD4BWP_LVT','DFCNQD2BWP_LVT', 'DFCND4BWP_LVT_stupid']
         self.resultDir = None
         self.powerLayer = 6 # m6
         self.psubLayer = self.powerLayer # same as power pin
@@ -38,11 +38,11 @@ class Params:
         [[0, 0.5]]
         # via  [um in length, # of cuts, # of rols, # of cols]
         self.signalAnalogViaCutsTable = \
-        [[0, 2, 1, 2], [80, 4, 2, 2], [120, 9, 3, 3], [200, 12, 3, 4]]
+        [[0, 2, 1, 2], [80, 4, 2, 2], [120, 9, 3, 3]]
         self.signalDigitalViaCutsTable = \
         [[0, 2, 1, 2], [100, 4, 2, 2]]
         self.powerViaCutsTable = \
-        [[0, 9, 3, 3], [100, 12, 3, 4]]
+        [[0, 9, 3, 3]]
         # Additional spacing
         # increase module spacing by area [um^2, um]
         self.blockSpacingFromAreaTableX = \
