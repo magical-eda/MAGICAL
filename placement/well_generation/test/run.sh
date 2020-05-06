@@ -84,13 +84,14 @@ fi
 echo "TECHFILE = ${TECHFILE}"
 echo "SPACING_RULE_FILE = ${SPACING_RULE_FILE}"
 echo "ENCLOSURE_RULE_FILE = ${ENCLOSURE_RULE_FILE}"
+echo "CUR_SCRIPT_DIR = ${CUR_SCRIPT_DIR}"
 echo -e "${STATUS_PREFIX_COLOR}${CIRCUIT_NAME}:${NC} legalize WELLs and insert WELL contacts"
 if [ "$INDIVIDUAL_WELL" ]; then
     TEMP_RESULT_DIR=${RESULT_DIR}
 else
     TEMP_RESULT_DIR=${RESULT_DIR}/${CIRCUIT_NAME}/DataTest
 fi
-${CUR_SCRIPT_DIR}/../bin/legalize \
+${CUR_SCRIPT_DIR}/../install/placement/well_generation/bin/legalize \
     --circuit ${CIRCUIT_NAME} \
     --benchmark_dir ${RESULT_DIR} \
     --placement ${PLACE_RESULT_FILE} \

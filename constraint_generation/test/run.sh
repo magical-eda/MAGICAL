@@ -28,8 +28,8 @@ echo "CIRCUIT_NAME = ${CIRCUIT_NAME}"
 echo "CIRCUIT_EXTENSION = ${CIRCUIT_EXTENSION}"
 echo "CUR_SCRIPT_DIR = ${CUR_SCRIPT_DIR}"
 
-PYTHON_DIR=${CUR_SCRIPT_DIR}/../python
-SFA_DIR=${CUR_SCRIPT_DIR}/../signal_flow_analysis
+PYTHON_DIR=${CUR_SCRIPT_DIR}/../install/constraint_generation/python
+SFA_DIR=${CUR_SCRIPT_DIR}/../install/constraint_generation/signal_flow_analysis
 
 echo -e "${STATUS_PREFIX_COLOR}${CIRCUIT_NAME}:${NC} Parsing spectre netlist and device generation"
 rm -rf ${RESULT_DIR}/${CIRCUIT_NAME}/gds
