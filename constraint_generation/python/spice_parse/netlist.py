@@ -126,4 +126,51 @@ class pmos(mosfet):
     def __init__(self,instance):
         netlist_element.__init__(self,'pmos')
         mosfet.__init__(self, instance)
-
+class nch(mosfet):
+    def __init__(self,instance):
+        netlist_element.__init__(self,'nch')
+        mosfet.__init__(self, instance)
+class pch(mosfet):
+    def __init__(self,instance):
+        netlist_element.__init__(self,'pch')
+        mosfet.__init__(self, instance)
+class nch_mac(mosfet):
+    def __init__(self,instance):
+        netlist_element.__init__(self,'nch_mac')
+        mosfet.__init__(self, instance)
+class pch_mac(mosfet):
+    def __init__(self,instance):
+        netlist_element.__init__(self,'pch_mac')
+        mosfet.__init__(self, instance)
+class nch_lvt(mosfet):
+    def __init__(self,instance):
+        netlist_element.__init__(self,'nch_lvt')
+        mosfet.__init__(self, instance)
+class pch_lvt(mosfet):
+    def __init__(self,instance):
+        netlist_element.__init__(self,'pch_lvt')
+        mosfet.__init__(self, instance)
+class nch_lvt_mac(mosfet):
+    def __init__(self,instance):
+        netlist_element.__init__(self,'nch_lvt_mac')
+        mosfet.__init__(self, instance)
+class pch_lvt_mac(mosfet):
+    def __init__(self,instance):
+        netlist_element.__init__(self,'pch_lvt_mac')
+        mosfet.__init__(self, instance)
+class nch_25_mac(mosfet):
+    def __init__(self,instance):
+        netlist_element.__init__(self,'nch_25_mac')
+        mosfet.__init__(self, instance)
+class pch_25_mac(mosfet):
+    def __init__(self,instance):
+        netlist_element.__init__(self,'pch_25_mac')
+        mosfet.__init__(self, instance)
+class nch_na25_mac(mosfet):
+    def __init__(self,instance):
+        netlist_element.__init__(self,'nch_na25_mac')
+        mosfet.__init__(self, instance)
+class pch_na25_mac(mosfet):
+    def __init__(self,instance):
+        netlist_element.__init__(self,'pch_na25_mac')
+        mosfet.__init__(self, instance)

@@ -1,3 +1,9 @@
+# Develop branch
+
+This branch is for preview purpose. The codes might not be cleaned up for external usage. Please check master branch for demo.
+
+A complete MAGICAL 1.0 is expected to be released in summer 2020 with full documentations and examples.
+
 # MAGICAL #
 
 MAGICAL: Machine Generated Analog IC Layout

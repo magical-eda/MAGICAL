@@ -7,10 +7,11 @@
 import sys, getopt
 import parse_netlist
 
-nmos_set = {"nfet", "nfet_lvt"}
-pmos_set = {"pfet", "pfet_lvt"}
-capacitor_set = {"cap", "cap_2t"}
-resistor_set = {"res", "res_m"}
+nmos_set = {"nmos", "nch", "nch_na", "nch_mac", "nch_lvt", "nch_lvt_mac", "nch_25_mac", "nch_na25_mac", "nch_hvt_mac", "nch_25ud18_mac"}
+pmos_set = {"pmos", "pch", "pch_mac", "pch_lvt", "pch_lvt_mac", "pch_25_mac", "pch_na25_mac", "pch_hvt_mac", "nch_25ud18_mac"}
+capacitor_set = {"cfmom", "cfmom_2t"}
+resistor_set = {"rppoly", "rppoly_m", "rppolywo_m", "rppolywo"}
+unsupported_set = {"rppolyl", "crtmom", "crtmom_2t"}
 
 current_net_count = 0;
 current_instance_count = 0;

@@ -7,8 +7,10 @@ from device_generation.Resistor import Resistor
 from device_generation.Capacitor import Capacitor
 import spice_parse.create_init_obj as init
 
-capacitor_set = {"cap", "cap_2t"}
-resistor_set = {"res", "res_m"}
+attr_set = ["na25", "25ud18"]
+attr_solve = [["na", "25"], ["25", "ud"]]
+capacitor_set = {"cfmom", "cfmom_2t"}
+resistor_set = {"rppoly", "rppoly_m", "rppolywo_m", "rppolywo"}
 
 def print_pin(cell, outFile):
     offset = get_offset(cell)
@@ -75,15 +77,24 @@ def main(argv):
 
     # generate instance
     for inst in inst_set[1:]:
+        # Modify case for rppolywo as attr
+        if inst.attr[0] == 'rppolywo':
+            inst.attr[0] = 'rppoly'
+            inst.attr.append('wo')
+        for attr in inst.attr:
+            if attr in attr_set:
+                inst.attr.remove(attr)
+                inst.attr += attr_solve[attr_set.index(attr)]
+        print inst.attr
         # Generate Device
-        if inst.attr[0] == 'nfet':
+        if inst.attr[0] == 'nch':
             cell = Mosfet(True, inst.name, get_val(inst.parameters['w']), get_val(inst.parameters['l']), int(inst.parameters['nf']), inst.attr[1:])
-        elif inst.attr[0] == 'pfet':
+        elif inst.attr[0] == 'pch':
             cell = Mosfet(False, inst.name, get_val(inst.parameters['w']), get_val(inst.parameters['l']), int(inst.parameters['nf']), inst.attr[1:])
-        elif inst.attr[0] == 'cap':
+        elif inst.attr[0] == 'cfmom':
             cell = Capacitor(inst.name, get_val(inst.parameters['w']), get_val(inst.parameters['s']), int(inst.parameters['nr']), 
                 get_val(inst.parameters['lr']), int(inst.parameters['stm']), int(inst.parameters['spm']), inst.attr[1:], get_val(inst.parameters['ftip']))
-        elif inst.attr[0] == 'res':
+        elif inst.attr[0] == 'rppoly':
             if 'series' in inst.parameters.keys():
                 cell = Resistor(True, inst.name, get_val(inst.parameters['wr']), get_val(inst.parameters['lr']), int(inst.parameters['series']),
                     get_val(inst.parameters['segspace']), inst.attr[1:])
@@ -92,7 +103,7 @@ def main(argv):
                     get_val(inst.parameters['segspace']), inst.attr[1:])
             else:
                 cell = Resistor(False, inst.name, get_val(inst.parameters['wr']), get_val(inst.parameters['lr']), 1,
-                    0.20, inst.attr[1:])
+                    0.18, inst.attr[1:])
         else:
             print >> sys.stderr, "instance not supported"
         gdspy.write_gds(path+'gds/'+inst.name+'.gds', [cell], unit=1.0e-6, precision=1.0e-9)
