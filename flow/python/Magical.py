@@ -8,6 +8,7 @@
 import os
 import sys
 import Params, MagicalDB, Flow
+import pagerank # workaround for pyinstaller
 
 class Magical(object):
     def __init__(self, jsonFile):
@@ -44,3 +45,20 @@ if __name__ == "__main__":
 
     flow = Flow.Flow(db)
     flow.run()
+
+#Workaround for Pyinstaller. ref:https://github.com/pyinstaller/pyinstaller/issues/2820
+if 0: 
+    import UserList
+    import UserString
+    import UserDict
+    import itertools
+    import collections
+    import future.backports.misc
+    import commands
+    import base64
+    import __buildin__
+    import math
+    import reprlib
+    import functools
+    import re
+    import subprocess
