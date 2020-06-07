@@ -28,6 +28,7 @@ class PnR(object):
         self.gridStep = int((glovar.min_w['M1'] + glovar.min_w['SP'])*1000)
         self.debug = True
         self.params = self.mDB.params
+        self.runtime = 0
 
     def implLayout(self, cktIdx, dirname):
         """
@@ -75,12 +76,15 @@ class PnR(object):
     def runPlace(self, cktIdx, dirname):
         self.p = Placer.Placer(self.mDB, cktIdx, dirname,self.gridStep, self.halfMetWid)
         self.p.run()
+        self.runtime += self.p.runtime
         self.symAxis = self.p.symAxis
         self.origin = self.p.origin
         self.subShapeList = self.p.subShapeList
         self.upscaleBBox(self.gridStep, self.dDB.subCkt(cktIdx), self.origin)
 
     def runRoute(self, cktIdx, dirname):
+        print("runtime, ", self.runtime)
+        exit()
         ckt = self.dDB.subCkt(cktIdx)
         self.routerNets = []
         for netIdx in range(ckt.numNets()):
@@ -399,6 +403,8 @@ class PnR(object):
             if self.isSmallModule:
                 wTable = self.params.signalAnalogWireWidthTable # if the module is small. no need to use conservative power table
                 vTable = self.params.signalAnalogViaCutsTable
+            if (self.dDB.subCkt(cktIdx).name == "DIGITAL_TOP_flat"):
+                wTable = self.params.dpowerWireWidthTable
         if net.isDigital():
             wTable = self.params.signalDigitalWireWidthTable
             vTable = self.params.signalDigitalViaCutsTable

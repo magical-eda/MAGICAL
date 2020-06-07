@@ -7,6 +7,7 @@ sys.path.append('/home/local/eda10/jayliu/projects/develop/magical/magical/const
 import device_generation.basic as basic
 import gdspy
 import device_generation.glovar as glovar
+import time
 
 class Placer(object):
     def __init__(self, magicalDB, cktIdx, dirname, gridStep, halfMetWid):
@@ -35,17 +36,21 @@ class Placer(object):
         if (self.dDB.rootCktIdx() ==  self.cktIdx):
             self.useIoPin = False
             self.isTopLevel = True
+        self.countNumberOfCells()
         self.dumpInput()
-        self.placer.numThreads(18) #FIXME
+        self.placer.numThreads(1) #FIXME
+        start = time.time()
         self.symAxis = self.placer.solve(self.gridStep)
-        print("placement finished: ", self.ckt.name)
+        end = time.time()
+        self.runtime = end-start
+        print("placement finished: ", self.ckt.name, "runtime", end-start)
         self.processPlacementOutput()
     def dumpInput(self):
         self.placer.readTechSimpleFile(self.params.simple_tech_file)
         self.placeParsePin()
         self.placeConnection()
         self.placer.readSymFile(self.dirname + self.ckt.name + '.sym') # FIXME: use in memory interface
-        self.placeParseSigpath()
+        #self.placeParseSigpath()
         self.computeAndAddPowerCurrentFlow()
         self.placeParseBoundary()
         if self.debug:
@@ -53,12 +58,43 @@ class Placer(object):
             self.tempCell = gdspy.Cell("FLOORPLAN")
         self.configureIoPinParameters()
         self.placer.readSymNetFile(self.dirname + self.ckt.name + '.symnet') # FIXME: use in memory interface
-        self.feedDeviceProximity()
+        #self.feedDeviceProximity()
+
+    def countNumberOfCells(self):
+        print("countNumberOfCells", self.ckt.name)
+        numNmos = 0
+        numPmos = 0
+        numCaps = 0
+        numRes = 0
+        nameOfUnset = []
+        for nodeIdx in range(self.ckt.numNodes()):
+            # Find the correct node from subgraph
+            node = self.ckt.node(nodeIdx)
+            if node.isLeaf():
+                continue
+            subCktIdx = node.graphIdx
+            subCkt = self.dDB.subCkt(subCktIdx)
+            if subCkt.implType == magicalFlow.ImplTypePCELL_Pch:
+                numPmos += 1
+            elif subCkt.implType == magicalFlow.ImplTypePCELL_Nch:
+                numNmos += 1
+            elif subCkt.implType == magicalFlow.ImplTypePCELL_Cap:
+                numCaps += 1
+            elif subCkt.implType == magicalFlow.ImplTypePCELL_Res:
+                numRes += 1
+            else:
+                nameOfUnset.append(subCkt.name)
+        print("nmos", numNmos, "numPmos", numPmos, "cap", numCaps, "res", numRes, "unset:")
+        for name in nameOfUnset:
+            print(name)
+        print("end")
     def placeParseSigpath(self):
         filename = self.dirname + self.ckt.name + '.sigpath' #FIXME: use in memeory interface
         if os.path.isfile(filename):
             self.placer.readSigpathFile(filename)
     def computeAndAddPowerCurrentFlow(self):
+        #if self.isTopLevel:
+        #    return
         print("computeAndAddPowerCurrentFlow")
         csflow = magicalFlow.CSFlow(self.dDB)
         ckt = self.ckt
@@ -75,7 +111,6 @@ class Placer(object):
                     self.placer.addPinToSignalPath(pathIdx, cellNamePaths[i][j], pinNamePaths[i][j])
                     print("add pin to signal path", pathIdx, cellNamePaths[i][j], pinNamePaths[i][j])
     def feedDeviceProximity(self):
-        return
         for idx in range(len(self.deviceProximityTypes)):
             deviceType = self.deviceProximityTypes[idx]
             cells = []
@@ -93,6 +128,7 @@ class Placer(object):
                 proxGrpIdx = self.placer.allocateProximityGroup()
                 for placerCellIdx in cells:
                     self.placer.addCellToProximityGroup(placerCellIdx, proxGrpIdx)
+
 
 
     def configureIoPinParameters(self):

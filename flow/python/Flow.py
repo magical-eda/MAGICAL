@@ -11,6 +11,7 @@ import Constraint
 import PnR
 import StdCell
 import subprocess
+import time
 
 
 class Flow(object):
@@ -20,6 +21,7 @@ class Flow(object):
         self.constraint = Constraint.Constraint(self.mDB)
         self.params = self.mDB.params
         self.pnrs = []
+        self.runtime = 0
 
     def run(self):
         """
@@ -29,7 +31,11 @@ class Flow(object):
         self.resultName = self.mDB.params.resultDir
         topCktIdx = self.mDB.topCktIdx() # The index of the topckt
         #self.generateConstraints()
+        start = time.time()
         self.implCktLayout(topCktIdx)
+        end = time.time()
+        print("runtime ", end - start)
+        exit()
         for pnr in self.pnrs:
             pnr.routeOnly()
         return True
@@ -105,5 +111,6 @@ class Flow(object):
         self.setup(cktIdx)
         pnr = PnR.PnR(self.mDB)
         pnr.placeOnly(cktIdx, self.resultName)
+        self.runtime += pnr.runtime
         self.pnrs.append(pnr)
         #PnR.PnR(self.mDB).implLayout(cktIdx, self.resultName)
