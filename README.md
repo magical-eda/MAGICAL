@@ -2,6 +2,10 @@
 
 MAGICAL: Machine Generated Analog IC Layout
 
+There is the top-level MAGICAL flow repository. In MAGICAL, we maintain seperate components, such as constraint generation, placement and routing, in different repository. And we integrate each component through top-level python flow.
+
+More information, instructions and benchmark circuits will be added later.
+
 # Dependency 
 
 - Python 2.7
