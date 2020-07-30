@@ -3,7 +3,7 @@ import IdeaPlaceExPy
 import anaroutePy
 import sys
 import os.path
-sys.path.append('/home/local/eda10/jayliu/projects/develop/magical/magical/constraint_generation/python')
+sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 import device_generation.basic as basic
 import gdspy
 import device_generation.glovar as glovar
