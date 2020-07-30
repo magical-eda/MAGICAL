@@ -84,7 +84,6 @@ class PnR(object):
 
     def runRoute(self, cktIdx, dirname):
         print("runtime, ", self.runtime)
-        exit()
         ckt = self.dDB.subCkt(cktIdx)
         self.routerNets = []
         for netIdx in range(ckt.numNets()):

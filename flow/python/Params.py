@@ -31,9 +31,9 @@ class Params:
         self.smallModuleAreaThreshold = 60 # um^2
         # [um in length, um in width]
         self.signalAnalogWireWidthTable = \
-        [ [0, 0.1], [80, 0.2],  [120, 0.3]]
+        [ [0, 0.1],  [120, 0.2]]
         self.signalDigitalWireWidthTable = \
-        [ [0, 0.1], [100, 0.18]]
+        [ [0, 0.1], [100, 0.12]]
         self.powerWireWidthTable = \
         [[0, 0.5]]
         self.dpowerWireWidthTable = \
@@ -42,9 +42,9 @@ class Params:
         self.signalAnalogViaCutsTable = \
         [[0, 2, 1, 2], [80, 4, 2, 2], [120, 9, 3, 3]]
         self.signalDigitalViaCutsTable = \
-        [[0, 2, 1, 2], [100, 4, 2, 2]]
+        [[0, 2, 1, 2], [120, 4, 2, 2]]
         self.powerViaCutsTable = \
-        [[0, 9, 3, 3]]
+        [[0, 4, 2, 2], [100, 9, 3, 3]]
         # Additional spacing
         # increase module spacing by area [um^2, um]
         self.blockSpacingFromAreaTableX = \

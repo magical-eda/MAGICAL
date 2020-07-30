@@ -1,0 +1,6 @@
+Magical.egg-info
+Magical.spec
+build
+dist
+python/build
+python/pagerank.cpp
