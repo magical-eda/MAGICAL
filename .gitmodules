@@ -4,8 +4,8 @@
 	
 [submodule "ConstGen"]
 	path = ConstGen
-	url = https://github.com/jayl940712/ConstGen.git
+	url = https://github.com/jayl940712/ConstGen
 	
 [submodule "device_generation"]
 	path = device_generation
-	url = https://github.com/jayl940712/device_generation.git
+	url = https://github.com/jayl940712/device_generation
