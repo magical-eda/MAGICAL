@@ -30,7 +30,6 @@ class Flow(object):
         """
         self.resultName = self.mDB.params.resultDir
         topCktIdx = self.mDB.topCktIdx() # The index of the topckt
-        #self.generateConstraints()
         start = time.time()
         self.implCktLayout(topCktIdx)
         end = time.time()
