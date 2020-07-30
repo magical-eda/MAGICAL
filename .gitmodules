@@ -1,3 +1,11 @@
 [submodule "IdeaPlaceEx"]
 	path = IdeaPlaceEx
 	url = https://github.com/krzhu/IdeaPlaceEx.git
+	
+[submodule "ConstGen"]
+	path = ConstGen
+	url = https://github.com/jayl940712/ConstGen.git
+	
+[submodule "device_generation"]
+	path = device_generation
+	url = https://github.com/jayl940712/device_generation.git
