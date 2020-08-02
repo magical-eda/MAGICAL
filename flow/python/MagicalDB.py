@@ -17,7 +17,7 @@ class MagicalDB(object):
 
     def parse(self):
         self.parse_input_netlist(self.params)
-        self.parse_simple_techfile('/home/unga/jayliu/projects/inputs/techfile.simple')
+        self.parse_simple_techfile(self.params.simple_tech_file)
         self.designDB.db.findRootCkt() # After the parsing, find the root circuit of the hierarchy
         self.postProcessing()
         return True

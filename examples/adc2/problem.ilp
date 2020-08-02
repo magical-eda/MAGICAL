@@ -1,0 +1,13 @@
+\ Model GurobiLinearApi_copy
+\ LP format - for model browsing. Use MPS format to capture full model detail.
+Minimize
+ 
+Subject To
+ CONSTR: - x + meGlobalPlace <= -31800
+ CONSTR: 2 x - 2 laceCalcGrad = -29400
+ CONSTR: 2 meGlobalPlace - 2 laceCalcGrad = -31800
+Bounds
+ x free
+ meGlobalPlace free
+ laceCalcGrad free
+End
