@@ -8,6 +8,7 @@ import magicalFlow
 import IdeaPlaceExPy
 import anaroutePy
 import sys
+import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 import device_generation.basic as basic
 import Router
