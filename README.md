@@ -76,13 +76,13 @@ The output layout gdsii files: BENCH/BENCH.route.gds (ex. adc2/xxx.route.gds)
 
 The automatic symmetry constraint generation is currently embedded into the flow. To ensure circuit functionality it is ideal that designers provide  constraints to guide the placement and routing. 
 
-A sample device and net symmetry constraint is given for OTA_1. These files should also be the output for the current automatic symmetry constraint generation flow.
+A sample device and net symmetry constraint is given for adc2. These files should also be the output for the current automatic symmetry constraint generation flow.
 
 Sample symmetry device constraint file:
-execution/results/OTA_1/OTA_1.sym
+examples/adc2/CTDSM_CORE_NEW_schematic.sym
 
 Sample symmetry net constraint file:
-execution/results/OTA_1/OTA_1.symnet
+examples/adc2/CTDSM_CORE_NEW_schematic.symnet
 
 ## Device symmetry constraints
 
@@ -94,28 +94,6 @@ Device symmetry constraints greatly affect the placement solution and output lay
 
 **Self-symmetry device**: A single device that is reflection symmetric with itself respect to a symmetry axis.
 
-For device symmetry constraint input, each line indicate a symmetry device pair or a self-symmetry device constraint. Symmetry groups are seperated by a blank line. The below example of OTA_1.sym shows 3 symmetry group constraints. For the first symmetry group, it consists of 3 symmetry pairs and 2 self-symmetry device sharing the same symmetry axis.
-```
-M15 M17
-M18 M19
-M13 M12
-MP1c
-M20
-
-M2 M0
-M3 M1
-M6 M9
-C0 C1
-M23 M25
-MP1a MP1b
-M11
-M10
-
-M5 M7
-
-```
-Note: Currently the placement engine strictly follow the constraints. Please be careful that the given constraints could be satisfied. Infeasible constraint inputs would cause MAGICAL to crash.
-
 ## Net symmetry constraints
 
 Similar to device symmetry constraints, we consider symmetry net pairs and self-symmetry net constraints. 
@@ -123,39 +101,6 @@ Similar to device symmetry constraints, we consider symmetry net pairs and self-
 **Symmetry net pair**: Two nets that are reflection symmetric with respect to a symmetry axis (usually vertical). For a valid constraint, the corresponding pins of the two nets must be reflective symmetric with a axix.
 
 **Self-symmetry net**: A single net that is reflection symmetric with itself respect to a symmetry axis.
-
-<figure align="center">
-  <img src="images/sym_net.png" width="240" alt>
-  <figcaption>Symmetry Net Pair</figcaption>
-</figure>
-
-Each line in the .symnet file indicate a symmetry net pair or a self-symmetry net constraint. Invalid net symmetry constraints would automatically be waived by the routing engine. Below is the example of OTA_1.symnet:
-```
-intm intp
-INP INM
-OUTP OUTM
-net047 net037
-net020
-net028
-net7
-vcmfb
-net025
-VREF
-```
-
-## Running the flow with custom layout constraints
-To run the flow with custom layout constraints, we need to disable the automatic constraint generation since it would overwrite the input constraint files. Comment line 39 and 40 for  constraint_generation/test/run.sh:
-```
-# echo -e "${STATUS_PREFIX_COLOR}${CIRCUIT_NAME}:${NC} Generating constraints for placement and routing"
-# $SFA_DIR/bin/SFA ${RESULT_DIR}/${CIRCUIT_NAME}/${CIRCUIT_NAME}.initObj ${RESULT_DIR}/${CIRCUIT_NAME}/${CIRCUIT_NAME} > /dev/null
-```
-
-Return to the root directory. Re-install and run the script:
-```
-make install
-cd execution
-source run.sh
-```
 
 # License #
 [BSD 3-Clause](https://github.com/magical-eda/MAGICAL/blob/master/LICENSE)
