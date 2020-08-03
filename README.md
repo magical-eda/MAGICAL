@@ -41,43 +41,36 @@ To clone the repository and submodules, go to the path to download the repositor
 ```
 # clone the repository 
 git clone https://github.com/magical-eda/MAGICAL.git
+git submodule init
+git submodule update
 ```
 
 # How to build #
 
 To build, run make in the root directory. 
 ```
-make 
-make install
+./build.sh
 ```
 GCC 4.8 or later is preferred. 
 Export CC and CXX environment variables for custom gcc and g++ path, respectively. 
 
-To clean, run make clean in the cpp directory. 
-```
-make clean
-```
-
 # How to run #
 
-A toy example of technology input file is under execution/inputs
-
-Benchmark circuit examples are under execution/results
+Benchmark circuit examples are under examples/
 
 All technology related parameters including benchmark circuit sizing are samples and not related to any proprietary PDK information.
 
 Benchmark circuits currently includes:
-1 Comparator
-3 OTA
+1 adc2
+3 ota3
 
-To run the example benchmark circuits
+To run the benchmark circuits
 ```
-cd execution
+cd BENCH/ (ex. adc2)
 source run.sh
 ```
-Prior running, please ensure that the correct netlist file is given: /execution/results/circuit_example/circuit_example.sp
 
-The output layout gdsii files: execution/results/circuit_example/circuit_example.route.gds
+The output layout gdsii files: BENCH/BENCH.route.gds (ex. adc2/xxx.route.gds)
 
 # Custom layout constraint inputs #
 
