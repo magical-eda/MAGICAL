@@ -1,8 +1,0 @@
-input_resp vo cap1 vo1p cap1 vo1p ota1 vip ota1 vom cap2_res2 vo2p cap2_res2 vo2p ota2 vip ota2 vom CTDSM_CORE_NEW_schematic_cap3 0 CTDSM_CORE_NEW_schematic_cap3 1 digital0 vo3p
-input_resm vo cap1 vo1m cap1 vo1m ota1 vim ota1 vop cap2_res2 vo2m cap2_res2 vo2m ota2 vim ota2 vop CTDSM_CORE_NEW_schematic_cap3 0 CTDSM_CORE_NEW_schematic_cap3 1 digital0 vo3m
-input_resp vo cap1 vo1p cap1 vo1p dac1a in dac1a out cap2_res2 vo2p cap2_res2 vo2p ota2 vip ota2 vom CTDSM_CORE_NEW_schematic_cap3 0 CTDSM_CORE_NEW_schematic_cap3 1 digital0 vo3p
-input_resm vo cap1 vo1m cap1 vo1m dac1b in dac1b out cap2_res2 vo2m cap2_res2 vo2m ota2 vim ota2 vop CTDSM_CORE_NEW_schematic_cap3 0 CTDSM_CORE_NEW_schematic_cap3 1 digital0 vo3m
-input_resp vo cap1 vo1p cap1 vo1p ota1 vip ota1 vom cap2_res2 vo2p cap2_res2 vo2p ota2 vip ota2 vom dac3a in dac3a out digital0 vo3p
-input_resm vo cap1 vo1m cap1 vo1m ota1 vim ota1 vop cap2_res2 vo2m cap2_res2 vo2m ota2 vim ota2 vop dac3b in dac3b out digital0 vo3m
-input_resp vo cap1 vo1p cap1 vo1p dac1a in dac1a out cap2_res2 vo2p cap2_res2 vo2p ota2 vip ota2 vom dac3a in dac3a out digital0 vo3p
-input_resm vo cap1 vo1m cap1 vo1m dac1b in dac1b out cap2_res2 vo2m cap2_res2 vo2m ota2 vim ota2 vop dac3b in dac3b out digital0 vo3m
