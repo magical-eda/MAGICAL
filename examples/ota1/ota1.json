@@ -1,5 +1,5 @@
 {
-    "spectre_netlist" : "Telescopic_Three_stage_flow.sp",
+    "spectre_netlist" : "ota1.sp",
     "resultDir" : "./",
     "techfile"  : "../mockPDK/mock.techfile",
     "simple_tech_file" :  "../mockPDK/techfile.simple",
