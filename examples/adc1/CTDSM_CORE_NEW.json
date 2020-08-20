@@ -1,0 +1,7 @@
+{
+    "hspice_netlist" : "CTDSM_CORE_NEW_hspice.sp",
+    "resultDir" : "./",
+    "techfile"  : "../mockPDK/mock.techfile",
+    "simple_tech_file" :  "../mockPDK/techfile.simple",
+    "lef" : "../mockPDK/mock.lef"
+}
