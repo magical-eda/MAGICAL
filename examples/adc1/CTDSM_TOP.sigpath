@@ -1,0 +1,2 @@
+input_res OTA1_INP xi20 vim xi20 vop CTDSM_TOP_xr16 0 CTDSM_TOP_xr16 1 xi22 vim xi22 vop CTDSM_TOP_xr18 0 CTDSM_TOP_xr18 1 xi19 _net0 rrr1 net020
+input_res OTA1_INN xi20 vip xi20 vom CTDSM_TOP_xr17 0 CTDSM_TOP_xr17 1 xi22 vip xi22 vom CTDSM_TOP_xr19 0 CTDSM_TOP_xr19 1 xi19 _net1 rrr1 net028
