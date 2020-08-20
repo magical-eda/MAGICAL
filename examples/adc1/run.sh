@@ -1,1 +1,1 @@
-python ../../flow/python/Magical.py CTDSM_CORE_NEW.json
+python ../../flow/python/Magical.py adc1.json
