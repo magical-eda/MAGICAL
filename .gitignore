@@ -6,3 +6,4 @@ placement
 routing
 constraint_generation
 thirdparty
+*.pyc
