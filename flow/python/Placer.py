@@ -19,7 +19,7 @@ class Placer(object):
         self.ckt = self.dDB.subCkt(cktIdx)
         self.placer = IdeaPlaceExPy.IdeaPlaceEx()
         self.dirname = dirname
-        self.numIntervalNodes = self.ckt.numNodes() # without io pins
+        self.numCktNodes = self.ckt.numNodes() # without io pins
         self.gridStep = gridStep 
         self.halfMetWid = halfMetWid
         self.subShapeList = list()
@@ -27,6 +27,7 @@ class Placer(object):
         self.nodeToCellIdx = []
         self.placeParams()
         self.guardRingGrCells = []
+        self.implRealLayout = True # if we want to implement new layout 
     def placeParams(self):
         self.deviceProximityTypes = [magicalFlow.ImplTypePCELL_Nch, magicalFlow.ImplTypePCELL_Pch]
     def run(self):
@@ -36,7 +37,8 @@ class Placer(object):
         if (self.dDB.rootCktIdx() ==  self.cktIdx):
             self.useIoPin = False
             self.isTopLevel = True
-        self.countNumberOfCells()
+        if not self.implRealLayout:
+            self.useIoPin = False # in early floorplan stage, don't need real io pins
         self.dumpInput()
         self.placer.numThreads(1) #FIXME
         start = time.time()
@@ -50,7 +52,7 @@ class Placer(object):
         self.placeParsePin()
         self.placeConnection()
         self.placer.readSymFile(self.dirname + self.ckt.name + '.sym') # FIXME: use in memory interface
-        #self.placeParseSigpath()
+        self.placeParseSigpath()
         self.computeAndAddPowerCurrentFlow()
         self.placeParseBoundary()
         if self.debug:
@@ -59,35 +61,7 @@ class Placer(object):
         self.configureIoPinParameters()
         self.placer.readSymNetFile(self.dirname + self.ckt.name + '.symnet') # FIXME: use in memory interface
         #self.feedDeviceProximity()
-
-    def countNumberOfCells(self):
-        print("countNumberOfCells", self.ckt.name)
-        numNmos = 0
-        numPmos = 0
-        numCaps = 0
-        numRes = 0
-        nameOfUnset = []
-        for nodeIdx in range(self.ckt.numNodes()):
-            # Find the correct node from subgraph
-            node = self.ckt.node(nodeIdx)
-            if node.isLeaf():
-                continue
-            subCktIdx = node.graphIdx
-            subCkt = self.dDB.subCkt(subCktIdx)
-            if subCkt.implType == magicalFlow.ImplTypePCELL_Pch:
-                numPmos += 1
-            elif subCkt.implType == magicalFlow.ImplTypePCELL_Nch:
-                numNmos += 1
-            elif subCkt.implType == magicalFlow.ImplTypePCELL_Cap:
-                numCaps += 1
-            elif subCkt.implType == magicalFlow.ImplTypePCELL_Res:
-                numRes += 1
-            else:
-                nameOfUnset.append(subCkt.name)
-        print("nmos", numNmos, "numPmos", numPmos, "cap", numCaps, "res", numRes, "unset:")
-        for name in nameOfUnset:
-            print(name)
-        print("end")
+    
     def placeParseSigpath(self):
         filename = self.dirname + self.ckt.name + '.sigpath' #FIXME: use in memeory interface
         if os.path.isfile(filename):
@@ -219,10 +193,20 @@ class Placer(object):
         # Output placement result
         magicalFlow.writeGdsLayout(self.cktIdx, self.dirname + self.ckt.name + '.place.gds', self.dDB, self.tDB)
 
+    def resetPlacer(self):
+        """
+        Reset the placer
+        """
+        if self.implRealLayout:
+            assert(False) # reset is only working when the placer is not in implement real circuit mode
+        self.ckt.resizeNodes(self.numCktNodes) #remove the additional pin nodes
+        self.placer = IdeaPlaceExPy.IdeaPlaceEx() # Create a new placer solver
+        self.ckt.layout().clear()
+
     def writeoutPlacementResult(self):
         # Write results to flow
         self.initPowerPins()
-        for nodeIdx in range(self.numIntervalNodes):
+        for nodeIdx in range(self.numCktNodes):
             cktNode = self.ckt.node(nodeIdx)
             subCkt = self.dDB.subCkt(cktNode.graphIdx)
             x_offset = self.placer.xCellLoc(nodeIdx) - self.origin[0]
@@ -230,7 +214,7 @@ class Placer(object):
             print("node ", cktNode.name, x_offset, y_offset)
             cktNode.setOffset(x_offset, y_offset)
             self.ckt.layout().insertLayout(subCkt.layout(), x_offset, y_offset, cktNode.flipVertFlag)
-            print cktNode.name, self.placer.cellName(nodeIdx), x_offset, y_offset, "PLACEMENT"
+            print(cktNode.name, self.placer.cellName(nodeIdx), x_offset, y_offset, "PLACEMENT")
             if self.debug:
                 boundary = subCkt.layout().boundary()
                 rect = gdspy.Rectangle((boundary.xLo+x_offset,boundary.yLo+y_offset), (boundary.xHi+x_offset,boundary.yHi+y_offset))
@@ -240,19 +224,19 @@ class Placer(object):
         cktBoundaryBox = self.ckt.layout().boundary()
         #Process io pins      
         if self.useIoPin:
-            for nodeIdx in range(self.numIntervalNodes, self.ckt.numNodes()):
+            for nodeIdx in range(self.numCktNodes, self.ckt.numNodes()):
                 cktNode = self.ckt.node(nodeIdx)
                 subCkt = self.dDB.subCkt(cktNode.graphIdx)
-                x_offset = self.iopinOffsetx[nodeIdx - self.numIntervalNodes]
-                y_offset = self.iopinOffsety[nodeIdx - self.numIntervalNodes]
+                x_offset = self.iopinOffsetx[nodeIdx - self.numCktNodes]
+                y_offset = self.iopinOffsety[nodeIdx - self.numCktNodes]
                 cktNode.setOffset(x_offset, y_offset)
                 self.ckt.layout().insertLayout(subCkt.layout(), x_offset, y_offset, cktNode.flipVertFlag)
         # write guardring using gdspy
-        if self.cktNeedSub(self.cktIdx):
-            print "Adding GuardRing to Cell"
+        if self.cktNeedSub(self.cktIdx) and self.implRealLayout:
+            print("Adding GuardRing to Cell")
             print("origin", self.origin[0], self.origin[1])
             # Leave additional 80nm spacing
-            grCell, subPin = basic.sub_GR([cktBoundaryBox.xLo/1000.0-0.08, cktBoundaryBox.yLo/1000.0-0.08], [cktBoundaryBox.xHi/1000.0+0.08, cktBoundaryBox.yHi/1000.0+0.08], [self.origin[0]-self.halfMetWid/1000.0,self.origin[1]-self.halfMetWid/1000.0])
+            grCell, subPin = basic.basic.sub_GR([cktBoundaryBox.xLo/1000.0-0.08, cktBoundaryBox.yLo/1000.0-0.08], [cktBoundaryBox.xHi/1000.0+0.08, cktBoundaryBox.yHi/1000.0+0.08], [self.origin[0]-self.halfMetWid/1000.0,self.origin[1]-self.halfMetWid/1000.0])
             self.addPycell(self.ckt.layout(), grCell)
             bBox = self.ckt.layout().boundary()
             self.subShape(subPin)
@@ -295,6 +279,12 @@ class Placer(object):
             return -1
 
     def initPowerPins(self):
+        """
+        Implement the power pin and layout for power nets.
+        The stacked VIA to the power layer
+        """
+        if not self.implRealLayout:
+            return
         for netIdx in range(self.ckt.numNets()):
             net = self.ckt.net(netIdx)
             if net.isVdd():
@@ -319,7 +309,7 @@ class Placer(object):
             conLayer = conCkt.net(conNet).ioPinMetalLayer(0) 
             ioshape = conCkt.net(conNet).ioPinShape(0)
             if conLayer < topmet:
-                met_cell = basic.power_pin_init([ioshape.xLo/1000.0, ioshape.yLo/1000.0], [ioshape.xHi/1000.0, ioshape.yHi/1000.0], conLayer+1, topmet)
+                met_cell = basic.basic.power_pin_init([ioshape.xLo/1000.0, ioshape.yLo/1000.0], [ioshape.xHi/1000.0, ioshape.yHi/1000.0], conLayer+1, topmet)
                 self.addPycell(conCkt.layout(), met_cell)
                 conCkt.net(conNet).ioLayer = topmet
 
@@ -417,6 +407,7 @@ class Placer(object):
         iopinPin.intNetIdx = 0
         iopinPin.nodeIdx = iopinNodeIdx
         iopinPin.netIdx = netIdx
+
     def addPowerStripe(self, boundary, boundaryWithGuardRing):
         # Use 80 nm spacing.
         width = int(boundaryWithGuardRing.xLen() + 2 * self.gridStep)
@@ -453,9 +444,9 @@ class Placer(object):
         fWidth =  halfWidth *2 
         print("width, ", fWidth, "height", fHeight, "vdd offset", vddOffset[0], vddOffset[1])
         print("width, ", fWidth, "height", fHeight, "vss offset", vssOffset[0], vssOffset[1])
-        vddStripe = basic.power_strip(fWidth, fHeight, vddOffset, lay=[self.params.powerLayer])
+        vddStripe = basic.basic.power_strip(fWidth, fHeight, vddOffset, lay=[self.params.powerLayer])
         print("generated vdd")
-        vssStripe = basic.power_strip(fWidth, fHeight, vssOffset, lay=[self.params.powerLayer])
+        vssStripe = basic.basic.power_strip(fWidth, fHeight, vssOffset, lay=[self.params.powerLayer])
         print("generated vss")
         for netIdx in range(self.ckt.numNets()):
             net = self.ckt.net(netIdx)
@@ -555,7 +546,7 @@ class Placer(object):
 
     def setPlaceOrigin(self):
         self.origin = [self.placer.xCellLoc(0), self.placer.yCellLoc(0)]
-        for nodeIdx in range(self.numIntervalNodes):
+        for nodeIdx in range(self.numCktNodes):
             if self.origin[0] > self.placer.xCellLoc(nodeIdx):
                 self.origin[0] = self.placer.xCellLoc(nodeIdx)
             if self.origin[1] > self.placer.yCellLoc(nodeIdx):
@@ -570,6 +561,8 @@ class Placer(object):
                         self.origin[0] = ioPinX
                     if  self.origin[1] > ioPinY:
                         self.origin[1] = ioPinY
+        self.origin[0]=int(round(self.origin[0]))
+        self.origin[1]=int(round(self.origin[1]))
     def cktNeedSub(self, cktIdx):
         ckt = self.dDB.subCkt(cktIdx)
         for netIdx in range(ckt.numNets()):
@@ -618,6 +611,13 @@ class Placer(object):
         self.subShapeList.append(shape[1:5])
     
     def checkSmallModule(self, cktIdx):
+        """
+        This is a dirty tuning module
+        For small layout, there is likely a DRV related to power stripes,
+        if we are using a regular wide one.
+        So we check whether this is a small module, and if so,
+        use smaller power shapes
+        """
         ckt = self.dDB.subCkt(cktIdx)
         bbox = ckt.layout().boundary()
         xlen = bbox.xLen()
