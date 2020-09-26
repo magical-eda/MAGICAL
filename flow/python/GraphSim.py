@@ -6,9 +6,6 @@
 #
 import networkx as nx
 import matplotlib.pyplot as plt
-import pyximportcpp
-pyximportcpp.install()
-#from pagerank import pagerank
 import scipy.stats as stat
 import sys
 
@@ -31,10 +28,8 @@ class GraphSim(object):
             self.cenA, self.radA = self.eigenCenter(self.subA)
             self.cenB, self.radB = self.eigenCenter(self.subB)
         else:
-            #self.cenA, self.radA = self.pagerankCenter(self.subA)
-            #self.cenB, self.radB = self.pagerankCenter(self.subB)
-            self.cenA, self.radA = self.eigenCenter(self.subA)
-            self.cenB, self.radB = self.eigenCenter(self.subB) # FIXME: get rid of this pagerank forever
+            self.cenA, self.radA = self.pagerankCenter(self.subA)
+            self.cenB, self.radB = self.pagerankCenter(self.subB)
         dist = nx.shortest_path_length(self.graph, source=self.cenA, target=self.cenB) * 0.5
         # Choosing distance based center distance and subgraph radius
         dist = max(dist, self.alpha_min*self.radA, self.alpha_min*self.radB, self.min_size) # At least alpha_min
@@ -98,7 +93,7 @@ class GraphSim(object):
     def pagerankCenter(graph):
         if len(graph.nodes) == 1:
             return graph.nodes[0], 0
-        simMatrix = pagerank(graph, graph.nodes)
+        simMatrix = nx.pagerank(graph)
         sumDist = dict()
         minDist = float("inf")
         centerList = list()
