@@ -8,7 +8,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import pyximportcpp
 pyximportcpp.install()
-from pagerank import pagerank
+#from pagerank import pagerank
 import scipy.stats as stat
 import sys
 
@@ -31,8 +31,10 @@ class GraphSim(object):
             self.cenA, self.radA = self.eigenCenter(self.subA)
             self.cenB, self.radB = self.eigenCenter(self.subB)
         else:
-            self.cenA, self.radA = self.pagerankCenter(self.subA)
-            self.cenB, self.radB = self.pagerankCenter(self.subB)
+            #self.cenA, self.radA = self.pagerankCenter(self.subA)
+            #self.cenB, self.radB = self.pagerankCenter(self.subB)
+            self.cenA, self.radA = self.eigenCenter(self.subA)
+            self.cenB, self.radB = self.eigenCenter(self.subB) # FIXME: get rid of this pagerank forever
         dist = nx.shortest_path_length(self.graph, source=self.cenA, target=self.cenB) * 0.5
         # Choosing distance based center distance and subgraph radius
         dist = max(dist, self.alpha_min*self.radA, self.alpha_min*self.radB, self.min_size) # At least alpha_min
@@ -160,14 +162,16 @@ def main(argv):
     g = testGraph()
     g.graph3()
     graphSim = GraphSim(g.g)
+    """
     print GraphSim.jordanCenter(g.g)
     print GraphSim.eigenCenter(g.g)
     print GraphSim.pagerankCenter(g.g)
     print "Original Graph"
+    """
     g.plot(graphSim.graph)
-    print "Jordan Center Rad 3"
+    #print "Jordan Center Rad 3"
     g.plot(graphSim.BFSSub(graphSim.jordanCenter(graphSim.graph)[0], 3))
-    print "Eigen Center Rad 2"
+    #print "Eigen Center Rad 2"
     g.plot(graphSim.BFSSub(graphSim.eigenCenter(graphSim.graph)[0], 2))
 
 if __name__ == '__main__':

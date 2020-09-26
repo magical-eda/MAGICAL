@@ -10,11 +10,10 @@ import anaroutePy
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
-import device_generation.basic as basic
 import Router
 import Placer
 import gdspy
-import device_generation.glovar as glovar
+from device_generation.glovar import tsmc40_glovar as glovar
 
 class PnR(object):
     def __init__(self, magicalDB):
@@ -75,6 +74,10 @@ class PnR(object):
             
     def runPlace(self, cktIdx, dirname):
         self.p = Placer.Placer(self.mDB, cktIdx, dirname,self.gridStep, self.halfMetWid)
+        #self.p.implRealLayout = False
+        #self.p.run()
+        #self.p.resetPlacer()
+        self.p.implRealLayout = True
         self.p.run()
         self.runtime += self.p.runtime
         self.symAxis = self.p.symAxis
@@ -107,13 +110,11 @@ class PnR(object):
         router.setGridOffsetX(2*(self.origin[0] - self.gridStep * 10))
         router.setGridOffsetY(2*(self.origin[1] - self.gridStep * 10))
         print("routing grid off set", 2*(self.origin[0]), 2*(self.origin[1]))
-        #print self.origin[0]+self.halfMetWid, self.origin[1]+self.halfMetWid, "OFFSET"
         #router.parseSymNet(dirname+ckt.name+'.symnet')
         if self.isTopLevel:
             for netIdx in self.routerNets:
                 net = ckt.net(netIdx)
                 if net.isIo():
-                    print net.name, "added to IO port"
                     router.addIOPort(net.name)
         routerPass = router.solve(False)
         router.evaluate()
@@ -198,6 +199,8 @@ class PnR(object):
                 self.updateOriginPin(shape)
         for netIdx in self.routerNets:
             self.iterateNetPinShapes(cktIdx, netIdx, updateCallback)
+        self.origin[0] = int(round(self.origin[0]))
+        self.origin[1] = int(round(self.origin[1]))
     def writeiopifile(self, cktIdx, fileName):
         """
         @brief this function write out the .iopin file for router. Primaily for debugging
@@ -262,7 +265,6 @@ class PnR(object):
                     if self.debug:
                         string = "%s %s %d %d %d %d %d %d %d\n" % (str(net.name), str(pinNameIdx), conLayer+1, conShape[0], conShape[1], conShape[2], conShape[3], netIsPower, iopinshapeIsPowerStripe)
                         outFile.write(string)
-                    print conShape, self.origin
                 pinNameIdx += 1
             if isPsub:
                 assert self.cktNeedSub(cktIdx)
@@ -300,7 +302,6 @@ class PnR(object):
                     print("addPin2Net ", pinName[netIdx][pinId], routerNetIdx)
                     router.addPin2Net(pinName[netIdx][pinId], routerNetIdx)
             if isPsub:
-                #print "sub"
                 print("addPin2Net pubs ver", pinName[netIdx]['sub'], routerNetIdx)
                 router.addPin2Net(pinName[netIdx]['sub'], netIdx)                
 

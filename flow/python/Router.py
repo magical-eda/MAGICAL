@@ -27,25 +27,23 @@ class Router(object):
         with open(filename)  as fin:
             lines = fin.readlines()
             bboxLine = lines[0].split()
-            print bboxLine
-            bboxLine = basic.BB_list(bboxLine)
+            bboxLine = basic.basic.BB_list(bboxLine)
             xLo = int(bboxLine[0])
             yLo = int(bboxLine[1])
             xHi = int(bboxLine[2])
             yHi = int(bboxLine[3])
-            print xLo, yLo, xHi, yHi, "BOUNDARY"
             gdsData.setBBox(xLo, yLo, xHi, yHi)
             ckt.layout().setBoundary(xLo, yLo, xHi, yHi)
             for lineIdx in range(1, len(lines)):
                 line = lines[lineIdx].split()
                 netIdx = lineIdx - 1
                 net = ckt.net(netIdx)
-                assert net.name == line[0], "Error in .dumb file"
+                assert(net.name == line[0], "Error in .dumb file")
                 layer = int(line[1])
                 xLo = int(line[2])
                 yLo = int(line[3])
                 xHi = int(line[4])
                 yHi = int(line[5])
-                assert xLo < xHi
+                assert(xLo < xHi)
                 net.setIoShape(xLo, yLo, xHi, yHi)
                 net.ioLayer = layer
