@@ -8,7 +8,6 @@
 import os
 import sys
 import Params, MagicalDB, Flow
-import pagerank # workaround for pyinstaller
 
 class Magical(object):
     def __init__(self, jsonFile):

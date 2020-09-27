@@ -36,6 +36,9 @@ class DesignDB
         /// @brief get the number of circuits
         /// @return the number of circuits
         IndexType numCkts() const { return _ckts.size(); }
+        /// @brief resize the sub ckts
+        /// @param the size of the resulting vector
+        void resizeSubCkts(IndexType numCkts) { Assert(numCkts <= _ckts.size()); _ckts.resize(numCkts); }
         /// @brief get a sub circuit
         /// @param the index of the sub circuit
         /// @return the sub circuit in the hierarchical tree

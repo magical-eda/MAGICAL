@@ -6,9 +6,6 @@
 #
 import networkx as nx
 import matplotlib.pyplot as plt
-import pyximportcpp
-pyximportcpp.install()
-from pagerank import pagerank
 import scipy.stats as stat
 import sys
 
@@ -96,7 +93,7 @@ class GraphSim(object):
     def pagerankCenter(graph):
         if len(graph.nodes) == 1:
             return graph.nodes[0], 0
-        simMatrix = pagerank(graph, graph.nodes)
+        simMatrix = nx.pagerank(graph)
         sumDist = dict()
         minDist = float("inf")
         centerList = list()
@@ -160,14 +157,16 @@ def main(argv):
     g = testGraph()
     g.graph3()
     graphSim = GraphSim(g.g)
+    """
     print GraphSim.jordanCenter(g.g)
     print GraphSim.eigenCenter(g.g)
     print GraphSim.pagerankCenter(g.g)
     print "Original Graph"
+    """
     g.plot(graphSim.graph)
-    print "Jordan Center Rad 3"
+    #print "Jordan Center Rad 3"
     g.plot(graphSim.BFSSub(graphSim.jordanCenter(graphSim.graph)[0], 3))
-    print "Eigen Center Rad 2"
+    #print "Eigen Center Rad 2"
     g.plot(graphSim.BFSSub(graphSim.eigenCenter(graphSim.graph)[0], 2))
 
 if __name__ == '__main__':
