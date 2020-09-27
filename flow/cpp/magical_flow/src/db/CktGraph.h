@@ -32,6 +32,13 @@ class CktGraph
         /// @brief get the array of circuit nodes
         /// @return the array of circuit nodes
         std::vector<CktNode> &                                      nodeArray()                                         { return _nodeArray; }
+        /// @brief resize the number of nodes
+        /// @param the number of nodes
+        void resizeNodeArray(IndexType numNodes)
+        {
+            AssertMsg(numNodes <= _nodeArray.size(), "Try resize nodes from size %u to %u", _nodeArray.size(), numNodes);
+            _nodeArray.resize(numNodes);
+        }
         /// @brief get the number of nodes
         /// @return the number of nodes this graph has
         IndexType                                                   numNodes() const                                    { return _nodeArray.size(); }

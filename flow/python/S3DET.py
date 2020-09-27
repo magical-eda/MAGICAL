@@ -59,8 +59,10 @@ class S3DET(object):
                 if nodeIdxB not in symVal:
                     symVal[nodeIdxB] = dict()
                 symVal[nodeIdxB][nodeIdxA] = symVal[nodeIdxA][nodeIdxB]
+                """
                 print "Recognized symmetry pair:"
                 print nodeA.name, nodeB.name, symVal[nodeIdxA][nodeIdxB]
+                """
         for idxA in symVal.keys():
             if idxA not in symVal:
                 continue
@@ -92,8 +94,10 @@ class S3DET(object):
             nameB = ckt.node(idxB).name
             if symVal[idxA][idxB] >= self.symTol:
                 symFile.write("%s %s\n" % (nameA, nameB))
+            """
             else:
                 print "waived constraint", nameA, nameB, symVal[idxA][idxB]
+            """
         hierGraph = self.hierGraph(cktIdx)
         selfSym = self.selfSym(symPair, hierGraph)
         for idx in selfSym:

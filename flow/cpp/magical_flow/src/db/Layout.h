@@ -192,16 +192,16 @@ class Layout
         /// @brief clear the layout
         void clear() {  
             AssertMsg(_numLayers >= 0, "%s: ensure the number of layers are set \n", __FUNCTION__); _layers.clear(); _layers.resize(_numLayers); 
+            _boundary.setXLo(std::numeric_limits<LocType>::max());
+            _boundary.setYLo(std::numeric_limits<LocType>::max());
+            _boundary.setXHi(std::numeric_limits<LocType>::min());
+            _boundary.setYHi(std::numeric_limits<LocType>::min());
             }
         /// @brief initialize the object with number of layers
         /// @param the number of layers
         void init(IndexType numLayers) { 
             _numLayers = numLayers; 
             this->clear(); 
-            _boundary.setXLo(std::numeric_limits<LocType>::max());
-            _boundary.setYLo(std::numeric_limits<LocType>::max());
-            _boundary.setXHi(std::numeric_limits<LocType>::min());
-            _boundary.setYHi(std::numeric_limits<LocType>::min());
         }
         /*------------------------------*/ 
         /* Getters                      */
