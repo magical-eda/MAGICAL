@@ -85,7 +85,7 @@ class Constraint(object):
                 pinTypeArray = capPinType
             elif cirNode.implType == magicalFlow.ImplTypePCELL_Cap:
                 cap = phyDB.capacitor(instPIdx)
-                idx = constGen.addInst(instNode.name, ConstGenPy.Res, cap.w, cap.lr, cap.numFingers)
+                idx = constGen.addInst(instNode.name, ConstGenPy.Cap, cap.w, cap.lr, cap.numFingers)
                 pinTypeArray = capPinType
             else:
                 assert False, "Device not supported %s" % instNode.name
