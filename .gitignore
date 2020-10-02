@@ -7,3 +7,14 @@ routing
 constraint_generation
 thirdparty
 *.pyc
+
+*bound
+*con
+*gds
+*gr
+*gr.spec
+*ioPin
+*iopin
+*pin
+*sym
+*symnet
