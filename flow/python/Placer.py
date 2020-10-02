@@ -19,6 +19,8 @@ class Placer(object):
         self.placer = IdeaPlaceExPy.IdeaPlaceEx()
         self.dirname = dirname
         self.numCktNodes = self.ckt.numNodes() # without io pins
+        self.numCktPins = self.ckt.numPins() #without io pins
+        self.numCktNets = self.ckt.numNets() #without io pins
         self.gridStep = gridStep 
         self.halfMetWid = halfMetWid
         self.subShapeList = list()
@@ -122,6 +124,8 @@ class Placer(object):
             #if net.isVss() and not self.isTopLevel:
                 self.placer.markAsVssNet(netIdx)
     def processPlacementOutput(self):
+        if not self.implRealLayout:
+            self.ckt.backup()
         #  Set Placement origin
         self.setPlaceOrigin()
         print("origin, ", self.origin[0], self.origin[1])
@@ -198,7 +202,7 @@ class Placer(object):
         """
         if self.implRealLayout:
             assert(False) # reset is only working when the placer is not in implement real circuit mode
-        self.ckt.resizeNodes(self.numCktNodes) #remove the additional pin nodes
+        self.ckt.restore()
         self.placer = IdeaPlaceExPy.IdeaPlaceEx() # Create a new placer solver
         self.ckt.layout().clear()
 

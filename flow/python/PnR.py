@@ -73,9 +73,9 @@ class PnR(object):
             
     def runPlace(self, cktIdx, dirname):
         self.p = Placer.Placer(self.mDB, cktIdx, dirname,self.gridStep, self.halfMetWid)
-        #self.p.implRealLayout = False
-        #self.p.run()
-        #self.p.resetPlacer()
+        self.p.implRealLayout = False
+        self.p.run()
+        self.p.resetPlacer()
         self.p.implRealLayout = True
         self.p.run()
         self.runtime += self.p.runtime

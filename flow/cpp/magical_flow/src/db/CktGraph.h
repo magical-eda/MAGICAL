@@ -23,6 +23,12 @@ class CktGraph
         /// @brief default construtor
         explicit CktGraph() = default; 
         void setTechDB(TechDB & techDB) { _techDB = techDB; }
+
+        /// @brief backup the CktGraph
+        void backup();
+        /// @brief store the backuped CktGraph
+        void restore();
+
         /*------------------------------*/ 
         /* Getters                      */
         /*------------------------------*/ 
@@ -56,6 +62,13 @@ class CktGraph
         /// @brief get the array of pins
         /// @return the array of pins
         std::vector<Pin> &                                          pinArray()                                          { return _pinArray; }
+        /// @brief resize the number of pins
+        /// @param the number of pins
+        void resizePinArray(IndexType numPins)
+        {
+            AssertMsg(numPins <= _pinArray.size(), "Try resize pins from size %u to %u", _pinArray.size(), numPins);
+            _pinArray.resize(numPins);
+        }
         /// @brief get the number of pins
         /// @return the number of pins
         IndexType                                                   numPins() const                                     { return _pinArray.size(); }
@@ -79,6 +92,13 @@ class CktGraph
         /// @brief get the array of nets of this graph
         /// @return the array of nets of this graph
         std::vector<Net> &                                          netArray()                                          { return _netArray; }
+        /// @brief resize the number of nets
+        /// @param the number of nets
+        void resizeNetArray(IndexType numNets)
+        {
+            AssertMsg(numNets <= _netArray.size(), "Try resize nets from size %u to %u", _netArray.size(), numNets);
+            _netArray.resize(numNets);
+        }
         /// @brief get the number of nets this graph contains
         /// @return the number of nets this graph contains
         IndexType                                                   numNets() const                                     { return _netArray.size(); }
@@ -172,6 +192,21 @@ class CktGraph
         
 
     private:
+        // Only for backup purpose
+        struct CktGraphBackup
+        {
+            std::vector<CktNode> nodeArray;
+            std::vector<Pin> pinArray;
+            std::vector<Net> netArray;
+            std::vector<IndexType> psubIdxArray;
+            std::vector<IndexType> nwellIdxArray;
+            Layout layout;
+            bool isImplemented;
+            bool flipVertFlag;
+            GdsData gdsData;
+
+        } _backup;
+    private:
         TechDB _techDB;
         std::vector<CktNode> _nodeArray; ///< The circuit nodes of this graph
         std::vector<Pin> _pinArray; ///< The pins of the circuit
@@ -188,8 +223,38 @@ class CktGraph
         /* Integration                  */
         /*------------------------------*/ 
         GdsData _gdsData; ///< The gds data
+        /* for backup*/
+        std::unique_ptr<CktGraphBackup> _backupPtr; ///< For backup the design
 
 };
+
+
+inline void CktGraph::backup()
+{
+    _backup.nodeArray = this->_nodeArray;
+    _backup.pinArray = this->_pinArray;
+    _backup.netArray = this->_netArray;
+    _backup.psubIdxArray = this->_psubIdxArray;
+    _backup.nwellIdxArray = this->_nwellIdxArray;
+    _backup.layout = this->_layout;
+    _backup.isImplemented = this->_isImplemented;
+    _backup.flipVertFlag = this->_flipVertFlag;
+    _backup.gdsData = this->_gdsData;
+}
+
+inline void CktGraph::restore() 
+{
+    std::swap(_nodeArray, _backup.nodeArray);
+    std::swap(_pinArray, _backup.pinArray);
+    std::swap(_netArray, _backup.netArray);
+    std::swap(_psubIdxArray, _backup.psubIdxArray);
+    std::swap(_nwellIdxArray, _backup.nwellIdxArray);
+    std::swap(_layout, _backup.layout);
+    std::swap(_isImplemented, _backup.isImplemented);
+    std::swap(_flipVertFlag, _backup.flipVertFlag);
+    std::swap(_gdsData, _backup.gdsData);
+
+}
 
 PROJECT_NAMESPACE_END
 
