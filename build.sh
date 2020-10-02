@@ -1,5 +1,6 @@
 #!/bin/bash
 
+pip install device_generation/
 pip install ConstGen/
 pip install IdeaPlaceEX/
 pip install anaroute/
