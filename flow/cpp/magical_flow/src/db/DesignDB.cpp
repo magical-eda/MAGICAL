@@ -12,6 +12,11 @@ PROJECT_NAMESPACE_BEGIN
 
 bool DesignDB::findRootCkt()
 {
+    if (_rootCkt != INDEX_TYPE_MAX) 
+    {
+        Assert(false);
+        return false;
+    }
     if (this->numCkts() == 0) { return true; }
 
     std::stack<IndexType> sortStack; //< Store the sorted indices here

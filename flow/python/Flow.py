@@ -34,6 +34,7 @@ class Flow(object):
         self.implCktLayout(topCktIdx)
         end = time.time()
         print("runtime ", end - start)
+        exit(0)
         for pnr in self.pnrs:
             pnr.routeOnly()
         return True

@@ -19,8 +19,7 @@ class PnR(object):
         self.mDB = magicalDB
         self.dDB = magicalDB.designDB.db
         self.tDB = magicalDB.techDB
-        self.dDB.findRootCkt()
-        self.rootCktIdx = self.dDB.rootCktIdx()
+        self.rootCktIdx = self.mDB.topCktIdx()
         # debug mode will output .pin and .gr file
         self.halfMetWid = int(glovar.min_w['M1']*1000)/2
         self.gridStep = int((glovar.min_w['M1'] + glovar.min_w['SP'])*1000)
@@ -53,7 +52,7 @@ class PnR(object):
             self.isTopLevel = True
         else:
             self.isTopLevel = False
-        print("PnR: working on ", self.dDB.subCkt(cktIdx).name)
+        print("PnR: working on ", self.dDB.subCkt(cktIdx).name, self.rootCktIdx, self.dDB.rootCktIdx(), cktIdx)
         self.cktIdx = cktIdx
         self.dirname = dirname
         self.runPlace(cktIdx, dirname)
@@ -73,9 +72,14 @@ class PnR(object):
             
     def runPlace(self, cktIdx, dirname):
         self.p = Placer.Placer(self.mDB, cktIdx, dirname,self.gridStep, self.halfMetWid)
-        self.p.implRealLayout = False
-        self.p.run()
-        self.p.resetPlacer()
+        if not self.isTopLevel:
+            self.p.implRealLayout = False
+            self.p.run()
+            self.p.resetPlacer()
+            #self.p.run()
+            #self.p.resetPlacer()
+            #self.p.run()
+            #self.p.resetPlacer()
         self.p.implRealLayout = True
         self.p.run()
         self.runtime += self.p.runtime

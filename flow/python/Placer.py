@@ -497,7 +497,8 @@ class Placer(object):
                     elif device_type == magicalFlow.ImplTypePCELL_Res:
                         assert pin.intNetIdx == 2, "placeConnection, sub not RES BODY pin"
                     else:
-                        assert False, "placeConnection, sub not NMOS or RES device"
+                        if self.implRealLayout: # in fake mode, don't need to consider this much details
+                            assert False, "placeConnection, sub not NMOS or RES device"
                     if self.debug:
                         outFile.write("-1\n")
 
