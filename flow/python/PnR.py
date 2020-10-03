@@ -9,7 +9,6 @@ import IdeaPlaceExPy
 import anaroutePy
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 import Router
 import Placer
 import gdspy
