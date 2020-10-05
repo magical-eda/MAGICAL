@@ -5,7 +5,6 @@
 #
 
 import sys, os
-sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from device_generation.Mosfet import Mosfet
 from device_generation.Capacitor import Capacitor
 from device_generation.Resistor import Resistor
