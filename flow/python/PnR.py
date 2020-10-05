@@ -72,14 +72,14 @@ class PnR(object):
             
     def runPlace(self, cktIdx, dirname):
         self.p = Placer.Placer(self.mDB, cktIdx, dirname,self.gridStep, self.halfMetWid)
-        if not self.isTopLevel:
-            self.p.implRealLayout = False
-            self.p.run()
-            self.p.resetPlacer()
-            #self.p.run()
-            #self.p.resetPlacer()
-            #self.p.run()
-            #self.p.resetPlacer()
+        #if not self.isTopLevel:
+        #    self.p.implRealLayout = False
+        #    self.p.run()
+        #    self.p.resetPlacer()
+        #    #self.p.run()
+        #    #self.p.resetPlacer()
+        #    #self.p.run()
+        #    #self.p.resetPlacer()
         self.p.implRealLayout = True
         self.p.run()
         self.runtime += self.p.runtime

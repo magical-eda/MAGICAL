@@ -33,6 +33,65 @@ else()
 endif()
 unset (LIMBO_DIR CACHE)
 
+#Gurobi
+if (GUROBI_HOME)
+    set(GUROBI_ROOT_DIR ${GUROBI_HOME})
+    message(STATUS "Use Gurobi ${GUROBI_ROOT_DIR}")
+    set(USE_GUROBI TRUE)
+elseif(DEFINED ENV{GUROBI_HOME})
+    set(GUROBI_ROOT_DIR $ENV{GUROBI_HOME})
+    message(STATUS "Use system Gurobi ${GUROBI_ROOT_DIR}")
+    set(USE_GUROBI TRUE)
+else()
+    message(STATUS "Disable Gurobi")
+    set(USE_GUROBI FALSE)
+endif()
+unset(GUROBI_HOME CACHE)
+
+
+if (USE_GUROBI)
+    find_library(GUROBI_CPP
+        NAMES gurobi_c++
+        HINTS ${GUROBI_ROOT_DIR}/lib
+        )
+    find_library(GUROBI_C
+        NAMES gurobi90
+        HINTS ${GUROBI_ROOT_DIR}/lib
+        )
+    set(GUROBI_LIBRARIES ${GUROBI_CPP} ${GUROBI_C})
+    message(STATUS "GUROBI_ROOT_DIR = ${GUROBI_ROOT_DIR}")
+    message(STATUS "GUROBI_LIBRARIES = ${GUROBI_LIBRARIES}")
+else()
+    add_compile_definitions(LP_NOT_USE_GUROBI)
+endif()
+
+
+# Find the directory for LPSOLVE. If cache variable LPSOLVE_DIR is defined, use it as the path to LPSOLVE, otherwise use the system LPSOLVE_DIR
+if (LPSOLVE_DIR)
+    set(LPSOLVE_ROOT_DIR ${LPSOLVE_DIR})
+    message(STATUS "Use LPSOLVE: ${LPSOLVE_ROOT_DIR}")
+    set(USE_LPSOLVE TRUE)
+elseif(DEFINED ENV{LPSOLVE_DIR})
+    set(LPSOLVE_ROOT_DIR $ENV{LPSOLVE_DIR})
+    message(STATUS "Use system LPSOLVE ${LPSOLVE_ROOT_DIR}")
+    set(USE_LPSOLVE TRUE)
+else()
+    message(STATUS "Disable lpsolve")
+    set(USE_LPSOLVE FALSE)
+endif()
+unset (LPSOLVE_DIR CACHE)
+
+if (USE_LPSOLVE)
+find_library(LPSOLVE_LIBRARIES
+    NAMES liblpsolve55.so
+    PATHS ${LPSOLVE_ROOT_DIR}
+    )
+message(STATUS "LPSOLVE_ROOT_DIR = ${LPSOLVE_ROOT_DIR}")
+message(STATUS "LPSOLVE_LIBRARIES = ${LPSOLVE_LIBRARIES}")
+else()
+    add_compile_definitions(LP_NOT_USE_LPSOLVE)
+endif()
+
 
 # add a target to generate API documentation with Doxygen
 find_package(Doxygen)
@@ -112,7 +171,20 @@ set(CMAKE_CXX_FLAGS_PROFILE "-Ofast -pg -Winline")
 #set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
 set(CMAKE_EXE_LINKER_FLAGS "-pthread")
 
-include_directories (
+
+
+# LIMBO LIB
+file(GLOB LIMBO_LIB
+    #limbo gdsparser
+    ${LIMBO_ROOT_DIR}/lib/libgdsdb.a 
+    ${LIMBO_ROOT_DIR}/lib/libgdsparser.a)
+
+
+set(TO_LINK_LIBS ${Boost_LIBRARIES} ${LIMBO_LIB})
+
+
+
+set(TO_INCLUDE_PATH 
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/unittest
     #${GTEST_ROOT_DIR}/googletest/include
@@ -121,14 +193,25 @@ include_directories (
     ${LIMBO_ROOT_DIR}/include
 )
 
-# LIMBO LIB
-file(GLOB LIMBO_LIB
-    #limbo gdsparser
-    ${LIMBO_ROOT_DIR}/lib/libgdsdb.a 
-    ${LIMBO_ROOT_DIR}/lib/libgdsparser.a)
+
+if (USE_LPSOLVE)
+    set(TO_LINK_LIBS ${TO_LINK_LIBS} ${LPSOLVE_LIBRARIES})
+    set(TO_INCLUDE_PATH ${TO_INCLUDE_PATH} ${LPSOLVE_ROOT_DIR})
+endif()
+
+if (USE_GUROBI)
+    set(TO_LINK_LIBS ${TO_LINK_LIBS} ${GUROBI_LIBRARIES})
+    set(TO_INCLUDE_PATH ${TO_INCLUDE_PATH} ${GUROBI_ROOT_DIR}/include)
+endif()
+
+include_directories (
+    ${TO_INCLUDE_PATH}
+)
 
 #file (GLOB GTEST_MAIN_LIB ${GTEST_ROOT_DIR}/lib/libgtest_main.a)
 #file (GLOB GTEST_LIB ${GTEST_ROOT_DIR}/lib/libgtest.a)
+
+
 
 link_libraries (
     ${GTEST_MAIN_LIB}
@@ -141,6 +224,7 @@ file(GLOB SOURCES src/db/*.h        src/db/*.cpp
                   src/global/*.h
                   src/writer/*.h
                   src/csflow/*.h    src/csflow/*.cpp
+                  src/floorplan/*.h src/floorplan/*.cpp
                   )
 
 file(GLOB PROJECT_SOURCES src/main/*.cpp ${SOURCES})
