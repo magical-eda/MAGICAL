@@ -5,8 +5,7 @@
  * @date 03/10/2020
  */
 
-#ifndef KLIB_LP_LIMBO_H_
-#define KLIB_LP_LIMBO_H_
+#pragma once
 
 #include <limbo/solvers/Solvers.h>
 #ifndef LP_NOT_USE_LPSOLVE
@@ -209,4 +208,3 @@ namespace _lp
 } //namespace klib
 
 
-#endif //KLIB_LP_LIMBO_H_

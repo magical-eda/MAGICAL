@@ -55,7 +55,7 @@ enum class OriType
 /// @brief the implementation type of each circuit node
 enum class ImplType
 {
-    UNSET,
+    UNSET, // In fact, UNSET is used as subcircuit in MAGICAL flow. However, I am lazy to change the name by this time
     PCELL_Nch,
     PCELL_Pch,
 //    PCELL_Nch25ud18mac,

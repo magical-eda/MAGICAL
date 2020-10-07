@@ -138,7 +138,7 @@ class CktNode
         OriType _orient = OriType::N; ///< The orientation of this node
         bool _implPhy = false; ///< Whether this node has been implemented physically
         bool _flipVertFlag = false; ///< Whether this node should be fliped due to symmetry constraint
-        ImplType _implType = ImplType::UNSET; ///< what is the implementation type of the node 
+        ImplType _implType = ImplType::UNSET; ///< what is the implementation type of the node. FIXME: THIS IS NOT WORKING!!!
         std::string _refName = ""; ///< The reference name of this node
         std::string _name = ""; ///< The name of this node
 };

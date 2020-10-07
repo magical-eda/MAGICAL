@@ -43,6 +43,10 @@ class DesignDB
         /// @param the index of the sub circuit
         /// @return the sub circuit in the hierarchical tree
         CktGraph & subCkt(IndexType idx) { return _ckts.at(idx); }
+        /// @brief get a sub circuit
+        /// @param the index of the sub circuit
+        /// @return the sub circuit in the hierarchical tree
+        const CktGraph & subCktConst(IndexType idx) const { return _ckts.at(idx); }
         /// @brief get the index of the root node
         /// @return the index of the root node
         IndexType rootCktIdx() const { return _rootCkt; }

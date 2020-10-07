@@ -80,8 +80,14 @@ class PnR(object):
         #    #self.p.resetPlacer()
         #    #self.p.run()
         #    #self.p.resetPlacer()
-        self.p.implRealLayout = True
-        self.p.run()
+        if self.isTopLevel:
+            pro = magicalFlow.TopFloorplanProblem()
+            pro.initProblem(self.dDB, self.dDB.subCkt(cktIdx), dirname)
+            self.p.implRealLayout = True
+            self.p.run()
+        else:
+            self.p.implRealLayout = False
+            self.p.run()
         self.runtime += self.p.runtime
         self.symAxis = self.p.symAxis
         self.origin = self.p.origin

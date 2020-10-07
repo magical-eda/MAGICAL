@@ -42,6 +42,8 @@ sparseHash = os.environ['SPARSE_HASH_DIR'] + "/include"
 limbo = os.environ['LIMBO_DIR'] + "/include"
 pybind11 = os.environ['PYBIND11_DIR'] + "/include"
 gtest =  os.environ['GTEST_DIR'] + '/googletest/include'
+lpsolve = os.environ['LPSOLVE_DIR']
+gurobi = os.environ['GUROBI_INC']
 flags = [
 '-Wall',
 '-Wextra',
@@ -75,6 +77,8 @@ get_python_inc(),
 '-I', limbo,
 '-I', pybind11,
 '-I', gtest,
+'-I', lpsolve,
+'-I', gurobi,
 '-isystem',
 '/home/local/eda09/keren/common/libs/boost_1_67_0/boost'
 ]
