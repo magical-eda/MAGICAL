@@ -34,7 +34,7 @@ class TopFloorplanProblem
             IndexType idx;
             IndexType cellIdx;
         };
-        struct Net
+        struct FpNet
         {
             std::vector<IndexType> pins;
         };
@@ -42,7 +42,7 @@ class TopFloorplanProblem
         std::vector<PinIdx> _pinIdx; ///< To relate the pin in CktGraph to the variables
         std::vector<Box<LocType>> _cellBBox; ///< The original cell layout bounding boxes
         IntType resourcePerLen = 1000; ///< To quanitfy the pin resource per length
-        std::vector<Net> _nets; ///< The nets
+        std::vector<FpNet> _nets; ///< The nets
         IndexType _numAsymPins = 0; ///< The number of asym pins need to assign
         IndexType _numSymPriPins = 0; ///< The number of primary sym pins need to assign
         IndexType _numSymSecPins = 0; ///< The number of primary sym pins need to assign

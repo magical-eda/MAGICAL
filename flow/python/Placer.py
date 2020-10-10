@@ -68,8 +68,8 @@ class Placer(object):
         if os.path.isfile(filename):
             self.placer.readSigpathFile(filename)
     def computeAndAddPowerCurrentFlow(self):
-        #if self.isTopLevel:
-        #    return
+        if self.isTopLevel:
+            return
         print("computeAndAddPowerCurrentFlow")
         csflow = magicalFlow.CSFlow(self.dDB)
         ckt = self.ckt
@@ -524,12 +524,13 @@ class Placer(object):
                 shape = net.ioShape()
                 layer = net.ioLayer
                 # pinIdx not exists, unsigned int max:pow(2,32)-1
-                if layer > 10:
+                if layer > 10 and self.implRealLayout:
                     outFile.write("-1\n")
                     continue
                 pinIdx = self.placer.allocatePin(nodeIdx)
                 self.placer.setPinName(pinIdx, net.name)
                 print("add pin", net.name, "to cell", node.name)
+                print(pinIdx, self.placer.pinIdx(nodeIdx, netIdx))
                 assert pinIdx == self.placer.pinIdx(nodeIdx, netIdx), "placeParsePin, pin insertion error"
                 self.placer.addPinShape(pinIdx, shape.xLo, shape.yLo, shape.xHi, shape.yHi)
                 if self.debug:

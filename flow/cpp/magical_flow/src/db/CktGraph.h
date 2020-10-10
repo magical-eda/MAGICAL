@@ -127,6 +127,9 @@ class CktGraph
         /// @brief get the layout of this circuit
         /// @param the layout implementation of this circuit
         Layout &                                                    layout()                                            { return _layout; }
+        /// @brief get the layout of this circuit
+        /// @param the layout implementation of this circuit
+        const Layout &                                              layoutConst() const                                 { return _layout; }
         /// @brief get the implementation type of this circuit
         /// @return the implementation type of this circuit
         ImplType implType() const { return _implType; }

@@ -80,13 +80,8 @@ void TopFloorplanProblem::initProblem(const DesignDB& dDb, const CktGraph &ckt, 
             // only care about subckt
             continue;
         }
-        DBG("name %s refName %s \n", cktNode.name().c_str(), cktNode.refName().c_str());
         std::string cktSymnetName = symnetFileDir + "/" + cktNode.refName() + ".symnet";
         parseSymnetFile(cktSymnetName, symnetNames[cktNode.refName()]);
-        for (const auto& symnet : symnetNames[cktNode.refName()])
-        {
-            DBG("read %s %s \n", symnet.left.c_str(), symnet.right.c_str());
-        }
     }
 
     // Add pins
@@ -132,6 +127,7 @@ void TopFloorplanProblem::initProblem(const DesignDB& dDb, const CktGraph &ckt, 
                 pinIdx.idx = _numSymPriPins;
                 ++_numSymPriPins;
                 pinIdx.cellIdx = pin.nodeIdx();
+                _pinIdx.emplace_back(pinIdx);
                 break;
             }
             if (symnet.right == internalNetName)
@@ -142,6 +138,7 @@ void TopFloorplanProblem::initProblem(const DesignDB& dDb, const CktGraph &ckt, 
                 pinIdx.idx = _numSymSecPins;
                 ++_numSymSecPins;
                 pinIdx.cellIdx = pin.nodeIdx();
+                _pinIdx.emplace_back(pinIdx);
                 break;
             }
         }
@@ -152,11 +149,32 @@ void TopFloorplanProblem::initProblem(const DesignDB& dDb, const CktGraph &ckt, 
             pinIdx.idx = _numAsymPins;
             ++_numAsymPins;
             pinIdx.cellIdx = pin.nodeIdx();
+            _pinIdx.emplace_back(pinIdx);
         }
     }
     Assert(_numSymPriPins == _numSymSecPins);
-    DBG("three number %d %d %d \n", _numAsymPins, _numSymPriPins, _numSymSecPins);
-    Assert(false);
+    // Obtain the lower level layout
+    for (IndexType cellIdx = 0; cellIdx < ckt.nodeArray().size(); ++cellIdx)
+    {
+        const CktNode &cktNode = ckt.nodeArray().at(cellIdx);
+        IndexType subCktIdx = cktNode.subgraphIdx();
+        const CktGraph &subCkt = dDb.subCktConst(subCktIdx);
+        Box<LocType> cellLayoutBBox = subCkt.layoutConst().boundary();
+        if (cktNode.flipVertFlag())
+        {
+            cellLayoutBBox.flipHor();
+        }
+        cellLayoutBBox.offsetBy(cktNode.offsetConst());
+        _cellBBox.emplace_back(cellLayoutBBox);
+    }
+    // Obtain the nets information
+    for (IndexType netIdx = 0; netIdx < ckt.numNets(); ++netIdx)
+    {
+        FpNet net;
+        const auto& cktNet = ckt.netArray().at(netIdx);
+        net.pins = cktNet.pinIdxArrayConst();
+        _nets.emplace_back(net);
+    }
 }
 
 PROJECT_NAMESPACE_END

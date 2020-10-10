@@ -82,6 +82,16 @@ public:
     /// @brief Enlarge the boundary of the box by a number
     /// @param The distance for enlarging
     void        enlargeBy(T dis) { setXLo(xLo() - dis); setYLo(yLo() - dis); setXHi(xHi() + dis); setYHi(yHi() + dis); }
+
+    /// @brief flip the box horizontally
+    void flipHor()
+    {
+        auto l = _ll.x();
+        auto r = _ur.x();
+        auto centerTimes2 = l + r;
+        _ll.setX(centerTimes2 - r);
+        _ur.setX(centerTimes2 - l);
+    }
 private:
     XY<T>  _ll; // Lower left corner of this box
     XY<T>  _ur; // Upper right corner of this box

@@ -101,6 +101,7 @@ class CktNode
         /// @brief get the coordinate offset of this node
         /// @return the offset of this node
         XY<LocType> & offset() { return _offset; }
+        const XY<LocType> & offsetConst() const { return _offset; }
         /// @brief get the orientation of this node
         /// @return the orientation of this node
         //const OriType & orient() const { return _orient; }
@@ -171,6 +172,7 @@ class Net
         /// @brief get the array of pin indices that the net connecting
         /// @return the array of pin indices that the net connecting
         std::vector<IndexType> & pinIdxArray() { return _pinIdxArray; }
+        const std::vector<IndexType> & pinIdxArrayConst() const { return _pinIdxArray; }
         /// @brief get the number of pins this net is connecting
         /// @return the number of pins this net is connecting
         IndexType numPins() const { return _pinIdxArray.size(); }
