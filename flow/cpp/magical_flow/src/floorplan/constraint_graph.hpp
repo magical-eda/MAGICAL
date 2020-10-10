@@ -180,9 +180,15 @@ class SweeplineConstraintGraphGenerator
 {
     public:
         explicit SweeplineConstraintGraphGenerator(
+                IntType numCells,
                 const std::function<LocType(IndexType)> &getLowerCoordFunc,
-                const std::function<LocType(IndexType)> &getHigherCoordFunc)
-            : _getLowerCoordFunc(getLowerCoordFunc), _getHigherCoordFunc(getHigherCoordFunc)
+                const std::function<LocType(IndexType)> &getHigherCoordFunc,
+                const std::function<LocType(IndexType)> &getOtherLowerCoordFunc,
+                const std::function<LocType(IndexType)> &getOtherHigherCoordFunc
+                )
+            : _numCells(numCells), 
+              _getLowerCoordFunc(getLowerCoordFunc), _getHigherCoordFunc(getHigherCoordFunc),
+              _getOtherDirLowerCoordFunc(getOtherLowerCoordFunc), _getOtherDirHigherCoordFunc(getOtherHigherCoordFunc)
         {}
         /// @brief solve the sweep line
         void solve();
@@ -273,9 +279,11 @@ class SweeplineConstraintGraphGenerator
         constraint_graph::Constraints _vC; ///< The vertical edges
         std::function<bool(IndexType, IndexType)> _exemptFunc; ///< exempt pair of cells to be add constraints
         bool _setExempted = false;
+        IntType _numCells = -1; ///< The number of the cells
         std::function<LocType(IndexType)> _getLowerCoordFunc; ///< A function to get the xLo/yLo coordinate of a cell
         std::function<LocType(IndexType)> _getHigherCoordFunc; ///< A function to get the xLo/yLo coordinate of a cell
-        IntType _numCells = -1; ///< The number of the cells
+        std::function<LocType(IndexType)> _getOtherDirLowerCoordFunc; ///< A function to get the xLo/yLo coordinate of a cell
+        std::function<LocType(IndexType)> _getOtherDirHigherCoordFunc; ///< A function to get the xLo/yLo coordinate of a cell
 };
 
 PROJECT_NAMESPACE_END

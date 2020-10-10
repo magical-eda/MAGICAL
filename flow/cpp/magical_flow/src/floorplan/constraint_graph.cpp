@@ -79,8 +79,8 @@ void SweeplineConstraintGraphGenerator::generateEvents(std::vector<constraint_gr
     events.clear();
     for (IntType cellIdx = 0; cellIdx < _numCells; ++cellIdx)
     {
-        events.emplace_back(constraint_graph::Event(cellIdx, _getLowerCoordFunc(cellIdx), true));
-        events.emplace_back(constraint_graph::Event(cellIdx, _getHigherCoordFunc(cellIdx), false));
+        events.emplace_back(constraint_graph::Event(cellIdx, _getOtherDirLowerCoordFunc(cellIdx), true));
+        events.emplace_back(constraint_graph::Event(cellIdx, _getOtherDirHigherCoordFunc(cellIdx), false));
     }
     std::sort(events.begin(), events.end());
 }

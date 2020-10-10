@@ -10,12 +10,14 @@
 #include "db/DesignDB.h"
 #include "util/linear_programming.h"
 #include "util/Box.h"
+#include "constraint_graph.hpp"
 
 PROJECT_NAMESPACE_BEGIN
 
 /// @brief the top-level problem
 class TopFloorplanProblem
 {
+    friend class IlpTopFloorplanProblem;
     public:
         explicit TopFloorplanProblem() = default;
         /// @brief intialize a problem from CktGraph
@@ -46,6 +48,24 @@ class TopFloorplanProblem
         IndexType _numAsymPins = 0; ///< The number of asym pins need to assign
         IndexType _numSymPriPins = 0; ///< The number of primary sym pins need to assign
         IndexType _numSymSecPins = 0; ///< The number of primary sym pins need to assign
+
+};
+
+/// @brief the ilp for solving the TopFloorplanProblem
+class IlpTopFloorplanProblem
+{
+    public:
+        explicit IlpTopFloorplanProblem(const TopFloorplanProblem &problem)
+            : _problem(problem) {}
+        /// @brief solve the problem
+        /// @return true: successful.
+        bool solve();
+    private:
+        /// @brief sweep line to generate the vertical constraint graph
+        void verticalSweepLine();
+    private:
+        std::vector<constraint_graph::ConstraintEdge> _verConstrGraph; ///< The vertical constraint graph
+        const TopFloorplanProblem &_problem;
 
 };
 

@@ -177,4 +177,44 @@ void TopFloorplanProblem::initProblem(const DesignDB& dDb, const CktGraph &ckt, 
     }
 }
 
+/* Solving the problem */
+
+void IlpTopFloorplanProblem::verticalSweepLine()
+{
+    auto getXLoFunc = [&](IndexType cellIdx)
+    {
+        return _problem._cellBBox.at(cellIdx).xLo();
+    };
+    auto getYLoFunc = [&](IndexType cellIdx)
+    {
+        return _problem._cellBBox.at(cellIdx).yLo();
+    };
+    auto getXHiFunc = [&](IndexType cellIdx)
+    {
+        return _problem._cellBBox.at(cellIdx).xHi();
+    };
+    auto getYHiFunc = [&](IndexType cellIdx)
+    {
+        return _problem._cellBBox.at(cellIdx).yHi();
+    };
+    SweeplineConstraintGraphGenerator sweep(_problem._cellBBox.size(), getYLoFunc, getYHiFunc, getXLoFunc, getXHiFunc);
+    sweep.solve();
+    for (const auto &edge : sweep.constrEdges())
+    {
+        _verConstrGraph.emplace_back(edge); /// This implementation is not optimized
+    }
+}
+
+bool IlpTopFloorplanProblem::solve()
+{
+    // Generate the vertical constraint graph with sweep line algorithm
+    verticalSweepLine();
+    for (const auto &edge : _verConstrGraph)
+    {
+        DBG("vertical edge from %d to %d \n", edge.source(), edge.target());
+    }
+    Assert(false);
+    return true;
+}
+
 PROJECT_NAMESPACE_END

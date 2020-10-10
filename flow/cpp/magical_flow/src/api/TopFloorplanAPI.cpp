@@ -15,4 +15,7 @@ void initTopFloorplanAPI(py::module &m) {
   py::class_<PROJECT_NAMESPACE::TopFloorplanProblem>(m, "TopFloorplanProblem")
     .def(py::init<>())
     .def("initProblem", &PROJECT_NAMESPACE::TopFloorplanProblem::initProblem, "Init the problem");
+  py::class_<PROJECT_NAMESPACE::IlpTopFloorplanProblem>(m, "IlpTopFloorplanProblem")
+    .def(py::init<const PROJECT_NAMESPACE::TopFloorplanProblem &>())
+    .def("solve", &PROJECT_NAMESPACE::IlpTopFloorplanProblem::solve, "Solve the problem");
 }
