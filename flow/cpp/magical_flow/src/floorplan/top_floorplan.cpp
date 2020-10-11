@@ -205,14 +205,68 @@ void IlpTopFloorplanProblem::verticalSweepLine()
     }
 }
 
+void IlpTopFloorplanProblem::addVariables()
+{
+    // For each pair of sym pins, add a binary variable
+    Assert(_problem._numSymPriPins == _problem._numSymSecPins);
+    for (IndexType symPairIdx = 0; symPairIdx < _problem._numSymPriPins; ++symPairIdx)
+    {
+        _symPinAssignVars.emplace_back(lp_trait::addVar(_solver));
+        // Binary
+        lp_trait::setVarInteger(_solver, _symPinAssignVars.back());
+        lp_trait::setVarLowerBound(_solver, _symPinAssignVars.back(), 0);
+        lp_trait::setVarUpperBound(_solver, _symPinAssignVars.back(), 1);
+    }
+    // For each asym net, add a binary variable
+    for (IndexType asymPinIdx = 0; asymPinIdx < _problem._numAsymPins; ++asymPinIdx)
+    {
+        _aSymAssignVars.emplace_back(lp_trait::addVar(_solver));
+        // Binary
+        lp_trait::setVarInteger(_solver, _aSymAssignVars.back());
+        lp_trait::setVarLowerBound(_solver, _aSymAssignVars.back(), 0);
+        lp_trait::setVarUpperBound(_solver, _aSymAssignVars.back(), 1);
+    }
+    // Extra resources for each module
+    for (IndexType cellIdx = 0; cellIdx < _problem._cellBBox.size(); ++cellIdx)
+    {
+        _extraResourcesVars.emplace_back(lp_trait::addVar(_solver));
+        // Integer
+        lp_trait::setVarInteger(_solver, _extraResourcesVars.back());
+        lp_trait::setVarLowerBound(_solver, _extraResourcesVars.back(), 0);
+    }
+    // Each module has a variable indicate its yLo
+    for (IndexType cellIdx = 0; cellIdx < _problem._cellBBox.size(); ++cellIdx)
+    {
+        _yLoVars.emplace_back(lp_trait::addVar(_solver));
+        // Continuous
+        lp_trait::setVarContinuous(_solver, _yLoVars.back());
+        lp_trait::setVarLowerBound(_solver, _yLoVars.back(), 0);
+    }
+    // Add crossing indicating variables for each net
+    for (IndexType netIdx = 0; netIdx < _problem._nets.size(); ++netIdx)
+    {
+        _crossVars.emplace_back(std::vector<lp_variable_type>());
+        auto numPins = _problem._nets.at(netIdx).pins.size();
+        if (numPins < 2) continue;
+        auto numVarsNeeded = (numPins - 1) * (numPins) / 2; // 1 + 2...+n-1
+        for (IndexType crossIdx = 0; crossIdx < numVarsNeeded; ++crossIdx)
+        {
+            _crossVars.back().emplace_back(lp_trait::addVar(_solver));
+            // Binary
+            lp_trait::setVarInteger(_solver, _crossVars.back().back());
+            lp_trait::setVarLowerBound(_solver, _crossVars.back().back(), 0);
+            lp_trait::setVarUpperBound(_solver, _crossVars.back().back(), 1);
+        }
+    }
+}
+
 bool IlpTopFloorplanProblem::solve()
 {
     // Generate the vertical constraint graph with sweep line algorithm
     verticalSweepLine();
-    for (const auto &edge : _verConstrGraph)
-    {
-        DBG("vertical edge from %d to %d \n", edge.source(), edge.target());
-    }
+    
+    // Setup ILP problem
+    addVariables();
     Assert(false);
     return true;
 }

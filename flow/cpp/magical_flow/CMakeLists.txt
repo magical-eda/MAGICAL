@@ -239,7 +239,7 @@ file(GLOB PY_API_SOURCES src/api/*.cpp ${SOURCES})
 
 # Add modules to pybind
 pybind11_add_module(${PROJECT_NAME} ${PY_API_SOURCES})
-target_link_libraries(${PROJECT_NAME} PUBLIC ${LIMBO_LIB} ${Boost_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} PUBLIC ${LIMBO_LIB} ${Boost_LIBRARIES} ${TO_LINK_LIBS})
 
 #Unit Tests using GoogleTest
 #enable_testing()
