@@ -260,6 +260,28 @@ void IlpTopFloorplanProblem::addVariables()
     }
 }
 
+void IlpTopFloorplanProblem::addYLoConstr()
+{
+    for (const auto &edge : _verConstrGraph)
+    {
+        if (edge.source() == _problem._cellBBox.size()) continue; // source node
+        if (edge.target() == _problem._cellBBox.size() + 1) continue; // target node
+        auto cellHeight = _problem._cellBBox.at(edge.source()).yLen();
+        // y_i + h_i + m * s_i <= y_j
+        lp_trait::addConstr(_solver, 
+                _yLoVars.at(edge.source()) - _yLoVars.at(edge.target())
+                + _extraResourcesVars.at(edge.source()) * _problem.resourcePerLen
+                <=
+                - cellHeight);
+    }
+}
+
+void IlpTopFloorplanProblem::addConstr()
+{
+    // Add the nonoverlapping constraints between modules
+    addYLoConstr();
+}
+
 bool IlpTopFloorplanProblem::solve()
 {
     // Generate the vertical constraint graph with sweep line algorithm
@@ -267,6 +289,7 @@ bool IlpTopFloorplanProblem::solve()
     
     // Setup ILP problem
     addVariables();
+    addConstr();
     Assert(false);
     return true;
 }

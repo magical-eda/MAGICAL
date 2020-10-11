@@ -67,7 +67,7 @@ class IlpTopFloorplanProblem
     private:
         /// @brief sweep line to generate the vertical constraint graph
         void verticalSweepLine();
-        /* Lp Variable */
+        /* ILP Variable */
         void addVariables();
         /// @brief get the crossing variable
         /// @param first: index of the net
@@ -90,6 +90,9 @@ class IlpTopFloorplanProblem
             IndexType idx = offset + (secondPinIdx - firstPinIdx - 1);
             return _crossVars.at(netIdx).at(idx);
         }
+        /* ILP Constraints */
+        void addConstr();
+        void addYLoConstr();
         
     private:
         std::vector<constraint_graph::ConstraintEdge> _verConstrGraph; ///< The vertical constraint graph
