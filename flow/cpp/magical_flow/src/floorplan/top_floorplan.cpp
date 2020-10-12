@@ -328,12 +328,89 @@ void IlpTopFloorplanProblem::addPinResrouceConstr()
     }
 }
 
+void IlpTopFloorplanProblem::addCrossConstr()
+{
+    for (IndexType netIdx = 0; netIdx < _problem._nets.size(); ++netIdx)
+    {
+        const auto &net = _problem._nets.at(netIdx);
+        auto getFpPin = [&](IndexType idx)
+        {
+            IndexType pinIdx = net.pins.at(idx);
+            const auto &fpPin = _problem._pinIdx.at(pinIdx);
+            return fpPin;
+        };
+        auto minusPinAssignExpr = [&](const TopFloorplanProblem::PinIdx &fpPin, lp_expr_type &expr)
+        {
+            if (fpPin.pinType == TopFloorplanProblem::FpPinType::SYM_SCE)
+            {
+                expr +=  _symPinAssignVars.at(fpPin.idx) - 1;
+            }
+            else if (fpPin.pinType == TopFloorplanProblem::FpPinType::SYM_PRI)
+            {
+                expr += - _symPinAssignVars.at(fpPin.idx);
+            }
+            else if (fpPin.pinType == TopFloorplanProblem::FpPinType::ASYM)
+            {
+                expr += - _aSymAssignVars.at(fpPin.idx);
+            }
+        };
+        auto plusPinAssignExpr = [&](const TopFloorplanProblem::PinIdx &fpPin, lp_expr_type &expr)
+        {
+            if (fpPin.pinType == TopFloorplanProblem::FpPinType::SYM_SCE)
+            {
+                expr += 1 - _symPinAssignVars.at(fpPin.idx);
+            }
+            else if (fpPin.pinType == TopFloorplanProblem::FpPinType::SYM_PRI)
+            {
+                expr += _symPinAssignVars.at(fpPin.idx);
+            }
+            else if (fpPin.pinType == TopFloorplanProblem::FpPinType::ASYM)
+            {
+                expr += _aSymAssignVars.at(fpPin.idx);
+            }
+        };
+        for (IndexType firstPinIdx = 0; firstPinIdx < net.pins.size(); ++firstPinIdx)
+        {
+            const auto &firstFpPin = getFpPin(firstPinIdx);
+            lp_expr_type firstPinExpr;
+            for (IndexType secondPinIdx = firstPinIdx + 1; secondPinIdx < net.pins.size(); ++secondPinIdx)
+            {
+                const auto &secondFpPin = getFpPin(secondPinIdx);
+                const auto &crossVar = crossVariable(netIdx, firstPinIdx, secondPinIdx);
+                lp_expr_type expr1, expr2, expr3, expr4;
+                // expr1: c_i <=  x_i + x_j
+                expr1 += crossVar;
+                minusPinAssignExpr(firstFpPin, expr1);
+                minusPinAssignExpr(secondFpPin, expr1);
+                lp_trait::addConstr(_solver, expr1 <= 0);
+                // expr2 : c_i >= x_i - x_j
+                expr2 += crossVar;
+                minusPinAssignExpr(firstFpPin, expr2);
+                plusPinAssignExpr(secondFpPin, expr2);
+                lp_trait::addConstr(_solver, expr2 >= 0);
+                // expr3 : c_i >= x_j - x_i
+                expr3 +=  crossVar;
+                plusPinAssignExpr(firstFpPin, expr3);
+                minusPinAssignExpr(secondFpPin, expr3);
+                lp_trait::addConstr(_solver, expr3 >= 0);
+                // expr4 : c_i <= 2 - x_i - x_j
+                expr4 += crossVar;
+                plusPinAssignExpr(firstFpPin, expr4);
+                plusPinAssignExpr(secondFpPin, expr4);
+                lp_trait::addConstr(_solver, expr4 <= 2);
+            }
+        }
+    }
+}
+
 void IlpTopFloorplanProblem::addConstr()
 {
     // Add the nonoverlapping constraints between modules
     addYLoConstr();
     // Add the pin resources constraints
     addPinResrouceConstr();
+    // Add cross constraints
+    addCrossConstr();
     
 }
 
