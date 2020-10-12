@@ -276,10 +276,65 @@ void IlpTopFloorplanProblem::addYLoConstr()
     }
 }
 
+void IlpTopFloorplanProblem::addPinResrouceConstr()
+{
+    std::vector<IntType> pinIdxToResourceCost;
+    pinIdxToResourceCost.resize(_problem._pinIdx.size(), 1); /// TODO: use realistic modeling
+    for (IndexType cellIdx = 0; cellIdx < _problem._cellBBox.size(); ++cellIdx)
+    {
+        std::vector<IndexType> asymPinIdx;
+        std::vector<IntType> asymPinResources;
+        IndexType symPairResources = 0;
+        // Collect the pins in the cell
+        /// Not a optimized implementation
+        for (IndexType pinIdx = 0; pinIdx < _problem._pinIdx.size(); ++pinIdx)
+        {
+            const auto &fpPin = _problem._pinIdx.at(pinIdx);
+            if (fpPin.cellIdx != cellIdx) continue;
+            if (fpPin.pinType == TopFloorplanProblem::FpPinType::SYM_PRI)
+            {
+                symPairResources += pinIdxToResourceCost.at(pinIdx);
+            }
+            else if (fpPin.pinType == TopFloorplanProblem::FpPinType::ASYM)
+            {
+                asymPinIdx.emplace_back(fpPin.idx);
+                asymPinResources.emplace_back(pinIdxToResourceCost.at(pinIdx));
+            }
+        }
+        // Calculate the resources available
+        IntType baseResource = _problem._cellBBox.at(cellIdx).yLen() / _problem.resourcePerLen;
+        IntType baseAsymResource = baseResource - symPairResources;
+        // x_i in the left of the equations
+        lp_expr_type leftExpr, rightExpr;
+        IntType totalAsymResources = 0;
+        for (IndexType asymIdx = 0; asymIdx <  asymPinIdx.size(); ++asymIdx)
+        {
+            IndexType pinIdx = asymPinIdx.at(asymIdx);
+            IntType resource = asymPinResources.at(asymIdx);
+            leftExpr += _aSymAssignVars.at(pinIdx) * resource;
+            rightExpr += - _aSymAssignVars.at(pinIdx) * resource;
+            totalAsymResources += resource;
+        }
+        // Left constraint
+        // sum xi * ki <= reource + extra resource
+        lp_trait::addConstr(_solver,
+                leftExpr - _extraResourcesVars.at(cellIdx) <= 
+                baseAsymResource);
+        // Right constraint
+        // sum (1 - xi) * ki <= resource + extra resource
+        lp_trait::addConstr(_solver,
+                rightExpr - _extraResourcesVars.at(cellIdx) <=
+                baseAsymResource - totalAsymResources);
+    }
+}
+
 void IlpTopFloorplanProblem::addConstr()
 {
     // Add the nonoverlapping constraints between modules
     addYLoConstr();
+    // Add the pin resources constraints
+    addPinResrouceConstr();
+    
 }
 
 bool IlpTopFloorplanProblem::solve()

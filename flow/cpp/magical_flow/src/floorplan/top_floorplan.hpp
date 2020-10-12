@@ -93,6 +93,7 @@ class IlpTopFloorplanProblem
         /* ILP Constraints */
         void addConstr();
         void addYLoConstr();
+        void addPinResrouceConstr();
         
     private:
         std::vector<constraint_graph::ConstraintEdge> _verConstrGraph; ///< The vertical constraint graph
