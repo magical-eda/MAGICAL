@@ -431,6 +431,20 @@ void IlpTopFloorplanProblem::addConstr()
     addBoundaryConstr();
 }
 
+void IlpTopFloorplanProblem::configObjFunc()
+{
+    // obj += sum cross
+    for (const auto &netwiseCrossVar : _crossVars)
+    {
+        for (const auto &crossVar : netwiseCrossVar)
+        {
+            _obj += crossVar;
+        }
+    }
+    // obj += N * yHi
+    _obj += 100 * _yHiVar;
+}
+
 bool IlpTopFloorplanProblem::solve()
 {
     // Generate the vertical constraint graph with sweep line algorithm
@@ -439,6 +453,7 @@ bool IlpTopFloorplanProblem::solve()
     // Setup ILP problem
     addVariables();
     addConstr();
+    configObjFunc();
     Assert(false);
     return true;
 }

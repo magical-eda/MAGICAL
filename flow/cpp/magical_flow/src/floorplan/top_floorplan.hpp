@@ -96,11 +96,14 @@ class IlpTopFloorplanProblem
         void addPinResrouceConstr();
         void addCrossConstr();
         void addBoundaryConstr();
+        /* ILP Objective Function */
+        void configObjFunc();
         
     private:
         std::vector<constraint_graph::ConstraintEdge> _verConstrGraph; ///< The vertical constraint graph
         const TopFloorplanProblem &_problem;
-        lp_solver_type _solver;
+        lp_solver_type _solver; ///< ILP model
+        lp_expr_type _obj;  ///< ILP objective function
         std::vector<lp_variable_type> _symPinAssignVars; ///< The binary variables to represent how to assign the sym pins
         std::vector<lp_variable_type> _aSymAssignVars; ///< The binary variables to represent how to assign the asym pins
         std::vector<lp_variable_type> _extraResourcesVars; ///< The variables to represent the extra resources of each module
