@@ -33,11 +33,13 @@ class Placer(object):
         self.deviceProximityTypes = [magicalFlow.ImplTypePCELL_Nch, magicalFlow.ImplTypePCELL_Pch]
     def run(self):
         self.useIoPin = True
-        self.usePowerStripe = True
         self.isTopLevel = False
         if (self.dDB.rootCktIdx() ==  self.cktIdx):
             self.useIoPin = False
             self.isTopLevel = True
+        self.usePowerStripe = True
+        if self.isTopLevel and not self.implRealLayout:
+            self.usePowerStripe = False
         if not self.implRealLayout:
             self.useIoPin = False # in early floorplan stage, don't need real io pins
         self.dumpInput()

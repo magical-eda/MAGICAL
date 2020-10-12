@@ -128,6 +128,7 @@ void TopFloorplanProblem::initProblem(const DesignDB& dDb, const CktGraph &ckt, 
                 pinIdx.idx = _numSymPriPins;
                 ++_numSymPriPins;
                 pinIdx.cellIdx = pin.nodeIdx();
+                pinIdx.name = internalNetName;
                 _pinIdx.emplace_back(pinIdx);
                 break;
             }
@@ -139,6 +140,7 @@ void TopFloorplanProblem::initProblem(const DesignDB& dDb, const CktGraph &ckt, 
                 pinIdx.idx = _numSymSecPins;
                 ++_numSymSecPins;
                 pinIdx.cellIdx = pin.nodeIdx();
+                pinIdx.name = internalNetName;
                 _pinIdx.emplace_back(pinIdx);
                 break;
             }
@@ -150,6 +152,7 @@ void TopFloorplanProblem::initProblem(const DesignDB& dDb, const CktGraph &ckt, 
             pinIdx.idx = _numAsymPins;
             ++_numAsymPins;
             pinIdx.cellIdx = pin.nodeIdx();
+            pinIdx.name = internalNetName;
             _pinIdx.emplace_back(pinIdx);
         }
     }
@@ -413,10 +416,11 @@ void IlpTopFloorplanProblem::addBoundaryConstr()
 {
     for (IndexType cellIdx = 0; cellIdx < _problem._cellBBox.size(); ++cellIdx)
     {
-        // y_i + h_i <= yHi
+        // y_i + h_i + s_i * len <= yHi
         lp_trait::addConstr(_solver,
                 _yLoVars.at(cellIdx) - _yHiVar
-                <= _problem._cellBBox.at(cellIdx).yLen());
+                + _problem._resourcePerLen * _extraResourcesVars.at(cellIdx)
+                <=  - _problem._cellBBox.at(cellIdx).yLen());
     }
 }
 
@@ -454,6 +458,7 @@ bool IlpTopFloorplanProblem::solveIlp()
     if (lp_trait::isUnbounded(_solver))
     {
         ERR("ILP top-level floorplan solver: ILP unbounded \n");
+        Assert(false);
         return false;
     }
     else if (lp_trait::isOptimal(_solver))
@@ -464,16 +469,19 @@ bool IlpTopFloorplanProblem::solveIlp()
     else if (lp_trait::isInfeasible(_solver))
     {
         ERR("ILP top-level floorplan solver: ILP infeasible \n");
+        Assert(false);
         return false;
     }
     else if (lp_trait::isSuboptimal(_solver))
     {
         ERR("ILP top-level floorplan solver: ILP suboptimal \n");
+        Assert(false);
         return false;
     }
     else
     {
         ERR("ILP top-level floorplan solver: Unknown ILP status %s \n", lp_trait::statusStr(_solver).c_str());
+        Assert(false);
         return false;
     }
 }
@@ -526,6 +534,7 @@ bool IlpTopFloorplanProblem::solve()
     solveIlp();
     auto end = std::chrono::high_resolution_clock::now();
     std::cout<<"ILP runtime: "<<std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() <<"us"<<std::endl;
+    printVariableValue();
     Assert(false);
     return true;
 }

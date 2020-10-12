@@ -32,11 +32,19 @@ class TopFloorplanProblem
             SYM_SCE = 2, // The secondary one in the sym pair
             OTHER // Don't need to care
         };
+        enum class FpPinAssignType
+        {
+            LEFT = 0,
+            RIGHT = 1,
+            UNDEFINED = 2
+        };
         struct PinIdx
         {
             FpPinType pinType; 
             IndexType idx;
             IndexType cellIdx;
+            std::string name = "";
+            FpPinAssignType assign = FpPinAssignType::UNDEFINED;
         };
         struct FpNet
         {
@@ -66,6 +74,8 @@ class IlpTopFloorplanProblem
         /// @brief solve the problem
         /// @return true: successful.
         bool solve();
+        /* Write out the result */
+        void writeOut();
     private:
         /// @brief sweep line to generate the vertical constraint graph
         void verticalSweepLine();
