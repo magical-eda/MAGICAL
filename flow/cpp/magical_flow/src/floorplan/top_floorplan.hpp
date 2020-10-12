@@ -22,6 +22,8 @@ class TopFloorplanProblem
         explicit TopFloorplanProblem() = default;
         /// @brief intialize a problem from CktGraph
         void initProblem(const DesignDB& dDb, const CktGraph &ckt, const std::string& symnetFile);
+        /// @brief set resource per length
+        void setPinResourceLen(IntType pinResourceLen) { _resourcePerLen = pinResourceLen; }
     private:
         enum class FpPinType
         {
@@ -43,7 +45,7 @@ class TopFloorplanProblem
         /* Problem   */
         std::vector<PinIdx> _pinIdx; ///< To relate the pin in CktGraph to the variables
         std::vector<Box<LocType>> _cellBBox; ///< The original cell layout bounding boxes
-        IntType resourcePerLen = 1000; ///< To quanitfy the pin resource per length
+        IntType _resourcePerLen = 10000; ///< To quanitfy the pin resource per length
         std::vector<FpNet> _nets; ///< The nets
         IndexType _numAsymPins = 0; ///< The number of asym pins need to assign
         IndexType _numSymPriPins = 0; ///< The number of primary sym pins need to assign
@@ -100,6 +102,8 @@ class IlpTopFloorplanProblem
         void configObjFunc();
         /* ILP solve */
         bool solveIlp();
+        /* For debugging */
+        void printVariableValue();
         
     private:
         std::vector<constraint_graph::ConstraintEdge> _verConstrGraph; ///< The vertical constraint graph

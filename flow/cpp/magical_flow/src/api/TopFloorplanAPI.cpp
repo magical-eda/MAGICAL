@@ -14,7 +14,8 @@ namespace py = pybind11;
 void initTopFloorplanAPI(py::module &m) {
   py::class_<PROJECT_NAMESPACE::TopFloorplanProblem>(m, "TopFloorplanProblem")
     .def(py::init<>())
-    .def("initProblem", &PROJECT_NAMESPACE::TopFloorplanProblem::initProblem, "Init the problem");
+    .def("initProblem", &PROJECT_NAMESPACE::TopFloorplanProblem::initProblem, "Init the problem")
+    .def("setPinResourceLen", &PROJECT_NAMESPACE::TopFloorplanProblem::setPinResourceLen, "Set which length of yLen will create unit of pin resource");
   py::class_<PROJECT_NAMESPACE::IlpTopFloorplanProblem>(m, "IlpTopFloorplanProblem")
     .def(py::init<const PROJECT_NAMESPACE::TopFloorplanProblem &>())
     .def("solve", &PROJECT_NAMESPACE::IlpTopFloorplanProblem::solve, "Solve the problem");

@@ -276,7 +276,7 @@ void IlpTopFloorplanProblem::addYLoConstr()
         // y_i + h_i + m * s_i <= y_j
         lp_trait::addConstr(_solver, 
                 _yLoVars.at(edge.source()) - _yLoVars.at(edge.target())
-                + _extraResourcesVars.at(edge.source()) * _problem.resourcePerLen
+                + _extraResourcesVars.at(edge.source()) * _problem._resourcePerLen
                 <=
                 - cellHeight);
     }
@@ -308,7 +308,7 @@ void IlpTopFloorplanProblem::addPinResrouceConstr()
             }
         }
         // Calculate the resources available
-        IntType baseResource = _problem._cellBBox.at(cellIdx).yLen() / _problem.resourcePerLen;
+        IntType baseResource = _problem._cellBBox.at(cellIdx).yLen() / _problem._resourcePerLen;
         IntType baseAsymResource = baseResource - symPairResources;
         // x_i in the left of the equations
         lp_expr_type leftExpr, rightExpr;
@@ -453,29 +453,63 @@ bool IlpTopFloorplanProblem::solveIlp()
     lp_trait::solve(_solver);
     if (lp_trait::isUnbounded(_solver))
     {
-        ERR("LP legalization solver: LP unbounded \n");
+        ERR("ILP top-level floorplan solver: ILP unbounded \n");
         return false;
     }
     else if (lp_trait::isOptimal(_solver))
     {
-        INF("LP legalization solver: LP optimal \n");
+        INF("ILP top-level floorplan solver: ILP optimal \n");
         return true;
     }
     else if (lp_trait::isInfeasible(_solver))
     {
-        ERR("LP legalization solver: LP infeasible \n");
+        ERR("ILP top-level floorplan solver: ILP infeasible \n");
         return false;
     }
     else if (lp_trait::isSuboptimal(_solver))
     {
-        ERR("LP legalization solver: LP suboptimal \n");
+        ERR("ILP top-level floorplan solver: ILP suboptimal \n");
         return false;
     }
     else
     {
-        ERR("LP legalization solver: Unknown LP status %s \n", lp_trait::statusStr(_solver).c_str());
+        ERR("ILP top-level floorplan solver: Unknown ILP status %s \n", lp_trait::statusStr(_solver).c_str());
         return false;
     }
+}
+
+void IlpTopFloorplanProblem::printVariableValue()
+{
+    std::cout<<"ILP cross variables: \n";
+    for (const auto &net : _crossVars)
+    {
+        std::cout<<"new net \n";
+        for (const auto &var : net)
+        {
+            auto sol = lp_trait::solution(_solver, var);
+            std::cout <<" "<< sol;
+        }
+        std::cout << std::endl;
+    }
+    std::cout<<"ILP extra resources variables: \n";
+    for (const auto &var : _extraResourcesVars)
+    {
+        std::cout <<" "<< lp_trait::solution(_solver, var);
+    }
+    std::cout<<std::endl;
+    std::cout<<"ILP sym pin assignment variables: \n";
+    for (const auto &var : _symPinAssignVars)
+    {
+        std::cout <<" "<< lp_trait::solution(_solver, var);
+    }
+    std::cout<<std::endl;
+    std::cout<<"ILP asym pin assignment variables: \n";
+    for (const auto &var : _aSymAssignVars)
+    {
+        std::cout <<" "<< lp_trait::solution(_solver, var);
+    }
+    std::cout<<std::endl;
+    std::cout<<"ILP yHi variables: " << lp_trait::solution(_solver, _yHiVar);
 }
 
 bool IlpTopFloorplanProblem::solve()
@@ -491,7 +525,7 @@ bool IlpTopFloorplanProblem::solve()
     auto start = std::chrono::high_resolution_clock::now();
     solveIlp();
     auto end = std::chrono::high_resolution_clock::now();
-    std::cout<<"ILP cost "<<std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() <<"us"<<std::endl;
+    std::cout<<"ILP runtime: "<<std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() <<"us"<<std::endl;
     Assert(false);
     return true;
 }
