@@ -98,6 +98,8 @@ class IlpTopFloorplanProblem
         void addBoundaryConstr();
         /* ILP Objective Function */
         void configObjFunc();
+        /* ILP solve */
+        bool solveIlp();
         
     private:
         std::vector<constraint_graph::ConstraintEdge> _verConstrGraph; ///< The vertical constraint graph

@@ -1,4 +1,5 @@
 #include "top_floorplan.hpp"
+#include <chrono>
 
 PROJECT_NAMESPACE_BEGIN
 
@@ -445,6 +446,38 @@ void IlpTopFloorplanProblem::configObjFunc()
     _obj += 100 * _yHiVar;
 }
 
+bool IlpTopFloorplanProblem::solveIlp()
+{
+    lp_trait::setObjectiveMinimize(_solver);
+    lp_trait::setObjective(_solver, _obj);
+    lp_trait::solve(_solver);
+    if (lp_trait::isUnbounded(_solver))
+    {
+        ERR("LP legalization solver: LP unbounded \n");
+        return false;
+    }
+    else if (lp_trait::isOptimal(_solver))
+    {
+        INF("LP legalization solver: LP optimal \n");
+        return true;
+    }
+    else if (lp_trait::isInfeasible(_solver))
+    {
+        ERR("LP legalization solver: LP infeasible \n");
+        return false;
+    }
+    else if (lp_trait::isSuboptimal(_solver))
+    {
+        ERR("LP legalization solver: LP suboptimal \n");
+        return false;
+    }
+    else
+    {
+        ERR("LP legalization solver: Unknown LP status %s \n", lp_trait::statusStr(_solver).c_str());
+        return false;
+    }
+}
+
 bool IlpTopFloorplanProblem::solve()
 {
     // Generate the vertical constraint graph with sweep line algorithm
@@ -454,6 +487,11 @@ bool IlpTopFloorplanProblem::solve()
     addVariables();
     addConstr();
     configObjFunc();
+    // Solve the problem
+    auto start = std::chrono::high_resolution_clock::now();
+    solveIlp();
+    auto end = std::chrono::high_resolution_clock::now();
+    std::cout<<"ILP cost "<<std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() <<"us"<<std::endl;
     Assert(false);
     return true;
 }
