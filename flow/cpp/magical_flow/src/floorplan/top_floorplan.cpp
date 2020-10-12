@@ -258,6 +258,11 @@ void IlpTopFloorplanProblem::addVariables()
             lp_trait::setVarUpperBound(_solver, _crossVars.back().back(), 1);
         }
     }
+    // Add the boundary variable
+    _yHiVar = lp_trait::addVar(_solver);
+    // Continuous
+    lp_trait::setVarContinuous(_solver, _yHiVar);
+    lp_trait::setVarLowerBound(_solver, _yHiVar, 0);
 }
 
 void IlpTopFloorplanProblem::addYLoConstr()
@@ -403,6 +408,17 @@ void IlpTopFloorplanProblem::addCrossConstr()
     }
 }
 
+void IlpTopFloorplanProblem::addBoundaryConstr()
+{
+    for (IndexType cellIdx = 0; cellIdx < _problem._cellBBox.size(); ++cellIdx)
+    {
+        // y_i + h_i <= yHi
+        lp_trait::addConstr(_solver,
+                _yLoVars.at(cellIdx) - _yHiVar
+                <= _problem._cellBBox.at(cellIdx).yLen());
+    }
+}
+
 void IlpTopFloorplanProblem::addConstr()
 {
     // Add the nonoverlapping constraints between modules
@@ -411,7 +427,8 @@ void IlpTopFloorplanProblem::addConstr()
     addPinResrouceConstr();
     // Add cross constraints
     addCrossConstr();
-    
+    // Add boundary constraints
+    addBoundaryConstr();
 }
 
 bool IlpTopFloorplanProblem::solve()

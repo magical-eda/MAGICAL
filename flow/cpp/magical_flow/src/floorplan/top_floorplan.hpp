@@ -95,6 +95,7 @@ class IlpTopFloorplanProblem
         void addYLoConstr();
         void addPinResrouceConstr();
         void addCrossConstr();
+        void addBoundaryConstr();
         
     private:
         std::vector<constraint_graph::ConstraintEdge> _verConstrGraph; ///< The vertical constraint graph
@@ -105,6 +106,7 @@ class IlpTopFloorplanProblem
         std::vector<lp_variable_type> _extraResourcesVars; ///< The variables to represent the extra resources of each module
         std::vector<lp_variable_type> _yLoVars; ///< The lower y variables for each module
         std::vector<std::vector<lp_variable_type>> _crossVars; ///< The variables to represent whether there is a crossing between pair of pins
+        lp_variable_type _yHiVar; ///< The variable representing the upper boundary of the floorplan
 };
 
 PROJECT_NAMESPACE_END
