@@ -53,12 +53,38 @@ class TopFloorplanProblem
         /* Problem   */
         std::vector<PinIdx> _pinIdx; ///< To relate the pin in CktGraph to the variables
         std::vector<Box<LocType>> _cellBBox; ///< The original cell layout bounding boxes
+        std::vector<std::string> _cellNames; ///< The name of the cells
         IntType _resourcePerLen = 10000; ///< To quanitfy the pin resource per length
         std::vector<FpNet> _nets; ///< The nets
         IndexType _numAsymPins = 0; ///< The number of asym pins need to assign
         IndexType _numSymPriPins = 0; ///< The number of primary sym pins need to assign
         IndexType _numSymSecPins = 0; ///< The number of primary sym pins need to assign
+};
 
+class TopFloorplanProblemResult
+{
+    friend class IlpTopFloorplanProblem;
+    public:
+        explicit TopFloorplanProblemResult() = default;
+        /// @brief get whether assign pin to left or right
+        /// @param first: the cell name
+        /// @param second: the pin name (internal net name)
+        /// @return 0: left 1: right
+        IntType pinAssignSol(const std::string &cellName, const std::string &pinName)
+        {
+            return _pinAssignMap.at(cellName).at(pinName);
+        }
+        /// @brief get the planned cell height 
+        /// @param the module name
+        /// @return the target height
+        IntType targetModuleHeight(const std::string &cellName)
+        {
+            return _cellYLenMap.at(cellName);
+        }
+    
+    private:
+        std::map<std::string, std::map<std::string, IntType>> _pinAssignMap; ///< map[cell name][pin name] = status
+        std::map<std::string, IntType> _cellYLenMap; ///< map[cell name] = cell height
 };
 
 /// @brief the ilp for solving the TopFloorplanProblem
@@ -75,7 +101,7 @@ class IlpTopFloorplanProblem
         /// @return true: successful.
         bool solve();
         /* Write out the result */
-        void writeOut();
+        void writeOut(TopFloorplanProblemResult &result);
     private:
         /// @brief sweep line to generate the vertical constraint graph
         void verticalSweepLine();

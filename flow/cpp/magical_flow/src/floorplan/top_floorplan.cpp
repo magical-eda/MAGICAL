@@ -170,6 +170,7 @@ void TopFloorplanProblem::initProblem(const DesignDB& dDb, const CktGraph &ckt, 
         }
         cellLayoutBBox.offsetBy(cktNode.offsetConst());
         _cellBBox.emplace_back(cellLayoutBBox);
+        _cellNames.emplace_back(cktNode.name());
     }
     // Obtain the nets information
     for (IndexType netIdx = 0; netIdx < ckt.numNets(); ++netIdx)
@@ -520,6 +521,53 @@ void IlpTopFloorplanProblem::printVariableValue()
     std::cout<<"ILP yHi variables: " << lp_trait::solution(_solver, _yHiVar);
 }
 
+void IlpTopFloorplanProblem::writeOut(TopFloorplanProblemResult &result)
+{
+    auto findIntegerSol = [&](const lp_variable_type &var)
+    {
+        auto sol = lp_trait::solution(_solver, var);
+        return ::klib::autoRound<IntType>(sol);
+    };
+    for (const auto &fpPin : _problem._pinIdx)
+    {
+        const auto &cellName = _problem._cellNames.at(fpPin.cellIdx);
+        IntType pinAssignStatus = -1; // 0 left, 1 right
+        if (fpPin.pinType == TopFloorplanProblem::FpPinType::ASYM)
+        {
+            const auto &var = _aSymAssignVars.at(fpPin.idx);
+            pinAssignStatus = findIntegerSol(var);
+        }
+        else if (fpPin.pinType == TopFloorplanProblem::FpPinType::SYM_PRI)
+        {
+            const auto &var = _symPinAssignVars.at(fpPin.idx);
+            pinAssignStatus = findIntegerSol(var);
+        }
+        else if (fpPin.pinType == TopFloorplanProblem::FpPinType::SYM_SCE)
+        {
+            const auto &var = _symPinAssignVars.at(fpPin.idx);
+            pinAssignStatus = findIntegerSol(var);
+            Assert(pinAssignStatus == 1 or pinAssignStatus == 0);
+            pinAssignStatus = 1 - pinAssignStatus;
+        }
+        if (pinAssignStatus != -1)
+        {
+            // Some pin (eg. power stripes) will not be valid io pin,
+            // so that could be -1
+            Assert(pinAssignStatus == 0 or pinAssignStatus == 1);
+            result._pinAssignMap[cellName][fpPin.name] = pinAssignStatus;
+        }
+    }
+    for (IndexType cellIdx = 0; cellIdx < _problem._cellBBox.size(); ++cellIdx)
+    {
+        const auto &var = _extraResourcesVars.at(cellIdx);
+        auto extraResource = findIntegerSol(var);
+        Assert(extraResource >= 0);
+        result._cellYLenMap[_problem._cellNames.at(cellIdx)] =
+            _problem._cellBBox.at(cellIdx).yLen()
+            + extraResource * _problem._resourcePerLen;
+    }
+}
+
 bool IlpTopFloorplanProblem::solve()
 {
     // Generate the vertical constraint graph with sweep line algorithm
@@ -534,8 +582,6 @@ bool IlpTopFloorplanProblem::solve()
     solveIlp();
     auto end = std::chrono::high_resolution_clock::now();
     std::cout<<"ILP runtime: "<<std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() <<"us"<<std::endl;
-    printVariableValue();
-    Assert(false);
     return true;
 }
 

@@ -87,6 +87,8 @@ class PnR(object):
             pro.initProblem(self.dDB, self.dDB.subCkt(cktIdx), dirname)
             ilp = magicalFlow.IlpTopFloorplanProblem(pro)
             ilp.solve()
+            result = magicalFlow.TopFloorplanProblemResult()
+            ilp.writeOut(result)
             assert(False)
         else:
             self.p.implRealLayout = False
