@@ -219,15 +219,25 @@ class Net
         void markDigitalFlag() { _isDigital = true; _isAnalog = false; }
         /// @brief mark this net as analog
         void markAnalogFlag() { _isDigital = false; _isAnalog = true; }
+        /// @brief set the floorplan io pin to the left
+        void markIoPinLeft() { _floorplanAssignment = 0; }
+        /// @brief set the floorplan IO pin to the right
+        void markIoPinRight() { _floorplanAssignment = 1; }
         /*------------------------------*/ 
         /* Attributes                   */
         /*------------------------------*/ 
         /// @brief check if the net is io
         /// @param return true if net is io
-        bool isIo() { return _ioPos != INDEX_TYPE_MAX; }
+        bool isIo() const { return _ioPos != INDEX_TYPE_MAX; }
         /// @brief return true if net is a substrate net
         /// @return true if a substrate net
-        bool isSub() { return _subIdxArray.empty(); }
+        bool isSub() const { return _subIdxArray.empty(); }
+        /// @brief return whether the net is assigned to left or right in the floorplan
+        /// @return true: yes, false: no
+        bool isFloorplanAssigned() const { return _floorplanAssignment != -1; }
+        /// @brief return the assignment status of the pin
+        /// @return 0: left 1: right
+        IntType floorplanAssignStatus() const { Assert(_floorplanAssignment >= 0); return _floorplanAssignment; }
         /*------------------------------*/ 
         /* Vector operation             */
         /*------------------------------*/ 
@@ -316,6 +326,7 @@ class Net
         bool _isVss = false; ///< Whether this net is a VSS net
         bool _isDigital = false; ///< Whether this net is digital
         bool _isAnalog =  false; ///< whether this net is analog
+        IntType _floorplanAssignment = -1; ///< -1: unassigned, 0: left, 1: right
         /*------------------------------*/ 
         /* For higher hierarchy         */
         /*------------------------------*/ 

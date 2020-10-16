@@ -42,7 +42,7 @@ class TopFloorplanProblem
         {
             FpPinType pinType; 
             IndexType idx;
-            IndexType cellIdx;
+            IntType cellIdx;
             std::string name = "";
             FpPinAssignType assign = FpPinAssignType::UNDEFINED;
         };

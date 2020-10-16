@@ -60,6 +60,14 @@ class PnR(object):
         self.dDB.subCkt(cktIdx).isImpl = True
         print("PnR: placement finished ", self.dDB.subCkt(cktIdx).name)
 
+    def floorplan(self):
+        pro = magicalFlow.TopFloorplanProblem()
+        pro.initProblem(self.dDB, self.dDB.subCkt(self.cktIdx), self.dirname)
+        ilp = magicalFlow.IlpTopFloorplanProblem(pro)
+        ilp.solve()
+        result = magicalFlow.TopFloorplanProblemResult()
+        ilp.writeOut(result)
+
     def routeOnly(self):
         """
         @brief PnR a circuit in the designDB
@@ -80,19 +88,8 @@ class PnR(object):
         #    #self.p.resetPlacer()
         #    #self.p.run()
         #    #self.p.resetPlacer()
-        if self.isTopLevel:
-            self.p.implRealLayout = False
-            self.p.run()
-            pro = magicalFlow.TopFloorplanProblem()
-            pro.initProblem(self.dDB, self.dDB.subCkt(cktIdx), dirname)
-            ilp = magicalFlow.IlpTopFloorplanProblem(pro)
-            ilp.solve()
-            result = magicalFlow.TopFloorplanProblemResult()
-            ilp.writeOut(result)
-            assert(False)
-        else:
-            self.p.implRealLayout = False
-            self.p.run()
+        self.p.implRealLayout = False
+        self.p.run()
         self.runtime += self.p.runtime
         self.symAxis = self.p.symAxis
         self.origin = self.p.origin

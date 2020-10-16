@@ -95,6 +95,7 @@ void TopFloorplanProblem::initProblem(const DesignDB& dDb, const CktGraph &ckt, 
         {
             PinIdx pinIdx;
             pinIdx.pinType = FpPinType::OTHER;
+            pinIdx.cellIdx = -1;
             _pinIdx.emplace_back(pinIdx);
         };
         if (pin.pinType() != PinType::UNSET)
@@ -300,7 +301,7 @@ void IlpTopFloorplanProblem::addPinResrouceConstr()
         for (IndexType pinIdx = 0; pinIdx < _problem._pinIdx.size(); ++pinIdx)
         {
             const auto &fpPin = _problem._pinIdx.at(pinIdx);
-            if (fpPin.cellIdx != cellIdx) continue;
+            if (fpPin.cellIdx != static_cast<IntType>(cellIdx)) continue;
             if (fpPin.pinType == TopFloorplanProblem::FpPinType::SYM_PRI)
             {
                 symPairResources += pinIdxToResourceCost.at(pinIdx);
@@ -530,6 +531,11 @@ void IlpTopFloorplanProblem::writeOut(TopFloorplanProblemResult &result)
     };
     for (const auto &fpPin : _problem._pinIdx)
     {
+        if (fpPin.cellIdx == -1)
+        {
+            // vss vdd
+            continue;
+        }
         const auto &cellName = _problem._cellNames.at(fpPin.cellIdx);
         IntType pinAssignStatus = -1; // 0 left, 1 right
         if (fpPin.pinType == TopFloorplanProblem::FpPinType::ASYM)
