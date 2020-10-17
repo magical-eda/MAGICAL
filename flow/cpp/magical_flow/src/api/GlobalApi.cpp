@@ -31,6 +31,7 @@ void initGlobalAPI(py::module &m)
 //        .value("ImplTypePCELL_Nch25ud18mac", PROJECT_NAMESPACE::ImplType::PCELL_Nch25ud18mac)
         .value("ImplTypePCELL_Res", PROJECT_NAMESPACE::ImplType::PCELL_Res)
         .value("ImplTypePCELL_Cap", PROJECT_NAMESPACE::ImplType::PCELL_Cap)
+        .value("ImplTypeSTDCELL", PROJECT_NAMESPACE::ImplType::STDCELL)
         .export_values();
     
     py::enum_<PROJECT_NAMESPACE::PinType>(m, "PinType")

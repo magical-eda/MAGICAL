@@ -60,7 +60,8 @@ enum class ImplType
     PCELL_Pch,
 //    PCELL_Nch25ud18mac,
     PCELL_Res,
-    PCELL_Cap
+    PCELL_Cap,
+    STDCELL
 };
 
 enum class PinType

@@ -61,6 +61,24 @@ class PnR(object):
         print("PnR: placement finished ", self.dDB.subCkt(cktIdx).name)
 
     def floorplan(self):
+        # determine whether really need floorplan
+        ckt = self.dDB.subCkt(self.cktIdx)
+        if ckt.implType != magicalFlow.ImplTypeUNSET:
+            return
+        subCktNotAllLeaf = False
+        for nodeIdx in range(ckt.numNodes()):
+            node = ckt.node(nodeIdx)
+            if node.isLeaf():
+                continue
+            subCktIdx = node.graphIdx
+            subCkt = self.dDB.subCkt(subCktIdx)
+            if subCkt.implType == magicalFlow.ImplTypeUNSET and node.name != "":
+                subCktNotAllLeaf = True
+                print("HERE WE GO ", subCkt.name, "|", node.name, "|")
+                break
+        if not subCktNotAllLeaf:
+            return
+
         pro = magicalFlow.TopFloorplanProblem()
         pro.initProblem(self.dDB, self.dDB.subCkt(self.cktIdx), self.dirname)
         ilp = magicalFlow.IlpTopFloorplanProblem(pro)

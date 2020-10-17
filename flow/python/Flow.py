@@ -54,6 +54,7 @@ class Flow(object):
 
     def isCktStdCells(self, cktIdx):
         if self.dDB.subCkt(cktIdx).name in self.params.stdCells:
+            self.dDB.subCkt(cktIdx).implType = magicalFlow.ImplTypeSTDCELL
             return True
         else:
             return False

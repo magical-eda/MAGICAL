@@ -226,6 +226,10 @@ namespace MfUtil
         {
             return false;
         }
+        else if (implType == ImplType::STDCELL)
+        {
+            return false;
+        }
         else
         {
             AssertMsg(false, "UTIL::isDevice: unknown ImplType \n");

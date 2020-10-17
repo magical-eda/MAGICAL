@@ -76,7 +76,7 @@ void TopFloorplanProblem::initProblem(const DesignDB& dDb, const CktGraph &ckt, 
         {
             continue;
         }
-        if (dDb.subCktConst(cktNode.subgraphIdx()).implType() != ImplType::UNSET)
+        if (dDb.subCktConst(cktNode.subgraphIdx()).implType() != ImplType::UNSET or cktNode.name() == "")
         {
             // only care about subckt
             continue;
@@ -110,7 +110,7 @@ void TopFloorplanProblem::initProblem(const DesignDB& dDb, const CktGraph &ckt, 
             addDontCarePin();
             continue;
         }
-        if (dDb.subCktConst(cktNode.subgraphIdx()).implType() != ImplType::UNSET)
+        if (dDb.subCktConst(cktNode.subgraphIdx()).implType() != ImplType::UNSET or cktNode.name() == "")
         {
             // only care about subckt
             addDontCarePin();
@@ -238,7 +238,8 @@ void IlpTopFloorplanProblem::addVariables()
         _extraResourcesVars.emplace_back(lp_trait::addVar(_solver));
         // Integer
         lp_trait::setVarInteger(_solver, _extraResourcesVars.back());
-        lp_trait::setVarLowerBound(_solver, _extraResourcesVars.back(), 0);
+        IntType minimum = _problem._cellBBox.at(cellIdx).yLen() / _problem._resourcePerLen;
+        lp_trait::setVarLowerBound(_solver, _extraResourcesVars.back(), -minimum);
     }
     // Each module has a variable indicate its yLo
     for (IndexType cellIdx = 0; cellIdx < _problem._cellBBox.size(); ++cellIdx)
@@ -567,7 +568,7 @@ void IlpTopFloorplanProblem::writeOut(TopFloorplanProblemResult &result)
     {
         const auto &var = _extraResourcesVars.at(cellIdx);
         auto extraResource = findIntegerSol(var);
-        Assert(extraResource >= 0);
+        //Assert(extraResource >= 0);
         result._cellYLenMap[_problem._cellNames.at(cellIdx)] =
             _problem._cellBBox.at(cellIdx).yLen()
             + extraResource * _problem._resourcePerLen;
