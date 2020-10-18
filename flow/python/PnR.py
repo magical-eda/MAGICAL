@@ -55,10 +55,16 @@ class PnR(object):
         print("PnR: working on ", self.dDB.subCkt(cktIdx).name, self.rootCktIdx, self.dDB.rootCktIdx(), cktIdx)
         self.cktIdx = cktIdx
         self.dirname = dirname
-        self.runPlace(cktIdx, dirname)
+        self.runPlace(cktIdx, dirname, False)
         self.checkSmallModule(cktIdx)
         self.dDB.subCkt(cktIdx).isImpl = True
         print("PnR: placement finished ", self.dDB.subCkt(cktIdx).name)
+
+    def placeAndRoute(self):
+        self.runPlace(self.cktIdx, self.dirname, True)
+        self.checkSmallModule(self.cktIdx)
+        self.dDB.subCkt(self.cktIdx).isImpl = True
+        self.routeOnly()
 
     def floorplan(self):
         # determine whether really need floorplan
@@ -96,7 +102,7 @@ class PnR(object):
         self.runRoute(self.cktIdx, self.dirname)
         print("PnR: routing finished ", self.dDB.subCkt(self.cktIdx).name)
             
-    def runPlace(self, cktIdx, dirname):
+    def runPlace(self, cktIdx, dirname, implRealLayout):
         self.p = Placer.Placer(self.mDB, cktIdx, dirname,self.gridStep, self.halfMetWid)
         #if not self.isTopLevel:
         #    self.p.implRealLayout = False
@@ -106,7 +112,7 @@ class PnR(object):
         #    #self.p.resetPlacer()
         #    #self.p.run()
         #    #self.p.resetPlacer()
-        self.p.implRealLayout = False
+        self.p.implRealLayout = implRealLayout
         self.p.run()
         self.runtime += self.p.runtime
         self.symAxis = self.p.symAxis

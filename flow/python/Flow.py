@@ -37,9 +37,8 @@ class Flow(object):
         for pnrIdx in range(len(self.pnrs) - 1, 0, -1):
             print("Floorplan ", pnrIdx)
             self.pnrs[pnrIdx].floorplan()
-        assert(False)
         for pnr in self.pnrs:
-            pnr.routeOnly()
+            pnr.placeAndRoute()
         return True
 
     def generateConstraints(self):

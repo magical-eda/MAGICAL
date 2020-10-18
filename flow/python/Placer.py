@@ -38,12 +38,16 @@ class Placer(object):
             self.useIoPin = False
             self.isTopLevel = True
         self.usePowerStripe = True
-        if self.isTopLevel and not self.implRealLayout:
+        if not self.implRealLayout:
             self.usePowerStripe = False
         if not self.implRealLayout:
             self.useIoPin = False # in early floorplan stage, don't need real io pins
+        if self.implRealLayout:
+            self.placer.closeFastMode()
+        else:
+            self.placer.openFastMode()
         self.dumpInput()
-        self.placer.numThreads(1) #FIXME
+        self.placer.numThreads(10) #FIXME
         start = time.time()
         self.symAxis = self.placer.solve(self.gridStep)
         end = time.time()
