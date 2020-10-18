@@ -80,7 +80,6 @@ class PnR(object):
             subCkt = self.dDB.subCkt(subCktIdx)
             if subCkt.implType == magicalFlow.ImplTypeUNSET and node.name != "":
                 subCktNotAllLeaf = True
-                print("HERE WE GO ", subCkt.name, "|", node.name, "|")
                 break
         if not subCktNotAllLeaf:
             return
@@ -112,6 +111,8 @@ class PnR(object):
         #    #self.p.resetPlacer()
         #    #self.p.run()
         #    #self.p.resetPlacer()
+        if implRealLayout:
+            self.p.resetPlacer()
         self.p.implRealLayout = implRealLayout
         self.p.run()
         self.runtime += self.p.runtime

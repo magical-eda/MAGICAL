@@ -256,6 +256,7 @@ inline void CktGraph::restore()
     std::swap(_isImplemented, _backup.isImplemented);
     std::swap(_flipVertFlag, _backup.flipVertFlag);
     std::swap(_gdsData, _backup.gdsData);
+    Assert(_layout.boundary().xLo() == LOC_TYPE_MAX);
 
 }
 

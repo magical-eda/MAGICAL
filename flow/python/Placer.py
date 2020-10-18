@@ -136,7 +136,6 @@ class Placer(object):
         self.setPlaceOrigin()
         print("origin, ", self.origin[0], self.origin[1])
         self.symAxis = int(self.symAxis - self.origin[0])
-        self.readoutIoPins()
         self.writeoutPlacementResult()
     def readoutIoPins(self):
         self.iopinOffsetx =[]
@@ -206,8 +205,6 @@ class Placer(object):
         """
         Reset the placer
         """
-        if self.implRealLayout:
-            assert(False) # reset is only working when the placer is not in implement real circuit mode
         self.ckt.restore()
         self.placer = IdeaPlaceExPy.IdeaPlaceEx() # Create a new placer solver
         self.ckt.layout().clear()
@@ -223,7 +220,7 @@ class Placer(object):
             print("node ", cktNode.name, x_offset, y_offset)
             cktNode.setOffset(x_offset, y_offset)
             self.ckt.layout().insertLayout(subCkt.layout(), x_offset, y_offset, cktNode.flipVertFlag)
-            print(cktNode.name, self.placer.cellName(nodeIdx), x_offset, y_offset, "PLACEMENT")
+            print(cktNode.name, self.placer.cellName(nodeIdx), x_offset, y_offset, "PLACEMENT", subCkt.layout().boundary().toStr())
             if self.debug:
                 boundary = subCkt.layout().boundary()
                 rect = gdspy.Rectangle((boundary.xLo+x_offset,boundary.yLo+y_offset), (boundary.xHi+x_offset,boundary.yHi+y_offset))
@@ -231,15 +228,6 @@ class Placer(object):
                 self.tempCell.add(rect)
                 self.tempCell.add(text)
         cktBoundaryBox = self.ckt.layout().boundary()
-        #Process io pins      
-        if self.useIoPin:
-            for nodeIdx in range(self.numCktNodes, self.ckt.numNodes()):
-                cktNode = self.ckt.node(nodeIdx)
-                subCkt = self.dDB.subCkt(cktNode.graphIdx)
-                x_offset = self.iopinOffsetx[nodeIdx - self.numCktNodes]
-                y_offset = self.iopinOffsety[nodeIdx - self.numCktNodes]
-                cktNode.setOffset(x_offset, y_offset)
-                self.ckt.layout().insertLayout(subCkt.layout(), x_offset, y_offset, cktNode.flipVertFlag)
         # write guardring using gdspy
         if self.cktNeedSub(self.cktIdx) and self.implRealLayout:
             print("Adding GuardRing to Cell")
@@ -250,6 +238,16 @@ class Placer(object):
             bBox = self.ckt.layout().boundary()
             self.subShape(subPin)
             self.guardRingGrCells.append(grCell)
+        #Process io pins      
+        if self.useIoPin:
+            self.readoutIoPins()
+            for nodeIdx in range(self.numCktNodes, self.ckt.numNodes()):
+                cktNode = self.ckt.node(nodeIdx)
+                subCkt = self.dDB.subCkt(cktNode.graphIdx)
+                x_offset = self.iopinOffsetx[nodeIdx - self.numCktNodes]
+                y_offset = self.iopinOffsety[nodeIdx - self.numCktNodes]
+                cktNode.setOffset(x_offset, y_offset)
+                self.ckt.layout().insertLayout(subCkt.layout(), x_offset, y_offset, cktNode.flipVertFlag)
         #change small
         self.checkSmallModule(self.cktIdx)
         # Power stripes

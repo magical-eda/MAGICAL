@@ -31,5 +31,6 @@ void initUtilAPI(py::module &m)
         .def_property("xHi", &PROJECT_NAMESPACE::Box<PROJECT_NAMESPACE::LocType>::xHi, &PROJECT_NAMESPACE::Box<PROJECT_NAMESPACE::LocType>::setXHi)
         .def_property("yHi", &PROJECT_NAMESPACE::Box<PROJECT_NAMESPACE::LocType>::yHi, &PROJECT_NAMESPACE::Box<PROJECT_NAMESPACE::LocType>::setYHi)
         .def("xLen", &PROJECT_NAMESPACE::Box<PROJECT_NAMESPACE::LocType>::xLen)
-        .def("yLen", &PROJECT_NAMESPACE::Box<PROJECT_NAMESPACE::LocType>::yLen);
+        .def("yLen", &PROJECT_NAMESPACE::Box<PROJECT_NAMESPACE::LocType>::yLen)
+        .def("toStr", &PROJECT_NAMESPACE::Box<PROJECT_NAMESPACE::LocType>::toStr);
 }
