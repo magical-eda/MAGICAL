@@ -15,6 +15,14 @@
 
 PROJECT_NAMESPACE_BEGIN
 
+
+/// @brief floorplan-related data structure
+class FloorplanData
+{
+    private:
+        Box<LocType> _boundary; ///< The boundary preset for the circuit
+};
+
 /// @class MAGICAL_FLOW::CktGraph
 /// @brief each CktGraph represent a level of circuit in the hierarchical flow
 class CktGraph
@@ -123,7 +131,11 @@ class CktGraph
         const std::string &                                         name() const                                        { return _name; }
         /// @brief set the name of this circuit
         /// @param the name of this circuit
-        void                                                        setName(const std::string &name)                    { _name = name; }
+        void                                                        setName(const std::string &name)                    { _name = name; _refName = name; }
+        /// @brief return the refname of this circuit
+        /// @return the reference name of this circuit
+        const std::string & refName() const { return _refName; }
+        void setRefName(const std::string &refName) { _refName = refName; }
         /// @brief get the layout of this circuit
         /// @param the layout implementation of this circuit
         Layout &                                                    layout()                                            { return _layout; }
@@ -217,6 +229,7 @@ class CktGraph
         std::vector<IndexType> _psubIdxArray; ///< The index of substrate nets in _netArray
         std::vector<IndexType> _nwellIdxArray; ///< The index of nwell nets in _netArray
         std::string _name = ""; ///< The name of this circuit
+        std::string _refName = ""; ///< The ref name of this circuit
         Layout _layout; ///< The layout implementation for this circuit
         ImplType _implType = ImplType::UNSET; ///< The implementation set of this circuit
         IndexType _implIdx = INDEX_TYPE_MAX; ///< The index of this implementation type configuration in the database
@@ -226,8 +239,6 @@ class CktGraph
         /* Integration                  */
         /*------------------------------*/ 
         GdsData _gdsData; ///< The gds data
-        /* for backup*/
-        std::unique_ptr<CktGraphBackup> _backupPtr; ///< For backup the design
 
 };
 

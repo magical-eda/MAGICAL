@@ -58,7 +58,7 @@ class Placer(object):
         self.placer.readTechSimpleFile(self.params.simple_tech_file)
         self.placeParsePin()
         self.placeConnection()
-        self.placer.readSymFile(self.dirname + self.ckt.name + '.sym') # FIXME: use in memory interface
+        self.placer.readSymFile(self.dirname + self.ckt.refName() + '.sym') # FIXME: use in memory interface
         self.placeParseSigpath()
         self.computeAndAddPowerCurrentFlow()
         self.placeParseBoundary()
@@ -66,11 +66,11 @@ class Placer(object):
             gdspy.current_library = gdspy.GdsLibrary()
             self.tempCell = gdspy.Cell("FLOORPLAN")
         self.configureIoPinParameters()
-        self.placer.readSymNetFile(self.dirname + self.ckt.name + '.symnet') # FIXME: use in memory interface
+        self.placer.readSymNetFile(self.dirname + self.ckt.refName() + '.symnet') # FIXME: use in memory interface
         #self.feedDeviceProximity()
     
     def placeParseSigpath(self):
-        filename = self.dirname + self.ckt.name + '.sigpath' #FIXME: use in memeory interface
+        filename = self.dirname + self.ckt.refName() + '.sigpath' #FIXME: use in memeory interface
         if os.path.isfile(filename):
             self.placer.readSigpathFile(filename)
     def computeAndAddPowerCurrentFlow(self):
@@ -490,18 +490,20 @@ class Placer(object):
                     if self.debug:
                         outFile.write("-1\n")
                     continue
-                if self.placer.pinIdx(nodeIdx, pin.intNetIdx) < pow(2,32)-1:
+                if self.placer.pinIdx(nodeIdx, pin.intNetIdx) >= 0:
                     self.placer.addPinToNet(self.placer.pinIdx(nodeIdx, pin.intNetIdx), netIdx)
                     if self.debug:
                         outFile.write("%d\n" % self.placer.pinIdx(nodeIdx, pin.intNetIdx))
                 else:
                     device_type = self.dDB.subCkt(self.ckt.node(nodeIdx).graphIdx).implType
+                    print("node name ", self.ckt.node(nodeIdx).name, "cktname ",self.dDB.subCkt(self.ckt.node(nodeIdx).graphIdx).name )
                     if device_type == magicalFlow.ImplTypePCELL_Nch:
                         assert pin.intNetIdx == 3, "placeConnection, sub not NMOS BODY pin"
                     elif device_type == magicalFlow.ImplTypePCELL_Res:
                         assert pin.intNetIdx == 2, "placeConnection, sub not RES BODY pin"
                     else:
                         if self.implRealLayout: # in fake mode, don't need to consider this much details
+                            print("cktname ", self.ckt.name, device_type)
                             assert False, "placeConnection, sub not NMOS or RES device"
                     if self.debug:
                         outFile.write("-1\n")

@@ -67,4 +67,18 @@ bool DesignDB::findRootCkt()
     return true;
 }
 
+IndexType DesignDB::decoupleSubCkt(IndexType cktIdx, IndexType nodeIdx)
+{
+    auto &node = this->subCkt(cktIdx).node(nodeIdx);
+    IndexType subCktIdx = node.subgraphIdx();
+    Assert(_ckts.at(subCktIdx).implType() == ImplType::UNSET);
+    IndexType newCktIdx = _ckts.size();
+    _ckts.emplace_back(CktGraph());
+    _ckts.back() = _ckts.at(subCktIdx);
+    auto cktName = _ckts.back().name();
+    _ckts.back().setName(_ckts.back().name() + "_" + std::to_string(cktIdx) + "_" + std::to_string(nodeIdx));
+    _ckts.back().setRefName(cktName); // Keep reference name unchanged
+    return newCktIdx;
+}
+
 PROJECT_NAMESPACE_END

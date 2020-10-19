@@ -26,5 +26,6 @@ void initDesignDBAPI(py::module &m)
         .def("findRootCkt", &PROJECT_NAMESPACE::DesignDB::findRootCkt)
         .def_readwrite("power", &PROJECT_NAMESPACE::DesignDB::power)
         .def_readwrite("ground", &PROJECT_NAMESPACE::DesignDB::power)
+        .def("decoupleSubCkt", &PROJECT_NAMESPACE::DesignDB::decoupleSubCkt, "decouple the sub circuits with the same type for a node")
         .def("phyPropDB", &PROJECT_NAMESPACE::DesignDB::phyPropDB, py::return_value_policy::reference, "Get physical property DB");
 }

@@ -38,8 +38,42 @@ class Flow(object):
             print("Floorplan ", pnrIdx)
             self.pnrs[pnrIdx].floorplan()
         for pnr in self.pnrs:
+            pnr.resetCkt()
+        self.decoupleCkts()
+        for pnr in self.pnrs:
             pnr.placeAndRoute()
         return True
+
+    def decoupleCkts(self):
+        """
+        This function decouple the nodes with the same type of subCkt
+        For example, if there are ota1 and ota2 with the same type OTA
+        It will seperate the layout implementation of ota1 and ota2 and 
+        construct a new ckt called OTA_cp
+        """
+        subCktNameSet = set()
+        pnrIdx  = len(self.pnrs)-1
+        while pnrIdx >= 0:
+            pnr = self.pnrs[pnrIdx]
+            ckt = self.dDB.subCkt(pnr.cktIdx)
+            for nodeIdx in range(ckt.numNodes()):
+                node = ckt.node(nodeIdx)
+                if (node.isLeaf()):
+                    continue
+                subGraphIdx = node.graphIdx
+                subCkt = self.dDB.subCkt(subGraphIdx)
+                if subCkt.implType != magicalFlow.ImplTypeUNSET:
+                    continue
+                print("KERENDEBUG CKT NAME", subCkt.name, pnrIdx, pnr.cktIdx, nodeIdx, subGraphIdx)
+                if subCkt.name not in subCktNameSet:
+                    subCktNameSet.add(subCkt.name)
+                else:
+                    newCktIdx = self.dDB.decoupleSubCkt(pnr.cktIdx, nodeIdx)
+                    node.graphIdx = newCktIdx
+                    newPnr = PnR.PnR(self.mDB, newCktIdx, self.resultName)
+                    self.pnrs.insert(pnrIdx - 1, newPnr) # name will be added later
+                    pnrIdx += 1
+            pnrIdx -= 1
 
     def generateConstraints(self):
         for cktIdx in range(self.dDB.numCkts()):
@@ -111,8 +145,8 @@ class Flow(object):
         ckt = dDB.subCkt(cktIdx) #magicalFlow.CktGraph
         self.symDict = self.constraint.genConstraint(cktIdx, self.resultName)
         self.setup(cktIdx)
-        pnr = PnR.PnR(self.mDB)
-        pnr.placeOnly(cktIdx, self.resultName)
+        pnr = PnR.PnR(self.mDB, cktIdx, self.resultName)
+        pnr.placeOnly()
         self.runtime += pnr.runtime
         self.pnrs.append(pnr)
         #PnR.PnR(self.mDB).implLayout(cktIdx, self.resultName)

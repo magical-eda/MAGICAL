@@ -59,13 +59,22 @@ class DesignDB
         /// @brief allocate a new sub circuit 
         /// @return the index of the new sub circuit
         IndexType allocateCkt() { _ckts.emplace_back(CktGraph()); return _ckts.size() - 1; }
-        
         /*------------------------------*/ 
         /* Maintainence of the hierarch */
         /*------------------------------*/ 
         /// @brief topological sort of the hierarchical tree. The top level therefore is surely placed at the first level
         /// @return if successful
         bool findRootCkt();
+        /// @brief seperate the implementation for two modules with the same type of subckts
+        /// For example, maybe a top-level circuits contain two OTA type ota1 and ota2.
+        /// In manual design, ota1 and ota2 are usually have the same layouts for simplicity.
+        /// However, in automatic optimization-based flow, it might be more desirable to seperate
+        /// the implementation.
+        /// This function is to handle the data structure changes for seperating ota1 and ota2
+        /// @param first: the circuit index that contain the node need a new referring subckt
+        /// @param second: the index of node that need a new referrring subckt
+        /// @return the index of CktGraph in subCkt for the new subckt
+        IndexType decoupleSubCkt(IndexType cktIdx, IndexType nodeIdx);
         /*------------------------------*/ 
         /* Exposed public python memory */
         /*------------------------------*/ 

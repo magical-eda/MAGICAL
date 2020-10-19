@@ -15,7 +15,7 @@ import gdspy
 from device_generation.glovar import tsmc40_glovar as glovar
 
 class PnR(object):
-    def __init__(self, magicalDB):
+    def __init__(self, magicalDB, cktIdx, dirname):
         self.mDB = magicalDB
         self.dDB = magicalDB.designDB.db
         self.tDB = magicalDB.techDB
@@ -26,42 +26,38 @@ class PnR(object):
         self.debug = True
         self.params = self.mDB.params
         self.runtime = 0
-
-    def implLayout(self, cktIdx, dirname):
-        """
-        @brief PnR a circuit in the designDB
-        @param the index of subckt
-        """
-        if self.rootCktIdx == cktIdx:
-            self.isTopLevel = True
-        else:
-            self.isTopLevel = False
-        print("PnR: working on ", self.dDB.subCkt(cktIdx).name)
-        self.runPlace(cktIdx, dirname)
-        self.checkSmallModule(cktIdx)
-        self.runRoute(cktIdx, dirname)
-        self.dDB.subCkt(cktIdx).isImpl = True
-        print("PnR: finished ", self.dDB.subCkt(cktIdx).name)
-
-    def placeOnly(self, cktIdx, dirname):
-        """
-        @brief PnR a circuit in the designDB
-        @param the index of subckt
-        """
-        if self.rootCktIdx == cktIdx:
-            self.isTopLevel = True
-        else:
-            self.isTopLevel = False
-        print("PnR: working on ", self.dDB.subCkt(cktIdx).name, self.rootCktIdx, self.dDB.rootCktIdx(), cktIdx)
         self.cktIdx = cktIdx
         self.dirname = dirname
-        self.runPlace(cktIdx, dirname, False)
-        self.checkSmallModule(cktIdx)
-        self.dDB.subCkt(cktIdx).isImpl = True
-        print("PnR: placement finished ", self.dDB.subCkt(cktIdx).name)
+        if self.rootCktIdx == self.cktIdx:
+            self.isTopLevel = True
+        else:
+            self.isTopLevel = False
+
+    def implLayout(self):
+        """
+        @brief PnR a circuit in the designDB
+        @param the index of subckt
+        """
+        print("PnR: working on ", self.dDB.subCkt(self.cktIdx).name)
+        self.runPlace()
+        self.checkSmallModule(self.cktIdx)
+        self.runRoute()
+        self.dDB.subCkt(self.cktIdx).isImpl = True
+        print("PnR: finished ", self.dDB.subCkt(self.cktIdx).name)
+
+    def placeOnly(self):
+        """
+        @brief PnR a circuit in the designDB
+        @param the index of subckt
+        """
+        print("PnR: working on ", self.dDB.subCkt(self.cktIdx).name, self.rootCktIdx, self.dDB.rootCktIdx(), self.cktIdx)
+        self.runPlace(False)
+        self.checkSmallModule(self.cktIdx)
+        self.dDB.subCkt(self.cktIdx).isImpl = True
+        print("PnR: placement finished ", self.dDB.subCkt(self.cktIdx).name)
 
     def placeAndRoute(self):
-        self.runPlace(self.cktIdx, self.dirname, True)
+        self.runPlace(True)
         self.checkSmallModule(self.cktIdx)
         self.dDB.subCkt(self.cktIdx).isImpl = True
         self.routeOnly()
@@ -98,11 +94,15 @@ class PnR(object):
         """
 
         self.p.updatePlacementResult()
-        self.runRoute(self.cktIdx, self.dirname)
+        self.runRoute()
         print("PnR: routing finished ", self.dDB.subCkt(self.cktIdx).name)
+
+    def resetCkt(self):
+        self.dDB.subCkt(self.cktIdx).restore()
+        self.dDB.subCkt(self.cktIdx).layout().clear()
             
-    def runPlace(self, cktIdx, dirname, implRealLayout):
-        self.p = Placer.Placer(self.mDB, cktIdx, dirname,self.gridStep, self.halfMetWid)
+    def runPlace(self, implRealLayout):
+        self.p = Placer.Placer(self.mDB, self.cktIdx,self.dirname,self.gridStep, self.halfMetWid)
         #if not self.isTopLevel:
         #    self.p.implRealLayout = False
         #    self.p.run()
@@ -111,42 +111,40 @@ class PnR(object):
         #    #self.p.resetPlacer()
         #    #self.p.run()
         #    #self.p.resetPlacer()
-        if implRealLayout:
-            self.p.resetPlacer()
         self.p.implRealLayout = implRealLayout
         self.p.run()
         self.runtime += self.p.runtime
         self.symAxis = self.p.symAxis
         self.origin = self.p.origin
         self.subShapeList = self.p.subShapeList
-        self.upscaleBBox(self.gridStep, self.dDB.subCkt(cktIdx), self.origin)
+        self.upscaleBBox(self.gridStep, self.dDB.subCkt(self.cktIdx), self.origin)
 
-    def runRoute(self, cktIdx, dirname):
+    def runRoute(self):
         print("runtime, ", self.runtime)
-        ckt = self.dDB.subCkt(cktIdx)
+        ckt = self.dDB.subCkt(self.cktIdx)
         self.routerNets = []
         for netIdx in range(ckt.numNets()):
             net = ckt.net(netIdx)
             #if net.isPower() and self.isTopLevel:
             #    continue
             self.routerNets.append(netIdx)
-        self.findOrigin(cktIdx)
+        self.findOrigin(self.cktIdx)
         router = anaroutePy.AnaroutePy()
         router.setCircuitName(ckt.name)
-        placeFile = dirname + ckt.name + '.place.gds'
+        placeFile = self.dirname + ckt.name + '.place.gds'
         if self.debug:
-            iopinfile = dirname + ckt.name + ".iopin"
-            self.writeiopifile(cktIdx, iopinfile)
+            iopinfile = self.dirname + ckt.name + ".iopin"
+            self.writeiopifile(self.cktIdx, iopinfile)
         router.parseLef(self.params.lef)
         router.parseTechfile(self.params.techfile)
         router.parseGds(placeFile)
-        self.routeParsePin(router, cktIdx, dirname+ckt.name+'.gr')  
+        self.routeParsePin(router, self.cktIdx, self.dirname+ckt.name+'.gr')  
         router.setGridStep(2*self.gridStep)
         router.setSymAxisX(2*self.symAxis)
         router.setGridOffsetX(2*(self.origin[0] - self.gridStep * 10))
         router.setGridOffsetY(2*(self.origin[1] - self.gridStep * 10))
         print("routing grid off set", 2*(self.origin[0]), 2*(self.origin[1]))
-        #router.parseSymNet(dirname+ckt.name+'.symnet')
+        #router.parseSymNet(self.dirname+ckt.name+'.symnet')
         if self.isTopLevel:
             for netIdx in self.routerNets:
                 net = ckt.net(netIdx)
@@ -157,11 +155,11 @@ class PnR(object):
         if not routerPass:
             print("Routing failed! ckt ", ckt.name)
             assert(routerPass)
-        router.writeLayoutGds(placeFile, dirname+ckt.name+'.route.gds', True)
-        router.writeDumb(placeFile, dirname+ckt.name+'.ioPin') 
+        router.writeLayoutGds(placeFile, self.dirname+ckt.name+'.route.gds', True)
+        router.writeDumb(placeFile, self.dirname+ckt.name+'.ioPin') 
         # Read results to flow
         ckt.setTechDB(self.tDB)
-        ckt.parseGDS(dirname+ckt.name+'.route.gds')
+        ckt.parseGDS(self.dirname+ckt.name+'.route.gds')
         self.upscaleBBox(self.gridStep, ckt, self.origin)
 
     def upscaleBBox(self, gridStep, ckt, origin):

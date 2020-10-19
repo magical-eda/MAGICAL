@@ -581,6 +581,7 @@ class Netlist_parser(object):
         # The index in the self.ckt_list and cpp database should be identical
         ckt_idx = self.db.allocateCkt()
         self.db.subCkt(ckt_idx).name = ckt.name
+        self.db.subCkt(ckt_idx).name = ckt.name
         assert(ckt_idx == len(self.ckt_list) - 1)
 
         for net_idx in range(len(ckt.nets)):
