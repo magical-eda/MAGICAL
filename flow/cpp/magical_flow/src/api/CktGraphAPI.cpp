@@ -13,6 +13,13 @@ namespace py = pybind11;
 
 void initCktGraphAPI(py::module &m)
 {
+    py::class_<PROJECT_NAMESPACE::FloorplanData>(m , "FloorplanData")
+        .def(py::init<>())
+        .def("clearBoundary", &PROJECT_NAMESPACE::FloorplanData::clearBoundary, "Clear the boundary planning")
+        .def("clearNetAssignment", &PROJECT_NAMESPACE::FloorplanData::clearNetAssignment, "Clear the IO pin assignments")
+        .def("isBoundarySet", &PROJECT_NAMESPACE::FloorplanData::isBoundarySet, "Get whether the boundary is set")
+        .def("isNetAssignmentSet", &PROJECT_NAMESPACE::FloorplanData::isNetAssignmentSet, "Get whether the IO pin assignments are set")
+        .def("netAssignment", &PROJECT_NAMESPACE::FloorplanData::netAssignment, "Get the assignment status for a net's IO pin, 0->left, 1->right, -1->unset");
     py::class_<PROJECT_NAMESPACE::CktGraph>(m , "CktGraph")
         .def(py::init<>())
         .def("setTechDB", &PROJECT_NAMESPACE::CktGraph::setTechDB)
@@ -46,5 +53,6 @@ void initCktGraphAPI(py::module &m)
         .def("backup", &PROJECT_NAMESPACE::CktGraph::backup, "back up the circuit graph")
         .def("restore", &PROJECT_NAMESPACE::CktGraph::restore, "retore the backed up tcircuit graph")
         .def("GdsData", &PROJECT_NAMESPACE::CktGraph::gdsData, py::return_value_policy::reference)
-        .def("gdsData", &PROJECT_NAMESPACE::CktGraph::gdsData, py::return_value_policy::reference);
+        .def("gdsData", &PROJECT_NAMESPACE::CktGraph::gdsData, py::return_value_policy::reference)
+        .def("fpData", &PROJECT_NAMESPACE::CktGraph::fpData, "Get the floorplan results for the circuit");
 }

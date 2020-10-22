@@ -86,6 +86,7 @@ class PnR(object):
         ilp.solve()
         result = magicalFlow.TopFloorplanProblemResult()
         ilp.writeOut(result)
+        magicalFlow.applyFpSolution(result, self.dDB, self.cktIdx)
 
     def routeOnly(self):
         """
@@ -149,6 +150,7 @@ class PnR(object):
             for netIdx in self.routerNets:
                 net = ckt.net(netIdx)
                 if net.isIo():
+                    print("KERENDEBUG add net", netIdx, ckt.net(netIdx).name, "ckt name", ckt.name)
                     router.addIOPort(net.name)
         routerPass = router.solve(False)
         router.evaluate()

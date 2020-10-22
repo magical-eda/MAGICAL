@@ -24,4 +24,6 @@ void initTopFloorplanAPI(py::module &m) {
       .def(py::init<const PROJECT_NAMESPACE::TopFloorplanProblem &>())
       .def("solve", &PROJECT_NAMESPACE::IlpTopFloorplanProblem::solve, "Solve the problem")
       .def("writeOut", &PROJECT_NAMESPACE::IlpTopFloorplanProblem::writeOut, "Write out the solution");
+  m.def("applyFpSolution", &PROJECT_NAMESPACE::FP::applyFpSolution,  "apply floorplan solution to design db");
+
 }

@@ -34,12 +34,13 @@ class Flow(object):
         self.implCktLayout(topCktIdx)
         end = time.time()
         print("runtime ", end - start)
+        self.decoupleCkts()
         for pnrIdx in range(len(self.pnrs) - 1, 0, -1):
             print("Floorplan ", pnrIdx)
             self.pnrs[pnrIdx].floorplan()
+        assert(False)
         for pnr in self.pnrs:
             pnr.resetCkt()
-        self.decoupleCkts()
         for pnr in self.pnrs:
             pnr.placeAndRoute()
         return True
@@ -64,7 +65,6 @@ class Flow(object):
                 subCkt = self.dDB.subCkt(subGraphIdx)
                 if subCkt.implType != magicalFlow.ImplTypeUNSET:
                     continue
-                print("KERENDEBUG CKT NAME", subCkt.name, pnrIdx, pnr.cktIdx, nodeIdx, subGraphIdx)
                 if subCkt.name not in subCktNameSet:
                     subCktNameSet.add(subCkt.name)
                 else:

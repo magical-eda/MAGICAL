@@ -19,8 +19,52 @@ PROJECT_NAMESPACE_BEGIN
 /// @brief floorplan-related data structure
 class FloorplanData
 {
+    public:
+        /// @brief set boundary
+        void setBoundary(LocType xLo, LocType yLo, LocType xHi, LocType yHi) 
+        {
+            _isBoundarySet = true;
+            _boundary = Box<LocType>(xLo, yLo, xHi, yHi);
+        }
+        /// @brief clear the boundary
+        void clearBoundary()
+        {
+            _isBoundarySet = false;
+        }
+        /// @brief get whether the boundary is set
+        bool isBoundarySet() const { return _isBoundarySet; }
+        /// @brief assign a net to left or right
+        /// @param first: the name of the net
+        /// @param second: 0: left 1: right -1 undefine
+        void setNetAssignment(const std::string &netName, IntType assignStatus)
+        {
+            _isNetAssignmentSet = true;
+            _netNameToAssignMap[netName] = assignStatus;
+        }
+        /// @brief clear the net IO pin assignment 
+        void clearNetAssignment()
+        {
+            _isNetAssignmentSet = false;
+        }
+        /// @brief get whther the net IO pin assignmet is set
+        bool isNetAssignmentSet() const { return _isNetAssignmentSet; }
+        /// @brief get the status for one net
+        /// @param net name
+        /// @return 0->left 1->right -1> unset
+        IntType netAssignment(const std::string &name)
+        {
+            if (_netNameToAssignMap.find(name) == _netNameToAssignMap.end())
+            {
+                return -1;
+            }
+            return _netNameToAssignMap.at(name);
+        }
+        
     private:
         Box<LocType> _boundary; ///< The boundary preset for the circuit
+        bool _isBoundarySet = false; ///< Whether the boundary is set
+        std::map<std::string, IntType> _netNameToAssignMap; ///< map[net name] = 0: left 1: right -1 undefine
+        bool _isNetAssignmentSet = false; ///< Whether the net to IO pin assignment is configured
 };
 
 /// @class MAGICAL_FLOW::CktGraph
@@ -160,6 +204,9 @@ class CktGraph
         /// @brief is Net Io shape has been flipped vertically
         /// @return boolean
         bool flipVertFlag() const { return _flipVertFlag; }
+        /// @brief get the floorplan data 
+        /// @return the floorplan solution data
+        FloorplanData & fpData() { return _fpData; }
 
         /*------------------------------*/ 
         /* Vector operation             */
@@ -235,6 +282,7 @@ class CktGraph
         IndexType _implIdx = INDEX_TYPE_MAX; ///< The index of this implementation type configuration in the database
         bool _isImplemented = false; 
         bool _flipVertFlag = false; ///< Flag indicating that net Io shape has been flipped vertically
+        FloorplanData _fpData; ///< The data for floorplan solution
         /*------------------------------*/ 
         /* Integration                  */
         /*------------------------------*/ 

@@ -42,7 +42,7 @@ class Placer(object):
             self.usePowerStripe = False
         if not self.implRealLayout:
             self.useIoPin = False # in early floorplan stage, don't need real io pins
-        if self.implRealLayout:
+        if self.implRealLayout or self.isTopLevel:
             self.placer.closeFastMode()
         else:
             self.placer.openFastMode()
@@ -68,6 +68,28 @@ class Placer(object):
         self.configureIoPinParameters()
         self.placer.readSymNetFile(self.dirname + self.ckt.refName() + '.symnet') # FIXME: use in memory interface
         #self.feedDeviceProximity()
+        self.configFloorplan()
+
+    def configFloorplan(self):
+        """
+        @brief configure the placer with the floorplan data
+        """
+        ckt = self.ckt
+        fpData = ckt.fpData()
+        if fpData.isBoundarySet():
+            raise NotImplementedError
+        if fpData.isNetAssignmentSet():
+            for netIdx in range(ckt.numNets()):
+                net = ckt.net(netIdx)
+                ioPinStatus = fpData.netAssignment(net.name)
+                if ioPinStatus ==  -1:
+                    continue #unset
+                elif ioPinStatus == 0:
+                    self.placer.fpIoPinAssignLeft(netIdx)
+                    print("KERENDEBUG_configfp", ckt.name, net.name, "LEFT")
+                elif ioPinStatus == 1:
+                    self.placer.fpIoPinAssignRight(netIdx)
+                    print("KERENDEBUG_configfp", ckt.name, net.name, "RIGHT")
     
     def placeParseSigpath(self):
         filename = self.dirname + self.ckt.refName() + '.sigpath' #FIXME: use in memeory interface

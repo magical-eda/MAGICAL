@@ -69,18 +69,32 @@ class TopFloorplanProblemResult
         /// @brief get whether assign pin to left or right
         /// @param first: the cell name
         /// @param second: the pin name (internal net name)
-        /// @return 0: left 1: right
+        /// @return 0: left 1: right. -1: not defined
         IntType pinAssignSol(const std::string &cellName, const std::string &pinName)
         {
+            if (_pinAssignMap.find(cellName) == _pinAssignMap.end())
+            {
+                return -1;
+            }
+            if (_pinAssignMap.at(cellName).find(pinName) == _pinAssignMap.at(cellName).end())
+            {
+                return -1;
+            }
             return _pinAssignMap.at(cellName).at(pinName);
         }
         /// @brief get the planned cell height 
         /// @param the module name
-        /// @return the target height
+        /// @return the target height. -1 if not found
         IntType targetModuleHeight(const std::string &cellName)
         {
+            if (_cellYLenMap.find(cellName) == _cellYLenMap.end())
+            {
+                return -1;
+            }
             return _cellYLenMap.at(cellName);
         }
+        const std::map<std::string, std::map<std::string, IntType>> & pinAssignMap() const { return _pinAssignMap; }
+        const std::map<std::string, IntType> &cellYLenMap() const { return _cellYLenMap; }
     
     private:
         std::map<std::string, std::map<std::string, IntType>> _pinAssignMap; ///< map[cell name][pin name] = status
@@ -153,5 +167,15 @@ class IlpTopFloorplanProblem
         std::vector<std::vector<lp_variable_type>> _crossVars; ///< The variables to represent whether there is a crossing between pair of pins
         lp_variable_type _yHiVar; ///< The variable representing the upper boundary of the floorplan
 };
+
+class DesignDB;
+
+namespace FP {
+    /// @brief apply floorplan solution to design db
+    /// @param first a floorplan solution
+    /// @param the design DB
+    /// @param the index of circuit that floorplan solution be in
+    void applyFpSolution(const TopFloorplanProblemResult &sol, DesignDB &db, IndexType cktIdx);
+} // namespace FP
 
 PROJECT_NAMESPACE_END

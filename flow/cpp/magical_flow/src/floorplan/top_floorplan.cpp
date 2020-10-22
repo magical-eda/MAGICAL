@@ -1,4 +1,5 @@
 #include "top_floorplan.hpp"
+#include "db/DesignDB.h"
 #include <chrono>
 
 PROJECT_NAMESPACE_BEGIN
@@ -113,6 +114,12 @@ void TopFloorplanProblem::initProblem(const DesignDB& dDb, const CktGraph &ckt, 
         if (dDb.subCktConst(cktNode.subgraphIdx()).implType() != ImplType::UNSET or cktNode.name() == "")
         {
             // only care about subckt
+            addDontCarePin();
+            continue;
+        }
+        if (dDb.subCktConst(cktNode.subgraphIdx()).netArray().at(pin.intNetIdx()).isPower())
+        {
+            // only care about vdd vss
             addDontCarePin();
             continue;
         }
@@ -591,5 +598,41 @@ bool IlpTopFloorplanProblem::solve()
     std::cout<<"ILP runtime: "<<std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() <<"us"<<std::endl;
     return true;
 }
+
+
+
+/*
+ * Function for applying floorplan results to design db
+ */
+namespace FP {
+
+    void applyFpSolution(const TopFloorplanProblemResult &sol, DesignDB &db, IndexType cktIdx)
+    {
+        const auto &pinAssignMap = sol.pinAssignMap();
+        auto &ckt = db.subCkt(cktIdx);
+        for (const auto &node : ckt.nodeArray())
+        {
+            if (pinAssignMap.find(node.name()) != pinAssignMap.end())
+            {
+                const auto &netMap = pinAssignMap.at(node.name());
+                auto &subCkt = db.subCkt(node.subgraphIdx());
+                for (const auto &net : subCkt.netArray())
+                {
+                    if (netMap.find(net.name()) != netMap.end())
+                    {
+                        DBG("KERENDEBUG Assign node %s subCkt %s net %s to %d \n", node.name().c_str(), subCkt.name().c_str(), net.name().c_str(), netMap.at(net.name()));
+                        IntType status = netMap.at(net.name());
+                        Assert(status >= 0);
+                        if (node.flipVertFlag())
+                        {
+                            status = 1- status;
+                        }
+                        subCkt.fpData().setNetAssignment(net.name(), netMap.at(net.name()));
+                    }
+                }
+            }
+        }
+    }
+} //namespace FP
 
 PROJECT_NAMESPACE_END
