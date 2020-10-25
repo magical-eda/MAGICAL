@@ -67,9 +67,68 @@ void parseSymnetFile(const std::string &symnetFile, std::set<SymNetName> &nameSe
 
 }
 
+struct PinName
+{
+    PinName() = default;
+    explicit PinName(const std::string &moduleName_, const std::string &pinName_)
+        : moduleName(moduleName_), pinName(pinName_)
+    {}
+    bool operator<(const PinName &rhs) const 
+    {
+        if (moduleName != rhs.moduleName)
+        {
+            return moduleName < rhs.moduleName;
+        }
+        return pinName < rhs.moduleName;
+    }
+    std::string moduleName = "";
+    std::string pinName = "";
+};
+
+struct SigPath
+{
+    std::vector<PinName> pins;
+};
+
+void parseSigPathFile(const std::string &sigPathFile, std::vector<SigPath> &paths)
+{
+    std::ifstream inf(sigPathFile.c_str());
+    if (!inf.is_open()) 
+    {
+        ERR("TopFloorplanProblem::SigPath parser:%s: cannot open file: %s \n", __FUNCTION__ , sigPathFile.c_str());
+        return;
+    }
+    std::string line;
+    while (std::getline(inf, line))
+    {
+        // split the line into words
+        std::vector<std::string> words;
+        std::istringstream iss(line);
+        for (std::string str; iss >> str;)
+        {
+            words.emplace_back(str);
+        }
+        if (words.size() <= 1)
+        {
+            continue;
+        }
+        paths.emplace_back(SigPath());
+        auto &path = paths.back();
+        for (IndexType idx = 0; idx < words.size() - 1; idx += 2)
+        {
+            path.pins.emplace_back(PinName(words.at(idx), words.at(idx + 1)));
+        }
+    }
+}
+
+
 void TopFloorplanProblem::initProblem(const DesignDB& dDb, const CktGraph &ckt, const std::string &symnetFileDir)
 {
     std::unordered_map<std::string, std::set<SymNetName>> symnetNames;
+    std::vector<SigPath> sigPaths;
+    // Extract the information from the sigpath
+    std::string cktSigpathName = symnetFileDir + "/" + ckt.refName() + ".sigpath";
+    parseSigPathFile(cktSigpathName, sigPaths);
     // Extracted the information from the CktGraph
     for (const CktNode &cktNode : ckt.nodeArray())
     {
@@ -90,6 +149,7 @@ void TopFloorplanProblem::initProblem(const DesignDB& dDb, const CktGraph &ckt, 
     _numAsymPins = 0;
     _numSymPriPins = 0;
     _numSymSecPins = 0;
+    std::map<PinName, IntType> pinNameToIdxMap; // A map to record the indicce of pins
     for (const Pin& pin : ckt.pinArray()) 
     {
         auto addDontCarePin = [&]()
@@ -125,6 +185,14 @@ void TopFloorplanProblem::initProblem(const DesignDB& dDb, const CktGraph &ckt, 
         }
         const auto& subCkt = dDb.subCktConst(cktNode.subgraphIdx());
         const auto& internalNetName = subCkt.netArray().at(pin.intNetIdx()).name();
+
+        auto recordPinName = [&]()
+        {
+            PinName pinName = PinName(cktNode.name(), ckt.netArray().at(pin.netIdx()).name());
+            pinNameToIdxMap[pinName] = _pinIdx.size();
+        };
+        recordPinName();
+
         bool isAsym = true;
         for (const auto& symnet : symnetNames[cktNode.refName()])
         {
@@ -187,6 +255,23 @@ void TopFloorplanProblem::initProblem(const DesignDB& dDb, const CktGraph &ckt, 
         const auto& cktNet = ckt.netArray().at(netIdx);
         net.pins = cktNet.pinIdxArrayConst();
         _nets.emplace_back(net);
+    }
+
+    // Transform the sigpath into nets
+    for (const auto &sigpath : sigPaths)
+    {
+        FpNet net;
+        for (const auto &pinName : sigpath.pins)
+        {
+            if (pinNameToIdxMap.find(pinName) != pinNameToIdxMap.end())
+            {
+                net.pins.emplace_back(static_cast<IndexType>(pinNameToIdxMap.at(pinName)));
+            }
+        }
+        if (net.pins.size() > 1)
+        {
+            _nets.emplace_back(net);
+        }
     }
 }
 
