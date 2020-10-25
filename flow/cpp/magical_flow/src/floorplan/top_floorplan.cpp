@@ -79,7 +79,7 @@ struct PinName
         {
             return moduleName < rhs.moduleName;
         }
-        return pinName < rhs.moduleName;
+        return pinName < rhs.pinName;
     }
     std::string moduleName = "";
     std::string pinName = "";
@@ -186,12 +186,11 @@ void TopFloorplanProblem::initProblem(const DesignDB& dDb, const CktGraph &ckt, 
         const auto& subCkt = dDb.subCktConst(cktNode.subgraphIdx());
         const auto& internalNetName = subCkt.netArray().at(pin.intNetIdx()).name();
 
-        auto recordPinName = [&]()
+        auto recordPinName = [&](const std::string &netName)
         {
-            PinName pinName = PinName(cktNode.name(), ckt.netArray().at(pin.netIdx()).name());
+            PinName pinName = PinName(cktNode.name(), netName);
             pinNameToIdxMap[pinName] = _pinIdx.size();
         };
-        recordPinName();
 
         bool isAsym = true;
         for (const auto& symnet : symnetNames[cktNode.refName()])
@@ -205,19 +204,22 @@ void TopFloorplanProblem::initProblem(const DesignDB& dDb, const CktGraph &ckt, 
                 ++_numSymPriPins;
                 pinIdx.cellIdx = pin.nodeIdx();
                 pinIdx.name = internalNetName;
+                recordPinName(internalNetName);
+                _pinIdx.emplace_back(pinIdx);
+
+                // Sce part
+                pinIdx.pinType = FpPinType::SYM_SCE;
+                pinIdx.idx = _numSymSecPins;
+                ++_numSymSecPins;
+                pinIdx.cellIdx = pin.nodeIdx();
+                pinIdx.name = symnet.right;
+                recordPinName(symnet.right);
                 _pinIdx.emplace_back(pinIdx);
                 break;
             }
             if (symnet.right == internalNetName)
             {
                 isAsym = false;
-                PinIdx pinIdx;
-                pinIdx.pinType = FpPinType::SYM_SCE;
-                pinIdx.idx = _numSymSecPins;
-                ++_numSymSecPins;
-                pinIdx.cellIdx = pin.nodeIdx();
-                pinIdx.name = internalNetName;
-                _pinIdx.emplace_back(pinIdx);
                 break;
             }
         }
@@ -229,6 +231,7 @@ void TopFloorplanProblem::initProblem(const DesignDB& dDb, const CktGraph &ckt, 
             ++_numAsymPins;
             pinIdx.cellIdx = pin.nodeIdx();
             pinIdx.name = internalNetName;
+            recordPinName(internalNetName);
             _pinIdx.emplace_back(pinIdx);
         }
     }
@@ -480,6 +483,13 @@ void IlpTopFloorplanProblem::addCrossConstr()
             for (IndexType secondPinIdx = firstPinIdx + 1; secondPinIdx < net.pins.size(); ++secondPinIdx)
             {
                 const auto &secondFpPin = getFpPin(secondPinIdx);
+                if (netIdx == 32)
+                {
+                    auto ispri = firstFpPin.pinType == TopFloorplanProblem::FpPinType::SYM_PRI;
+                    std::cout<<"Pin 1 "<< firstFpPin.name<< " idx  "<< firstFpPin.idx <<" type "<< ispri<<std::endl;  
+                    auto issce = secondFpPin.pinType == TopFloorplanProblem::FpPinType::SYM_SCE;
+                    std::cout<<"Pin 2 "<< secondFpPin.name<< " idx  "<< secondFpPin.idx <<" type "<< issce<<std::endl;  
+                }
                 const auto &crossVar = crossVariable(netIdx, firstPinIdx, secondPinIdx);
                 lp_expr_type expr1, expr2, expr3, expr4;
                 // expr1: c_i <=  x_i + x_j
@@ -584,16 +594,20 @@ bool IlpTopFloorplanProblem::solveIlp()
 void IlpTopFloorplanProblem::printVariableValue()
 {
     std::cout<<"ILP cross variables: \n";
+    IndexType netIdx = 0;
     for (const auto &net : _crossVars)
     {
-        std::cout<<"new net \n";
+        std::cout<<"new net  "<<  netIdx << "\n";
         for (const auto &var : net)
         {
             auto sol = lp_trait::solution(_solver, var);
             std::cout <<" "<< sol;
         }
         std::cout << std::endl;
+        ++netIdx;
     }
+    auto solvim = lp_trait::solution(_solver, _symPinAssignVars.at(2));
+    std::cout <<"\n\n\nota1 vim "<< solvim << " ota1 vom "<< lp_trait::solution(_solver, _symPinAssignVars.at(2)) << "\n\n\n";
     std::cout<<"ILP extra resources variables: \n";
     for (const auto &var : _extraResourcesVars)
     {
@@ -680,6 +694,7 @@ bool IlpTopFloorplanProblem::solve()
     auto start = std::chrono::high_resolution_clock::now();
     solveIlp();
     auto end = std::chrono::high_resolution_clock::now();
+    printVariableValue();
     std::cout<<"ILP runtime: "<<std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() <<"us"<<std::endl;
     return true;
 }
