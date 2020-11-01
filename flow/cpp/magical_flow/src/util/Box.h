@@ -37,6 +37,7 @@ public:
     void            setXHi(T xHi)                    { _ur.setX(xHi); }
     void            setYHi(T yHi)                    { _ur.setY(yHi); }
     void            join(const XY<T> &pt);
+    void            invalidate()                     { _ll.setXY(1, 1); _ur.setXY(0, 0); }
 
     // String conversion
     operator std::string() const {

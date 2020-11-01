@@ -42,10 +42,10 @@ class Placer(object):
             self.usePowerStripe = False
         if not self.implRealLayout:
             self.useIoPin = False # in early floorplan stage, don't need real io pins
-        if self.implRealLayout or self.isTopLevel:
-            self.placer.closeFastMode()
-        else:
+        if self.implRealLayout:
             self.placer.openFastMode()
+        else:
+            self.placer.closeFastMode()
         self.dumpInput()
         self.placer.numThreads(10) #FIXME
         start = time.time()
@@ -79,7 +79,6 @@ class Placer(object):
         if fpData.isBoundarySet():
             boundary = fpData.boundary()
             self.placer.setBoundaryConstraint(boundary.xLo, boundary.yLo, boundary.xHi, boundary.yHi)
-            print("KERENDEBUG_configboundary", ckt.name, boundary.xLo, boundary.yLo, boundary.xHi, boundary.yHi)
         if fpData.isNetAssignmentSet():
             for netIdx in range(ckt.numNets()):
                 net = ckt.net(netIdx)
@@ -88,10 +87,11 @@ class Placer(object):
                     continue #unset
                 elif ioPinStatus == 0:
                     self.placer.fpIoPinAssignLeft(netIdx)
-                    print("KERENDEBUG_configfp", ckt.name, net.name, "LEFT")
                 elif ioPinStatus == 1:
                     self.placer.fpIoPinAssignRight(netIdx)
-                    print("KERENDEBUG_configfp", ckt.name, net.name, "RIGHT")
+        if fpData.isNetExternalBBoxSet():
+            for netIdx in range(ckt.numNets()):
+                net = ckt.net(netIdx)
                 externalBBox = fpData.netExternalBBox(net.name)
                 if externalBBox.valid():
                     self.placer.setNetExternalBBox(netIdx,

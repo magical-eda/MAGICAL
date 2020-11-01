@@ -772,7 +772,6 @@ namespace FP {
                 auto targetYLen = sol.cellYLenMap().at(node.name());
                 auto &subCkt = db.subCkt(node.subgraphIdx());
                 auto bbox = subCkt.layout().boundary();
-                targetYLen *= 0.6; // FIXME
                 auto xLen = bbox.area() / targetYLen;
                 subCkt.fpData().setBoundary(
                         - xLen / 2,

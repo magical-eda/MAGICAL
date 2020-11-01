@@ -20,6 +20,7 @@ void initCktGraphAPI(py::module &m)
         .def("isBoundarySet", &PROJECT_NAMESPACE::FloorplanData::isBoundarySet, "Get whether the boundary is set")
         .def("isNetAssignmentSet", &PROJECT_NAMESPACE::FloorplanData::isNetAssignmentSet, "Get whether the IO pin assignments are set")
         .def("netAssignment", &PROJECT_NAMESPACE::FloorplanData::netAssignment, "Get the assignment status for a net's IO pin, 0->left, 1->right, -1->unset")
+        .def("isNetExternalBBoxSet", &PROJECT_NAMESPACE::FloorplanData::isNetExternalBBoxSet, "Get whether the net external bounding box is set")
         .def("netExternalBBox", &PROJECT_NAMESPACE::FloorplanData::netExternalBBox, "Get the external bounding box of the net. Be sure to check whether it is valid")
         .def("boundary", &PROJECT_NAMESPACE::FloorplanData::boundary, "Get the boundary set for the circuit from the floorplan");
     py::class_<PROJECT_NAMESPACE::CktGraph>(m , "CktGraph")

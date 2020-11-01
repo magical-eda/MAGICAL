@@ -74,6 +74,8 @@ class FloorplanData
             _isNetExternalBBoxSet = false;
             _netNameToExternalBBoxMap.clear();
         }
+        /// @brief get whether the net external bounding box is set
+        bool isNetExternalBBoxSet() const { return  _isNetExternalBBoxSet;}
         /// @brief get the external bounding box of one net
         /// @param net name 
         /// @return if invalid box, then no bounding box is set. Otherwise, return the external bounding box
@@ -82,6 +84,7 @@ class FloorplanData
             if (_netNameToExternalBBoxMap.find(netName) == _netNameToExternalBBoxMap.end())
             {
                 Box<LocType> box;
+                box.invalidate();
                 Assert(not box.valid());
                 return box;
             }
