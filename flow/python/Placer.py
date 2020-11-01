@@ -77,7 +77,9 @@ class Placer(object):
         ckt = self.ckt
         fpData = ckt.fpData()
         if fpData.isBoundarySet():
-            raise NotImplementedError
+            boundary = fpData.boundary()
+            self.placer.setBoundaryConstraint(boundary.xLo, boundary.yLo, boundary.xHi, boundary.yHi)
+            print("KERENDEBUG_configboundary", ckt.name, boundary.xLo, boundary.yLo, boundary.xHi, boundary.yHi)
         if fpData.isNetAssignmentSet():
             for netIdx in range(ckt.numNets()):
                 net = ckt.net(netIdx)
@@ -90,6 +92,10 @@ class Placer(object):
                 elif ioPinStatus == 1:
                     self.placer.fpIoPinAssignRight(netIdx)
                     print("KERENDEBUG_configfp", ckt.name, net.name, "RIGHT")
+                externalBBox = fpData.netExternalBBox(net.name)
+                if externalBBox.valid():
+                    self.placer.setNetExternalBBox(netIdx,
+                            externalBBox.xLo, externalBBox.yLo, externalBBox.xHi, externalBBox.yHi)
     
     def placeParseSigpath(self):
         filename = self.dirname + self.ckt.refName() + '.sigpath' #FIXME: use in memeory interface

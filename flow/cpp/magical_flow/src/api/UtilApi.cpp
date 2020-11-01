@@ -32,5 +32,6 @@ void initUtilAPI(py::module &m)
         .def_property("yHi", &PROJECT_NAMESPACE::Box<PROJECT_NAMESPACE::LocType>::yHi, &PROJECT_NAMESPACE::Box<PROJECT_NAMESPACE::LocType>::setYHi)
         .def("xLen", &PROJECT_NAMESPACE::Box<PROJECT_NAMESPACE::LocType>::xLen)
         .def("yLen", &PROJECT_NAMESPACE::Box<PROJECT_NAMESPACE::LocType>::yLen)
-        .def("toStr", &PROJECT_NAMESPACE::Box<PROJECT_NAMESPACE::LocType>::toStr);
+        .def("toStr", &PROJECT_NAMESPACE::Box<PROJECT_NAMESPACE::LocType>::toStr)
+        .def("valid", &PROJECT_NAMESPACE::Box<PROJECT_NAMESPACE::LocType>::valid, "Check whether the box is valid");
 }

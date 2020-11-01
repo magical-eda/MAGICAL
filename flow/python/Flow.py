@@ -32,8 +32,6 @@ class Flow(object):
         topCktIdx = self.mDB.topCktIdx() # The index of the topckt
         start = time.time()
         self.implCktLayout(topCktIdx)
-        end = time.time()
-        print("runtime ", end - start)
         self.decoupleCkts()
         for pnrIdx in range(len(self.pnrs) - 1, 0, -1):
             print("Floorplan ", pnrIdx)
@@ -42,6 +40,8 @@ class Flow(object):
             pnr.resetCkt()
         for pnr in self.pnrs:
             pnr.placeAndRoute()
+        end = time.time()
+        print("runtime ", end - start)
         return True
 
     def decoupleCkts(self):

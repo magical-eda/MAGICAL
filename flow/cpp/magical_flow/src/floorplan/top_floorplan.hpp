@@ -94,11 +94,26 @@ class TopFloorplanProblemResult
             return _cellYLenMap.at(cellName);
         }
         const std::map<std::string, std::map<std::string, IntType>> & pinAssignMap() const { return _pinAssignMap; }
-        const std::map<std::string, IntType> &cellYLenMap() const { return _cellYLenMap; }
+        const std::map<std::string, IntType> & cellYLenMap() const { return _cellYLenMap; }
+        const std::map<std::string, Box<LocType>> & netExternalBBoxMap() const { return _netExternalBBoxMap; }
+        /// @brief add one external net bounding box
+        /// @param  the pin name
+        /// @return if valid the bounding box of the net exclude the pin itself. If not valid, no such pin info
+        Box<LocType> externalNetBBox(const std::string &pinName)
+        {
+            if (_netExternalBBoxMap.find(pinName) == _netExternalBBoxMap.end())
+            {
+                Box<LocType> box;
+                Assert(not box.valid());
+                return box;
+            }
+            return _netExternalBBoxMap[pinName];
+        }
     
     private:
         std::map<std::string, std::map<std::string, IntType>> _pinAssignMap; ///< map[cell name][pin name] = status
         std::map<std::string, IntType> _cellYLenMap; ///< map[cell name] = cell height
+        std::map<std::string, Box<LocType>> _netExternalBBoxMap; ///< map[pin name] = the net bbox excluding the pin
 };
 
 /// @brief the ilp for solving the TopFloorplanProblem

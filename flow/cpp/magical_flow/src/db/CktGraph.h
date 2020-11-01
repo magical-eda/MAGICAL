@@ -45,6 +45,7 @@ class FloorplanData
         void clearNetAssignment()
         {
             _isNetAssignmentSet = false;
+            _netNameToAssignMap.clear();
         }
         /// @brief get whther the net IO pin assignmet is set
         bool isNetAssignmentSet() const { return _isNetAssignmentSet; }
@@ -59,12 +60,45 @@ class FloorplanData
             }
             return _netNameToAssignMap.at(name);
         }
+        /// @brief assign an external bounding box for one net
+        /// @param first: the name of the net
+        /// @param second: the external bounding box of the net
+        void setNetExternalBBox(const std::string &netName, const Box<LocType> &bbox)
+        {
+            _isNetExternalBBoxSet = true;
+            _netNameToExternalBBoxMap[netName] = bbox;
+        }
+        /// @brief clear the net external bounding box
+        void clearNetExternalBBox() 
+        {
+            _isNetExternalBBoxSet = false;
+            _netNameToExternalBBoxMap.clear();
+        }
+        /// @brief get the external bounding box of one net
+        /// @param net name 
+        /// @return if invalid box, then no bounding box is set. Otherwise, return the external bounding box
+        Box<LocType> netExternalBBox(const std::string &netName)
+        {
+            if (_netNameToExternalBBoxMap.find(netName) == _netNameToExternalBBoxMap.end())
+            {
+                Box<LocType> box;
+                Assert(not box.valid());
+                return box;
+            }
+            return _netNameToExternalBBoxMap[netName];
+        }
+        /// @brief get whether the IO net external bounding box is set
+        /// @brief get the boundary 
+        /// @return the boundary from the floorplan
+        const Box<LocType> & boundary() const { return _boundary; }
         
     private:
         Box<LocType> _boundary; ///< The boundary preset for the circuit
         bool _isBoundarySet = false; ///< Whether the boundary is set
         std::map<std::string, IntType> _netNameToAssignMap; ///< map[net name] = 0: left 1: right -1 undefine
         bool _isNetAssignmentSet = false; ///< Whether the net to IO pin assignment is configured
+        std::map<std::string, Box<LocType>> _netNameToExternalBBoxMap; 
+        bool _isNetExternalBBoxSet = false; ///< Whether the net of IO has set external bounding boxes
 };
 
 /// @class MAGICAL_FLOW::CktGraph

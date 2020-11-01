@@ -92,6 +92,14 @@ public:
         _ll.setX(centerTimes2 - r);
         _ur.setX(centerTimes2 - l);
     }
+    /// @brief flip the box horizontally by an axis
+    void mirror(T axis)
+    {
+        auto l = _ll.x();
+        auto r = _ur.x();
+        _ll.setX(axis - r);
+        _ur.setX(axis - l);
+    }
 private:
     XY<T>  _ll; // Lower left corner of this box
     XY<T>  _ur; // Upper right corner of this box

@@ -673,11 +673,46 @@ void IlpTopFloorplanProblem::writeOut(TopFloorplanProblemResult &result)
     for (IndexType cellIdx = 0; cellIdx < _problem._cellBBox.size(); ++cellIdx)
     {
         const auto &var = _extraResourcesVars.at(cellIdx);
-        auto extraResource = findIntegerSol(var);
+        const auto extraResource = findIntegerSol(var);
         //Assert(extraResource >= 0);
         result._cellYLenMap[_problem._cellNames.at(cellIdx)] =
             _problem._cellBBox.at(cellIdx).yLen()
             + extraResource * _problem._resourcePerLen;
+    }
+    // Collect net external bounding box information
+    for (const auto &net : _problem._nets)
+    {
+        for (const IndexType pinIdx : net.pins)
+        {
+            const auto & pin = _problem._pinIdx.at(pinIdx);
+            if (pin.pinType == TopFloorplanProblem::FpPinType::OTHER)
+            {
+                continue;
+            }
+            // Calculate net bbox
+            Box<LocType> box;
+            for (const IndexType otherPinIdx : net.pins)
+            {
+                if (otherPinIdx == pinIdx)
+                {
+                    continue; // exclude the pin itself
+                }
+                const auto & oPin = _problem._pinIdx.at(otherPinIdx);
+                if (oPin.pinType == TopFloorplanProblem::FpPinType::OTHER)
+                {
+                    continue;
+                }
+                const IndexType cellIdx = oPin.cellIdx;
+                box.join(_problem._cellBBox.at(cellIdx).center());
+            }
+            Assert(box.valid());
+            // Offset by the center
+            XY<LocType> thisCellCenter =  _problem._cellBBox.at(pin.cellIdx).center();
+            thisCellCenter.setX( - thisCellCenter.x());
+            thisCellCenter.setY( - thisCellCenter.y());
+            box.offsetBy(thisCellCenter);
+            result._netExternalBBoxMap[pin.name] = box;
+        }
     }
 }
 
@@ -712,6 +747,7 @@ namespace FP {
         auto &ckt = db.subCkt(cktIdx);
         for (const auto &node : ckt.nodeArray())
         {
+            // IO pin assignment
             if (pinAssignMap.find(node.name()) != pinAssignMap.end())
             {
                 const auto &netMap = pinAssignMap.at(node.name());
@@ -720,7 +756,7 @@ namespace FP {
                 {
                     if (netMap.find(net.name()) != netMap.end())
                     {
-                        DBG("KERENDEBUG Assign node %s subCkt %s net %s to %d \n", node.name().c_str(), subCkt.name().c_str(), net.name().c_str(), netMap.at(net.name()));
+                        // Collect pin assignment information
                         IntType status = netMap.at(net.name());
                         Assert(status >= 0);
                         if (node.flipVertFlag())
@@ -730,6 +766,36 @@ namespace FP {
                         subCkt.fpData().setNetAssignment(net.name(), netMap.at(net.name()));
                     }
                 }
+            }
+            if (sol.cellYLenMap().find(node.name()) !=  sol.cellYLenMap().end())
+            {
+                auto targetYLen = sol.cellYLenMap().at(node.name());
+                auto &subCkt = db.subCkt(node.subgraphIdx());
+                auto bbox = subCkt.layout().boundary();
+                targetYLen *= 0.6; // FIXME
+                auto xLen = bbox.area() / targetYLen;
+                subCkt.fpData().setBoundary(
+                        - xLen / 2,
+                        xLen / 2,
+                        - targetYLen / 2,
+                        targetYLen / 2
+                        );
+            }
+        }
+        // Collect external bbox information
+        for (const auto &pin : ckt.pinArray())
+        {
+            IndexType cellIdx = pin.nodeIdx();
+            auto &subCkt = db.subCkt(ckt.node(cellIdx).subgraphIdx());
+            const auto &subNet = subCkt.net(pin.intNetIdx());
+            if (sol.netExternalBBoxMap().find(subNet.name()) != sol.netExternalBBoxMap().end())
+            {
+                Box<LocType> box = sol.netExternalBBoxMap().at(subNet.name());
+                if (ckt.node(cellIdx).flipVertFlag())
+                {
+                    box.mirror(0);
+                }
+                subCkt.fpData().setNetExternalBBox(subNet.name(), box);
             }
         }
     }
