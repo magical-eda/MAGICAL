@@ -479,39 +479,89 @@ void IlpTopFloorplanProblem::addCrossConstr()
         for (IndexType firstPinIdx = 0; firstPinIdx < net.pins.size(); ++firstPinIdx)
         {
             const auto &firstFpPin = getFpPin(firstPinIdx);
+            if (firstFpPin.cellIdx == -1)
+            {
+                continue; // Don't care
+            }
             lp_expr_type firstPinExpr;
+            const Box<LocType> firstCellBBox = _problem._cellBBox.at(firstFpPin.cellIdx);
             for (IndexType secondPinIdx = firstPinIdx + 1; secondPinIdx < net.pins.size(); ++secondPinIdx)
             {
                 const auto &secondFpPin = getFpPin(secondPinIdx);
-                if (netIdx == 32)
+                if (secondFpPin.cellIdx == -1)
                 {
-                    auto ispri = firstFpPin.pinType == TopFloorplanProblem::FpPinType::SYM_PRI;
-                    std::cout<<"Pin 1 "<< firstFpPin.name<< " idx  "<< firstFpPin.idx <<" type "<< ispri<<std::endl;  
-                    auto issce = secondFpPin.pinType == TopFloorplanProblem::FpPinType::SYM_SCE;
-                    std::cout<<"Pin 2 "<< secondFpPin.name<< " idx  "<< secondFpPin.idx <<" type "<< issce<<std::endl;  
+                    continue; // Don't care
                 }
+                const Box<LocType> secondCellBBox = _problem._cellBBox.at(secondFpPin.cellIdx);
+                const bool xDisjoint = firstCellBBox.xLo() >= secondCellBBox.xHi() 
+                    or secondCellBBox.xLo() >= firstCellBBox.xHi(); // Whether the x segments of two cells intersects
                 const auto &crossVar = crossVariable(netIdx, firstPinIdx, secondPinIdx);
-                lp_expr_type expr1, expr2, expr3, expr4;
-                // expr1: c_i <=  x_i + x_j
-                expr1 += crossVar;
-                minusPinAssignExpr(firstFpPin, expr1);
-                minusPinAssignExpr(secondFpPin, expr1);
-                lp_trait::addConstr(_solver, expr1 <= 0);
-                // expr2 : c_i >= x_i - x_j
-                expr2 += crossVar;
-                minusPinAssignExpr(firstFpPin, expr2);
-                plusPinAssignExpr(secondFpPin, expr2);
-                lp_trait::addConstr(_solver, expr2 >= 0);
-                // expr3 : c_i >= x_j - x_i
-                expr3 +=  crossVar;
-                plusPinAssignExpr(firstFpPin, expr3);
-                minusPinAssignExpr(secondFpPin, expr3);
-                lp_trait::addConstr(_solver, expr3 >= 0);
-                // expr4 : c_i <= 2 - x_i - x_j
-                expr4 += crossVar;
-                plusPinAssignExpr(firstFpPin, expr4);
-                plusPinAssignExpr(secondFpPin, expr4);
-                lp_trait::addConstr(_solver, expr4 <= 2);
+                auto addCrossConstrForAssigningLeft = [&](const TopFloorplanProblem::PinIdx &fpPin)
+                {
+                    if (fpPin.pinType == TopFloorplanProblem::FpPinType::SYM_SCE)
+                    {
+                        lp_trait::addConstr(_solver, crossVar - _symPinAssignVars.at(fpPin.idx) >= 0);
+                    }
+                    else if (fpPin.pinType == TopFloorplanProblem::FpPinType::SYM_PRI)
+                    {
+                        lp_trait::addConstr(_solver, crossVar + _symPinAssignVars.at(fpPin.idx) >= 1);
+                    }
+                    else
+                    {
+                        lp_trait::addConstr(_solver, crossVar + _aSymAssignVars.at(fpPin.idx) >= 1);
+                    }
+                };
+                auto addCrossConstrForAssigningRight = [&](const TopFloorplanProblem::PinIdx &fpPin)
+                {
+                    if (fpPin.pinType == TopFloorplanProblem::FpPinType::SYM_SCE)
+                    {
+                        lp_trait::addConstr(_solver, crossVar + _symPinAssignVars.at(fpPin.idx) >= 1);
+                    }
+                    else if (fpPin.pinType == TopFloorplanProblem::FpPinType::SYM_PRI)
+                    {
+                        lp_trait::addConstr(_solver, crossVar - _symPinAssignVars.at(fpPin.idx) >= 0);
+                    }
+                    else
+                    {
+                        lp_trait::addConstr(_solver, crossVar - _aSymAssignVars.at(fpPin.idx) >= 0);
+                    }
+                };
+                if (not xDisjoint)
+                {
+                    lp_expr_type expr1, expr2, expr3, expr4;
+                    // expr1: c_i <=  x_i + x_j
+                    expr1 += crossVar;
+                    minusPinAssignExpr(firstFpPin, expr1);
+                    minusPinAssignExpr(secondFpPin, expr1);
+                    lp_trait::addConstr(_solver, expr1 <= 0);
+                    // expr2 : c_i >= x_i - x_j
+                    expr2 += crossVar;
+                    minusPinAssignExpr(firstFpPin, expr2);
+                    plusPinAssignExpr(secondFpPin, expr2);
+                    lp_trait::addConstr(_solver, expr2 >= 0);
+                    // expr3 : c_i >= x_j - x_i
+                    expr3 +=  crossVar;
+                    plusPinAssignExpr(firstFpPin, expr3);
+                    minusPinAssignExpr(secondFpPin, expr3);
+                    lp_trait::addConstr(_solver, expr3 >= 0);
+                    // expr4 : c_i <= 2 - x_i - x_j
+                    expr4 += crossVar;
+                    plusPinAssignExpr(firstFpPin, expr4);
+                    plusPinAssignExpr(secondFpPin, expr4);
+                    lp_trait::addConstr(_solver, expr4 <= 2);
+                }
+                else if (firstCellBBox.xLo() >=  secondCellBBox.xHi())
+                {
+                    // first pin on the left and second pin on the right
+                    addCrossConstrForAssigningLeft(firstFpPin);
+                    addCrossConstrForAssigningRight(secondFpPin);
+                }
+                else
+                {
+                    // first pin on the right and second pin on the left
+                    addCrossConstrForAssigningRight(firstFpPin);
+                    addCrossConstrForAssigningLeft(secondFpPin);
+                }
             }
         }
     }
