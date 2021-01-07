@@ -35,16 +35,16 @@ class Params:
         self.signalDigitalWireWidthTable = \
         [ [0, 0.1], [100, 0.12]]
         self.powerWireWidthTable = \
-        [[0, 0.5]]
+        [[0, 0.1]]
         self.dpowerWireWidthTable = \
-        [[0, 0.3]]
+        [[0, 0.1]]
         # via  [um in length, # of cuts, # of rols, # of cols]
         self.signalAnalogViaCutsTable = \
-        [[0, 2, 1, 2], [80, 4, 2, 2], [120, 9, 3, 3]]
+        [[0, 2, 1, 2], [18000000, 4, 2, 2], [120000, 9, 3, 3]]
         self.signalDigitalViaCutsTable = \
-        [[0, 2, 1, 2], [120, 4, 2, 2]]
+        [[0, 2, 1, 2], [12000000, 4, 2, 2]]
         self.powerViaCutsTable = \
-        [[0, 4, 2, 2], [100, 9, 3, 3]]
+        [[0, 4, 2, 2], [10000000, 9, 3, 3]]
         # Additional spacing
         # increase module spacing by area [um^2, um]
         self.blockSpacingFromAreaTableX = \

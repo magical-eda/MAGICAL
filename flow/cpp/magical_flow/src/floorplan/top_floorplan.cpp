@@ -333,7 +333,7 @@ void IlpTopFloorplanProblem::addVariables()
         _extraResourcesVars.emplace_back(lp_trait::addVar(_solver));
         // Integer
         lp_trait::setVarInteger(_solver, _extraResourcesVars.back());
-        IntType minimum = _problem._cellBBox.at(cellIdx).yLen() / _problem._resourcePerLen;
+        IntType minimum = _problem._cellBBox.at(cellIdx).yLen() / _problem._resourcePerLen / 3;
         lp_trait::setVarLowerBound(_solver, _extraResourcesVars.back(), -minimum);
     }
     // Each module has a variable indicate its yLo
@@ -598,11 +598,12 @@ void IlpTopFloorplanProblem::configObjFunc()
     {
         for (const auto &crossVar : netwiseCrossVar)
         {
-            _obj += crossVar;
+            _obj += crossVar * 1000;
         }
+
     }
     // obj += N * yHi
-    _obj += 100 * _yHiVar;
+    _obj +=  _yHiVar ;
 }
 
 bool IlpTopFloorplanProblem::solveIlp()

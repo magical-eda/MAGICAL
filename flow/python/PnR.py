@@ -13,6 +13,7 @@ import Router
 import Placer
 import gdspy
 from device_generation.glovar import tsmc40_glovar as glovar
+import time
 
 class PnR(object):
     def __init__(self, magicalDB, cktIdx, dirname):
@@ -51,7 +52,7 @@ class PnR(object):
         @param the index of subckt
         """
         print("PnR: working on ", self.dDB.subCkt(self.cktIdx).name, self.rootCktIdx, self.dDB.rootCktIdx(), self.cktIdx)
-        self.runPlace(False)
+        placeTime = self.runPlace(False)
         self.checkSmallModule(self.cktIdx)
         self.dDB.subCkt(self.cktIdx).isImpl = True
         print("PnR: placement finished ", self.dDB.subCkt(self.cktIdx).name)

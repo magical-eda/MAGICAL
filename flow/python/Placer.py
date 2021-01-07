@@ -43,9 +43,11 @@ class Placer(object):
         if not self.implRealLayout:
             self.useIoPin = False # in early floorplan stage, don't need real io pins
         if self.implRealLayout:
-            self.placer.openFastMode()
-        else:
             self.placer.closeFastMode()
+            self.placer.logScreenOn()
+        else:
+            self.placer.openFastMode()
+            self.placer.logScreenOff()
         self.dumpInput()
         self.placer.numThreads(10) #FIXME
         start = time.time()
@@ -145,8 +147,8 @@ class Placer(object):
         #    self.placer.closeVirtualPinAssignment()
         #    return
         self.placer.openVirtualPinAssignment()
-        self.placer.setIoPinBoundaryExtension(12 * 1 * self.gridStep)
-        self.placer.setIoPinInterval(5 * 2 * self.gridStep)
+        self.placer.setIoPinBoundaryExtension(3 * 1 * self.gridStep)
+        self.placer.setIoPinInterval(2 * 2 * self.gridStep)
         for netIdx in range(self.ckt.numNets()):
             net = self.ckt.net(netIdx)
             if (net.isIo() and (not net.isPower()) and self.useIoPin):
