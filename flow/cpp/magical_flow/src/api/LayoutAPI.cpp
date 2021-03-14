@@ -43,7 +43,7 @@ void initLayoutAPI(py::module &m)
         .def("insertLayout", &PROJECT_NAMESPACE::Layout::insertLayout)
         .def("setRectDatatype", &PROJECT_NAMESPACE::Layout::setRectDatatype)
         .def("insertText", py::overload_cast<PROJECT_NAMESPACE::IndexType, const PROJECT_NAMESPACE::TextLayout &>(&PROJECT_NAMESPACE::Layout::insertText), "Insert a text object in the layout")
-        .def("insertText", py::overload_cast<PROJECT_NAMESPACE::IndexType, const std::string &, const PROJECT_NAMESPACE::XY<PROJECT_NAMESPACE::LocType> &>
+        .def("insertText", py::overload_cast<PROJECT_NAMESPACE::IndexType, const std::string &, const PROJECT_NAMESPACE::Point<PROJECT_NAMESPACE::LocType> &>
                 (&PROJECT_NAMESPACE::Layout::insertText), "Insert a text object in the layout")
         .def("insertText", py::overload_cast<PROJECT_NAMESPACE::IndexType, const std::string &, PROJECT_NAMESPACE::LocType, PROJECT_NAMESPACE::LocType>
                 (&PROJECT_NAMESPACE::Layout::insertText), "Insert a text object in the layout")
@@ -51,7 +51,7 @@ void initLayoutAPI(py::module &m)
                 (&PROJECT_NAMESPACE::Layout::insertRect), "Insert a rectangle object in the layout")
         .def("insertRect", py::overload_cast<PROJECT_NAMESPACE::IndexType, const PROJECT_NAMESPACE::Box<PROJECT_NAMESPACE::LocType> &>
                 (&PROJECT_NAMESPACE::Layout::insertRect), "Insert a rectangle object in the layout")
-        .def("insertRect", py::overload_cast<PROJECT_NAMESPACE::IndexType, const PROJECT_NAMESPACE::XY<PROJECT_NAMESPACE::LocType> &, const PROJECT_NAMESPACE::XY<PROJECT_NAMESPACE::LocType> &>
+        .def("insertRect", py::overload_cast<PROJECT_NAMESPACE::IndexType, const PROJECT_NAMESPACE::Point<PROJECT_NAMESPACE::LocType> &, const PROJECT_NAMESPACE::Point<PROJECT_NAMESPACE::LocType> &>
                 (&PROJECT_NAMESPACE::Layout::insertRect), "Insert a rectangle object in the layout")
         .def("insertRect", py::overload_cast<PROJECT_NAMESPACE::IndexType, PROJECT_NAMESPACE::LocType, PROJECT_NAMESPACE::LocType, PROJECT_NAMESPACE::LocType, PROJECT_NAMESPACE::LocType>
                 (&PROJECT_NAMESPACE::Layout::insertRect), "Insert a rectangle object in the layout");

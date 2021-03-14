@@ -7,22 +7,22 @@
 
 
 #include <pybind11/pybind11.h>
-#include "util/XY.h"
+#include "util/point.hpp"
 #include "global/global.h"
 
 namespace py = pybind11;
 
 void initUtilAPI(py::module &m)
 {
-    py::class_<PROJECT_NAMESPACE::XY<PROJECT_NAMESPACE::LocType>>(m , "XYLoc")
+    py::class_<PROJECT_NAMESPACE::Point<PROJECT_NAMESPACE::LocType>>(m , "PointLoc")
         .def(py::init<>())
-        .def_property("x", &PROJECT_NAMESPACE::XY<PROJECT_NAMESPACE::LocType>::x, &PROJECT_NAMESPACE::XY<PROJECT_NAMESPACE::LocType>::setX)
-        .def_property("y", &PROJECT_NAMESPACE::XY<PROJECT_NAMESPACE::LocType>::y, &PROJECT_NAMESPACE::XY<PROJECT_NAMESPACE::LocType>::setY);
+        .def_property("x", &PROJECT_NAMESPACE::Point<PROJECT_NAMESPACE::LocType>::x, &PROJECT_NAMESPACE::Point<PROJECT_NAMESPACE::LocType>::setX)
+        .def_property("y", &PROJECT_NAMESPACE::Point<PROJECT_NAMESPACE::LocType>::y, &PROJECT_NAMESPACE::Point<PROJECT_NAMESPACE::LocType>::setY);
 
-    py::class_<PROJECT_NAMESPACE::XY<PROJECT_NAMESPACE::IndexType>>(m , "XYIdx")
+    py::class_<PROJECT_NAMESPACE::Point<PROJECT_NAMESPACE::IndexType>>(m , "PointIdx")
         .def(py::init<>())
-        .def_property("x", &PROJECT_NAMESPACE::XY<PROJECT_NAMESPACE::IndexType>::x, &PROJECT_NAMESPACE::XY<PROJECT_NAMESPACE::IndexType>::setX)
-        .def_property("y", &PROJECT_NAMESPACE::XY<PROJECT_NAMESPACE::IndexType>::y, &PROJECT_NAMESPACE::XY<PROJECT_NAMESPACE::IndexType>::setY);
+        .def_property("x", &PROJECT_NAMESPACE::Point<PROJECT_NAMESPACE::IndexType>::x, &PROJECT_NAMESPACE::Point<PROJECT_NAMESPACE::IndexType>::setX)
+        .def_property("y", &PROJECT_NAMESPACE::Point<PROJECT_NAMESPACE::IndexType>::y, &PROJECT_NAMESPACE::Point<PROJECT_NAMESPACE::IndexType>::setY);
 
     py::class_<PROJECT_NAMESPACE::Box<PROJECT_NAMESPACE::LocType>>(m, "BoxLoc")
         .def(py::init<>())

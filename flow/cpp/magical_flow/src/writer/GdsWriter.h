@@ -42,14 +42,14 @@ class GdsWriter
         /// @param coordinate of the text
         /// @param db layer
         /// @param the string for the text
-        void addText2Cell(::GdsParser::GdsDB::GdsCell &gdsCell, const XY<LocType> &coord, IndexType dbLayer, const std::string &str);
+        void addText2Cell(::GdsParser::GdsDB::GdsCell &gdsCell, const Point<LocType> &coord, IndexType dbLayer, const std::string &str);
         /// @brief add a cellreference to a gdscell
         /// @param the reference to the gdscell
         /// @param the CktNode want to add
         void addCellRef2Cell(::GdsParser::GdsDB::GdsCell &gdsCell, CktNode &node);
         /// @brief add text to the cell
-        /// @brief convert XY type to point_type
-        point_type convertXY(const XY<LocType> &pt)
+        /// @brief convert Point type to point_type
+        point_type convertPoint(const Point<LocType> &pt)
         {
             return point_type(pt.x(), pt.y());
         }
@@ -121,22 +121,22 @@ inline void GdsWriter::addRect2Cell(::GdsParser::GdsDB::GdsCell &gdsCell, const 
 {
     IntType pdkLayer = static_cast<IntType>(_techDB.dbLayerToPdk(dbLayer));
     std::vector<point_type> pts;
-    pts.emplace_back(this->convertXY(XY<LocType>(rect.xLo(), rect.yLo())));
-    pts.emplace_back(this->convertXY(XY<LocType>(rect.xLo(), rect.yHi())));
-    pts.emplace_back(this->convertXY(XY<LocType>(rect.xHi(), rect.yHi())));
-    pts.emplace_back(this->convertXY(XY<LocType>(rect.xHi(), rect.yLo())));
-    pts.emplace_back(this->convertXY(XY<LocType>(rect.xLo(), rect.yLo())));
+    pts.emplace_back(this->convertPoint(Point<LocType>(rect.xLo(), rect.yLo())));
+    pts.emplace_back(this->convertPoint(Point<LocType>(rect.xLo(), rect.yHi())));
+    pts.emplace_back(this->convertPoint(Point<LocType>(rect.xHi(), rect.yHi())));
+    pts.emplace_back(this->convertPoint(Point<LocType>(rect.xHi(), rect.yLo())));
+    pts.emplace_back(this->convertPoint(Point<LocType>(rect.xLo(), rect.yLo())));
 
     // Add to the cells
     gdsCell.addPolygon(pdkLayer, datatype, pts);
 
 }
 
-inline void GdsWriter::addText2Cell(::GdsParser::GdsDB::GdsCell &gdsCell, const XY<LocType> &coord, IndexType dbLayer, const std::string &str)
+inline void GdsWriter::addText2Cell(::GdsParser::GdsDB::GdsCell &gdsCell, const Point<LocType> &coord, IndexType dbLayer, const std::string &str)
 {
     IntType pdkLayer = static_cast<IntType>(_techDB.dbLayerToPdk(dbLayer));
     // Trick: set datatype to int max so that the GDS writter will be forced to skip the keyword
-    gdsCell.addText(pdkLayer, std::numeric_limits<int>::max(), 0, str, convertXY(coord), std::numeric_limits<int>::max(), 5, 0, 0.2, 0);
+    gdsCell.addText(pdkLayer, std::numeric_limits<int>::max(), 0, str, convertPoint(coord), std::numeric_limits<int>::max(), 5, 0, 0.2, 0);
 }
 
 inline void GdsWriter::addCellRef2Cell(GdsParser::GdsDB::GdsCell &gdsCell, CktNode &node)
@@ -165,7 +165,7 @@ inline void GdsWriter::addCellRef2Cell(GdsParser::GdsDB::GdsCell &gdsCell, CktNo
         strans = 0;
     }
     // 1. reference cell name 2. angle 3. magnification 4. strans
-    gdsCell.addCellReference(node.refName(), this->convertXY(node.offset()), angle, 1, strans);
+    gdsCell.addCellReference(node.refName(), this->convertPoint(node.offset()), angle, 1, strans);
 }
 
 

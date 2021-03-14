@@ -7,7 +7,7 @@
 #ifndef KLIB_POLYGON2RECT_H_
 #define KLIB_POLYGON2RECT_H_
 
-#include "Box.h"
+#include "box.hpp"
 #include <limbo/geometry/Polygon2Rectangle.h>
 
 
@@ -22,10 +22,10 @@ namespace limbo { namespace geometry {
  * The specialization should be in the same scope as the original template struct 
  */
 template <typename T>
-struct point_traits<PROJECT_NAMESPACE::XY<T>>
+struct point_traits<PROJECT_NAMESPACE::Point<T>>
 {
     /// point type 
-    typedef PROJECT_NAMESPACE::XY<T> point_type;
+    typedef PROJECT_NAMESPACE::Point<T> point_type;
     /// coordinate type 
     typedef T coordinate_type;
 
@@ -136,9 +136,9 @@ struct rectangle_traits<PROJECT_NAMESPACE::Box<T>>
 namespace klib
 {
     template<typename T>
-    inline bool convertPolygon2Rects(const std::vector<PROJECT_NAMESPACE::XY<T>> &pts, std::vector<PROJECT_NAMESPACE::Box<T>> &rects)
+    inline bool convertPolygon2Rects(const std::vector<PROJECT_NAMESPACE::Point<T>> &pts, std::vector<PROJECT_NAMESPACE::Box<T>> &rects)
     {
-        typedef typename PROJECT_NAMESPACE::XY<T> PtType;
+        typedef typename PROJECT_NAMESPACE::Point<T> PtType;
         typedef typename PROJECT_NAMESPACE::Box<T> RectType;
 
         limbo::geometry::Polygon2Rectangle<std::vector<PtType>, std::vector<RectType>> p2r(rects, pts.begin(), pts.end(), limbo::geometry::HOR_VER_SLICING);

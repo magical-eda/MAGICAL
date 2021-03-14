@@ -2,8 +2,8 @@
 // Created by Keren on 04/12/2018
 //
 
-#include "MsgPrinter.h"
-#include "Assert.h"
+#include "MsgPrinter.hpp"
+#include "Assert.hpp"
 
 PROJECT_NAMESPACE_BEGIN
 

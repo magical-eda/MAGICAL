@@ -56,7 +56,7 @@ namespace ParseLayoutAction
         IndexType layer_id(object->layer()), datatype(object->datatype()); 
         IndexType rect_id;
         std::vector<Box<LocType>> rects;
-        std::vector<XY<LocType>> pts;
+        std::vector<Point<LocType>> pts;
         layer_id = techDB.pdkLayerToDb(layer_id);
         for (auto pt : *object)
         {

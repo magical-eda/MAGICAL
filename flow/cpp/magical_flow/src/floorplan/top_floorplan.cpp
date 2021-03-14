@@ -758,7 +758,7 @@ void IlpTopFloorplanProblem::writeOut(TopFloorplanProblemResult &result)
             }
             Assert(box.valid());
             // Offset by the center
-            XY<LocType> thisCellCenter =  _problem._cellBBox.at(pin.cellIdx).center();
+            Point<LocType> thisCellCenter =  _problem._cellBBox.at(pin.cellIdx).center();
             thisCellCenter.setX( - thisCellCenter.x());
             thisCellCenter.setY( - thisCellCenter.y());
             box.offsetBy(thisCellCenter);

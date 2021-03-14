@@ -46,12 +46,12 @@ class TextLayout : public LayoutObject
         /// @brief constructor
         /// @param first: string for text
         /// @param second: coordinate for the text
-        explicit TextLayout(const std::string &text, const XY<LocType> &coord) : _text(text), _coord(coord) {}
+        explicit TextLayout(const std::string &text, const Point<LocType> &coord) : _text(text), _coord(coord) {}
         /// @brief constructor
         /// @param first: string for text
         /// @param second: x coordinate
         /// @param third: y coordinate
-        explicit TextLayout(const std::string &text, LocType x, LocType y) : _text(text), _coord(XY<LocType>(x, y)) {}
+        explicit TextLayout(const std::string &text, LocType x, LocType y) : _text(text), _coord(Point<LocType>(x, y)) {}
         /*------------------------------*/ 
         /* Getters                      */
         /*------------------------------*/ 
@@ -60,7 +60,7 @@ class TextLayout : public LayoutObject
         std::string & text() { return _text; }
         /// @brief get the coordinate of the text object
         /// @return the reference to the text object
-        XY<LocType> & coord() { return _coord; }
+        Point<LocType> & coord() { return _coord; }
         /*------------------------------*/ 
         /* Setters                      */
         /*------------------------------*/ 
@@ -69,7 +69,7 @@ class TextLayout : public LayoutObject
         void setText(const std::string &text) { _text = text; } 
     private:
         std::string _text = ""; ///< The text string of this object
-        XY<LocType> _coord; ///< The coordinate of this text object
+        Point<LocType> _coord; ///< The coordinate of this text object
 };
 
 /// @class MAGICAL_FLOW::RectLayout
@@ -85,7 +85,7 @@ class RectLayout : public LayoutObject
         /// @brief constructor
         /// @param the lower left coordinate
         /// @param the upper right coordinate
-        explicit RectLayout(const XY<LocType> &lo, const XY<LocType> &ur) : _rect(Box<LocType>(lo, ur)), _datatype(0) {}
+        explicit RectLayout(const Point<LocType> &lo, const Point<LocType> &ur) : _rect(Box<LocType>(lo, ur)), _datatype(0) {}
         /// @brief constructor
         /// @param the x coordinate of the lower left point
         /// @param the y coordinate of the lower left point
@@ -159,7 +159,7 @@ class LayoutLayer
         /// @brief insert text object
         /// @param first: string for text
         /// @param second: coordinate for the text
-        void insertText(const std::string &text, const XY<LocType> &coord) { _texts.emplace_back(TextLayout(text, coord)); }
+        void insertText(const std::string &text, const Point<LocType> &coord) { _texts.emplace_back(TextLayout(text, coord)); }
         /// @brief insert text object
         /// @param first: string for text
         /// @param second: x coordinate
@@ -174,7 +174,7 @@ class LayoutLayer
         /// @brief insert rectangle object
         /// @param the lower left coordinate
         /// @param the upper right coordinate
-        void insertRect(const XY<LocType> &lo, const XY<LocType> &ur) { _rects.emplace_back(RectLayout(lo, ur)); }
+        void insertRect(const Point<LocType> &lo, const Point<LocType> &ur) { _rects.emplace_back(RectLayout(lo, ur)); }
         /// @brief insert rectangle object
 #endif
     private:
@@ -243,7 +243,7 @@ class Layout
         /// @param second: the text in the layout
         /// @param third: the coordinate of the layout object
         /// @return the index of the object inserted
-        IndexType insertText(IndexType layerIdx, const std::string &text, const XY<LocType> &coord) { return  _layers.at(layerIdx).insertText(text, coord); }
+        IndexType insertText(IndexType layerIdx, const std::string &text, const Point<LocType> &coord) { return  _layers.at(layerIdx).insertText(text, coord); }
         /// @brief insert a text
         /// @param first: layer index
         /// @param second: the text in the layout
@@ -272,7 +272,7 @@ class Layout
         /// @param second: the lower left coordinate of the rectangle
         /// @param third: the upper right coordinate of the rectangle
         /// @return the index of the object inserted
-        IndexType insertRect(IndexType layerIdx, const XY<LocType> &lo, const XY<LocType> &ur) { 
+        IndexType insertRect(IndexType layerIdx, const Point<LocType> &lo, const Point<LocType> &ur) { 
             _boundary.unionBox(Box<LocType>(lo, ur));
             return _layers.at(layerIdx).insertRect(lo, ur); 
             } 
@@ -300,7 +300,7 @@ class Layout
         void setRectDatatype(IndexType layerIdx, IndexType rectIdx, IndexType datatype) {_layers.at(layerIdx).rect(rectIdx).setDatatype(datatype); }
         /// @brief set the boundary box of layout
         /// @param boundary box
-        void setBoundary(LocType xLo, LocType yLo, LocType xHi, LocType yHi) { _boundary.set(xLo, yLo, xHi, yHi); }
+        void setBoundary(LocType xLo, LocType yLo, LocType xHi, LocType yHi) { _boundary.setBounds(xLo, yLo, xHi, yHi); }
 
     private:
         std::vector<LayoutLayer> _layers; ///< _text[idx of layer] = vector of text objects

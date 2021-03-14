@@ -9,7 +9,6 @@
 
 #include "db/DesignDB.h"
 #include "util/linear_programming.h"
-#include "util/Box.h"
 #include "constraint_graph.hpp"
 
 PROJECT_NAMESPACE_BEGIN

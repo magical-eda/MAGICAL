@@ -8,7 +8,7 @@
 #ifndef KLIB_LINEAR_PROGRAMMING_TRAIT_H_
 #define KLIB_LINEAR_PROGRAMMING_TRAIT_H_
 
-#include "Assert.h"
+#include "Assert.hpp"
 #include <string>
 
 namespace klib

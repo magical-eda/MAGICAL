@@ -31,6 +31,7 @@ class Flow(object):
         self.resultName = self.mDB.params.resultDir
         topCktIdx = self.mDB.topCktIdx() # The index of the topckt
         self.implCktLayout(topCktIdx)
+        return True
         self.decoupleCkts()
         for pnrIdx in range(len(self.pnrs) - 1, 0, -1):
             print("Floorplan ", pnrIdx)
@@ -142,7 +143,7 @@ class Flow(object):
         self.symDict = self.constraint.genConstraint(cktIdx, self.resultName)
         self.setup(cktIdx)
         pnr = PnR.PnR(self.mDB, cktIdx, self.resultName)
-        pnr.placeOnly()
+        pnr.placeAndRoute()
         self.runtime += pnr.runtime
         self.pnrs.append(pnr)
         #PnR.PnR(self.mDB).implLayout(cktIdx, self.resultName)

@@ -159,7 +159,6 @@ class PnR(object):
             print("Routing failed! ckt ", ckt.name)
             assert(routerPass)
         router.writeLayoutGds(placeFile, self.dirname+ckt.name+'.route.gds', True)
-        router.writeDumb(placeFile, self.dirname+ckt.name+'.ioPin') 
         # Read results to flow
         ckt.setTechDB(self.tDB)
         ckt.parseGDS(self.dirname+ckt.name+'.route.gds')

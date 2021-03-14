@@ -13,9 +13,9 @@
 #include "type.h"
 #include "constant.h"
 #include "parameter.h"
-#include "util/MsgPrinter.h"
-#include "util/Assert.h"
-#include "util/kLibBase.h"
+#include "util/MsgPrinter.hpp"
+#include "util/Assert.hpp"
+#include "util/kLibBase.hpp"
 
 PROJECT_NAMESPACE_BEGIN
 
@@ -27,7 +27,7 @@ static const auto &DBG = MsgPrinter::dbg;
 
 PROJECT_NAMESPACE_END
 
-#include "util/Box.h"
+#include "util/box.hpp"
 
 PROJECT_NAMESPACE_BEGIN
 
@@ -39,7 +39,7 @@ namespace MfUtil
     /// @param second: the offset coordinate (lower-left point of the bounding box)
     /// @param third: the bounding box
     /// @return the coordinate after conversion
-    inline XY<LocType> northCoordinate(const XY<LocType> coord, const XY<LocType> &offset, const Box<LocType> &bbox)
+    inline Point<LocType> northCoordinate(const Point<LocType> coord, const Point<LocType> &offset, const Box<LocType> &bbox)
     {
         return coord + offset;
     }
@@ -48,7 +48,7 @@ namespace MfUtil
     /// @param second: the offset coordinate (lower-left point of the bounding box)
     /// @param third: the bounding box
     /// @return the coordinate after conversion
-    inline XY<LocType> southCoordinate(const XY<LocType> coord, const XY<LocType> &offset, const Box<LocType> &bbox)
+    inline Point<LocType> southCoordinate(const Point<LocType> coord, const Point<LocType> &offset, const Box<LocType> &bbox)
     {
         LocType x = coord.x();
         x = bbox.xLen() - x;
@@ -56,14 +56,14 @@ namespace MfUtil
         LocType y = coord.y();
         y = bbox.yLen() - y;
         y = y + offset.y();
-        return XY<LocType>(x, y);
+        return Point<LocType>(x, y);
     }
     /// @brief convert the coordinate under orient and offset for W/R90 orientation
     /// @param first: the coordinate before conversion
     /// @param second: the offset coordinate (lower-left point of the bounding box)
     /// @param third: the bounding box
     /// @return the coordinate after conversion
-    inline XY<LocType> westCoordinate(const XY<LocType> coord, const XY<LocType> &offset, const Box<LocType> &bbox)
+    inline Point<LocType> westCoordinate(const Point<LocType> coord, const Point<LocType> &offset, const Box<LocType> &bbox)
     {
         LocType x = coord.y();
         x = bbox.yLen() - x;
@@ -72,14 +72,14 @@ namespace MfUtil
         LocType y = coord.x();
         y = y + offset.y();
 
-        return XY<LocType>(x, y);
+        return Point<LocType>(x, y);
     }
     /// @brief convert the coordinate under orient and offset for E/R270 orientation
     /// @param first: the coordinate before conversion
     /// @param second: the offset coordinate (lower-left point of the bounding box)
     /// @param third: the bounding box
     /// @return the coordinate after conversion
-    inline XY<LocType> eastCoordinate(const XY<LocType> coord, const XY<LocType> &offset, const Box<LocType> &bbox)
+    inline Point<LocType> eastCoordinate(const Point<LocType> coord, const Point<LocType> &offset, const Box<LocType> &bbox)
     {
         LocType x = coord.y();
         x = x + offset.x();
@@ -88,14 +88,14 @@ namespace MfUtil
         y = bbox.xLen() - y;
         y = y + offset.y();
 
-        return XY<LocType>(x, y);
+        return Point<LocType>(x, y);
     }
     /// @brief convert the coordinate under orient and offset for FN/MY orientation
     /// @param first: the coordinate before conversion
     /// @param second: the offset coordinate (lower-left point of the bounding box)
     /// @param third: the bounding box
     /// @return the coordinate after conversion
-    inline XY<LocType> flipNorthCoordinate(const XY<LocType> coord, const XY<LocType> &offset, const Box<LocType> &bbox)
+    inline Point<LocType> flipNorthCoordinate(const Point<LocType> coord, const Point<LocType> &offset, const Box<LocType> &bbox)
     {
         LocType x = coord.x();
         x = bbox.xLen() - x;
@@ -104,14 +104,14 @@ namespace MfUtil
         LocType y = coord.y();
         y = y + offset.y();
 
-        return XY<LocType>(x, y);
+        return Point<LocType>(x, y);
     }
     /// @brief convert the coordinate under orient and offset for FS/MX orientation
     /// @param first: the coordinate before conversion
     /// @param second: the offset coordinate (lower-left point of the bounding box)
     /// @param third: the bounding box
     /// @return the coordinate after conversion
-    inline XY<LocType> flipSouthCoordinate(const XY<LocType> coord, const XY<LocType> &offset, const Box<LocType> &bbox)
+    inline Point<LocType> flipSouthCoordinate(const Point<LocType> coord, const Point<LocType> &offset, const Box<LocType> &bbox)
     {
         LocType x = coord.x();
         x = x + offset.x();
@@ -120,14 +120,14 @@ namespace MfUtil
         y = bbox.yLen() - y;
         y = y + offset.y();
 
-        return XY<LocType>(x, y);
+        return Point<LocType>(x, y);
     }
     /// @brief convert the coordinate under orient and offset for FW/MX90 orientation
     /// @param first: the coordinate before conversion
     /// @param second: the offset coordinate (lower-left point of the bounding box)
     /// @param third: the bounding box
     /// @return the coordinate after conversion
-    inline XY<LocType> flipWestCoordinate(const XY<LocType> coord, const XY<LocType> &offset, const Box<LocType> &bbox)
+    inline Point<LocType> flipWestCoordinate(const Point<LocType> coord, const Point<LocType> &offset, const Box<LocType> &bbox)
     {
         LocType x = coord.y();
         x = x + offset.x();
@@ -135,14 +135,14 @@ namespace MfUtil
         LocType y = coord.x();
         y = y + offset.y();
 
-        return XY<LocType>(x, y);
+        return Point<LocType>(x, y);
     }
     /// @brief convert the coordinate under orient and offset for FE/MY90 orientation
     /// @param first: the coordinate before conversion
     /// @param second: the offset coordinate (lower-left point of the bounding box)
     /// @param third: the bounding box
     /// @return the coordinate after conversion
-    inline XY<LocType> flipEastCoordinate(const XY<LocType> coord, const XY<LocType> &offset, const Box<LocType> &bbox)
+    inline Point<LocType> flipEastCoordinate(const Point<LocType> coord, const Point<LocType> &offset, const Box<LocType> &bbox)
     {
         LocType x = coord.y();
         x = bbox.yLen() - x;
@@ -152,7 +152,7 @@ namespace MfUtil
         y = bbox.xLen() - y;
         y = y + offset.y();
 
-        return XY<LocType>(x, y);
+        return Point<LocType>(x, y);
     }
     /// @brief convert the coordinate under certain orient and offset
     /// @param first: the coordinate before conversion
@@ -160,7 +160,7 @@ namespace MfUtil
     /// @param third: the offset coordinate (lower-left point of the bounding box)
     /// @param fourth: the bounding box
     /// @return the coordinate after conversion
-    inline XY<LocType> orientConv(const XY<LocType> coord, OriType orient = OriType::N, const XY<LocType> &offset = XY<LocType>(0, 0), const Box<LocType> &bbox = Box<LocType>(0,0,0,0))
+    inline Point<LocType> orientConv(const Point<LocType> coord, OriType orient = OriType::N, const Point<LocType> &offset = Point<LocType>(0, 0), const Box<LocType> &bbox = Box<LocType>(0,0,0,0))
     {
         if (orient == OriType::N)
         {

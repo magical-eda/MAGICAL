@@ -87,7 +87,7 @@ class CktNode
         void setName(const std::string &name) { _name = name; }
         /// @brief set the coordinate offset of this node
         /// @set the offset of this node
-        void setOffset(LocType x, LocType y) { _offset = XY<LocType>(x, y); }
+        void setOffset(LocType x, LocType y) { _offset = Point<LocType>(x, y); }
         /// @brief set the flip flag
         /// @set the flip flag
         void setFlipVertFlag(bool flag) { _flipVertFlag = flag; }
@@ -97,11 +97,11 @@ class CktNode
         /*------------------------------*/ 
         /// @brief get the coordinate offset of this node
         /// @return the offset of this node
-        //const XY<LocType> & offset() const { return _offset; }
+        //const Point<LocType> & offset() const { return _offset; }
         /// @brief get the coordinate offset of this node
         /// @return the offset of this node
-        XY<LocType> & offset() { return _offset; }
-        const XY<LocType> & offsetConst() const { return _offset; }
+        Point<LocType> & offset() { return _offset; }
+        const Point<LocType> & offsetConst() const { return _offset; }
         /// @brief get the orientation of this node
         /// @return the orientation of this node
         //const OriType & orient() const { return _orient; }
@@ -135,7 +135,7 @@ class CktNode
     private:
         IndexType _graphIdx = INDEX_TYPE_MAX; ///< The index of the sub graph this node corresponding to. If INDEX_TYPE_MAX, then this is a leaf node
         std::vector<IndexType> _pinIdxArray; ///< The pins this node containing
-        XY<LocType> _offset = XY<LocType>(0, 0); ///< The offset of the location
+        Point<LocType> _offset = Point<LocType>(0, 0); ///< The offset of the location
         OriType _orient = OriType::N; ///< The orientation of this node
         bool _implPhy = false; ///< Whether this node has been implemented physically
         bool _flipVertFlag = false; ///< Whether this node should be fliped due to symmetry constraint
