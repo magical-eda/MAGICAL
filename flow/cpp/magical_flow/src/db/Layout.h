@@ -134,6 +134,7 @@ class LayoutLayer
         /// @brief get one rectangle object
         /// @param the index of the rectangle object
         RectLayout & rect(IndexType rectIdx) { return _rects.at(rectIdx); }
+        const RectLayout & rectConst(IndexType rectIdx) const { return _rects.at(rectIdx); }
         /*------------------------------*/ 
         /* Add items                    */
         /*------------------------------*/ 
@@ -216,6 +217,7 @@ class Layout
         /// @param second: the index of the text in that layer
         /// @return the requested rect layout object
         RectLayout & rect(IndexType layerIdx, IndexType rectIdx) { return _layers.at(layerIdx).rect(rectIdx); }
+        const RectLayout & rectConst(IndexType layerIdx, IndexType rectIdx) const { return _layers.at(layerIdx).rectConst(rectIdx); }
         /// @brief get the number of layers
         /// @return the number of layers
         IndexType numLayers() const { return _numLayers; }
@@ -229,7 +231,7 @@ class Layout
         IndexType numRects(IndexType layerIdx) const { return _layers.at(layerIdx).rectList().size(); }
         /// @brief get the boundary box of layout
         /// @return boundary box
-        Box<LocType> boundary() const { return _boundary; }
+        const Box<LocType> &boundary() const { return _boundary; }
         /*------------------------------*/ 
         /* Add items                    */
         /*------------------------------*/ 

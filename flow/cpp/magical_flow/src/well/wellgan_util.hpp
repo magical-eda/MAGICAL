@@ -17,22 +17,19 @@ class DataWellGAN
   public:
     /// @param first: design database
     /// @param second: The layer ID for OD layer
-    /// @param third: The layer ID for NW layer
-    explicit DataWellGAN(DesignDB &ddb, const IntType odLayerId, const IntType _nwLayerId)
-      : _ddb(ddb), _odLayerId(odLayerId), _nwLayerId(_nwLayerId) {}
+    explicit DataWellGAN(DesignDB &ddb, const IntType odLayerId)
+      : _ddb(ddb), _odLayerId(odLayerId) {}
     /// @brief Construct the layout for the circuit.
     /// It will combine the subcircuit layouts according to
     /// the current module position
     /// @param the index of the circuit
-    void construct();
+    void construct(IndexType cktIdx);
 
   private:
     DesignDB &_ddb; ///< The design database
     const IntType _odLayerId; ///< The layer ID for OD
-    const IntType _nwLayerId; ///< The layer ID for NW
-    std::vector<Box<LocType>> _nwShapes; ///< The N well shapes
-    std::vector<Box<LocType>> _odOutsideShapes; ///< The OD shapes outside N wells
-    std::vector<Box<LocType>> _odInsideShapes; ///< The OD shapes inside N wells
+    std::vector<Box<LocType>> _odOtherShapes; ///< The OD shapes outside N wells, from nmos to stdcell
+    std::vector<Box<LocType>> _odPchShapes; ///< The OD shapes inside N wells, AKA., PMOS
 };
 
 PROJECT_NAMESPACE_END

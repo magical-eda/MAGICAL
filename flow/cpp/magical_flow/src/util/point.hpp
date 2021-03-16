@@ -1,4 +1,5 @@
 /**
+ *  
  * @file   point.hpp
  * @brief  Geometric Data Structure: 2D point type
  * @author Hao Chen

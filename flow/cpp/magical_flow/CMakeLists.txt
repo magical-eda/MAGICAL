@@ -173,7 +173,7 @@ ELSE()
     set(CMAKE_BUILD_TYPE Release)
 ENDIF()
 #set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
-set(CMAKE_CXX_FLAGS "-std=c++14 -Wall -fopenmp")
+set(CMAKE_CXX_FLAGS "-std=c++17 -Wall -fopenmp")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -fno-inline ")
 #set(CMAKE_CXX_FLAGS_RELEASE "-O3 -fno-inline") 
 #set(CMAKE_CXX_FLAGS_RELEASE "-O3")
@@ -231,13 +231,14 @@ link_libraries (
     ${PYTHON_LIBRARIES}
 )
 
-file(GLOB SOURCES src/db/*.h        src/db/*.cpp
-                  src/util/*.h      src/util/*.cpp 
-                  src/parser/*.h    src/parser/*.cpp
-                  src/global/*.h
-                  src/writer/*.h
-                  src/csflow/*.h    src/csflow/*.cpp
-                  src/floorplan/*.h src/floorplan/*.cpp
+file(GLOB SOURCES src/db/*.cpp
+                  src/util/*.cpp 
+                  src/parser/*.cpp
+                  
+                  
+                  src/csflow/*.cpp
+                  src/floorplan/*.cpp
+                  src/well/*.cpp
                   )
 
 file(GLOB PROJECT_SOURCES src/main/*.cpp ${SOURCES})
