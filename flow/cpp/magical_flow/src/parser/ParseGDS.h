@@ -15,15 +15,15 @@
 
 PROJECT_NAMESPACE_BEGIN
 
-using GdsParser::GdsDB::GdsCell;
-using GdsParser::GdsDB::GdsPolygon;
-using GdsParser::GdsDB::GdsRectangle;
-using GdsParser::GdsDB::GdsCellReference;
-
-class Parser
+class ParserGds
 {
+
+    using GdsCell = GdsParser::GdsDB::GdsCell;
+    using GdsPolygon = GdsParser::GdsDB::GdsPolygon;
+    using GdsRectangle = GdsParser::GdsDB::GdsRectangle;
+    using GdsCellReference = GdsParser::GdsDB::GdsCellReference;
     public:
-        explicit Parser(const std::string & fileName, Layout & layer, TechDB & techDB) : _layer(layer), _techDB(techDB)
+        explicit ParserGds(const std::string & fileName, Layout & layer, TechDB & techDB) : _layer(layer), _techDB(techDB)
         {
             read(fileName);
         }
@@ -36,6 +36,10 @@ class Parser
 
 namespace ParseLayoutAction
 {
+    using GdsCell = GdsParser::GdsDB::GdsCell;
+    using GdsPolygon = GdsParser::GdsDB::GdsPolygon;
+    using GdsRectangle = GdsParser::GdsDB::GdsRectangle;
+    using GdsCellReference = GdsParser::GdsDB::GdsCellReference;
     /// @brief default action
     template<typename ObjectType>
     inline void extractLayout(Layout & layer, TechDB & techDB, ::GdsParser::GdsRecords::EnumType type, ObjectType *object)

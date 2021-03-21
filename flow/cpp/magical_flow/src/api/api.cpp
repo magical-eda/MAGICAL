@@ -23,6 +23,7 @@ void initWriterAPI(py::module &);
 void initTechDbAPI(py::module &);
 void initCSFlowAPI(py::module &);
 void initTopFloorplanAPI(py::module &);
+void initWellAPI(py::module &);
 
 PYBIND11_MAKE_OPAQUE(std::vector<PROJECT_NAMESPACE::IndexType>);
 
@@ -40,4 +41,5 @@ PYBIND11_MODULE(magicalFlow, m)
     initTechDbAPI(m);
     initCSFlowAPI(m);
     initTopFloorplanAPI(m);
+    initWellAPI(m);
 }

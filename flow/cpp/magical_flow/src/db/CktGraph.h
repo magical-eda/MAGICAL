@@ -273,7 +273,7 @@ class CktGraph
         void setIsImpl(bool impl) { _isImplemented = impl; }
         /// @brief readin GDSII file into _layout
         /// @param GDSII filename
-        void parseGDS(const std::string & fileName) { Parser parse(fileName, _layout, _techDB); }
+        void parseGDS(const std::string & fileName) { ParserGds parse(fileName, _layout, _techDB); }
 
         /*------------------------------*/ 
         /* Integration                  */

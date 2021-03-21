@@ -10,6 +10,7 @@ import Device_generator
 import Constraint
 import PnR
 import StdCell
+import WellMgr
 import subprocess
 import time
 
@@ -31,6 +32,8 @@ class Flow(object):
         self.resultName = self.mDB.params.resultDir
         topCktIdx = self.mDB.topCktIdx() # The index of the topckt
         self.implCktLayout(topCktIdx)
+        well = WellMgr.WellMgr(self.dDB, self.mDB.techDB)
+        well.constructCkt(topCktIdx)
         return True
         self.decoupleCkts()
         for pnrIdx in range(len(self.pnrs) - 1, 0, -1):

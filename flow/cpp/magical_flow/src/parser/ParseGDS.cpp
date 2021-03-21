@@ -3,7 +3,7 @@
 
 PROJECT_NAMESPACE_BEGIN
 
-bool Parser::read(const std::string &fileName)
+bool ParserGds::read(const std::string &fileName)
 {
     GdsParser::GdsDB::GdsReader reader (_db);
     if (!reader(fileName))

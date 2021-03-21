@@ -32,6 +32,9 @@ void DataWellGAN::construct(IndexType cktIdx)
       }
       vec.emplace_back(rect);
     }
+    // Also set the layout offset
+    _layoutOffset.setX(std::min(_layoutOffset.x(), boundary.xLo()));
+    _layoutOffset.setY(std::min(_layoutOffset.y(), boundary.yLo()));
   };
 
   const CktGraph &ckt = _ddb.subCkt(cktIdx);

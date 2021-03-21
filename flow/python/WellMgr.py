@@ -6,25 +6,17 @@
 #
 
 import magicalFlow
-from device_generation.basic as basic
-
-class OdLayer(object):
-    """
-    @brief record the shapes in OD layer
-    """
-    def __init__(self):
-        self.nwShapes = [] # N well shape
-        self.odOutsideShapes = [] # OD shapes outside n well
-        self.odInsideShapes = [] # OD shapes indie n well
-    def clear(self):
-        self.nwShapes.clear()
-        self.odOutsideShapes.clear()
-        self.odInsideShapes.clear()
+from device_generation.basic import basic as basic
 
 class WellMgr(object):
-    def __init__(self, ddb):
+    def __init__(self, ddb, tdb):
         """
         @param ddb: a magicalFlow.DesignDB object
         """
         self._ddb = ddb
-    def initCkt(self, cktIdx):
+        self._tdb = tdb
+        self._util = magicalFlow.DataWellGAN(ddb, tdb.pdkLayerToDb(basic.layer['OD']))
+    def clear(self):
+        self._util.clear()
+    def constructCkt(self, cktIdx):
+        self._util.construct(cktIdx)

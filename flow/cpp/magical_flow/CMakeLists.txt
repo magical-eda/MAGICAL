@@ -234,8 +234,6 @@ link_libraries (
 file(GLOB SOURCES src/db/*.cpp
                   src/util/*.cpp 
                   src/parser/*.cpp
-                  
-                  
                   src/csflow/*.cpp
                   src/floorplan/*.cpp
                   src/well/*.cpp
@@ -243,20 +241,7 @@ file(GLOB SOURCES src/db/*.cpp
 
 file(GLOB PROJECT_SOURCES src/main/*.cpp ${SOURCES})
 file(GLOB PY_API_SOURCES src/api/*.cpp ${SOURCES})
-#file(GLOB UNITTEST_SOURCES 
-    #unittest/main/*.cpp
-    #unittest/db/*.cpp
-    #unittest/parser/*.cpp
-    #${SOURCES})
-
-#set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS "-static")
-
 # Add modules to pybind
 pybind11_add_module(${PROJECT_NAME} ${PY_API_SOURCES})
 target_link_libraries(${PROJECT_NAME} PUBLIC ${LIMBO_LIB} ${Boost_LIBRARIES} ${TO_LINK_LIBS})
 
-#Unit Tests using GoogleTest
-#enable_testing()
-#add_executable(unittest ${UNITTEST_SOURCES})
-#target_link_libraries(unittest ${GTEST_LIB} ${LIMBO_LIB} )
-#add_test(NAME unittest COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/unittest ${CMAKE_CURRENT_SOURCE_DIR}/unittest)
