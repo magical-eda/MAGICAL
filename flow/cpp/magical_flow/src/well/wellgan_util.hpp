@@ -26,7 +26,7 @@ class DataWellGAN
     void construct(IndexType cktIdx);
     /* Get the data */
     /// @brief Get the lower left coordinate of the layout
-    const Point<LocType> & layoutOffset() const { return _layoutOffset; }
+    const Point<LocType> & layoutOffset() const { return _bbox.ll(); }
     /// @brief Get the number of PMOS OD shapes
     IndexType numPchOdRects() const { return _odPchShapes.size(); }
     /// @brief Get one rectangle shape from PMOS OD
@@ -35,13 +35,15 @@ class DataWellGAN
     IndexType numOtherOdRects() const { return _odOtherShapes.size(); }
     /// @brief Get one rectangle shape from other OD
     const Box<LocType> & odOtherRect(IndexType rectIdx) const { return _odOtherShapes.at(rectIdx); }
+    /// @brief get the bounding box
+    const Box<LocType> & bbox() const { return _bbox; }
 
   private:
     DesignDB &_ddb; ///< The design database
     const IntType _odLayerId; ///< The layer ID for OD
     std::vector<Box<LocType>> _odOtherShapes; ///< The OD shapes outside N wells, from nmos to stdcell
     std::vector<Box<LocType>> _odPchShapes; ///< The OD shapes inside N wells, AKA., PMOS
-    Point<LocType> _layoutOffset; ///< The offset of the layout. This is the lower left of the layout bounding box.
+    Box<LocType> _bbox;
 };
 
 PROJECT_NAMESPACE_END

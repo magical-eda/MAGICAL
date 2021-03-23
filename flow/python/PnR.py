@@ -13,7 +13,6 @@ import Router
 import Placer
 import gdspy
 from device_generation.glovar import tsmc40_glovar as glovar
-import WellMgr
 import time
 
 class PnR(object):

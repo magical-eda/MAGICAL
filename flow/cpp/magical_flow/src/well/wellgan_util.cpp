@@ -18,23 +18,25 @@ void DataWellGAN::construct(IndexType cktIdx)
   _odOtherShapes.clear();
   _odPchShapes.clear();
 
+  _bbox = Box<LocType>(LOC_TYPE_MAX, LOC_TYPE_MAX, LOC_TYPE_MIN, LOC_TYPE_MIN);
+
   auto addOdShapes = [&](auto &vec, const auto &layout, const auto &offset, bool needFlip)
   {
-    const auto boundary = layout.boundary();
+    auto boundary = layout.boundary();
+    boundary.offsetBy(offset);
     LocType midAxis = (boundary.xLo() + boundary.yLo())/2;
     for (IndexType rectIdx = 0; rectIdx < layout.numRects(_odLayerId); ++rectIdx)
     {
       Box<LocType> rect = layout.rectConst(_odLayerId, rectIdx).rect();
-      rect.flipX(midAxis);
+      rect.offsetBy(offset);
       if (needFlip)
       {
-        rect.offsetBy(offset);
+        rect.flipX(midAxis);
       }
       vec.emplace_back(rect);
     }
     // Also set the layout offset
-    _layoutOffset.setX(std::min(_layoutOffset.x(), boundary.xLo()));
-    _layoutOffset.setY(std::min(_layoutOffset.y(), boundary.yLo()));
+    _bbox.unionBox(boundary);
   };
 
   const CktGraph &ckt = _ddb.subCkt(cktIdx);

@@ -22,5 +22,6 @@ void initWellAPI(py::module &m)
         .def("odPchRect", &PROJECT_NAMESPACE::DataWellGAN::odPchRect, "Get a OD rectangle shape for PMOS ODs")
         .def("numOtherOdRects", &PROJECT_NAMESPACE::DataWellGAN::numOtherOdRects, "Get the number of \"other\" OD rectangle shapes")
         .def("odOtherRect", &PROJECT_NAMESPACE::DataWellGAN::odOtherRect, "Get a OD rectangle shape for \"other\" ODs")
+        .def("bbox", &PROJECT_NAMESPACE::DataWellGAN::bbox, "Get the bounding box of the OD shapes")
         ;
 };
