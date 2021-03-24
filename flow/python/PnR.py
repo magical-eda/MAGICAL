@@ -61,6 +61,7 @@ class PnR(object):
         self.runPlace(True)
         self.checkSmallModule(self.cktIdx)
         self.dDB.subCkt(self.cktIdx).isImpl = True
+        return
         self.routeOnly()
 
     def floorplan(self):

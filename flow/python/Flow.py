@@ -34,7 +34,8 @@ class Flow(object):
         self.implCktLayout(topCktIdx)
         well = WellMgr.WellMgr(self.dDB, self.mDB.techDB)
         well.constructCkt(topCktIdx)
-        well.drawInputImage()
+        #well.drawInputImage()
+        well.infer()
         return True
         self.decoupleCkts()
         for pnrIdx in range(len(self.pnrs) - 1, 0, -1):

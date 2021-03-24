@@ -9,6 +9,9 @@ import magicalFlow
 from device_generation.basic import basic as basic
 import numpy as np
 from PIL import Image
+from models.WellGAN import pix2pix
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 
 class WellMgr(object):
     def __init__(self, ddb, tdb):
@@ -71,6 +74,16 @@ class WellMgr(object):
         for odIdx in range(self._util.numPchOdRects()):
             rect = self._util.odPchRect(odIdx)
             fillRect(rect, [0, 3]) #R
+        for odIdx  in range(self._util.numOtherOdRects()):
+            rect = self._util.odOtherRect(odIdx)
+            fillRect(rect, [1, 4]) #G
+    def infer(self):
+        with tf.Session() as sess:
+            model = pix2pix(sess)
+            infer = model.test(self.imgs)  / 2.0 + 0.5
+            print(infer[7])
+            self.inferred=infer[:,:,:,2]
+            self.drawInferredImage()
 
     def imgIdx(self, row, col):
         return row + col * self.numRow
@@ -94,7 +107,22 @@ class WellMgr(object):
         """
         Draw self.img, for debugging purpose
         """
-        img = self.imgs[0]
-        crop = img[:,:, :3]
-        img_s = Image.fromarray(crop, 'RGB')
+        img = self.imgs[7]
+        crop = img[:,:, :3] * 255
+        img_s = Image.fromarray(crop.astype(np.uint8), 'RGB') # fromarray only works with uint8
+        img_s.show()
+    def drawInferredImage(self):
+        """
+        Draw self.img, for debugging purpose
+        """
+        print(self.inferred.shape)
+        input_img = self.imgs[7]
+        r,g = input_img[:,:,0], input_img[:,:,1]
+        b = self.inferred[7] 
+        print("r", r[:,:,np.newaxis].shape)
+        img = np.concatenate((r[:,:,np.newaxis],g[:,:, np.newaxis],b[:,:, np.newaxis]), axis=-1)
+        print(img.shape)
+        print(b * 255)
+        crop = (img )* 255
+        img_s = Image.fromarray(crop.astype(np.uint8), 'RGB') # fromarray only works with uint8
         img_s.show()
