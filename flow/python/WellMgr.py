@@ -73,14 +73,15 @@ class WellMgr(object):
 
         for odIdx in range(self._util.numPchOdRects()):
             rect = self._util.odPchRect(odIdx)
-            fillRect(rect, [0, 3]) #R
+            fillRect(rect, [2, 5]) #R
         for odIdx  in range(self._util.numOtherOdRects()):
             rect = self._util.odOtherRect(odIdx)
             fillRect(rect, [1, 4]) #G
+        self.imgs = self.imgs * 2.0 - 1
     def infer(self):
         with tf.Session() as sess:
             model = pix2pix(sess)
-            infer = model.test(self.imgs)  / 2.0 + 0.5
+            infer = model.test(self.imgs) 
             print(infer[7])
             self.inferred=infer[:,:,:,2]
             self.drawInferredImage()
@@ -108,8 +109,11 @@ class WellMgr(object):
         Draw self.img, for debugging purpose
         """
         img = self.imgs[7]
-        crop = img[:,:, :3] * 255
-        img_s = Image.fromarray(crop.astype(np.uint8), 'RGB') # fromarray only works with uint8
+        img = img /2.0 + 0.5
+        crop = (img[:,:, :3] * 255).astype(np.uint8)
+        b,g,r = img[:,:,0], img[:,:,1], img[:,:,2]
+        img = np.concatenate((r[:,:,np.newaxis],g[:,:, np.newaxis],b[:,:, np.newaxis]), axis=-1)
+        img_s = Image.fromarray(img, 'RGB') # fromarray only works with uint8
         img_s.show()
     def drawInferredImage(self):
         """
@@ -117,12 +121,13 @@ class WellMgr(object):
         """
         print(self.inferred.shape)
         input_img = self.imgs[7]
-        r,g = input_img[:,:,0], input_img[:,:,1]
-        b = self.inferred[7] 
-        print("r", r[:,:,np.newaxis].shape)
+        input_img = input_img / 2.0 + 0.5
+        r,g = input_img[:,:,2], input_img[:,:,1]
+        b = self.inferred[7]  / 2.0 + 0.5
+        r = (r * 255).astype(np.uint8)
+        g = (g * 255).astype(np.uint8)
+        b = (b * 255).astype(np.uint8)
         img = np.concatenate((r[:,:,np.newaxis],g[:,:, np.newaxis],b[:,:, np.newaxis]), axis=-1)
-        print(img.shape)
-        print(b * 255)
-        crop = (img )* 255
-        img_s = Image.fromarray(crop.astype(np.uint8), 'RGB') # fromarray only works with uint8
+
+        img_s = Image.fromarray(img, 'RGB') # fromarray only works with uint8
         img_s.show()

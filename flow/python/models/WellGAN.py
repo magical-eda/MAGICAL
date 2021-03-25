@@ -5,6 +5,8 @@ from six.moves import xrange
 import time
 import os
 from PIL import Image
+import cv2
+import scipy.misc
 
 
 class batch_norm(object):
@@ -406,3 +408,72 @@ class pix2pix(object):
             samples.append(sample[0])
         self.samples = np.array(samples)
         return self.samples
+
+def load_data(image_path, flip=True, is_test=False):
+    img_A, img_B = load_image(image_path)
+    img_A, img_B = preprocess_A_and_B(img_A, img_B, flip=flip, is_test=is_test)
+
+    img_A = img_A/127.5 - 1.
+    img_B = img_B/127.5 - 1.
+    return img_A,img_B
+
+    img_AB = np.concatenate((img_A, img_B), axis=2)
+    # img_AB shape: (fine_size, fine_size, input_c_dim + output_c_dim)
+    return img_AB
+
+def load_image(image_path):
+    input_img = cv2.imread(image_path)
+    w = int(input_img.shape[1])
+    w2 = int(w/2)
+    img_A = input_img[:, 0:w2]
+    img_B = input_img[:, w2:w]
+    for row in img_B:
+        for col in row:
+            print(col)
+
+    return img_A, img_B
+
+def preprocess_A_and_B(img_A, img_B, load_size=286, fine_size=256, flip=True, is_test=False):
+    if is_test:
+        img_A = scipy.misc.imresize(img_A, [fine_size, fine_size])
+        img_B = scipy.misc.imresize(img_B, [fine_size, fine_size])
+    else:
+        img_A = scipy.misc.imresize(img_A, [load_size, load_size])
+        img_B = scipy.misc.imresize(img_B, [load_size, load_size])
+
+        h1 = int(np.ceil(np.random.uniform(1e-2, load_size-fine_size)))
+        w1 = int(np.ceil(np.random.uniform(1e-2, load_size-fine_size)))
+        img_A = img_A[h1:h1+fine_size, w1:w1+fine_size]
+        img_B = img_B[h1:h1+fine_size, w1:w1+fine_size]
+
+        if flip and np.random.random() > 0.5:
+            img_A = np.fliplr(img_A)
+            img_B = np.fliplr(img_B)
+
+    return img_A, img_B
+
+
+def validate_from_dataset(img):
+    """
+    Try a WellGAN dataset image
+    """
+    imgA, imgB = load_data(img, is_test=True)
+    sample =  []
+    sample.append(np.concatenate((imgA, imgB), axis=2))
+    with tf.Session() as sess:
+        model = pix2pix(sess)
+        infer = model.test(sample) 
+        print(infer[0])
+        print(infer.shape)
+        infer[:,:,:,0] = -1
+        infer[:,:,:,1] = -1
+        crop = (infer[0] / 2.0 + 0.5 )* 255
+        img_s = Image.fromarray(crop.astype(np.uint8), 'RGB') # fromarray only works with uint8
+        img_s.show()
+        print(crop)
+
+
+
+
+if __name__ == "__main__":
+    validate_from_dataset("/home/local/eda09/keren/projects/well_generation/pix2pix-tensorflow/datasets/WellGen2_3/val/My_Core_0_0.png")
