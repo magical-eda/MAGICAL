@@ -533,8 +533,8 @@ class Placer(object):
                         assert pin.intNetIdx == 2, "placeConnection, sub not RES BODY pin"
                     else:
                         if self.implRealLayout: # in fake mode, don't need to consider this much details
-                            print("cktname ", self.ckt.name, device_type)
-                            assert False, "placeConnection, sub not NMOS or RES device"
+                            print("Need to consider bulk in placement cktname ", self.ckt.name, device_type)
+                            #assert False, "placeConnection, sub not NMOS or RES device"
                     if self.debug:
                         outFile.write("-1\n")
 
@@ -583,7 +583,7 @@ class Placer(object):
             bBox = subCkt.layout().boundary()
             self.placer.addCellShape(nodeIdx, 0, bBox.xLo, bBox.yLo, bBox.xHi, bBox.yHi)
             if self.debug:
-                outFile.write("%d %d %d %d\n" % (bBox.xLo, bBox.yLo, bBox.xHi, bBox.yHi))
+                outFile.write("%s %d %d %d %d\n" % (subCkt.name, bBox.xLo, bBox.yLo, bBox.xHi, bBox.yHi))
 
     def setPlaceOrigin(self):
         self.origin = [self.placer.xCellLoc(0), self.placer.yCellLoc(0)]

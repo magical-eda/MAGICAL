@@ -9,9 +9,7 @@ import magicalFlow
 from device_generation.basic import basic as basic
 import numpy as np
 from PIL import Image
-from models.WellGAN import pix2pix
-import tensorflow.compat.v1 as tf
-tf.disable_v2_behavior()
+from models.WellGAN import torch_p2p
 
 class WellMgr(object):
     def __init__(self, ddb, tdb):
@@ -69,7 +67,7 @@ class WellMgr(object):
                     for r in range(rStartIdx, rEndIdx + 1):
                         for c in range(cStartIdx, cEndIdx + 1):
                             for ch in channels:
-                                self.imgs[self.imgIdx(row, col)][r][c][ch] = 1.0 
+                                self.imgs[self.imgIdx(row, col)][c][r][ch] = 1.0 
 
         for odIdx in range(self._util.numPchOdRects()):
             rect = self._util.odPchRect(odIdx)
@@ -79,13 +77,21 @@ class WellMgr(object):
             fillRect(rect, [1, 4]) #G
         self.imgs = self.imgs * 2.0 - 1
     def infer(self):
-        with tf.Session() as sess:
-            model = pix2pix(sess)
-            infer = model.test(self.imgs) 
-            print(infer[7])
-            self.inferred=infer[:,:,:,2]
-            self.drawInferredImage()
+        model = torch_p2p()
+        model.load_model()
+        infer = model.sample(self.imgs) 
+        self.inferred=infer[:,:,:,0]
+    def merge(self):
+        self.mergeInferred = np.zeros( (self.numCol * self.imageSize, self.numRow * self.imageSize), dtype = np.float32)
+        self.mergeInput = np.zeros( (self.numCol * self.imageSize, self.numRow * self.imageSize, 2), dtype = np.float32)
+        for imI in range(self.numRow * self.numCol):
+            row, col = self.imgIdxToRC(imI)
+            self.mergeInferred[col* self.imageSize: (col+1) * self.imageSize, row* self.imageSize: (row+1) * self.imageSize] = self.inferred[imI]
+            self.mergeInput[col* self.imageSize: (col+1) * self.imageSize, row* self.imageSize: (row+1) * self.imageSize, :] = self.imgs[imI,:,:, 1:3]
+        self.drawMergedInferredImage()
 
+    def imgIdxToRC(self, idx):
+        return idx % self.numRow, int(idx / self.numRow)
     def imgIdx(self, row, col):
         return row + col * self.numRow
     def pixelX(self, x):
@@ -110,7 +116,7 @@ class WellMgr(object):
         """
         img = self.imgs[7]
         img = img /2.0 + 0.5
-        crop = (img[:,:, :3] * 255).astype(np.uint8)
+        img = (img[:,:, :3] * 255).astype(np.uint8)
         b,g,r = img[:,:,0], img[:,:,1], img[:,:,2]
         img = np.concatenate((r[:,:,np.newaxis],g[:,:, np.newaxis],b[:,:, np.newaxis]), axis=-1)
         img_s = Image.fromarray(img, 'RGB') # fromarray only works with uint8
@@ -124,6 +130,18 @@ class WellMgr(object):
         input_img = input_img / 2.0 + 0.5
         r,g = input_img[:,:,2], input_img[:,:,1]
         b = self.inferred[7]  / 2.0 + 0.5
+        r = (r * 255).astype(np.uint8)
+        g = (g * 255).astype(np.uint8)
+        b = (b * 255).astype(np.uint8)
+        img = np.concatenate((r[:,:,np.newaxis],g[:,:, np.newaxis],b[:,:, np.newaxis]), axis=-1)
+
+        img_s = Image.fromarray(img, 'RGB') # fromarray only works with uint8
+        img_s.show()
+    def drawMergedInferredImage(self):
+        input_img = self.mergeInput / 2.0 +0.5
+        r,g = input_img[:,:,1], input_img[:,:,0]
+        b = self.mergeInferred 
+        b = b/2.0 + 0.5
         r = (r * 255).astype(np.uint8)
         g = (g * 255).astype(np.uint8)
         b = (b * 255).astype(np.uint8)

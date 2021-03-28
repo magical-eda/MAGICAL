@@ -36,6 +36,7 @@ class Flow(object):
         well.constructCkt(topCktIdx)
         #well.drawInputImage()
         well.infer()
+        well.merge()
         return True
         self.decoupleCkts()
         for pnrIdx in range(len(self.pnrs) - 1, 0, -1):

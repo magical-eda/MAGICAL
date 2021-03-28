@@ -13,6 +13,7 @@ import Router
 import Placer
 import gdspy
 from device_generation.glovar import tsmc40_glovar as glovar
+from device_generation.basic import basic as basic
 import time
 
 class PnR(object):
@@ -22,8 +23,8 @@ class PnR(object):
         self.tDB = magicalDB.techDB
         self.rootCktIdx = self.mDB.topCktIdx()
         # debug mode will output .pin and .gr file
-        self.halfMetWid = int(glovar.min_w['M1']*1000)/2
-        self.gridStep = int((glovar.min_w['M1'] + glovar.min_w['SP'])*1000)
+        self.halfMetWid = int(glovar.min_w['M1']*self.tDB.units().dbu)/2
+        self.gridStep = int(basic.grid_size()*self.tDB.units().dbu)
         self.debug = True
         self.params = self.mDB.params
         self.runtime = 0
@@ -426,7 +427,7 @@ class PnR(object):
         xlen = bbox.xLen()
         ylen = bbox.yLen()
         area = xlen * ylen
-        if area < self.params.smallModuleAreaThreshold * 1000 * 1000:
+        if area < self.params.smallModuleAreaThreshold * (self.tDB.units().dbu ** 2):
             self.isSmallModule = True
         else:
             self.isSmallModule = False
