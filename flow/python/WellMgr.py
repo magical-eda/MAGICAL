@@ -20,6 +20,8 @@ class WellMgr(object):
         self._tdb = tdb
         self._util = magicalFlow.DataWellGAN(ddb, tdb.pdkLayerToDb(basic.layer['OD']))
         self.imageSize = 256 # 256 * 256
+        self.cropMargin = 5
+        self.cropSize = self.imageSize - 2 * self.cropMargin
         self._scale = self._tdb.units().dbu * 0.06 # pixel = 1um / 0.06. Ask WellGAN for this number
     def clear(self):
         self._util.clear()
@@ -42,14 +44,14 @@ class WellMgr(object):
         self._yLo = bbox.yLo
         width = self.pixelX(bbox.xHi)
         height = self.pixelY(bbox.yHi)
-        self.numRow = int(height / self.imageSize)  + 1 
-        self.numCol = int(width / self.imageSize) + 1
+        self.numRow = int(height / self.cropSize)  + 1 
+        self.numCol = int(width / self.cropSize) + 1
         self.imgs = np.zeros(( self.numRow * self.numCol, self.imageSize, self.imageSize, 6), dtype=np.float32)
         def fillRect(rect, channels):
-            colBegin, colBeginOffset = self.imgX(rect.xLo)
-            colEnd, colEndOffset = self.imgX(rect.xHi)
-            rowBegin, rowBeginOffset = self.imgY(rect.yLo)
-            rowEnd, rowEndOffset = self.imgY(rect.yHi)
+            colBegin, colBeginOffset = self.imgX(rect.xLo - self.cropMargin)
+            colEnd, colEndOffset = self.imgX(rect.xHi + self.cropMargin)
+            rowBegin, rowBeginOffset = self.imgY(rect.yLo - self.cropMargin)
+            rowEnd, rowEndOffset = self.imgY(rect.yHi + self.cropMargin)
             for row in range(rowBegin, rowEnd + 1):
                 rStartIdx = 0
                 rEndIdx = self.imageSize - 1
@@ -82,12 +84,12 @@ class WellMgr(object):
         infer = model.sample(self.imgs) 
         self.inferred=infer[:,:,:,0]
     def merge(self):
-        self.mergeInferred = np.zeros( (self.numRow * self.imageSize, self.numCol * self.imageSize), dtype = np.float32)
-        self.mergeInput = np.zeros( (self.numRow * self.imageSize, self.numCol * self.imageSize, 2), dtype = np.float32)
+        self.mergeInferred = np.zeros( (self.numRow * self.cropSize, self.numCol * self.cropSize), dtype = np.float32)
+        self.mergeInput = np.zeros( (self.numRow * self.cropSize, self.numCol * self.cropSize, 2), dtype = np.float32)
         for imI in range(self.numRow * self.numCol):
             row, col = self.imgIdxToRC(imI)
-            self.mergeInferred[col* self.imageSize: (col+1) * self.imageSize, row* self.imageSize: (row+1) * self.imageSize] = self.inferred[imI]
-            self.mergeInput[col* self.imageSize: (col+1) * self.imageSize, row* self.imageSize: (row+1) * self.imageSize, :] = self.imgs[imI,:,:, 1:3]
+            self.mergeInferred[col* self.cropSize: (col+1) * self.cropSize, row* self.cropSize: (row+1) * self.cropSize] = self.inferred[imI,self.cropMargin:self.imageSize - self.cropMargin,self.cropMargin:self.imageSize - self.cropMargin]
+            self.mergeInput[col* self.cropSize: (col+1) * self.cropSize, row* self.cropSize: (row+1) * self.cropSize, :] = self.imgs[imI,self.cropMargin:self.imageSize - self.cropMargin,self.cropMargin:self.imageSize - self.cropMargin, 1:3]
         self.drawMergedInferredImage()
 
     def imgIdxToRC(self, idx):
@@ -103,13 +105,13 @@ class WellMgr(object):
         return col, offset
         """
         rx = self.pixelX(x)
-        return int(rx / self.imageSize), rx % self.imageSize
+        return int(rx / self.cropSize), rx % self.cropSize
     def imgY(self, y):
         """
         return row, offset
         """
         ry = self.pixelY(y)
-        return int(ry / self.imageSize), ry % self.imageSize
+        return int(ry / self.cropSize), ry % self.cropSize
     def drawInputImage(self):
         """
         Draw self.img, for debugging purpose
