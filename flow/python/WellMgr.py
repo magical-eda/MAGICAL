@@ -67,7 +67,7 @@ class WellMgr(object):
                     for r in range(rStartIdx, rEndIdx + 1):
                         for c in range(cStartIdx, cEndIdx + 1):
                             for ch in channels:
-                                self.imgs[self.imgIdx(row, col)][c][r][ch] = 1.0 
+                                self.imgs[self.imgIdx(row, col)][r][c][ch] = 1.0 
 
         for odIdx in range(self._util.numPchOdRects()):
             rect = self._util.odPchRect(odIdx)
@@ -82,8 +82,8 @@ class WellMgr(object):
         infer = model.sample(self.imgs) 
         self.inferred=infer[:,:,:,0]
     def merge(self):
-        self.mergeInferred = np.zeros( (self.numCol * self.imageSize, self.numRow * self.imageSize), dtype = np.float32)
-        self.mergeInput = np.zeros( (self.numCol * self.imageSize, self.numRow * self.imageSize, 2), dtype = np.float32)
+        self.mergeInferred = np.zeros( (self.numRow * self.imageSize, self.numCol * self.imageSize), dtype = np.float32)
+        self.mergeInput = np.zeros( (self.numRow * self.imageSize, self.numCol * self.imageSize, 2), dtype = np.float32)
         for imI in range(self.numRow * self.numCol):
             row, col = self.imgIdxToRC(imI)
             self.mergeInferred[col* self.imageSize: (col+1) * self.imageSize, row* self.imageSize: (row+1) * self.imageSize] = self.inferred[imI]
@@ -91,7 +91,7 @@ class WellMgr(object):
         self.drawMergedInferredImage()
 
     def imgIdxToRC(self, idx):
-        return idx % self.numRow, int(idx / self.numRow)
+        return int(idx / self.numRow), idx % self.numRow
     def imgIdx(self, row, col):
         return row + col * self.numRow
     def pixelX(self, x):
