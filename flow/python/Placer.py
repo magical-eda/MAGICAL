@@ -7,6 +7,7 @@ import device_generation.basic as basic
 import gdspy
 import device_generation.glovar as glovar
 import time
+import WellMgr
 
 class Placer(object):
     def __init__(self, magicalDB, cktIdx, dirname, gridStep, halfMetWid):
@@ -29,6 +30,8 @@ class Placer(object):
         self.placeParams()
         self.guardRingGrCells = []
         self.implRealLayout = True # if we want to implement new layout 
+        self.wellMgr = WellMgr.WellMgr(self.dDB, self.mDB.techDB)
+        self.wellAware = True
     def placeParams(self):
         self.deviceProximityTypes = [magicalFlow.ImplTypePCELL_Nch, magicalFlow.ImplTypePCELL_Pch]
     def run(self):
@@ -51,11 +54,57 @@ class Placer(object):
         self.dumpInput()
         self.placer.numThreads(10) #FIXME
         start = time.time()
-        self.symAxis = self.placer.solve(self.gridStep)
+        if self.wellAware:
+            self.wellAwarePlace()
+            exit()
+        else:
+            self.symAxis = self.placer.solve(self.gridStep)
+            exit()
         end = time.time()
+
         self.runtime = end-start
         print("placement finished: ", self.ckt.name, "runtime", end-start)
         self.processPlacementOutput()
+    def wellAwarePlace(self):
+        gp = self.placer.initGlobalPlacer()
+        gp.prepareWellAwarePlace()
+        gp.writeLocs()
+        while (not gp.meetStopCondition()):
+            overlapRatio = gp.overlapAreaRatio()
+            #print("Overlap Ratio: ", overlapRatio)
+
+            self.readOutPlacerLoc()
+            self.wellMgr.generateWellGuide(self.cktIdx, overlapRatio=overlapRatio)
+            self.addWellGuideToPlacer()
+            self.placer.assignCellToWell()
+            if overlapRatio > 0.5:
+                gp.closeUseWellCellOvl()
+            else:
+                gp.openUseWellCellOvl()
+            gp.reinitWellOperators()
+            gp.stepOptmIter()
+            gp.writeLocs()
+        legalizer = self.placer.initLegalizer()
+        legalizer.prepare()
+        legalizer.preserveRelationCompaction()
+        self.wellMgr.generateWellGuide(self.cktIdx, overlapRatio=gp.overlapAreaRatio())
+        self.wellMgr.drawMergedInferredImage()
+        #self.symAxis = self.placer.detailedPlace()
+    def addWellGuideToPlacer(self):
+        self.placer.clearWells()
+        for poly in self.wellMgr.polygons:
+            wellIdx = self.placer.allocateWell()
+            pts = []
+            for pt in poly:
+                pts.append(IdeaPlaceExPy.Point(int(pt[ 0]), int(pt[ 1])))
+            self.placer.setWellShape(wellIdx, pts)
+    def readOutPlacerLoc(self):
+        for nodeIdx in range(self.numCktNodes):
+            cktNode = self.ckt.node(nodeIdx)
+            subCkt = self.dDB.subCkt(cktNode.graphIdx)
+            x_offset = self.placer.xCellLoc(nodeIdx)
+            y_offset = self.placer.yCellLoc(nodeIdx)
+            cktNode.setOffset(x_offset, y_offset)
     def dumpInput(self):
         self.placer.readTechSimpleFile(self.params.simple_tech_file)
         self.placeParsePin()
@@ -553,6 +602,8 @@ class Placer(object):
             node = self.ckt.node(nodeIdx)
             self.placer.setCellName(nodeIdx, node.name)
             subCkt = self.dDB.subCkt(node.graphIdx)
+            if subCkt.implType == magicalFlow.ImplTypePCELL_Pch:
+                self.placer.flagCellAsNeedWell(cellIdx)
             if self.debug:
                 outFile.write('%s %d\n' % (node.name,subCkt.numNets())) #
             for netIdx in range(subCkt.numNets()):

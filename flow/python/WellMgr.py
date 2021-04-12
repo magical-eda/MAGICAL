@@ -11,6 +11,7 @@ import numpy as np
 from PIL import Image
 from models.WellGAN import torch_p2p
 import cv2
+import time
 
 
 # 0: horizontal; 1: vertical
@@ -156,10 +157,10 @@ def calculate_edges_value(edges, i1, i2, d):
             tot_area += (a + b) * c / 2.0
     if d == 0:
         dist = p2[0] - p1[0]
-        return p1[1] + int(tot_area / dist)
+        return p1[1] #+ int(tot_area / dist)
     else:
         dist = p2[1] - p1[1]
-        return p1[0] + int(tot_area / dist)
+        return p1[0] #+ int(tot_area / dist)
 
 
 def get_merged_edges_value(edges, merged_edges, merged_edges_class):
@@ -221,8 +222,23 @@ class WellMgr(object):
         self._scale = self._tdb.units().dbu * 0.06 # pixel = 1um / 0.06. Ask WellGAN for this number
         self.legalPaddingOffset = 10
         self.legalAreaThresh = 20 
+        self.overlapRatioThreshold = 0.2
+        self._img_idx = 1
+        self.model = torch_p2p()
+        self.model.load_model()
     def clear(self):
         self._util.clear()
+    def generateWellGuide(self, cktIdx, overlapRatio=0.0):
+        if overlapRatio < self.overlapRatioThreshold: # When overlapping is large, do not feed NMOS
+            self.useOtherOdChannel = True
+        else:
+            self.useOtherOdChannel = False
+        self.constructCkt(cktIdx)
+        self.infer()
+        self.merge()
+        ##self.drawMergedInferredImage()
+        self.generatePolygon()
+
     def constructCkt(self, cktIdx):
         # Extract well shapes from layouts
         self._util.construct(cktIdx)
@@ -273,13 +289,12 @@ class WellMgr(object):
             rect = self._util.odPchRect(odIdx)
             fillRect(rect, [2, 5]) #R
         for odIdx  in range(self._util.numOtherOdRects()):
-            rect = self._util.odOtherRect(odIdx)
-            fillRect(rect, [1, 4]) #G
+            if self.useOtherOdChannel:
+                rect = self._util.odOtherRect(odIdx)
+                fillRect(rect, [1, 4]) #G
         self.imgs = self.imgs * 2.0 - 1
     def infer(self):
-        model = torch_p2p()
-        model.load_model()
-        infer = model.sample(self.imgs) 
+        infer = self.model.sample(self.imgs) 
         self.inferred=infer[:,:,:,0]
     def merge(self):
         self.mergeInferred = np.zeros( (self.numRow * self.cropSize, self.numCol * self.cropSize), dtype = np.float32)
@@ -289,7 +304,7 @@ class WellMgr(object):
             self.mergeInferred[row* self.cropSize: (row+1) * self.cropSize, col* self.cropSize: (col+1) * self.cropSize] = self.inferred[imI,self.cropMargin:self.imageSize - self.cropMargin,self.cropMargin:self.imageSize - self.cropMargin]
             self.mergeInput[row* self.cropSize: (row+1) * self.cropSize, col* self.cropSize: (col+1) * self.cropSize, :] = self.imgs[imI,self.cropMargin:self.imageSize - self.cropMargin,self.cropMargin:self.imageSize - self.cropMargin, 1:3]
 
-    def legalize(self):
+    def generatePolygon(self):
         im = ((self.mergeInferred / 2.0 + 0.5) * 255).astype(np.uint8)
         height,width = im.shape
         imPad = np.zeros( (height + self.legalPaddingOffset *2, width + self.legalPaddingOffset *2), np.uint8)
@@ -301,7 +316,7 @@ class WellMgr(object):
         contours, _ = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
         # Prune the contours and orthogonalize the contours
-        approxContours = []
+        self.approxContours = []
         for contour in contours:
             if contour.shape[0] > 1 and cv2.contourArea(contour) > self.legalAreaThresh:
                 approx = orthogonalize(contour)
@@ -312,13 +327,22 @@ class WellMgr(object):
                 approx = orthogonalize(approx)
                 if approx.shape[0] > 2:
                     approx = approx - self.legalPaddingOffset # Offet back the padding
-                    approxContours.append(approx)
+                    self.approxContours.append(approx)
+        self.polygons = []
+        for approx in self.approxContours:
+            poly = []
+            for pt in approx:
+                x,y = self.pixelToXY(pt[0])
+                poly.append((x, y))
+            self.polygons.append(poly)
 
 
     def imgIdxToRC(self, idx):
         return idx % self.numRow, int(idx / self.numRow)
     def imgIdx(self, row, col):
         return row + col * self.numRow
+    def pixelToXY(self, pt):
+        return (pt[0] * self._scale) + self._xLo, (pt[1] * self._scale) + self._yLo
     def pixelX(self, x):
         return int( ( x - self._xLo) / self._scale)
     def pixelY(self, y):
@@ -364,6 +388,7 @@ class WellMgr(object):
     def drawMergedInferredImage(self):
         input_img = self.mergeInput / 2.0 +0.5
         r,g = input_img[:,:,1], input_img[:,:,0]
+
         b = self.mergeInferred 
         b = b/2.0 + 0.5
         r = (r * 255).astype(np.uint8)
@@ -372,4 +397,6 @@ class WellMgr(object):
         img = np.concatenate((r[:,:,np.newaxis],g[:,:, np.newaxis],b[:,:, np.newaxis]), axis=-1)
 
         img_s = Image.fromarray(img, 'RGB') # fromarray only works with uint8
-        img_s.show()
+        filename = "debug/"+"drawInferred" + str(self._img_idx) + ".png"
+        self._img_idx += 1
+        img_s.save(filename)

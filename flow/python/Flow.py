@@ -33,10 +33,7 @@ class Flow(object):
         topCktIdx = self.mDB.topCktIdx() # The index of the topckt
         self.implCktLayout(topCktIdx)
         well = WellMgr.WellMgr(self.dDB, self.mDB.techDB)
-        well.constructCkt(topCktIdx)
-        #well.drawInputImage()
-        well.infer()
-        well.merge()
+        well.generateWellGuide(topCktIdx)
         return True
         self.decoupleCkts()
         for pnrIdx in range(len(self.pnrs) - 1, 0, -1):
