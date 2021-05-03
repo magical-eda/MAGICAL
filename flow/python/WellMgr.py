@@ -215,7 +215,8 @@ class WellMgr(object):
         """
         self._ddb = ddb
         self._tdb = tdb
-        self._util = magicalFlow.DataWellGAN(ddb, tdb.pdkLayerToDb(basic.layer['OD']))
+        odLayerId,_ = basic.odLayer()
+        self._util = magicalFlow.DataWellGAN(ddb, tdb.pdkLayerToDb(odLayerId))
         self.imageSize = 256 # 256 * 256
         self.cropMargin = 5
         self.cropSize = self.imageSize - 2 * self.cropMargin
@@ -312,8 +313,12 @@ class WellMgr(object):
         im = imPad
         
         # Find the contours
-        _, thresh = cv2.threshold(im, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
-        contours, _ = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        # Otsu's thresholding after Gaussian filtering
+        #blur = cv2.GaussianBlur(im,(5,5),0)
+        blur = im
+        _, thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        method = cv2.CHAIN_APPROX_SIMPLE
+        contours, _ = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_TC89_L1)
 
         # Prune the contours and orthogonalize the contours
         self.approxContours = []

@@ -21,6 +21,7 @@ class Params:
         self.simple_tech_file = "" # Input simple tech file
         self.techfile = ""
         self.lef = ""
+        self.placer_spacing = None
         self.vddNetNames = ["VDD", "vdd", "vdda", "vddd"]
         self.vssNetNames = ["VSS", "GND", "vss", "gnd", "vssa", "vssd"]
         self.digitalNetNames = ["clk"]
@@ -103,6 +104,7 @@ simple_tech_file [required]    | input simple techfile
         if 'techfile' in data : self.techfile = data['techfile']
         if 'vddNetNames' in data : self.vddNetNames = data['vddNetNames']
         if 'vssNetNames' in data : self.vssNetNames = data['vssNetNames']
+        if 'placer_spacing' in data : self.placer_spacing = data['placer_spacing']
 
     def dump(self, filename):
         """

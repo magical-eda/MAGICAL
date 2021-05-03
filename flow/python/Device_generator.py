@@ -55,7 +55,11 @@ class Device_generator(object):
         ckt = self.dDB.subCkt(cktIdx)
         gdsData = ckt.GdsData()
         BB = basic.basic.BB(self.cell, flipCell)
-        #bound = self.cell.cell.get_bounding_box()
+        bound = self.cell.cell.get_bounding_box()
+        BB[0] = round(1000 * bound[0][0])
+        BB[1] = round(1000 * bound[0][1])
+        BB[2] = round(1000 * bound[1][0])
+        BB[3] = round(1000 * bound[1][1])
         gdsData.setBBox(int(BB[0]), int(BB[1]), int(BB[2]), int(BB[3]))
         ckt.layout().setBoundary(int(BB[0]), int(BB[1]), int(BB[2]), int(BB[3]))
         gdsData.gdsFile = self.outGDS
@@ -107,6 +111,7 @@ class Device_generator(object):
     def generateDevice(self, cktIdx, dirname, flipCell=False, writeFile=None):
         ckt = self.dDB.subCkt(cktIdx)
         cirname = ckt.name
+        print(cirname)
         implIdx = ckt.implIdx
         implType = ckt.implType
         phyDB = self.dDB.phyPropDB()

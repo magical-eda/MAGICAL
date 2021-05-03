@@ -8,6 +8,7 @@ import gdspy
 import device_generation.glovar as glovar
 import time
 import WellMgr
+import os.path
 
 class Placer(object):
     def __init__(self, magicalDB, cktIdx, dirname, gridStep, halfMetWid):
@@ -49,47 +50,77 @@ class Placer(object):
             self.placer.closeFastMode()
             self.placer.logScreenOn()
         else:
-            self.placer.openFastMode()
-            self.placer.logScreenOff()
+            pass
+            #self.placer.openFastMode()
+            #self.placer.logScreenOff()
         self.dumpInput()
-        self.placer.numThreads(10) #FIXME
+        self.placer.numThreads(5) #FIXME
         start = time.time()
         if self.wellAware:
             self.wellAwarePlace()
-            exit()
         else:
             self.symAxis = self.placer.solve(self.gridStep)
-            exit()
         end = time.time()
 
         self.runtime = end-start
         print("placement finished: ", self.ckt.name, "runtime", end-start)
         self.processPlacementOutput()
     def wellAwarePlace(self):
+        self.placer.setGridStep(5)
+        useWellAwareGp = True
         gp = self.placer.initGlobalPlacer()
         gp.prepareWellAwarePlace()
         gp.writeLocs()
+        iter_ = 0
         while (not gp.meetStopCondition()):
-            overlapRatio = gp.overlapAreaRatio()
-            #print("Overlap Ratio: ", overlapRatio)
-
-            self.readOutPlacerLoc()
-            self.wellMgr.generateWellGuide(self.cktIdx, overlapRatio=overlapRatio)
-            self.addWellGuideToPlacer()
-            self.placer.assignCellToWell()
-            if overlapRatio > 0.5:
-                gp.closeUseWellCellOvl()
-            else:
-                gp.openUseWellCellOvl()
-            gp.reinitWellOperators()
+            start_time = time.time()
             gp.stepOptmIter()
-            gp.writeLocs()
+            print("Step Optm time", time.time() - start_time)
+            if useWellAwareGp:
+                overlapRatio = gp.overlapAreaRatio()
+                self.readOutPlacerLoc()
+                start_time = time.time()
+                self.wellMgr.generateWellGuide(self.cktIdx, overlapRatio=overlapRatio)
+                print("well gen time", time.time() - start_time)
+                self.addWellGuideToPlacer()
+                self.placer.assignCellToWell()
+                if overlapRatio >0.3:
+                    gp.closeUseWellCellOvl()
+                else:
+                    gp.openUseWellCellOvl()
+                gp.writeLocs()
+                #gp.debug()
+                gp.reinitWellOperators()
+            iter_ +=1
+        print("HPWL: ", self.placer.hpwl())
+        self.placer.debugDraw("./debug/seesee.gds")
+        gp.writeLocs()
+        self.placer.clearWells()
         legalizer = self.placer.initLegalizer()
         legalizer.prepare()
-        legalizer.preserveRelationCompaction()
-        self.wellMgr.generateWellGuide(self.cktIdx, overlapRatio=gp.overlapAreaRatio())
-        self.wellMgr.drawMergedInferredImage()
-        #self.symAxis = self.placer.detailedPlace()
+        legalizer.preserveRelationCompaction(-1)
+        self.readOutPlacerLoc()
+        self.wellMgr.generateWellGuide(self.cktIdx, 0)
+        self.addWellGuideToPlacer()
+        self.placer.assignCellToWell()
+        legalizer.legalizeWells()
+        self.placer.debugDraw("./debug/legal1.gds")
+        legalizer.openWellAware()
+        extraSpacing  = 0
+        while (not legalizer.areaDrivenCompaction()):
+            extraSpacing += max(self.gridStep, 100)
+            self.placer.clearWells()
+            legalizer.preserveRelationCompaction(extraSpacing)
+            self.readOutPlacerLoc()
+            self.wellMgr.generateWellGuide(self.cktIdx, 0)
+            self.addWellGuideToPlacer()
+            self.placer.assignCellToWell()
+            legalizer.legalizeWells()
+            self.placer.debugDraw("./debug/legal1.gds")
+        self.placer.debugDraw("./debug/legal2.gds")
+        legalizer.wirelengthDrivenCompaction()
+        self.placer.debugDraw("./debug/legal3.gds")
+        self.symAxis = self.placer.endPlace()
     def addWellGuideToPlacer(self):
         self.placer.clearWells()
         for poly in self.wellMgr.polygons:
@@ -98,6 +129,9 @@ class Placer(object):
             for pt in poly:
                 pts.append(IdeaPlaceExPy.Point(int(pt[ 0]), int(pt[ 1])))
             self.placer.setWellShape(wellIdx, pts)
+            #self.placer.printWellInfo(wellIdx)
+        self.placer.splitWells()
+        self.wellMgr.drawMergedInferredImage()
     def readOutPlacerLoc(self):
         for nodeIdx in range(self.numCktNodes):
             cktNode = self.ckt.node(nodeIdx)
@@ -106,20 +140,50 @@ class Placer(object):
             y_offset = self.placer.yCellLoc(nodeIdx)
             cktNode.setOffset(x_offset, y_offset)
     def dumpInput(self):
-        self.placer.readTechSimpleFile(self.params.simple_tech_file)
+        #self.placer.readTechSimpleFile(self.params.simple_tech_file)
+        self.configPlacerLayers()
         self.placeParsePin()
         self.placeConnection()
         self.placer.readSymFile(self.dirname + self.ckt.refName() + '.sym') # FIXME: use in memory interface
         self.placeParseSigpath()
-        self.computeAndAddPowerCurrentFlow()
+        #self.computeAndAddPowerCurrentFlow()
         self.placeParseBoundary()
         if self.debug:
             gdspy.current_library = gdspy.GdsLibrary()
             self.tempCell = gdspy.Cell("FLOORPLAN")
         self.configureIoPinParameters()
         self.placer.readSymNetFile(self.dirname + self.ckt.refName() + '.symnet') # FIXME: use in memory interface
+        if os.path.isfile(self.dirname + self.ckt.refName() + '.netwgt'): # FIXME: use in memory interface
+            self.placer.readNetWgtFile(self.dirname + self.ckt.refName() + '.netwgt')
         #self.feedDeviceProximity()
         self.configFloorplan()
+    
+    def configPlacerLayers(self):
+        """
+        @brief Add and specify layer-related information
+        """
+        # Add layers
+        self.layerIdxMap = {} # From db layer to placer layer 
+        for dbLayer in range(self.tDB.numLayers()):
+            gdsLayer = self.tDB.dbLayerToPdk(dbLayer)
+            placerLayer = self.placer.addGdsLayer(gdsLayer)
+            self.layerIdxMap[dbLayer] = placerLayer
+        self.bboxLayer = self.placer.addGdsLayer(0) # place holder for bounding box
+        self.placer.finishAddingGdsLayer()
+        # Specify N-well
+        if (self.tDB.isNwellLayerSet()):
+            self.placer.setNwellLayerIdx(self.layerIdxMap[self.tDB.nwellLayerIdx()])
+        # Add spacing rules
+        for idx in range(self.tDB.numSameLayerSpacingRules()):
+            spacingRule = self.tDB.sameLayerSpacingRule(idx)
+            self.placer.setIntraLayerSpacing(self.layerIdxMap[spacingRule.layerIdx()], spacingRule.spacing())
+        for idx in range(self.tDB.numInterLayerSpacingRules()):
+            spacingRule = self.tDB.interLayerSpacingRule(idx)
+            layer1 = self.layerIdxMap[spacingRule.layer1()]
+            layer2 = self.layerIdxMap[spacingRule.layer2()]
+            self.placer.setIntraLayerSpacing(layer1, layer2, spacingRule.spacing())
+
+        
 
     def configFloorplan(self):
         """
@@ -203,11 +267,11 @@ class Placer(object):
             if (net.isIo() and (not net.isPower()) and self.useIoPin):
                 self.placer.markIoNet(netIdx)
             #if net.isVdd() and not self.isTopLevel:
-            if net.isVdd():
-                self.placer.markAsVddNet(netIdx)
-            if net.isVss():
-            #if net.isVss() and not self.isTopLevel:
-                self.placer.markAsVssNet(netIdx)
+            #if net.isVdd():
+            #    self.placer.markAsVddNet(netIdx)
+            #if net.isVss():
+            ##if net.isVss() and not self.isTopLevel:
+            #    self.placer.markAsVssNet(netIdx)
     def processPlacementOutput(self):
         if not self.implRealLayout:
             self.ckt.backup()
@@ -339,6 +403,7 @@ class Placer(object):
                 subCkt = self.dDB.subCkt(cktNode.graphIdx)
                 cktNode.setOffset(0, 0)
                 self.ckt.layout().insertLayout(subCkt.layout(), 0, 0, cktNode.flipVertFlag)
+        self.addWellLayout()
         # Output placement result
         magicalFlow.writeGdsLayout(self.cktIdx, self.dirname + self.ckt.name + '.place.gds', self.dDB, self.tDB)
         self.origin = [0,0]
@@ -346,6 +411,7 @@ class Placer(object):
             gdspy.write_gds(self.dirname+self.ckt.name+'.floorplan.gds', [self.tempCell], unit=1.0e-9, precision=1.0e-9)
 
     def hardcodeConvertPdkLayerToIoLayer(self, pdkLayer):
+        #FIXME: Move this to device generation
         #print("WARNING: using hard-coded IO layer conversion")
         if pdkLayer == 31:
             return 1
@@ -543,6 +609,18 @@ class Placer(object):
                 print("\n\n\n\n add vss ")
                 self.addPycellIoPinToNet(netIdx, 0, 0, vssStripe, isPowerStripe=True)
 
+    def addWellLayout(self):
+        nwLayer, nwDatatype = basic.basic.nwellLayer()
+        nwLayer = self.tDB.pdkLayerToDb(nwLayer)
+        for rectIdx in range(self.placer.numWellRects()):
+            wellBox = self.placer.wellRect(rectIdx)
+            layoutRectIdx = self.ckt.layout().insertRect(nwLayer,
+                    wellBox.xLo() - self.origin[0],
+                    wellBox.yLo() - self.origin[1],
+                    wellBox.xHi() - self.origin[0],
+                    wellBox.yHi() - self.origin[1]
+                    )
+            self.ckt.layout().setRectDatatype(nwLayer, layoutRectIdx, nwDatatype)
 
     def placeConnection(self):
         """
@@ -632,9 +710,13 @@ class Placer(object):
             cktNode = self.ckt.node(nodeIdx)
             subCkt = self.dDB.subCkt(cktNode.graphIdx)
             bBox = subCkt.layout().boundary()
-            self.placer.addCellShape(nodeIdx, 0, bBox.xLo, bBox.yLo, bBox.xHi, bBox.yHi)
-            if self.debug:
-                outFile.write("%s %d %d %d %d\n" % (subCkt.name, bBox.xLo, bBox.yLo, bBox.xHi, bBox.yHi))
+            self.placer.addCellShape(nodeIdx, self.bboxLayer, bBox.xLo, bBox.yLo, bBox.xHi, bBox.yHi) # Add a dummy fake layer
+            layout = subCkt.layout()
+            for dbLayer in range(self.tDB.numLayers()): # Add real layout
+                placerLayer = self.layerIdxMap[dbLayer]
+                for rectIdx in range(layout.numRects(dbLayer)):
+                    rect = layout.rect(dbLayer, rectIdx).rect()
+                    self.placer.addCellShape(nodeIdx, placerLayer, rect.xLo, rect.yLo, rect.xHi, rect.yHi)
 
     def setPlaceOrigin(self):
         self.origin = [self.placer.xCellLoc(0), self.placer.yCellLoc(0)]
@@ -688,7 +770,7 @@ class Placer(object):
             layerIdx = self.tDB.pdkLayerToDb(layer[0])
             datatype = layer[1]
             polyList = polygons[layer]
-            for poly in polyList:
+            for poly in polyList: #FIXME: change to db unit
                 xLo = int(round(poly[0][0]*200))*5
                 yLo = int(round(poly[0][1]*200))*5
                 xHi = int(round(poly[2][0]*200))*5

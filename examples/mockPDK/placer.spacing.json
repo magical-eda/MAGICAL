@@ -1,0 +1,9 @@
+{
+  "SAME_SPACING" :
+  {
+    "PP" : 0.18,
+    "VTL_P" : 0.18,
+    "NW" : 0.34
+  },
+  "N_WELL_LAYER" : "NW"
+}

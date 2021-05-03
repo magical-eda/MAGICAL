@@ -7,6 +7,7 @@
 
 import DesignDB
 import magicalFlow
+import json
 
 class MagicalDB(object):
     def __init__(self, params):
@@ -18,6 +19,7 @@ class MagicalDB(object):
     def parse(self):
         self.parse_input_netlist(self.params)
         self.parse_simple_techfile(self.params.simple_tech_file)
+        self.parse_placer_spacing(self.params.placer_spacing)
         self.designDB.db.findRootCkt() # After the parsing, find the root circuit of the hierarchy
         self.postProcessing()
         return True
@@ -44,6 +46,18 @@ class MagicalDB(object):
 
     def read_hspice_netlist(self, sp_netlist):
         self.designDB.read_hspice_netlist(sp_netlist)
+
+    def parse_placer_spacing(self, filename):
+        dbu = self.techDB.units().dbu
+        if filename is not None:
+            with open(filename, 'r') as f:
+                placer_spacing = json.load(f)
+                if "SAME_SPACING" in placer_spacing:
+                    for layerName, spacing in placer_spacing["SAME_SPACING"].items():
+                        self.techDB.addSameLayerSpacingRule(layerName, int(round(spacing * dbu)))
+                if "N_WELL_LAYER" in placer_spacing:
+                    self.techDB.setNwellLayerName(placer_spacing["N_WELL_LAYER"])
+
 
     """
     Current & Signal Flow

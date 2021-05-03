@@ -32,8 +32,6 @@ class Flow(object):
         self.resultName = self.mDB.params.resultDir
         topCktIdx = self.mDB.topCktIdx() # The index of the topckt
         self.implCktLayout(topCktIdx)
-        well = WellMgr.WellMgr(self.dDB, self.mDB.techDB)
-        well.generateWellGuide(topCktIdx)
         return True
         self.decoupleCkts()
         for pnrIdx in range(len(self.pnrs) - 1, 0, -1):
@@ -146,7 +144,7 @@ class Flow(object):
         self.symDict = self.constraint.genConstraint(cktIdx, self.resultName)
         self.setup(cktIdx)
         pnr = PnR.PnR(self.mDB, cktIdx, self.resultName)
-        pnr.placeAndRoute()
+        pnr.placeOnly()
         self.runtime += pnr.runtime
         self.pnrs.append(pnr)
         #PnR.PnR(self.mDB).implLayout(cktIdx, self.resultName)

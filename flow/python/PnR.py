@@ -108,7 +108,7 @@ class PnR(object):
     def runPlace(self, implRealLayout):
         self.p = Placer.Placer(self.mDB, self.cktIdx,self.dirname,self.gridStep, self.halfMetWid)
         #if not self.isTopLevel:
-        #    self.p.implRealLayout = False
+        #    self.p.False = False
         #    self.p.run()
         #    self.p.resetPlacer()
         #    #self.p.run()
@@ -153,7 +153,6 @@ class PnR(object):
             for netIdx in self.routerNets:
                 net = ckt.net(netIdx)
                 if net.isIo():
-                    print("KERENDEBUG add net", netIdx, ckt.net(netIdx).name, "ckt name", ckt.name)
                     router.addIOPort(net.name)
         routerPass = router.solve(False)
         router.evaluate()
