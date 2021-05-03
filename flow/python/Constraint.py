@@ -48,10 +48,8 @@ class Constraint(object):
         @brief Checking if cell is primary
         """
         ckt = self.dDB.subCkt(cktIdx)
-        print("ckt name", ckt.name)
         for nodeIdx in range(ckt.numNodes()):
             instNode = ckt.node(nodeIdx)
-            print("node name", instNode.name)
             subckt = self.dDB.subCkt(instNode.graphIdx)
             if not magicalFlow.isImplTypeDevice(subckt.implType):
                 return False

@@ -54,7 +54,7 @@ class Placer(object):
             #self.placer.openFastMode()
             #self.placer.logScreenOff()
         self.dumpInput()
-        self.placer.numThreads(5) #FIXME
+        self.placer.numThreads(15) #FIXME
         start = time.time()
         if self.wellAware:
             self.wellAwarePlace()
@@ -67,7 +67,9 @@ class Placer(object):
         self.processPlacementOutput()
     def wellAwarePlace(self):
         self.placer.setGridStep(5)
-        useWellAwareGp = True
+        self.placer.setCellToNwellEdgeSpacing(2000)
+        useWellAwareGp = False
+        useIndividualWell = True
         gp = self.placer.initGlobalPlacer()
         gp.prepareWellAwarePlace()
         gp.writeLocs()
@@ -93,30 +95,42 @@ class Placer(object):
                 gp.reinitWellOperators()
             iter_ +=1
         print("HPWL: ", self.placer.hpwl())
-        self.placer.debugDraw("./debug/seesee.gds")
         gp.writeLocs()
+        self.placer.debugDraw("./debug/seesee.gds")
         self.placer.clearWells()
         legalizer = self.placer.initLegalizer()
         legalizer.prepare()
         legalizer.preserveRelationCompaction(-1)
+        self.placer.debugDraw("./debug/legal0.gds")
         self.readOutPlacerLoc()
-        self.wellMgr.generateWellGuide(self.cktIdx, 0)
-        self.addWellGuideToPlacer()
-        self.placer.assignCellToWell()
-        legalizer.legalizeWells()
-        self.placer.debugDraw("./debug/legal1.gds")
-        legalizer.openWellAware()
-        extraSpacing  = 0
-        while (not legalizer.areaDrivenCompaction()):
-            extraSpacing += max(self.gridStep, 100)
-            self.placer.clearWells()
-            legalizer.preserveRelationCompaction(extraSpacing)
-            self.readOutPlacerLoc()
+        if not useIndividualWell:
             self.wellMgr.generateWellGuide(self.cktIdx, 0)
             self.addWellGuideToPlacer()
             self.placer.assignCellToWell()
             legalizer.legalizeWells()
-            self.placer.debugDraw("./debug/legal1.gds")
+        else:
+            legalizer.generateIndividualWells()
+        self.placer.debugDraw("./debug/legal1.gds")
+        legalizer.openWellAware()
+        extraSpacing  = 0
+        iter_area =0 
+        while (not legalizer.areaDrivenCompaction()):
+            extraSpacing += max(self.gridStep, 100)
+            print("Extra spacing", extraSpacing)
+            self.placer.clearWells()
+            legalizer.preserveRelationCompaction(extraSpacing)
+            self.readOutPlacerLoc()
+            if not useIndividualWell:
+                self.wellMgr.generateWellGuide(self.cktIdx, 0)
+                self.addWellGuideToPlacer()
+                self.placer.assignCellToWell()
+                self.placer.debugDraw("./debug/legal1.gds")
+                legalizer.legalizeWells()
+            else:
+                legalizer.generateIndividualWells()
+            if iter_area > 100:
+                break
+            iter_area +=1
         self.placer.debugDraw("./debug/legal2.gds")
         legalizer.wirelengthDrivenCompaction()
         self.placer.debugDraw("./debug/legal3.gds")
@@ -360,7 +374,7 @@ class Placer(object):
             subCkt = self.dDB.subCkt(cktNode.graphIdx)
             x_offset = self.placer.xCellLoc(nodeIdx) - self.origin[0]
             y_offset = self.placer.yCellLoc(nodeIdx) - self.origin[1]
-            print("node ", cktNode.name, x_offset, y_offset)
+            print("node ", nodeIdx, cktNode.name, x_offset, y_offset)
             cktNode.setOffset(x_offset, y_offset)
             self.ckt.layout().insertLayout(subCkt.layout(), x_offset, y_offset, cktNode.flipVertFlag)
             print(cktNode.name, self.placer.cellName(nodeIdx), x_offset, y_offset, "PLACEMENT", subCkt.layout().boundary().toStr())
