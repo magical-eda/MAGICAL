@@ -100,12 +100,13 @@ class Device_generator(object):
         return attr[1:]
 
     @staticmethod
-    def norm_val(inval, o_unit=1e-6, i_unit=1e-12):
+    def norm_val(inval, dbu=1000, o_unit=1):
         """
-        @brief normalize value for device generation, output could be float
-        Dirty Implementation
+        @brief Convert db unit to desired float unit for device generation
+        For example, if dbu is 1000, it means 1000 dbu is 1 um. And currently the device generation is
+        requiring input unit in um, then we set o_unit to 1.
         """
-        outval = (inval*i_unit*1.0)/o_unit
+        outval = (inval*1.0)*o_unit / dbu
         return outval
 
     def generateDevice(self, cktIdx, dirname, flipCell=False, writeFile=None):
@@ -116,26 +117,27 @@ class Device_generator(object):
         implType = ckt.implType
         phyDB = self.dDB.phyPropDB()
         #print "Generating Device " + cirname
+        dbu = self.tDB.units().dbu
         if implType == magicalFlow.ImplTypePCELL_Nch:
             nch = phyDB.nch(implIdx)
             pinConType = nch.pinConType
             bulkCon = []
             for i in range(nch.numBulkCon()):
                 bulkCon.append(nch.bulkCon(i))
-            self.cell = Mosfet(True, ckt.name, self.norm_val(nch.width), self.norm_val(nch.length), nch.numFingers, self.get_attr(nch.attr), pinConType=pinConType, bulkCon=bulkCon)
+            self.cell = Mosfet(True, ckt.name, self.norm_val(nch.width, dbu), self.norm_val(nch.length, dbu), nch.numFingers, self.get_attr(nch.attr), pinConType=pinConType, bulkCon=bulkCon)
         elif implType == magicalFlow.ImplTypePCELL_Pch:
             pch = phyDB.pch(implIdx)
             pinConType = pch.pinConType
             bulkCon = []
             for i in range(pch.numBulkCon()):
                 bulkCon.append(pch.bulkCon(i))
-            self.cell = Mosfet(False, ckt.name, self.norm_val(pch.width), self.norm_val(pch.length), pch.numFingers, self.get_attr(pch.attr), pinConType=pinConType, bulkCon=bulkCon)
+            self.cell = Mosfet(False, ckt.name, self.norm_val(pch.width, dbu), self.norm_val(pch.length, dbu), pch.numFingers, self.get_attr(pch.attr), pinConType=pinConType, bulkCon=bulkCon)
         elif implType == magicalFlow.ImplTypePCELL_Res:
             res = phyDB.resistor(implIdx)
-            self.cell = Resistor(res.series, ckt.name, self.norm_val(res.wr), self.norm_val(res.lr), res.segNum, self.norm_val(res.segSpace), self.get_attr(res.attr))
+            self.cell = Resistor(res.series, ckt.name, self.norm_val(res.wr, dbu), self.norm_val(res.lr, dbu), res.segNum, self.norm_val(res.segSpace, dbu), self.get_attr(res.attr))
         elif implType == magicalFlow.ImplTypePCELL_Cap:
             cap = phyDB.capacitor(implIdx)
-            self.cell = Capacitor(ckt.name, self.norm_val(cap.w), self.norm_val(cap.spacing), cap.numFingers, self.norm_val(cap.lr), cap.stm, cap.spm, self.get_attr(cap.attr), self.norm_val(cap.ftip))
+            self.cell = Capacitor(ckt.name, self.norm_val(cap.w, dbu), self.norm_val(cap.spacing, dbu), cap.numFingers, self.norm_val(cap.lr, dbu), cap.stm, cap.spm, self.get_attr(cap.attr), self.norm_val(cap.ftip, dbu))
         else:
             raise Exception("Unsupported device")
             return False

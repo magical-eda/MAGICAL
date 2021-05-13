@@ -21,18 +21,18 @@ class DesignDB(object):
     def __init__(self):
         self.db = magicalFlow.DesignDB()
 
-    def read_spectre_netlist(self, sp_netlist):
+    def read_spectre_netlist(self, sp_netlist, techDB):
         """
         @brief parse spectre netlist
         """
-        nlp = Netlist_parser(self.db)
+        nlp = Netlist_parser(self.db, techDB.units().dbu)
         nlp.parse_spectre(sp_netlist)
     
-    def read_hspice_netlist(self, sp_netlist):
+    def read_hspice_netlist(self, sp_netlist, techDB):
         """
         @brief parse hspice netlist
         """
-        nlp = Netlist_parser(self.db)
+        nlp = Netlist_parser(self.db, techDB.units().dbu)
         nlp.parse_hspice(sp_netlist)
 
 class netlist_element(object):
@@ -223,13 +223,14 @@ class pch_na25_mac(mosfet):
         mosfet.__init__(self, instance)
 
 class Netlist_parser(object):
-    def __init__(self, mdb):
+    def __init__(self, mdb, dbu):
         """
         @brief the constructor of Netlist_parser
         @param a magicalFlow.DesignDB()
         """
         self.db = mdb
         self._finish_raw_parse = False # Flag for whether the first step of parsing the raw netlist has been finished
+        self.unit = dbu * 1e6 # dbu = unit / um
     def parse_spectre(self, netlist_file):
         """
         @brief parse the input spectre netlist file
@@ -489,8 +490,8 @@ class Netlist_parser(object):
                 if inst.reference in nmos_set: 
                     nchId = self.db.phyPropDB().allocateNch()
                     nch = self.db.phyPropDB().nch(nchId)
-                    nch.length = self.get_value(inst.parameters['l'], unit=1e-12)
-                    nch.width = self.get_value(inst.parameters['w'], unit=1e-12)
+                    nch.length = self.get_value(inst.parameters['l'], unit=self.unit)
+                    nch.width = self.get_value(inst.parameters['w'], unit=self.unit)
                     nch.numFingers = self.get_value(inst.parameters['nf'], unit=1)
                     if inst.pinConType:
                         nch.pinConType = inst.pinConType
@@ -502,8 +503,8 @@ class Netlist_parser(object):
                 elif inst.reference in pmos_set: 
                     pchId = self.db.phyPropDB().allocatePch()
                     pch = self.db.phyPropDB().pch(pchId)
-                    pch.length = self.get_value(inst.parameters['l'], unit=1e-12)
-                    pch.width = self.get_value(inst.parameters['w'], unit=1e-12)
+                    pch.length = self.get_value(inst.parameters['l'], unit=self.unit)
+                    pch.width = self.get_value(inst.parameters['w'], unit=self.unit)
                     pch.numFingers = self.get_value(inst.parameters['nf'], unit=1)
                     if inst.pinConType:
                         pch.pinConType = inst.pinConType
@@ -517,32 +518,32 @@ class Netlist_parser(object):
                 elif inst.reference in resistor_set: 
                     resId = self.db.phyPropDB().allocateRes()
                     res = self.db.phyPropDB().resistor(resId)
-                    res.lr = self.get_value(inst.parameters['lr'], unit=1e-12)
-                    res.wr = self.get_value(inst.parameters['wr'], unit=1e-12)
+                    res.lr = self.get_value(inst.parameters['lr'], unit=self.unit)
+                    res.wr = self.get_value(inst.parameters['wr'], unit=self.unit)
                     if 'series' in inst.parameters.keys():
                         res.series = True
                         res.segNum = self.get_value(inst.parameters['series'], unit=1)
-                        res.segSpace = self.get_value(inst.parameters['segspace'], unit=1e-12)
+                        res.segSpace = self.get_value(inst.parameters['segspace'], unit=self.unit)
                     elif 'para' in inst.parameters.keys():
                         res.parallel = True
                         res.segNum = self.get_value(inst.parameters['para'], unit=1)
-                        res.segSpace = self.get_value(inst.parameters['segspace'], unit=1e-12)
+                        res.segSpace = self.get_value(inst.parameters['segspace'], unit=self.unit)
                     else:
                         res.segNum = 1
-                        res.segSpace = self.get_value('0.18e-6', unit=1e-12)
+                        res.segSpace = self.get_value('0.18e-6', unit=self.unit) #FIXME
                     res.attr = inst.reference
                     self.db.subCkt(subckt_idx).implIdx = resId
                     self.db.subCkt(subckt_idx).implType = magicalFlow.ImplTypePCELL_Res
                 elif inst.reference in capacitor_set:
                     capId = self.db.phyPropDB().allocateCap()
                     cap = self.db.phyPropDB().capacitor(capId)
-                    cap.w = self.get_value(inst.parameters['w'], unit=1e-12)
-                    cap.spacing = self.get_value(inst.parameters['s'], unit=1e-12)
+                    cap.w = self.get_value(inst.parameters['w'], unit=self.unit)
+                    cap.spacing = self.get_value(inst.parameters['s'], unit=self.unit)
                     cap.numFingers = self.get_value(inst.parameters['nr'], unit=1)
-                    cap.lr = self.get_value(inst.parameters['lr'], unit=1e-12)
+                    cap.lr = self.get_value(inst.parameters['lr'], unit=self.unit)
                     cap.stm = self.get_value(inst.parameters['stm'], unit=1)
                     cap.spm = self.get_value(inst.parameters['spm'], unit=1)
-                    cap.ftip = self.get_value(inst.parameters['ftip'], unit=1e-12)
+                    cap.ftip = self.get_value(inst.parameters['ftip'], unit=self.unit)
                     cap.attr = inst.reference
                     if 'multi' in inst.parameters.keys():
                         cap.multi = self.get_value(inst.parameters['multi'], unit=1)
@@ -564,7 +565,7 @@ class Netlist_parser(object):
                 string = string[:-1] + 'e-6'
             elif x == 'n':
                 string = string[:-1] + 'e-9'
-        return int(float(string)/unit)
+        return int(float(string)*unit)
 
     def translate_ckt(self, ckt):
         """

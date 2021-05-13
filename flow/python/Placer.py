@@ -15,6 +15,7 @@ class Placer(object):
         self.mDB = magicalDB
         self.dDB = magicalDB.designDB.db
         self.tDB = magicalDB.techDB
+        self.dbu = self.tDB.units().dbu
         self.debug = True
         self.cktIdx = cktIdx
         self.ckt = self.dDB.subCkt(cktIdx)
@@ -65,13 +66,35 @@ class Placer(object):
         self.runtime = end-start
         print("placement finished: ", self.ckt.name, "runtime", end-start)
         self.processPlacementOutput()
+    def configPlacerWellSetting(self):
+        self.placer.addVddContactTemplate(-350,-250, 350, 250, 1)
+        self.placer.addVddContactTemplate(-250,-350, 250, 350, 1)
+        self.placer.setVddContactRequiredSpacing(340)
+        hor = self.mDB.placerSpacing["WPE_SPACING"]["HOR"]
+        ver = self.mDB.placerSpacing["WPE_SPACING"]["VER"]
+        assert(len(hor["length"]) == len(hor["spacing"]))
+        assert(len(ver["width"]) == len(ver["spacing"]))
+        for i in range(len(hor["length"])):
+            self.placer.addWpeHorizontalSpacingRule(hor["length"][i], hor["spacing"][i])
+        for i in range(len(ver["width"])):
+            self.placer.addWpeVerticalSpacingRule(ver["width"][i], ver["spacing"][i])
+
     def wellAwarePlace(self):
         self.placer.setGridStep(5)
-        self.placer.setCellToNwellEdgeSpacing(2000)
-        useWellAwareGp = False
-        useIndividualWell = True
+        mode = 0
+        if mode == 0:
+            useWellAwareGp = True
+            useIndividualWell = False
+        elif mode == 1:
+            useWellAwareGp = False
+            useIndividualWell = False
+        else:
+            useWellAwareGp = False
+            useIndividualWell = True
         gp = self.placer.initGlobalPlacer()
         gp.prepareWellAwarePlace()
+        legalizer = self.placer.initLegalizer()
+        legalizer.prepare()
         gp.writeLocs()
         iter_ = 0
         while (not gp.meetStopCondition()):
@@ -86,28 +109,28 @@ class Placer(object):
                 print("well gen time", time.time() - start_time)
                 self.addWellGuideToPlacer()
                 self.placer.assignCellToWell()
-                if overlapRatio >0.3:
+                legalizer.legalizeWells(False)
+                if overlapRatio >0.1:
                     gp.closeUseWellCellOvl()
                 else:
                     gp.openUseWellCellOvl()
                 gp.writeLocs()
-                #gp.debug()
                 gp.reinitWellOperators()
             iter_ +=1
         print("HPWL: ", self.placer.hpwl())
         gp.writeLocs()
         self.placer.debugDraw("./debug/seesee.gds")
         self.placer.clearWells()
-        legalizer = self.placer.initLegalizer()
-        legalizer.prepare()
-        legalizer.preserveRelationCompaction(-1)
+        passPreserve = legalizer.preserveRelationCompaction(-1)
+        assert(passPreserve)
         self.placer.debugDraw("./debug/legal0.gds")
         self.readOutPlacerLoc()
         if not useIndividualWell:
             self.wellMgr.generateWellGuide(self.cktIdx, 0)
             self.addWellGuideToPlacer()
             self.placer.assignCellToWell()
-            legalizer.legalizeWells()
+            self.placer.debugDraw("./debug/legal0b.gds")
+            legalizer.legalizeWells(True)
         else:
             legalizer.generateIndividualWells()
         self.placer.debugDraw("./debug/legal1.gds")
@@ -116,25 +139,28 @@ class Placer(object):
         iter_area =0 
         while (not legalizer.areaDrivenCompaction()):
             extraSpacing += max(self.gridStep, 100)
-            print("Extra spacing", extraSpacing)
             self.placer.clearWells()
-            legalizer.preserveRelationCompaction(extraSpacing)
+            print(extraSpacing)
+            passPreserve = legalizer.preserveRelationCompaction(extraSpacing)
+            assert(passPreserve)
             self.readOutPlacerLoc()
             if not useIndividualWell:
                 self.wellMgr.generateWellGuide(self.cktIdx, 0)
                 self.addWellGuideToPlacer()
                 self.placer.assignCellToWell()
-                self.placer.debugDraw("./debug/legal1.gds")
-                legalizer.legalizeWells()
+                legalizer.legalizeWells(True)
+                self.placer.debugDraw("./debug/legal1e.gds")
             else:
                 legalizer.generateIndividualWells()
-            if iter_area > 100:
+                self.placer.debugDraw("./debug/legal1e.gds")
+            if iter_area > 1000:
                 break
             iter_area +=1
         self.placer.debugDraw("./debug/legal2.gds")
         legalizer.wirelengthDrivenCompaction()
         self.placer.debugDraw("./debug/legal3.gds")
         self.symAxis = self.placer.endPlace()
+        exit()
     def addWellGuideToPlacer(self):
         self.placer.clearWells()
         for poly in self.wellMgr.polygons:
@@ -162,6 +188,8 @@ class Placer(object):
         self.placeParseSigpath()
         #self.computeAndAddPowerCurrentFlow()
         self.placeParseBoundary()
+        if self.wellAware:
+            self.configPlacerWellSetting()
         if self.debug:
             gdspy.current_library = gdspy.GdsLibrary()
             self.tempCell = gdspy.Cell("FLOORPLAN")
@@ -696,6 +724,10 @@ class Placer(object):
             subCkt = self.dDB.subCkt(node.graphIdx)
             if subCkt.implType == magicalFlow.ImplTypePCELL_Pch:
                 self.placer.flagCellAsNeedWell(cellIdx)
+                implIdx = subCkt.implIdx
+                pch = self.dDB.phyPropDB().pch(implIdx)
+                self.placer.setCellFingerChannelLength(cellIdx, pch.length)
+                self.placer.setCellFingerChannelWidth(cellIdx, int(round(pch.width / pch.numFingers)))
             if self.debug:
                 outFile.write('%s %d\n' % (node.name,subCkt.numNets())) #
             for netIdx in range(subCkt.numNets()):

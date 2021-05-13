@@ -5,5 +5,18 @@
     "VTL_P" : 0.18,
     "NW" : 0.34
   },
-  "N_WELL_LAYER" : "NW"
+  "N_WELL_LAYER" : "NW",
+  "WPE_SPACING":
+  {
+    "HOR" :
+    {
+      "length" :  [0, 500, 1000],
+      "spacing" : [900, 1000, 1200]
+    },
+    "VER" :
+    {
+      "width" :  [0, 500, 1000],
+      "spacing" : [400, 700, 1200]
+    }
+  }
 }
