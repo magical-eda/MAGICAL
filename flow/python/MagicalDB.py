@@ -59,7 +59,6 @@ class MagicalDB(object):
                 if "N_WELL_LAYER" in placer_spacing:
                     self.techDB.setNwellLayerName(placer_spacing["N_WELL_LAYER"])
                 self.placerSpacing = placer_spacing
-                print(self.placerSpacing)
 
 
     """

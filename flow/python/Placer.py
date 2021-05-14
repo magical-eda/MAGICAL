@@ -54,9 +54,9 @@ class Placer(object):
             pass
             #self.placer.openFastMode()
             #self.placer.logScreenOff()
-        self.dumpInput()
-        self.placer.numThreads(15) #FIXME
         start = time.time()
+        self.dumpInput()
+        self.placer.numThreads(10) #FIXME
         if self.wellAware:
             self.wellAwarePlace()
         else:
@@ -65,6 +65,7 @@ class Placer(object):
 
         self.runtime = end-start
         print("placement finished: ", self.ckt.name, "runtime", end-start)
+        exit()
         self.processPlacementOutput()
     def configPlacerWellSetting(self):
         self.placer.addVddContactTemplate(-350,-250, 350, 250, 1)
@@ -80,8 +81,8 @@ class Placer(object):
             self.placer.addWpeVerticalSpacingRule(ver["width"][i], ver["spacing"][i])
 
     def wellAwarePlace(self):
-        self.placer.setGridStep(5)
-        mode = 0
+        self.placer.setGridStep(self.gridStep)
+        mode = 1
         if mode == 0:
             useWellAwareGp = True
             useIndividualWell = False
@@ -93,6 +94,8 @@ class Placer(object):
             useIndividualWell = True
         gp = self.placer.initGlobalPlacer()
         gp.prepareWellAwarePlace()
+        if useIndividualWell:
+            self.placer.individualWell()
         legalizer = self.placer.initLegalizer()
         legalizer.prepare()
         gp.writeLocs()
@@ -102,7 +105,9 @@ class Placer(object):
             gp.stepOptmIter()
             print("Step Optm time", time.time() - start_time)
             if useWellAwareGp:
+                gp.writeLocs()
                 overlapRatio = gp.overlapAreaRatio()
+                print("Ovl ratio", overlapRatio)
                 self.readOutPlacerLoc()
                 start_time = time.time()
                 self.wellMgr.generateWellGuide(self.cktIdx, overlapRatio=overlapRatio)
@@ -110,16 +115,19 @@ class Placer(object):
                 self.addWellGuideToPlacer()
                 self.placer.assignCellToWell()
                 legalizer.legalizeWells(False)
-                if overlapRatio >0.1:
+                if overlapRatio >0.2:
                     gp.closeUseWellCellOvl()
                 else:
                     gp.openUseWellCellOvl()
-                gp.writeLocs()
                 gp.reinitWellOperators()
             iter_ +=1
         print("HPWL: ", self.placer.hpwl())
         gp.writeLocs()
         self.placer.debugDraw("./debug/seesee.gds")
+        if useWellAwareGp:
+            gp.cleanupMode()
+            gp.writeLocs()
+        self.placer.debugDraw("./debug/seesee2.gds")
         self.placer.clearWells()
         passPreserve = legalizer.preserveRelationCompaction(-1)
         assert(passPreserve)
@@ -132,9 +140,13 @@ class Placer(object):
             self.placer.debugDraw("./debug/legal0b.gds")
             legalizer.legalizeWells(True)
         else:
-            legalizer.generateIndividualWells()
+            pass
+            #legalizer.generateIndividualWells()
         self.placer.debugDraw("./debug/legal1.gds")
-        legalizer.openWellAware()
+        if not useIndividualWell:
+            legalizer.openWellAware()
+        else:
+            legalizer.closeWellAware()
         extraSpacing  = 0
         iter_area =0 
         while (not legalizer.areaDrivenCompaction()):
@@ -151,7 +163,6 @@ class Placer(object):
                 legalizer.legalizeWells(True)
                 self.placer.debugDraw("./debug/legal1e.gds")
             else:
-                legalizer.generateIndividualWells()
                 self.placer.debugDraw("./debug/legal1e.gds")
             if iter_area > 1000:
                 break
@@ -160,7 +171,6 @@ class Placer(object):
         legalizer.wirelengthDrivenCompaction()
         self.placer.debugDraw("./debug/legal3.gds")
         self.symAxis = self.placer.endPlace()
-        exit()
     def addWellGuideToPlacer(self):
         self.placer.clearWells()
         for poly in self.wellMgr.polygons:
