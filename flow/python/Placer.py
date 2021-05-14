@@ -82,7 +82,7 @@ class Placer(object):
 
     def wellAwarePlace(self):
         self.placer.setGridStep(self.gridStep)
-        mode = 1
+        mode = 2
         if mode == 0:
             useWellAwareGp = True
             useIndividualWell = False
@@ -92,10 +92,10 @@ class Placer(object):
         else:
             useWellAwareGp = False
             useIndividualWell = True
-        gp = self.placer.initGlobalPlacer()
-        gp.prepareWellAwarePlace()
         if useIndividualWell:
             self.placer.individualWell()
+        gp = self.placer.initGlobalPlacer()
+        gp.prepareWellAwarePlace()
         legalizer = self.placer.initLegalizer()
         legalizer.prepare()
         gp.writeLocs()
@@ -130,7 +130,8 @@ class Placer(object):
         self.placer.debugDraw("./debug/seesee2.gds")
         self.placer.clearWells()
         passPreserve = legalizer.preserveRelationCompaction(-1)
-        assert(passPreserve)
+        if not useIndividualWell:
+            assert(passPreserve)
         self.placer.debugDraw("./debug/legal0.gds")
         self.readOutPlacerLoc()
         if not useIndividualWell:
