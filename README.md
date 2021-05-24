@@ -29,8 +29,6 @@ This project is currently still under active development.
 - [Lemon 1.3.1](https://lemon.cs.elte.hu/trac/lemon)
     - Integrated as a thirdparty package
 
-- [wnlib](http://www.willnaylor.com/wnlib.html)
-    - Integrated as a thirdparty package
 
 The following are outdated.
 
