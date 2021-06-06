@@ -21,8 +21,8 @@ RUN apt-get install -y \
     
 # Update openssl
 RUN apt-get remove -y openssl
-RUN wget https://www.openssl.org/source/openssl-1.1.1g.tar.gz \
-        && tar -zxf openssl-1.1.1g.tar.gz && cd openssl-1.1.1g \
+RUN wget https://www.openssl.org/source/openssl-1.1.1d.tar.gz \
+        && tar -zxf openssl-1.1.1d.tar.gz && cd openssl-1.1.1d \
         && ./config && make && make install \
         && ln -s /usr/local/bin/openssl /usr/bin/openssl && ldconfig \
         && openssl version
@@ -30,13 +30,14 @@ RUN wget https://www.openssl.org/source/openssl-1.1.1g.tar.gz \
 # Install python 3.7
 RUN wget https://www.python.org/ftp/python/3.7.5/Python-3.7.5.tgz
 RUN tar -xf Python-3.7.5.tgz && cd Python-3.7.5 \
-        && ./configure --with-openssl=/openssl-1.1.1g/ \
+        && ./configure --enable-shared --with-openssl=/openssl-1.1.1d/ \
             --enable-optimizations --with-ssl-default-suites=openssl \
-            CFLAGS="-I /openssl-1.1.1g/include" LDFLAGS="-L /openssl-1.1.1g/" \
+            CFLAGS="-I /openssl-1.1.1d/include" LDFLAGS="-L /openssl-1.1.1d/" \
         && make && make install 
 RUN echo "alias python=python3" >> ~/.bashrc \
-        && echo "alias pip=pip3" >> ~/.bashrc \
-        && export PATH=${PATH}:/usr/bin/python3.7
+        && echo "alias pip=pip3" >> ~/.bashrc
+ENV PATH=${PATH}:/usr/bin/python3.7
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/lib:/usr/lib:/usr/local/lib
 RUN /bin/bash -c "source ~/.bashrc"
 
 # Install lp_solve
@@ -103,7 +104,7 @@ RUN git clone https://github.com/jayl940712/gdspy.git \
         && pip install gdspy/
 
 # Upgrade boost
-RUN apt-get --purge remove libboost-dev libboost-all-dev
+RUN apt-get --purge remove -y libboost-dev libboost-all-dev
 RUN wget -O boost_1_62_0.tar.gz https://sourceforge.net/projects/boost/files/boost/1.62.0/boost_1_62_0.tar.gz/download \
         && tar xzvf boost_1_62_0.tar.gz && cd boost_1_62_0/ \
         && ./bootstrap.sh --prefix=/usr/ \
