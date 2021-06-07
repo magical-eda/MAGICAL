@@ -109,3 +109,9 @@ RUN wget -O boost_1_62_0.tar.gz https://sourceforge.net/projects/boost/files/boo
         && tar xzvf boost_1_62_0.tar.gz && cd boost_1_62_0/ \
         && ./bootstrap.sh --prefix=/usr/ \
         && ./b2 && ./b2 install
+
+# Install magical
+RUN mkdir install && cd install && git clone https://github.com/magical-eda/MAGICAL.git \
+        && cd MAGICAL && git checkout docker \
+        && git submodule init && git submodule update \
+        && ./build.sh
