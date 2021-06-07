@@ -80,7 +80,7 @@ Benchmark circuits currently includes:
 
 To run the benchmark circuits
 ```
-cd examples/BENCH/ (ex. adc1)
+cd /MAGICAL/examples/BENCH/ (ex. adc1)
 source run.sh
 ```
 
