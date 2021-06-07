@@ -3,16 +3,16 @@
 MAGICAL: Machine Generated Analog IC Layout
 
 This is the top-level MAGICAL flow repository. In MAGICAL, we maintain seperate components, such as constraint generation, placement and routing, in different repository. And we integrate each component through top-level python flow.
+
 This project is currently still under active development.
 
 # Dependency #
 
-- Python 2.7 and additional packages
-    - [PyParsing](https://github.com/pyparsing/pyparsing)
-    - [networkx](https://github.com/networkx/networkx)
+- Python 3.7 and additional packages
+    - Refer to [Dockerfile](https://github.com/magical-eda/MAGICAL/blob/docker/Dockerfile).
 
 - [Boost](https://www.boost.org)
-    - Need to install and visible for linking
+    - Need to install and visible for linking. Required version at least 1.62.
 
 - [Flex](https://github.com/westes/flex)
     - Need to install, required by Limbo package
@@ -21,16 +21,13 @@ This project is currently still under active development.
     - Required by Limbo package
 
 - [Limbo](https://github.com/limbo018/Limbo)
-    - Integrated as a thirdparty package
+    - Required latest
 
 - [LPSolve 5.5](http://lpsolve.sourceforge.net/5.5/)
-    - Integrated as a thirdparty package 
+    - Required version 5.5
 
 - [Lemon 1.3.1](https://lemon.cs.elte.hu/trac/lemon)
-    - Integrated as a thirdparty package
-
-
-The following are outdated.
+    - Required version 1.3.1
 
 
 # How to clone #
@@ -45,13 +42,33 @@ git submodule update
 
 # How to build #
 
-To build, run make in the root directory. 
-```
-./build.sh
-```
-GCC 4.8 or later is preferred. 
-Export CC and CXX environment variables for custom gcc and g++ path, respectively. 
+Two options are provided for building: with and without [Docker](https://hub.docker.com). You can also build from source (NOT RECOMMENDED) resolving the required dependancies first.
 
+## Build with Docker
+
+You can use the Docker container to avoid building all the dependencies yourself. 
+1. Install Docker on [Linux](https://docs.docker.com/install/).
+2. Navigate to the repository. 
+    ```
+    cd MAGICAL
+    ```
+3. Get the docker container with either of the following options. 
+    - Option 1 (Recommended): pull from the cloud  [jayl940712/magical](https://hub.docker.com/r/jayl940712/magical). 
+    ```
+    docker pull jayl940712/magical:latest
+    ```
+    - Option 2: build the container. 
+    ```
+    docker build . --file Dockerfile --tag magical:latest
+    ```
+4. Run the docker container
+    ```
+    docker run -it -v $(pwd):/MAGICAL jayl940712/magical:latest bash
+    ```
+    Or if you used option 2 to build the container
+    ```
+    docker run -it -v $(pwd):/MAGICAL magical:latest bash
+    ```
 # How to run #
 
 Benchmark circuit examples are under examples/
@@ -59,28 +76,29 @@ Benchmark circuit examples are under examples/
 All technology related parameters including benchmark circuit sizing are samples and not related to any proprietary PDK information.
 
 Benchmark circuits currently includes:
-1 adc2
-3 ota3
+1 adc, 1 comparator, 3 ota
 
 To run the benchmark circuits
 ```
-cd BENCH/ (ex. adc2)
+cd examples/BENCH/ (ex. adc1)
 source run.sh
 ```
 
-The output layout gdsii files: BENCH/BENCH.route.gds (ex. adc2/xxx.route.gds)
+The output layout gdsii files: BENCH/TOP_CIRCUIT.route.gds (ex. adc1/xxx.route.gds)
+
+Note: currently adc2 have routing issues.
 
 # Custom layout constraint inputs #
 
 The automatic symmetry constraint generation is currently embedded into the flow. To ensure circuit functionality it is ideal that designers provide  constraints to guide the placement and routing. 
 
-A sample device and net symmetry constraint is given for adc2. These files should also be the output for the current automatic symmetry constraint generation flow.
+A sample device and net symmetry constraint is given for adc1. These files should also be the output for the current automatic symmetry constraint generation flow.
 
 Sample symmetry device constraint file:
-examples/adc2/CTDSM_CORE_NEW_schematic.sym
+examples/adc1/CTDSM_TOP.sym
 
 Sample symmetry net constraint file:
-examples/adc2/CTDSM_CORE_NEW_schematic.symnet
+examples/adc1/CTDSM_TOP.symnet
 
 ## Device symmetry constraints
 
