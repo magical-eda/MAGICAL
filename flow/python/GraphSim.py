@@ -1,4 +1,4 @@
-#
+
 # @file GraphSim.py
 # @author Mingjie Liu
 # @date 10/02/2019
@@ -99,7 +99,7 @@ class GraphSim(object):
         centerList = list()
         center = None
         for node in graph.nodes:
-            sumDist[node] = sum(list(simMatrix[node].values()))
+            sumDist[node] = simMatrix[node]
             if minDist > sumDist[node]:
                 centerList = [node]
                 minDist = sumDist[node]
