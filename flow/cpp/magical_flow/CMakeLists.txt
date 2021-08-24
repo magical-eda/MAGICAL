@@ -88,6 +88,9 @@ add_subdirectory(${PYBIND11_ROOT_DIR} "./pybind11")
 # boost
 find_package(Boost 1.6 REQUIRED COMPONENTS system graph iostreams)
 
+# zlib
+find_package(ZLIB REQUIRED)
+
 #Google Test
 #if (GTEST_DIR)
     #set(GTEST_ROOT_DIR ${GTEST_DIR})
@@ -131,6 +134,7 @@ include_directories (
     #${GTEST_ROOT_DIR}/googletest/include
     ${PYBIND11_ROOT_DIR}/include
     ${PYTHON_INCLUDE_DIRS}
+    ${ZLIB_INCLUDE_DIRS}
     ${LIMBO_ROOT_DIR}/include
 )
 
@@ -171,7 +175,7 @@ file(GLOB PY_API_SOURCES src/api/*.cpp ${SOURCES})
 
 # Add modules to pybind
 pybind11_add_module(${PROJECT_NAME} ${PY_API_SOURCES})
-target_link_libraries(${PROJECT_NAME} PUBLIC ${LIMBO_LIB} ${Boost_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} PUBLIC ${LIMBO_LIB} ${Boost_LIBRARIES} ${ZLIB_LIBRARIES})
 
 #Unit Tests using GoogleTest
 #enable_testing()
