@@ -63,18 +63,19 @@ class S3DET(object):
                 print "Recognized symmetry pair:"
                 print nodeA.name, nodeB.name, symVal[nodeIdxA][nodeIdxB]
                 """
-        for idxA in symVal.keys():
+        symValKeys = list(symVal.keys())
+        for idxA in symValKeys:
             if idxA not in symVal:
                 continue
             tempDict = symVal[idxA]
             tempList = list(tempDict.values())
-            idxB = tempDict.keys()[tempList.index(max(tempList))]
+            idxB = list(tempDict.keys())[tempList.index(max(tempList))]
             #symPair[idxA] = idxB
             #symVal.pop(idxB, None)
             # Adding fix, need to recursively remove. Dirty fix for now.
             tempDict_p = symVal[idxB]
             tempList_p = list(tempDict_p.values())
-            idxA_p = tempDict_p.keys()[tempList_p.index(max(tempList_p))]
+            idxA_p = list(tempDict_p.keys())[tempList_p.index(max(tempList_p))]
             if idxA == idxA_p:
                 symPair[idxA] = idxB
                 symVal.pop(idxB, None)
@@ -121,7 +122,8 @@ class S3DET(object):
     def selfSym(self, symPair, hierGraph):
         selfSym = set()
         symVerified = set(symPair.keys()).union(symPair.values())
-        for idxA in symPair.keys():
+        symPairKeys = list(symPair.keys())
+        for idxA in symPairKeys:
             idxB = symPair[idxA]
             if idxB:
                 for comNei in set(nx.common_neighbors(hierGraph, idxA, idxB)).difference(symVerified):

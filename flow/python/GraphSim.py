@@ -99,7 +99,10 @@ class GraphSim(object):
         centerList = list()
         center = None
         for node in graph.nodes:
-            sumDist[node] = sum(list(simMatrix[node].values()))
+            if hasattr(simMatrix[node], 'values'):
+                sumDist[node] = sum(list(simMatrix[node].values()))
+            else:
+                sumDist[node] = simMatrix[node]
             if minDist > sumDist[node]:
                 centerList = [node]
                 minDist = sumDist[node]
