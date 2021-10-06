@@ -24,20 +24,20 @@ class Params:
         self.vddNetNames = ["VDD", "vdd", "vdda", "vddd"]
         self.vssNetNames = ["VSS", "GND", "vss", "gnd", "vssa", "vssd"]
         self.digitalNetNames = ["clk"]
-        self.stdCells = ['SR_Latch_LVT','NR2D8BWP_LVT','BUFFD4BWP_LVT','DFCND4BWP_LVT','INVD4BWP_LVT','DFCNQD2BWP_LVT', 'DFCND4BWP_LVT_stupid']
+        self.stdCells = []
         self.resultDir = None
-        self.powerLayer = 6 # m6
+        self.powerLayer = 4 # m6
         self.psubLayer = self.powerLayer # same as power pin
-        self.smallModuleAreaThreshold = 60 # um^2
+        self.smallModuleAreaThreshold = 600 # um^2
         # [um in length, um in width]
         self.signalAnalogWireWidthTable = \
-        [ [0, 0.1],  [120, 0.2]]
+        [ [0, 0.33],  [120, 0.66]]
         self.signalDigitalWireWidthTable = \
-        [ [0, 0.1], [100, 0.12]]
+        [ [0, 0.33],  [100, 0.66]]
         self.powerWireWidthTable = \
-        [[0, 0.5]]
+        [[0, 0.33]]
         self.dpowerWireWidthTable = \
-        [[0, 0.3]]
+        [[0, 0.33]]
         # via  [um in length, # of cuts, # of rols, # of cols]
         self.signalAnalogViaCutsTable = \
         [[0, 2, 1, 2], [80, 4, 2, 2], [120, 9, 3, 3]]
@@ -48,9 +48,9 @@ class Params:
         # Additional spacing
         # increase module spacing by area [um^2, um]
         self.blockSpacingFromAreaTableX = \
-        [[0.0, 0.2], [100,0.8]]
+        [[0.0, 0.66], [100, 2.64]]
         self.blockSpacingFromAreaTableY = \
-        [[0.0, 0.2], [100, 0.4]]
+        [[0.0, 0.66], [100, 1.32]]
 
     def printWelcome(self):
         """

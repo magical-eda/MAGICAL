@@ -291,7 +291,7 @@ class Placer(object):
             elif net.isVss():
                 self.initNetPinToPower(netIdx)
 
-    def initNetPinToPower(self, netIdx, topmet=6):
+    def initNetPinToPower(self, netIdx, topmet=4):
         net = self.ckt.net(netIdx)
         for pinId in range(net.numPins()):
             pinIdx = net.pinIdx(pinId)
