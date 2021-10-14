@@ -112,6 +112,6 @@ RUN wget -O boost_1_62_0.tar.gz https://sourceforge.net/projects/boost/files/boo
 
 # Install magical
 RUN mkdir install && cd install && git clone https://github.com/magical-eda/MAGICAL.git \
-        && cd MAGICAL && git checkout docker \
+        && cd MAGICAL && git checkout skywater \
         && git submodule init && git submodule update \
         && ./build.sh
