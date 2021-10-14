@@ -1,0 +1,1 @@
+klayout -b -rd input=Telescopic_Three_stage_flow.route.gds -rd report=Telescopic_Three_stage_flow.lyrdb -rd schematic=Telescopic_Three_stage_flow.sp.lvs -rd target_netlist=ota3.cir -r ../skywaterPDK/sky130A.lylvs

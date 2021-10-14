@@ -59,35 +59,35 @@ M11 (net7 vcmfb VSS VSS) nch_lvt l=240.0n w=8u m=1 nf=4
 // nch_lvt Instance M4 = spectre device M4
 M4 (vbias_n vbias_n VSS VSS) nch_lvt l=240.0n w=8u m=1 nf=4 
 
-// pch_lvt Instance M19 = spectre device M19
-M19 (net025 VREF net028 VDD) pch_lvt l=240.0n w=16.0u m=1 nf=8 
+// pch Instance M19 = spectre device M19
+M19 (net025 VREF net028 VDD) pch l=240.0n w=16.0u m=1 nf=8 
 
-// pch_lvt Instance M17 = spectre device M17
-M17 (net025 VREF net020 VDD) pch_lvt l=240.0n w=16.0u m=1 nf=8 
+// pch Instance M17 = spectre device M17
+M17 (net025 VREF net020 VDD) pch l=240.0n w=16.0u m=1 nf=8 
 
-// pch_lvt Instance M15 = spectre device M15
-M15 (vcmfb OUTP net020 VDD) pch_lvt l=240.0n w=16.0u m=1 nf=8 
+// pch Instance M15 = spectre device M15
+M15 (vcmfb OUTP net020 VDD) pch l=240.0n w=16.0u m=1 nf=8 
 
-// pch_lvt Instance M25 = spectre device M25
-M25 (net037 VSS intp VDD) pch_lvt l=240.0n w=24.0u m=1 nf=12 
+// pch Instance M25 = spectre device M25
+M25 (net037 VSS intp VDD) pch l=240.0n w=24.0u m=1 nf=12 
 
-// pch_lvt Instance M23 = spectre device M23
-M23 (net047 VSS intm VDD) pch_lvt l=240.0n w=24.0u m=1 nf=12 
+// pch Instance M23 = spectre device M23
+M23 (net047 VSS intm VDD) pch l=240.0n w=24.0u m=1 nf=12 
 
-// pch_lvt Instance M3 = spectre device M3
-M3 (OUTP intm VDD VDD) pch_lvt l=240.0n w=24.0u m=1 nf=12 
+// pch Instance M3 = spectre device M3
+M3 (OUTP intm VDD VDD) pch l=240.0n w=24.0u m=1 nf=12 
 
-// pch_lvt Instance M1 = spectre device M1
-M1 (OUTM intp VDD VDD) pch_lvt l=240.0n w=24.0u m=1 nf=12 
+// pch Instance M1 = spectre device M1
+M1 (OUTM intp VDD VDD) pch l=240.0n w=24.0u m=1 nf=12 
 
-// pch_lvt Instance M18 = spectre device M18
-M18 (vcmfb OUTM net028 VDD) pch_lvt l=240.0n w=16.0u m=1 nf=8 
+// pch Instance M18 = spectre device M18
+M18 (vcmfb OUTM net028 VDD) pch l=240.0n w=16.0u m=1 nf=8 
 
 // nch_25ud18_mac Instance M0 = spectre device M0
-M0 (intp INM net7 VSS) nch_25ud18_mac l=500n w=60u multi=1 nf=12 
+M0 (intp INM net7 VSS) nch l=500n w=60u multi=1 nf=12 
 
 // nch_25ud18_mac Instance M2 = spectre device M2
-M2 (intm INP net7 VSS) nch_25ud18_mac l=500n w=60u multi=1 nf=12 
+M2 (intm INP net7 VSS) nch l=500n w=60u multi=1 nf=12 
 ends Core_test_flow
 
 

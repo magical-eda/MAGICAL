@@ -1,0 +1,7 @@
+{
+    "spectre_netlist" : "ota2.sp",
+    "resultDir" : "./",
+    "techfile"  : "../skywaterPDK/sky130.techfile",
+    "simple_tech_file" :  "../skywaterPDK/sky130.simple",
+    "lef" : "../skywaterPDK/sky130.lef"
+}

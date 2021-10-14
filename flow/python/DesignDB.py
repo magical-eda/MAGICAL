@@ -102,10 +102,31 @@ class instance(netlist_element):
         self.reference = reference;
         self.parameters = parameters;
         netlist_element.__init__(self,'instance')
+        self.device_name_map = {'nch_lvt': 'sky130_fd_pr__nfet_01v8_lvt', 'pch': 'sky130_fd_pr__pfet_01v8' , 'nch': 'sky130_fd_pr__nfet_01v8'}
     def __str__(self):
         return(self.typeof + " " + self.name + "@" + self.reference + str(self.parameters))
     def get_attr(self):
         self.attr = self.reference.split('_')
+    def netlistString(self):
+        if 'nf' in self.parameters:
+            nf = int(self.parameters['nf'])
+        else:
+            nf = 1
+        textString = ""
+        for i in range(nf):
+            textString += self.name + "_" + str(i)
+            for p in self.pins:
+                textString += " " + p
+            if self.reference in self.device_name_map:
+                textString += " {}".format(self.device_name_map[self.reference])
+                if 'l' in self.parameters:
+                    textString += " l={}".format(self.parameters['l'])
+                if 'w' in self.parameters:
+                    textString += " w={:.3f}{}".format(float(self.parameters['w'][:-1])/nf, self.parameters['w'][-1])
+            else:
+                textString += " " + self.reference
+            textString += "\n"
+        return textString 
 
 class net(netlist_element):
     def __init__(self, name, parent):
@@ -230,6 +251,16 @@ class Netlist_parser(object):
         """
         self.db = mdb
         self._finish_raw_parse = False # Flag for whether the first step of parsing the raw netlist has been finished
+    def print_skywater(self, netlist_file):
+        textString = ""
+        for ckt in self.raw_netlist:
+            textString += ".SUBCKT {}_flat\n".format(ckt.name)
+            for inst in ckt.instances:
+                textString += inst.netlistString()
+            textString += '.ENDS {}_flat\n'.format(ckt.name)
+        with open(netlist_file,'w') as f:
+            f.write(textString)
+
     def parse_spectre(self, netlist_file):
         """
         @brief parse the input spectre netlist file
@@ -305,6 +336,7 @@ class Netlist_parser(object):
             topcircuit.setParseAction(handle_topcircuit)
 
             self.raw_netlist = netlist.parseString(nl) # Parse the file into raw_netlist and then translate into database
+            self.print_skywater(netlist_file+".lvs")
 
             self._finish_raw_parse = True
             self.translate_raw_netlist()
@@ -362,6 +394,7 @@ class Netlist_parser(object):
 
 
             self.raw_netlist = netlist.parseString(nl) # Parse the file into raw_netlist and then translate into database
+            self.print_skywater(netlist_file+".lvs")
 
             self._finish_raw_parse = True
             self.translate_raw_netlist()

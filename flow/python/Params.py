@@ -40,11 +40,11 @@ class Params:
         [[0, 0.33]]
         # via  [um in length, # of cuts, # of rols, # of cols]
         self.signalAnalogViaCutsTable = \
-        [[0, 2, 1, 2], [80, 4, 2, 2], [120, 9, 3, 3]]
+        [[0, 1, 1, 1], [800, 4, 2, 2], [1200, 9, 3, 3]]
         self.signalDigitalViaCutsTable = \
-        [[0, 2, 1, 2], [120, 4, 2, 2]]
+        [[0, 1, 1, 1], [1200, 4, 2, 2]]
         self.powerViaCutsTable = \
-        [[0, 4, 2, 2], [100, 9, 3, 3]]
+        [[0, 1, 1, 1], [1000, 9, 3, 3]]
         # Additional spacing
         # increase module spacing by area [um^2, um]
         self.blockSpacingFromAreaTableX = \
