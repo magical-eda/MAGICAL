@@ -36,6 +36,7 @@ class Flow(object):
         print("runtime ", end - start)
         for pnr in self.pnrs:
             pnr.routeOnly()
+        self.translateGdsLayer(self.pnrs[-1].gdsFile, self.pnrs[-1].gdsFile+"_cor") # Some dirty issue about layer ID and datatype
         return True
 
     def generateConstraints(self):
@@ -112,3 +113,19 @@ class Flow(object):
         self.runtime += pnr.runtime
         self.pnrs.append(pnr)
         #PnR.PnR(self.mDB).implLayout(cktIdx, self.resultName)
+
+    def translateGdsLayer(self, inputGds, outputGds):
+        """ This is for translating the <LayerID, datatype> in the resulting GDS file.
+        In TSMC, different layers are assigned to different layer ID, e.g., 31 for M1 and 32 for M2.
+        So we assume the layer IDs are distinct for different layers.
+        But in Skywater, they decided to choose to use the same IDs for a lot of different layers and use different datatypes to distinguish them.
+        To natively support this convention, we have to change the codes for the entire flow (magicalFlow, placer and router), so that the layers are indexed by <layer ID, datatype>.
+
+        However, the bosses decide to only give me a few of days. 
+        Therefore, instead of natively support the feature, we just use the distinct layer ID throughout the flow and translate the GDS file at the end.
+        """
+        if self.params.gdsLayerMappingFile == "":
+            return
+        gdsMappingFile = self.params.gdsLayerMappingFile
+        magicalFlow.translateGdsLayer(gdsMappingFile, inputGds, outputGds)
+        print("Right", gdsMappingFile)

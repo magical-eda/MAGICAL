@@ -57,7 +57,15 @@ namespace ParseLayoutAction
         IndexType rect_id;
         std::vector<Box<LocType>> rects;
         std::vector<XY<LocType>> pts;
-        layer_id = techDB.pdkLayerToDb(layer_id);
+        auto db_layer_id = techDB.pdkLayerToDb(layer_id);
+        if (db_layer_id < 0 or db_layer_id > 1000) {
+          ERR("Unknown layer ID %d when reading in GDS  \n", layer_id);
+          return;
+          Assert(false);
+        }
+        
+        layer_id = db_layer_id;
+
         for (auto pt : *object)
         {
             pts.emplace_back(pt.x(), pt.y());

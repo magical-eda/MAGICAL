@@ -492,8 +492,12 @@ class Placer(object):
                         assert pin.intNetIdx == 3, "placeConnection, sub not NMOS BODY pin"
                     elif device_type == magicalFlow.ImplTypePCELL_Res:
                         assert pin.intNetIdx == 2, "placeConnection, sub not RES BODY pin"
+                    elif device_type == magicalFlow.ImplTypePCELL_Pch:
+                        print("PMOS", self.ckt.node(nodeIdx).name, "need sub BODY pin")
+                        assert False
                     else:
-                        assert False, "placeConnection, sub not NMOS or RES device"
+                        print("placeConnection, sub not NMOS or RES device", "device_type", device_type,  "node name", self.ckt.node(nodeIdx).name)
+                        assert False
                     if self.debug:
                         outFile.write("-1\n")
 

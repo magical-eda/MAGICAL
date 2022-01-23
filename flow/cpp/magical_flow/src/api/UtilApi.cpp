@@ -9,6 +9,7 @@
 #include <pybind11/pybind11.h>
 #include "util/XY.h"
 #include "global/global.h"
+#include "util/TranslateGdsLayer.h"
 
 namespace py = pybind11;
 
@@ -32,4 +33,5 @@ void initUtilAPI(py::module &m)
         .def_property("yHi", &PROJECT_NAMESPACE::Box<PROJECT_NAMESPACE::LocType>::yHi, &PROJECT_NAMESPACE::Box<PROJECT_NAMESPACE::LocType>::setYHi)
         .def("xLen", &PROJECT_NAMESPACE::Box<PROJECT_NAMESPACE::LocType>::xLen)
         .def("yLen", &PROJECT_NAMESPACE::Box<PROJECT_NAMESPACE::LocType>::yLen);
+    m.def("translateGdsLayer", &PROJECT_NAMESPACE::TRANSLATEGDSLAYER::translateGdsLayer, "Translate the GDS layer ID/datatype");
 }

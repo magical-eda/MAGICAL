@@ -27,6 +27,7 @@ class PnR(object):
         self.debug = True
         self.params = self.mDB.params
         self.runtime = 0
+        self.gdsFile = ""
 
     def implLayout(self, cktIdx, dirname):
         """
@@ -120,11 +121,12 @@ class PnR(object):
         if not routerPass:
             print("Routing failed! ckt ", ckt.name)
             assert(routerPass)
-        router.writeLayoutGds(placeFile, dirname+ckt.name+'.route.gds', True)
+        self.gdsFile = dirname+ckt.name+'.route.gds'
+        router.writeLayoutGds(placeFile, self.gdsFile, True)
         router.writeDumb(placeFile, dirname+ckt.name+'.ioPin') 
         # Read results to flow
         ckt.setTechDB(self.tDB)
-        ckt.parseGDS(dirname+ckt.name+'.route.gds')
+        ckt.parseGDS(self.gdsFile)
         self.upscaleBBox(self.gridStep, ckt, self.origin)
 
     def upscaleBBox(self, gridStep, ckt, origin):

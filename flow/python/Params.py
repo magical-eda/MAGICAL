@@ -21,6 +21,8 @@ class Params:
         self.simple_tech_file = "" # Input simple tech file
         self.techfile = ""
         self.lef = ""
+        self.gdsLayerMappingFile = "" # A file to translate the layer ID and datatype to another setting.
+                                        #Say comments in function translateGdsLayer() in Flow.py for its purpose
         self.vddNetNames = ["VDD", "vdd", "vdda", "vddd"]
         self.vssNetNames = ["VSS", "GND", "vss", "gnd", "vssa", "vssd"]
         self.digitalNetNames = ["clk"]
@@ -103,6 +105,7 @@ simple_tech_file [required]    | input simple techfile
         if 'techfile' in data : self.techfile = data['techfile']
         if 'vddNetNames' in data : self.vddNetNames = data['vddNetNames']
         if 'vssNetNames' in data : self.vssNetNames = data['vssNetNames']
+        if 'gds_layer_mapping' in data : self.gdsLayerMappingFile = data['gds_layer_mapping']
 
     def dump(self, filename):
         """

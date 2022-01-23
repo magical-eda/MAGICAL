@@ -3,5 +3,6 @@
     "resultDir" : "./",
     "techfile"  : "../skywaterPDK/sky130.techfile",
     "simple_tech_file" :  "../skywaterPDK/sky130.simple",
-    "lef" : "../skywaterPDK/sky130.lef"
+    "lef" : "../skywaterPDK/sky130.lef",
+    "gds_layer_mapping" : "../skywaterPDK/layermapping.layermapping"
 }
