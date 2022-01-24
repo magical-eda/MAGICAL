@@ -97,7 +97,11 @@ namespace ProcessShapeLayerActionDetails
     template<>
     inline void translateLayer(MapType &map, ::GdsParser::GdsDB::GdsText *object)
     {
-      changeLayer(map, object);
+        /// Convert the gds layer to the router layer
+        auto newLayer = layerIdx(object->layer(), object->datatype(), map);
+        AssertMsg(newLayer.first >= 0, "TranslateGdsLayer:: Unknown layer ID-datatype %d %d", object->layer(), object->datatype());
+        object->setLayer(newLayer.first);
+        object->setTexttype(newLayer.second);
     }
 }
 
