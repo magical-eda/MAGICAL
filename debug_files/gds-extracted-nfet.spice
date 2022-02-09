@@ -1,0 +1,26 @@
+* NGSPICE file created from nfet.ext - technology: sky130A
+
+.subckt sky130_fd_pr__nfet_01v8_C8G9K4 w_n397_n544#
+X0 a_15_n344# a_n33_n432# a_n81_n344# w_n397_n544# sky130_fd_pr__nfet_01v8 ad=1.386e+11p pd=1.5e+06u as=1.386e+11p ps=1.5e+06u w=420000u l=150000u
+X1 a_207_n42# a_159_64# a_111_n42# w_n397_n544# sky130_fd_pr__nfet_01v8 ad=1.302e+11p pd=1.46e+06u as=1.386e+11p ps=1.5e+06u w=420000u l=150000u
+X2 a_15_n42# a_n33_64# a_n81_n42# w_n397_n544# sky130_fd_pr__nfet_01v8 ad=1.386e+11p pd=1.5e+06u as=1.386e+11p ps=1.5e+06u w=420000u l=150000u
+X3 a_111_n42# a_63_n130# a_15_n42# w_n397_n544# sky130_fd_pr__nfet_01v8 ad=0p pd=0u as=0p ps=0u w=420000u l=150000u
+X4 a_n81_n42# a_n129_n130# a_n177_n42# w_n397_n544# sky130_fd_pr__nfet_01v8 ad=0p pd=0u as=1.386e+11p ps=1.5e+06u w=420000u l=150000u
+X5 a_n177_n42# a_n225_64# a_n269_n42# w_n397_n544# sky130_fd_pr__nfet_01v8 ad=0p pd=0u as=1.302e+11p ps=1.46e+06u w=420000u l=150000u
+X6 a_207_n344# a_159_n432# a_111_n344# w_n397_n544# sky130_fd_pr__nfet_01v8 ad=1.302e+11p pd=1.46e+06u as=1.386e+11p ps=1.5e+06u w=420000u l=150000u
+X7 a_n177_n344# a_n225_n432# a_n269_n344# w_n397_n544# sky130_fd_pr__nfet_01v8 ad=1.386e+11p pd=1.5e+06u as=1.302e+11p ps=1.46e+06u w=420000u l=150000u
+X8 a_207_260# a_159_172# a_111_260# w_n397_n544# sky130_fd_pr__nfet_01v8 ad=1.302e+11p pd=1.46e+06u as=1.386e+11p ps=1.5e+06u w=420000u l=150000u
+X9 a_111_n344# a_63_n238# a_15_n344# w_n397_n544# sky130_fd_pr__nfet_01v8 ad=0p pd=0u as=0p ps=0u w=420000u l=150000u
+X10 a_15_260# a_n33_172# a_n81_260# w_n397_n544# sky130_fd_pr__nfet_01v8 ad=1.386e+11p pd=1.5e+06u as=1.386e+11p ps=1.5e+06u w=420000u l=150000u
+X11 a_n81_260# a_n129_366# a_n177_260# w_n397_n544# sky130_fd_pr__nfet_01v8 ad=0p pd=0u as=1.386e+11p ps=1.5e+06u w=420000u l=150000u
+X12 a_111_260# a_63_366# a_15_260# w_n397_n544# sky130_fd_pr__nfet_01v8 ad=0p pd=0u as=0p ps=0u w=420000u l=150000u
+X13 a_n177_260# a_n225_172# a_n269_260# w_n397_n544# sky130_fd_pr__nfet_01v8 ad=0p pd=0u as=1.302e+11p ps=1.46e+06u w=420000u l=150000u
+X14 a_n81_n344# a_n129_n238# a_n177_n344# w_n397_n544# sky130_fd_pr__nfet_01v8 ad=0p pd=0u as=0p ps=0u w=420000u l=150000u
+.ends
+
+
+* Top level circuit nfet
+
+Xsky130_fd_pr__nfet_01v8_C8G9K4_0 VSUBS sky130_fd_pr__nfet_01v8_C8G9K4
+.end
+
