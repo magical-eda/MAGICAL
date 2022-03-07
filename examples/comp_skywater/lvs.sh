@@ -1,1 +1,1 @@
-klayout -b -rd input=COMPARATOR.route.gds -rd report=COMPARATOR.lyrdb -rd schematic=comp.sp.lvs -rd target_netlist=comp.cir -r ../skywaterPDK/sky130A.lylvs
+netgen -batch lvs "gds-extracted-COMPARATOR_flat.spice COMPARATOR_flat" "comp.lvs.spice COMPARATOR" ./../skywaterPDK/sky130A_setup.tcl
