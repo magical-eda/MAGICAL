@@ -21,7 +21,7 @@ class Params:
         self.simple_tech_file = "" # Input simple tech file
         self.techfile = ""
         self.lef = ""
-        self.gdsLayerMappingFile = "" # A file to translate the layer ID and datatype to another setting.
+        self.gdsLayerMappingFile = "../skywaterPDK/layermapping.layermapping" # A file to translate the layer ID and datatype to another setting.
                                         #Say comments in function translateGdsLayer() in Flow.py for its purpose
         self.vddNetNames = ["VDD", "vdd", "vdda", "vddd"]
         self.vssNetNames = ["VSS", "GND", "vss", "gnd", "vssa", "vssd"]

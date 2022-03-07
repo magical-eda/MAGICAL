@@ -21,7 +21,7 @@ RUN apt-get install -y \
     
 # Update openssl
 RUN apt-get remove -y openssl
-RUN wget https://www.openssl.org/source/openssl-1.1.1d.tar.gz \
+RUN wget --no-check-certificate https://www.openssl.org/source/openssl-1.1.1d.tar.gz \
         && tar -zxf openssl-1.1.1d.tar.gz && cd openssl-1.1.1d \
         && ./config && make && make install \
         && ln -s /usr/local/bin/openssl /usr/bin/openssl && ldconfig \
@@ -105,7 +105,7 @@ RUN git clone https://github.com/jayl940712/gdspy.git \
 
 # Upgrade boost
 RUN apt-get --purge remove -y libboost-dev libboost-all-dev
-RUN wget -O boost_1_62_0.tar.gz https://sourceforge.net/projects/boost/files/boost/1.62.0/boost_1_62_0.tar.gz/download \
+RUN wget --no-check-certificate -O boost_1_62_0.tar.gz https://sourceforge.net/projects/boost/files/boost/1.62.0/boost_1_62_0.tar.gz/download \
         && tar xzvf boost_1_62_0.tar.gz && cd boost_1_62_0/ \
         && ./bootstrap.sh --prefix=/usr/ \
         && ./b2 && ./b2 install

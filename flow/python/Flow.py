@@ -36,7 +36,7 @@ class Flow(object):
         print("runtime ", end - start)
         for pnr in self.pnrs:
             pnr.routeOnly()
-        self.translateGdsLayer(self.pnrs[-1].gdsFile, self.pnrs[-1].gdsFile+"_cor") # Some dirty issue about layer ID and datatype
+        self.translateGdsLayer(self.pnrs[-1].gdsFile, self.pnrs[-1].gdsTranslateFile) # Some dirty issue about layer ID and datatype
         return True
 
     def generateConstraints(self):
