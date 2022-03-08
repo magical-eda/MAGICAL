@@ -553,7 +553,7 @@ class Netlist_parser(object):
                     res.lr = self.get_value(inst.parameters['lr'], unit=1e-12)
                     res.wr = self.get_value(inst.parameters['wr'], unit=1e-12)
                     if 'segspace' not in inst.parameters.keys():
-                        inst.parameter['segspace'] = "0.33e-6"
+                        inst.parameters['segspace'] = "0.33e-6"
                     if 'series' in inst.parameters.keys():
                         res.series = True
                         res.segNum = self.get_value(inst.parameters['series'], unit=1)

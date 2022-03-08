@@ -1,23 +1,3 @@
-// Generated for: spectre
-// Generated on: May  3 15:01:57 2019
-// Design library name: 2019_Synthesizing_OTA_copy
-// Design cell name: Telescopic_Three_stage_flow
-// Design view name: schematic
-//simulator lang=spectre
-//global 0
-//include "/usr/local/packages/tsmc_40/pdk/tsmcN40/../models/spectre/toplevel.scs" section=top_tt
-
-// Library name: 2019_Synthesizing_OTA_copy
-// Cell name: Telescopic_Three_stage_flow
-// View name: schematic
-// terminal mapping: INM	= INM
-//                   INP	= INP
-//                   OUTM	= OUTM
-//                   OUTP	= OUTP
-//                   VBN1	= VBN1
-//                   VDD	= VDD
-//                   VREF	= VREF
-//                   VSS	= VSS
 topckt Telescopic_Three_stage_flow INM INP OUTM OUTP VBN1 VDD VREF VSS
 
 // nch Instance M60 = spectre device M60
@@ -110,22 +90,24 @@ M107 (VOP1 VBP1 net08 VDD) pch l=200n w=50u m=1 nf=10
 // pch Instance M108 = spectre device M108
 M108 (net08 VCMFB1 VDD VDD) pch l=800n w=40u m=1 nf=4
 
+        
+R8 (VCMFB2 VOM2) rpoly lr=10u wr=0.4u 
 
+R4 (VOP1 VCMFB1) rpoly lr=10u wr=0.4u para=2
+
+R9 (OUTP net056) rpoly lr=8u wr=0.4u 
+
+R6q (VCMFB1 VOM1) rpoly lr=10u wr=0.4u para=2
+
+R10 (net056 OUTM) rpoly lr=8u wr=0.4u 
+
+R7 (VOP2 VCMFB2) rpoly lr=10u wr=0.4u
 
 // nch_25ud18_mac Instance M12 = spectre device M12
 M12 (net4 INP net1 VSS) nch_lvt l=800n w=90u multi=1 nf=10 
 
 // nch_25ud18_mac Instance M2 = spectre device M2
 M2 (net2 INM net1 VSS) nch_lvt l=800n w=90u multi=1 nf=10
+
 ends Telescopic_Three_stage_flow
-//simulatorOptions options reltol=1e-3 vabstol=1e-6 iabstol=1e-12 temp=27 \
-//    tnom=27 scalem=1.0 scale=1.0 gmin=1e-12 rforce=1 maxnotes=5 maxwarns=5 \
-//    digits=5 cols=80 pivrel=1e-3 sensfile="../psf/sens.output" \
-//    checklimitdest=psf 
-//modelParameter info what=models where=rawfile
-//element info what=inst where=rawfile
-//outputParameter info what=output where=rawfile
-//designParamVals info what=parameters where=rawfile
-//primitives info what=primitives where=rawfile
-//subckts info what=subckts where=rawfile
-//saveOptions options save=allpub
+
