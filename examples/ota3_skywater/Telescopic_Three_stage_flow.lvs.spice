@@ -1,0 +1,48 @@
+.subckt Telescopic_Three_stage_flow INM INP OUTM OUTP VBN1 VDD VREF VSS
+
+X60 net057 net056 net058 VSS sky130_fd_pr__nfet_01v8 l=2e+5u w=8.8e+06u 
+X105 net058 VBN VSS VSS sky130_fd_pr__nfet_01v8 l=4e+5u w=88e+06u
+X93 VCMFB3 VREF net058 VSS sky130_fd_pr__nfet_01v8 l=2e+5u w=8.8e+06u
+X110 VOM2 VCMFB2 VSS VSS sky130_fd_pr__nfet_01v8 l=4e+5u w=20e+06u
+X75 VOP2 VCMFB2 VSS VSS sky130_fd_pr__nfet_01v8 l=4e+5u w=20e+06u
+X97 VBP VBN VSS VSS sky130_fd_pr__nfet_01v8 l=4e+5u w=44e+06u
+X24 VBN1 VBN1 VBN VSS sky130_fd_pr__nfet_01v8 l=1e+6u w=60e+06u
+X96 VBP1 VBN VSS VSS sky130_fd_pr__nfet_01v8 l=4e+5u w=44e+06u
+X21 VBN VBN VSS VSS sky130_fd_pr__nfet_01v8 l=4e+5u w=44e+06u
+X113 OUTP VOM2 VSS VSS sky130_fd_pr__nfet_01v8 l=4e+5u w=40e+06u
+X13 OUTM VOP2 VSS VSS sky130_fd_pr__nfet_01v8 l=4e+5u w=40e+06u
+X102 VOM2 VBN VSS VSS sky130_fd_pr__nfet_01v8 l=4e+5u w=44e+06u
+X18 VOP2 VBN VSS VSS sky130_fd_pr__nfet_01v8 l=4e+5u w=44e+06u
+X106 VOP1 VBN1 net2 VSS sky130_fd_pr__nfet_01v8 l=2e+5u w=60e+06u
+X4 net1 VBN VSS VSS sky130_fd_pr__nfet_01v8 l=4e+5u w=308e+06u
+X3 VOM1 VBN1 net4 VSS sky130_fd_pr__nfet_01v8 l=2e+5u w=60e+06u
+X63 net057 net057 VDD VDD sky130_fd_pr__pfet_01v8 l=2e+5u w=10e+06u
+X112 OUTP VCMFB3 VDD VDD sky130_fd_pr__pfet_01v8 l=8e+5u w=220e+06u
+X73 OUTM VCMFB3 VDD VDD sky130_fd_pr__pfet_01v8 l=8e+5u w=220e+06u
+X114 VCMFB3 net057 VDD VDD sky130_fd_pr__pfet_01v8 l=2e+5u w=10e+06u
+X26 VBP1 VBP1 VDD VDD sky130_fd_pr__pfet_01v8 l=1.6e+6u w=50e+06u
+X90 VBP VBP VDD VDD sky130_fd_pr__pfet_01v8 l=8e+5u w=40e+06u
+X111 OUTP VBP VDD VDD sky130_fd_pr__pfet_01v8 l=8e+5u w=200e+06u
+X14 OUTM VBP VDD VDD sky130_fd_pr__pfet_01v8 l=8e+5u w=200e+06u
+X109 VOM2 VOP1 VDD VDD sky130_fd_pr__pfet_01v8 l=4e+5u w=200e+06u
+X9 VOP2 VOM1 VDD VDD sky130_fd_pr__pfet_01v8 l=4e+5u w=200e+06u
+X7 net07 VCMFB1 VDD VDD sky130_fd_pr__pfet_01v8 l=8e+5u w=40e+06u
+X6 VOM1 VBP1 net07 VDD sky130_fd_pr__pfet_01v8 l=2e+5u w=50e+06u
+X107 VOP1 VBP1 net08 VDD sky130_fd_pr__pfet_01v8 l=2e+5u w=50e+06u
+X108 net08 VCMFB1 VDD VDD sky130_fd_pr__pfet_01v8 l=8e+5u w=40e+06u
+XC7 VOP1 OUTM sky130_fd_pr__cap_mim_m3_1 l=6e+06u w=6e+06u 
+XC6 VOM1 OUTP sky130_fd_pr__cap_mim_m3_1 l=6e+06u w=6e+06u 
+XC5 VOM2 OUTM sky130_fd_pr__cap_mim_m3_1 l=8e+06u w=8e+06u 
+XC1 VOM2 OUTP sky130_fd_pr__cap_mim_m3_1 l=8e+06u w=8e+06u
+R8 VCMFB2 VOM2 sky130_fd_pr__res_generic_po l=10e+06u w=0.4e+06u 
+R7 VCMFB2 VOP2 sky130_fd_pr__res_generic_po l=10e+06u w=0.4e+06u
+R4_0 VCMFB1 VOP1 sky130_fd_pr__res_generic_po l=10e+06u w=0.4e+06u 
+R4_1 VCMFB1 VOP1 sky130_fd_pr__res_generic_po l=10e+06u w=0.4e+06u 
+R6q_0 VCMFB1 VOM1 sky130_fd_pr__res_generic_po l=10e+06u w=0.4e+06u 
+R6q_1 VCMFB1 VOM1 sky130_fd_pr__res_generic_po l=10e+06u w=0.4e+06u 
+R9 net056 OUTP sky130_fd_pr__res_generic_po l=8e+06u w=0.4e+06u
+R10 net056 OUTM sky130_fd_pr__res_generic_po l=8e+06u w=0.4e+06u 
+X12 net4 INP net1 VSS sky130_fd_pr__nfet_01v8_lvt l=8e+5u w=90e+06u
+X2 net2 INM net1 VSS sky130_fd_pr__nfet_01v8_lvt l=8e+5u w=90e+06u
+.ends 
+
