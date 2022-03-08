@@ -9,11 +9,11 @@ import magicalFlow
 import pyparsing as _p
 
 
-nmos_set = {"nmos", "nch", "nch_na", "nch_mac", "nch_lvt", "nch_lvt_mac", "nch_25_mac", "nch_na25_mac", "nch_hvt_mac", "nch_25ud18_mac"}
-pmos_set = {"pmos", "pch", "pch_mac", "pch_lvt", "pch_lvt_mac", "pch_25_mac", "pch_na25_mac", "pch_hvt_mac", "pch_25ud18_mac", "pch_hvt"}
-capacitor_set = {"cfmom", "cfmom_2t"}
-resistor_set = {"rppoly", "rppoly_m", "rppolywo_m", "rppolywo"}
-unsupported_set = {"rppolyl", "crtmom", "crtmom_2t"}
+nmos_set = {"nmos", "nmos_lvt", "nch", "nch_lvt"}
+pmos_set = {"pmos", "pmos_lvt", "pmos_hvt", "pch", "pch_lvt", "pch_hvt"}
+capacitor_set = {"cap"}
+resistor_set = {"rpoly"}
+unsupported_set = {}
 mos_set = nmos_set.union(pmos_set)
 pas_set = capacitor_set.union(resistor_set)
 
@@ -552,6 +552,8 @@ class Netlist_parser(object):
                     res = self.db.phyPropDB().resistor(resId)
                     res.lr = self.get_value(inst.parameters['lr'], unit=1e-12)
                     res.wr = self.get_value(inst.parameters['wr'], unit=1e-12)
+                    if 'segspace' not in inst.parameters.keys():
+                        inst.parameter['segspace'] = "0.33e-6"
                     if 'series' in inst.parameters.keys():
                         res.series = True
                         res.segNum = self.get_value(inst.parameters['series'], unit=1)
@@ -562,7 +564,7 @@ class Netlist_parser(object):
                         res.segSpace = self.get_value(inst.parameters['segspace'], unit=1e-12)
                     else:
                         res.segNum = 1
-                        res.segSpace = self.get_value('0.18e-6', unit=1e-12)
+                        res.segSpace = self.get_value('0.33e-6', unit=1e-12)
                     res.attr = inst.reference
                     self.db.subCkt(subckt_idx).implIdx = resId
                     self.db.subCkt(subckt_idx).implType = magicalFlow.ImplTypePCELL_Res
@@ -570,12 +572,12 @@ class Netlist_parser(object):
                     capId = self.db.phyPropDB().allocateCap()
                     cap = self.db.phyPropDB().capacitor(capId)
                     cap.w = self.get_value(inst.parameters['w'], unit=1e-12)
-                    cap.spacing = self.get_value(inst.parameters['s'], unit=1e-12)
-                    cap.numFingers = self.get_value(inst.parameters['nr'], unit=1)
-                    cap.lr = self.get_value(inst.parameters['lr'], unit=1e-12)
+                    cap.spacing = 0
+                    cap.numFingers = 1
+                    cap.lr = self.get_value(inst.parameters['l'], unit=1e-12)
                     cap.stm = self.get_value(inst.parameters['stm'], unit=1)
-                    cap.spm = self.get_value(inst.parameters['spm'], unit=1)
-                    cap.ftip = self.get_value(inst.parameters['ftip'], unit=1e-12)
+                    cap.spm = cap.stm + 1
+                    cap.ftip = 0
                     cap.attr = inst.reference
                     if 'multi' in inst.parameters.keys():
                         cap.multi = self.get_value(inst.parameters['multi'], unit=1)

@@ -1,1 +1,2 @@
-klayout -b -rd input=Core_test_flow.route.gds -rd report=Core_test_flow.lyrdb -rd schematic=ota1.sp.lvs -rd target_netlist=ota1.cir -r ../skywaterPDK/sky130A.lylvs
+source ./../skywaterPDK/extract.sh Core_test_flow_flat.gds
+netgen -batch lvs "gds-extracted-Core_test_flow_flat.spice Core_test_flow_flat" "ota1.lvs.spice Core_test_flow" ./../skywaterPDK/sky130A_setup.tcl

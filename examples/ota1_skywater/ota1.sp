@@ -37,6 +37,9 @@ MP1a (intm VBIAS_P VDD VDD) pch l=240.0n w=40u m=1 nf=20
 // pch Instance MP1b = spectre device MP1b
 MP1b (intp VBIAS_P VDD VDD) pch l=240.0n w=40u m=1 nf=20 
 
+C1 (net037 OUTM) cap l=5u w=5u stm=3
+
+C0 (net047 OUTP) cap l=5u w=5u stm=3
 
 // nch_lvt Instance M10 = spectre device M10
 M10 (net7 vbias_n VSS VSS) nch_lvt l=240.0n w=32.0u m=1 nf=16 

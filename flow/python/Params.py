@@ -33,13 +33,13 @@ class Params:
         self.smallModuleAreaThreshold = 600 # um^2
         # [um in length, um in width]
         self.signalAnalogWireWidthTable = \
-        [ [0, 0.33],  [120, 0.66]]
+        [ [0, 0.4],  [120, 0.8]]
         self.signalDigitalWireWidthTable = \
-        [ [0, 0.33],  [100, 0.66]]
+        [ [0, 0.4],  [100, 0.8]]
         self.powerWireWidthTable = \
-        [[0, 0.33]]
+        [[0, 0.4]]
         self.dpowerWireWidthTable = \
-        [[0, 0.33]]
+        [[0, 0.4]]
         # via  [um in length, # of cuts, # of rols, # of cols]
         self.signalAnalogViaCutsTable = \
         [[0, 1, 1, 1], [800, 4, 2, 2], [1200, 9, 3, 3]]
@@ -50,9 +50,9 @@ class Params:
         # Additional spacing
         # increase module spacing by area [um^2, um]
         self.blockSpacingFromAreaTableX = \
-        [[0.0, 0.66], [100, 2.64]]
+        [[0.0, 0.8], [100, 3.2]]
         self.blockSpacingFromAreaTableY = \
-        [[0.0, 0.66], [100, 1.32]]
+        [[0.0, 0.8], [100, 1.6]]
 
     def printWelcome(self):
         """

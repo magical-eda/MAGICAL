@@ -32,7 +32,9 @@ VIA8			58
 VIA9			59
 TECHDB          63
 VTHL            67
-VTH            68
+VTH             68
+CAP             89
+PR              105
 RPDMY           115
 RH              117
 MRDMY           150
