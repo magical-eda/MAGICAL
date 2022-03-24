@@ -115,3 +115,26 @@ RUN mkdir install && cd install && git clone https://github.com/magical-eda/MAGI
         && cd MAGICAL && git checkout skywater \
         && git submodule init && git submodule update \
         && ./build.sh
+
+# Install klayout
+RUN apt install -y libqt4-dev-bin libqt4-dev
+RUN apt install -y ruby ruby-dev python3 python3-dev
+RUN wget --no-check-certificate https://www.klayout.org/downloads/source/klayout-0.27.8.tar.gz \
+        && tar -xf klayout-0.27.8.tar.gz \
+        && rm -rf klayout-0.27.8.tar.gz \
+        && cd klayout-0.27.8 \
+        && ./build.sh -j10 -bin /usr/bin/
+
+# Install magic
+RUN apt install -y tcl-dev tk-dev
+RUN git clone git://opencircuitdesign.com/magic \
+        && cd magic \
+        && ./configure \
+        && make && make install 
+
+# Install netgen
+RUN git clone git://opencircuitdesign.com/netgen \
+        && cd netgen \
+        && ./configure \ 
+        && make && make install
+ENV PDK_ROOT=/MAGICAL/examples/skywaterPDK/pdks/

@@ -1,0 +1,21 @@
+magic
+tech sky130A
+timestamp 1625444453
+<< obsactive >>
+rect 145 1095 355 25605
+tri 355 1095 545 1285 sw
+tri 145 695 545 1095 ne
+tri 545 695 945 1095 sw
+tri 545 345 895 695 ne
+rect 895 355 945 695
+tri 945 355 1285 695 sw
+rect 895 345 25600 355
+tri 895 145 1095 345 ne
+rect 1095 145 25600 345
+<< locali >>
+rect 100 100 500 500
+<< metal1 >>
+rect 275 325 325 420
+rect 180 275 420 325
+rect 275 180 325 275
+<< end >>
