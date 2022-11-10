@@ -35,6 +35,8 @@ endif(NOT CMAKE_CXX_ABI)
 message(STATUS "CMAKE_CXX_ABI: _GLIBCXX_USE_CXX11_ABI=${CMAKE_CXX_ABI}")
 add_definitions(-D_GLIBCXX_USE_CXX11_ABI=${CMAKE_CXX_ABI})
 
+#find zlib
+find_library(ZLIB z)
 
 # Find the directory for LIMBO. If cache variable LIMBO_DIR is defined, use it as the path to LIMBO, otherwise use the system LIMBO_DIR
 if (LIMBO_DIR)
@@ -171,7 +173,7 @@ file(GLOB PY_API_SOURCES src/api/*.cpp ${SOURCES})
 
 # Add modules to pybind
 pybind11_add_module(${PROJECT_NAME} ${PY_API_SOURCES})
-target_link_libraries(${PROJECT_NAME} PUBLIC ${LIMBO_LIB} ${Boost_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} PUBLIC ${LIMBO_LIB} ${Boost_LIBRARIES} z)
 
 #Unit Tests using GoogleTest
 #enable_testing()
