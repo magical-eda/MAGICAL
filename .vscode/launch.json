@@ -1,0 +1,44 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Comp",
+            "type": "debugpy",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/examples/comp",
+            "program": "${workspaceFolder}/flow/python/Magical.py",
+            "args": [
+                "comp.json"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "ADC1",
+            "type": "debugpy",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/examples/adc1",
+            "program": "${workspaceFolder}/flow/python/Magical.py",
+            "args": [
+                "adc1.json"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "NOT",
+            "type": "debugpy",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/examples/not",
+            "program": "${workspaceFolder}/flow/python/Magical.py",
+            "args": [
+                "not.json"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        }
+    ]
+}
