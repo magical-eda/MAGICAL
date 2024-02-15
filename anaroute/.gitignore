@@ -1,0 +1,15 @@
+bin/anaroute
+bin/out
+bin/k.sh
+bin/run.sh
+bin/run_iccad20.sh
+bin/ARouter
+build/
+bench/
+bench_new/
+bench_grid/
+bench_iccad20/
+tags
+.ycm_extra_conf.py
+bin/*.gds
+bench_manual/
