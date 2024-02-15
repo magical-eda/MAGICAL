@@ -1,0 +1,1 @@
+FROM jayl940712/magical:latest
