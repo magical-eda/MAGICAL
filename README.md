@@ -11,6 +11,8 @@ Launch.json contains some debug setups. If you want to run the debugger, just pr
 If python can't find the magicalflow library, make sure you're using the below as your python install
 `/usr/local/bin/python3`
 
+If you're running the debugger for the first time, you might have some errors about a missing gds folder. Just create a new gds folder underneath the example directory (for example, just create a new gds folder underneath /examples/adc1)
+
 # MAGICAL #
 
 MAGICAL: Machine Generated Analog IC Layout
