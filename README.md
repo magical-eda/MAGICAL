@@ -1,3 +1,11 @@
+# Setup Guide #
+
+Open this repository in codespaces. .devcontainer contains configurations to automatically build the docker container.
+
+When adding new features, create a new branch and make a pull request.
+
+Launch.json contains some debug setups. If you want to run the debugger, just press Ctrl+P or the top search bar, and type "debug COMP/NOT/ADC1" etc
+
 # MAGICAL #
 
 MAGICAL: Machine Generated Analog IC Layout
