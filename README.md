@@ -6,6 +6,11 @@ When adding new features, create a new branch and make a pull request.
 
 Launch.json contains some debug setups. If you want to run the debugger, just press Ctrl+P or the top search bar, and type "debug COMP/NOT/ADC1" etc
 
+## Weird Things ##
+
+If python can't find the magicalflow library, make sure you're using the below as your python install
+`/usr/local/bin/python3`
+
 # MAGICAL #
 
 MAGICAL: Machine Generated Analog IC Layout
